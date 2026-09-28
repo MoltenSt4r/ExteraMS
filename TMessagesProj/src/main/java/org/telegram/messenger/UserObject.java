@@ -164,7 +164,7 @@ public class UserObject {
         if (local != null && local != 0) {
             return local;
         }
-        return AvatarStatusHelper.getDocumentId(user.id);
+        return null;
     }
 
     public static Long getEmojiStatusDocumentId(TLRPC.EmojiStatus emojiStatus) {

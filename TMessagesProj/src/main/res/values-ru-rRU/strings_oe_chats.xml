@@ -135,9 +135,4 @@
     <string name="SendLockedCustomEmojiAsStickerInfo">Без Premium премиум-эмодзи отправляются обычными стикерами. Поддерживаются только эмодзи WebP и WebM.</string>
     <string name="SendCustomEmojiWithoutPremium">Кастомные эмодзи без Premium</string>
     <string name="SendCustomEmojiWithoutPremiumInfo">Отправка премиум-эмодзи ссылками (tg://emoji?id=...). Пользователи форка и exteragram увидят их анимированными.</string>
-    <string name="CustomEmojiStatusThroughAvatar">Эмодзи-статусы для ExteraMS</string>
-    <string name="CustomEmojiStatusThroughAvatarInfo">Вшивает код эмодзи-статуса в пиксели аватарки, чтобы другие пользователи ExteraMS видели ваш статус без подписки Telegram Premium.</string>
-    <string name="PickCustomEmojiStatus">Выбрать эмодзи-статус</string>
-    <string name="PickCustomEmojiStatusInfo">Выбрать анимированный эмодзи для отображения на аватарке и в профиле.</string>
-    <string name="EmojiStatusUpdated">Эмодзи-статус обновлен</string>
 </resources>

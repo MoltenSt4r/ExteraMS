@@ -29,10 +29,8 @@ import androidx.core.content.FileProvider;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.AvatarStatusHelper;
 import org.telegram.messenger.BuildVars;
-import org.telegram.messenger.UserObject;
-import xyz.nextalone.nagram.NaConfig;
+
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.ImageLoader;
@@ -885,13 +883,6 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
         convertingVideo = null;
         videoPath = null;
         vectorMarkup = avatarObject == null ? null : avatarObject.emojiMarkup;
-        if (type == FOR_TYPE_USER && NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar().Bool()) {
-            TLRPC.User currentUser = UserConfig.getInstance(currentAccount).getCurrentUser();
-            Long currentDocId = UserObject.getEmojiStatusDocumentId(currentUser);
-            if (currentDocId != null && currentDocId != 0L) {
-                bitmap = AvatarStatusHelper.embedStatus(bitmap, currentDocId);
-            }
-        }
         bigPhoto = ImageLoader.scaleAndSaveImage(bitmap, 800, 800, 80, false, 320, 320);
         smallPhoto = ImageLoader.scaleAndSaveImage(bitmap, 150, 150, 80, false, 150, 150);
         if (smallPhoto != null) {

@@ -1106,7 +1106,7 @@ public class DrawerContainer extends FrameLayout implements NotificationCenter.N
         }
         final int account = UserConfig.selectedAccount;
         final TLRPC.User user = UserConfig.getInstance(account).getCurrentUser();
-        if (user == null) {
+        if (user == null || !MessagesController.getInstance(account).isPremiumUser(user)) {
             return;
         }
         final SimpleTextView nameView = headerView.getNameView();

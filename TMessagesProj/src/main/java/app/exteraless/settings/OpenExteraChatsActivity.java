@@ -39,10 +39,6 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SeekBarView;
 import org.telegram.ui.Stories.recorder.DualCameraView;
 import org.telegram.ui.ThemeActivity;
-import org.telegram.ui.SelectAnimatedEmojiDialog;
-import org.telegram.ui.Components.BulletinFactory;
-import org.telegram.tgnet.TLRPC;
-import org.telegram.tgnet.tl.TL_stars;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,8 +130,6 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
     private int stickersHeaderRow;
     private int disableTrendingRow;
     private int customEmojiWithoutPremiumRow;
-    private int customEmojiStatusThroughAvatarRow;
-    private int pickCustomEmojiStatusRow;
     private int lockedEmojiAsStickerRow;
     private int unlimitedGroupRow;
     private int unlimitedStickersRow;
@@ -347,8 +341,6 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         stickersHeaderRow = addRow("stickersHeader");
         disableTrendingRow = addRow("disableTrending", "DisableTrending");
         customEmojiWithoutPremiumRow = addRow(NaConfig.INSTANCE.getCustomEmojiForNonPremium().getKey());
-        customEmojiStatusThroughAvatarRow = addRow(NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar().getKey());
-        pickCustomEmojiStatusRow = addRow("pickCustomEmojiStatus");
         lockedEmojiAsStickerRow = addRow(NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().getKey());
         unlimitedGroupRow = addRow("unlimited", "unlimitedRecentStickers");
         if (unlimitedExpanded) {
@@ -1269,98 +1261,6 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         showDialog(builder.create());
     }
 
-    private SelectAnimatedEmojiDialog.SelectAnimatedEmojiDialogWindow selectAnimatedEmojiDialog;
-
-    private void showStatusSelectDialog(View anchorView) {
-        if (selectAnimatedEmojiDialog != null || getParentActivity() == null) {
-            return;
-        }
-        final int account = currentAccount;
-        final TLRPC.User user = UserConfig.getInstance(account).getCurrentUser();
-        if (user == null) {
-            return;
-        }
-
-        final boolean down = anchorView != null && (anchorView.getTop() + anchorView.getHeight() > (listView != null ? listView.getMeasuredHeight() / 2f : AndroidUtilities.displaySize.y / 2f));
-        final int popupHeight = (int) Math.min(AndroidUtilities.dp(410 - 16 - 64), AndroidUtilities.displaySize.y * .75f);
-        int yoff = 0;
-        if (anchorView != null) {
-            if (down) {
-                yoff = -anchorView.getHeight() / 2 + AndroidUtilities.dp(12) - popupHeight;
-            } else {
-                yoff = -AndroidUtilities.dp(8);
-            }
-        }
-
-        int type = down ? SelectAnimatedEmojiDialog.TYPE_EMOJI_STATUS_TOP : SelectAnimatedEmojiDialog.TYPE_EMOJI_STATUS;
-        final SelectAnimatedEmojiDialog.SelectAnimatedEmojiDialogWindow[] popup = new SelectAnimatedEmojiDialog.SelectAnimatedEmojiDialogWindow[1];
-        SelectAnimatedEmojiDialog dialog = new SelectAnimatedEmojiDialog(this, getContext(), true, null, type, true, getResourceProvider(), down ? 24 : 16) {
-            @Override
-            protected void onEmojiSelected(View view, Long documentId, TLRPC.Document document,
-                                           TL_stars.TL_starGiftUnique gift, Integer until) {
-                final TLRPC.EmojiStatus status;
-                if (gift != null) {
-                    final TLRPC.TL_inputEmojiStatusCollectible collectible = new TLRPC.TL_inputEmojiStatusCollectible();
-                    collectible.collectible_id = gift.id;
-                    if (until != null) {
-                        collectible.flags |= 1;
-                        collectible.until = until;
-                    }
-                    status = collectible;
-                } else if (documentId == null) {
-                    status = new TLRPC.TL_emojiStatusEmpty();
-                } else {
-                    final TLRPC.TL_emojiStatus emojiStatus = new TLRPC.TL_emojiStatus();
-                    emojiStatus.document_id = documentId;
-                    if (until != null) {
-                        emojiStatus.flags |= 1;
-                        emojiStatus.until = until;
-                    }
-                    status = emojiStatus;
-                }
-                MessagesController.getInstance(account).updateEmojiStatus(0L, status, gift);
-                if (popup[0] != null) {
-                    selectAnimatedEmojiDialog = null;
-                    popup[0].dismiss();
-                }
-                BulletinFactory.of(OpenExteraChatsActivity.this).createSimpleBulletin(R.raw.done, LocaleController.getString(R.string.EmojiStatusUpdated)).show();
-            }
-        };
-        if (user.emoji_status != null && DialogObject.getEmojiStatusUntil(user.emoji_status) > 0) {
-            dialog.setExpireDateHint(DialogObject.getEmojiStatusUntil(user.emoji_status));
-        }
-        final long currentStatusId = DialogObject.getEmojiStatusDocumentId(user.emoji_status);
-        dialog.setSelected(currentStatusId != 0 ? Long.valueOf(currentStatusId) : null);
-        dialog.setSaveState(3);
-
-        final SelectAnimatedEmojiDialog.SelectAnimatedEmojiDialogWindow window =
-                new SelectAnimatedEmojiDialog.SelectAnimatedEmojiDialogWindow(dialog,
-                        LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT) {
-                    @Override
-                    public void dismiss() {
-                        super.dismiss();
-                        selectAnimatedEmojiDialog = null;
-                    }
-                };
-        selectAnimatedEmojiDialog = window;
-        popup[0] = window;
-        if (anchorView != null) {
-            int xoff = Math.max(0, (anchorView.getWidth() - AndroidUtilities.dp(340)) / 2);
-            popup[0].showAsDropDown(anchorView, xoff, yoff, Gravity.TOP | Gravity.LEFT);
-        } else {
-            popup[0].showAtLocation(fragmentView, Gravity.CENTER, 0, 0);
-        }
-        popup[0].dimBehind();
-    }
-
-    @Override
-    public void onFragmentDestroy() {
-        super.onFragmentDestroy();
-        if (selectAnimatedEmojiDialog != null) {
-            selectAnimatedEmojiDialog.dismiss();
-            selectAnimatedEmojiDialog = null;
-        }
-    }
 
     /**
      * «Безлимит недавних стикеров» из exteraGram — один тумблер поверх двух рабочих ключей
@@ -1534,9 +1434,6 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
             return;
         } else if (position == aiChatRow) {
             presentFragment(new app.exteraless.ai.ui.AiSettingsActivity());
-            return;
-        } else if (position == pickCustomEmojiStatusRow) {
-            showStatusSelectDialog(view);
             return;
         } else if (position == openLinkConfirmationRow) {
             showOptions(view, openLinkConfirmationOptions(), index -> {
@@ -1833,7 +1730,6 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         if (position == pauseRoundRow) return ChatsConfig.pauseOnMinimizeRound;
         if (position == disableTrendingRow) return NekoConfig.disableTrending;
         if (position == customEmojiWithoutPremiumRow) return NaConfig.INSTANCE.getCustomEmojiForNonPremium();
-        if (position == customEmojiStatusThroughAvatarRow) return NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar();
         if (position == lockedEmojiAsStickerRow) return NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker();
         if (position == deleteChatForBothSidesRow) return NaConfig.INSTANCE.getDeleteChatForBothSides();
         if (position == dateOfForwardedMsgRow) return NaConfig.INSTANCE.getDateOfForwardedMsg();
@@ -2463,10 +2359,6 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
                 cell.setTextAndValueAndCheck(getString(R.string.SendCustomEmojiWithoutPremium),
                         getString(R.string.SendCustomEmojiWithoutPremiumInfo),
                         NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool(), true, true);
-            } else if (position == customEmojiStatusThroughAvatarRow) {
-                cell.setTextAndValueAndCheck(getString(R.string.CustomEmojiStatusThroughAvatar),
-                        getString(R.string.CustomEmojiStatusThroughAvatarInfo),
-                        NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar().Bool(), true, true);
             } else if (position == lockedEmojiAsStickerRow) {
                 cell.setTextAndValueAndCheck(getString(R.string.SendLockedCustomEmojiAsSticker),
                         getString(R.string.SendLockedCustomEmojiAsStickerInfo),
@@ -2498,9 +2390,6 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
             } else if (position == chatSettingsRow) {
                 cell.setTextAndIcon(getString(R.string.OEChatsChatSettings), R.drawable.msg_discussion, false);
                 cell.setSubtitle(getString(R.string.OEChatsChatSettingsInfo));
-            } else if (position == pickCustomEmojiStatusRow) {
-                cell.setTextAndIcon(getString(R.string.PickCustomEmojiStatus), R.drawable.msg_smile_status, true);
-                cell.setSubtitle(getString(R.string.PickCustomEmojiStatusInfo));
             }
             // Обе строки двухстрочные: подпись под заголовком, высота 64,
             // отступ текста от иконки 60. Ставится после setTextAndIcon —
@@ -2594,7 +2483,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
             if (position == doubleTapReactionRow) return TYPE_SET_REACTION;
             if (isHeader(position)) return TYPE_HEADER;
             if (isDivider(position)) return TYPE_INFO_PRIVACY;
-            if (position == aiChatRow || position == chatSettingsRow || position == pickCustomEmojiStatusRow) return TYPE_TEXT;
+            if (position == aiChatRow || position == chatSettingsRow) return TYPE_TEXT;
             if (isGroupHeader(position)) return TYPE_EXPANDABLE_SWITCH;
             if (groupHeaderFor(position) != -1) return TYPE_ROUND_CHECK;
             if (isSettings(position)) return TYPE_SETTINGS;

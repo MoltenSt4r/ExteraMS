@@ -1233,12 +1233,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             true
         )
-    val customEmojiStatusThroughAvatar =
-        addConfig(
-            "CustomEmojiStatusThroughAvatar",
-            ConfigItem.configTypeBool,
-            true
-        )
     val premiumItemEmojiStatus =
         addConfig(
             "PremiumItemEmojiStatus",

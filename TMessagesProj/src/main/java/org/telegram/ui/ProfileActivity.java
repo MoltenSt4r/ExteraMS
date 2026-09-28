@@ -11996,7 +11996,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                             nameTextView[a].setRightDrawable(getEmojiStatusDrawable(user.emoji_status, true, true, a));
                         }
                         nameTextViewRightDrawableContentDescription = LocaleController.getString(R.string.AccDescrPremium);
-                    } else if (getMessagesController().isPremiumUser(user) || (user != null && user.self && xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar().Bool())) {
+                    } else if (getMessagesController().isPremiumUser(user)) {
                         rightIconIsStatus = false;
                         rightIconIsPremium = true;
                         nameTextView[a].setRightDrawable(getEmojiStatusDrawable(null, true, true, a));
@@ -12016,7 +12016,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (a == 1 && (rightIconIsStatus || rightIconIsPremium)) {
                     nameTextView[a].setRightDrawableOutside(true);
                 }
-                if (user.self && (getMessagesController().isPremiumUser(user) || xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar().Bool())) {
+                if (user.self && getMessagesController().isPremiumUser(user)) {
                     nameTextView[a].setRightDrawableOnClick(v -> {
                         showStatusSelect();
                     });
