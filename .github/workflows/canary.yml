@@ -83,10 +83,11 @@ jobs:
         run: |
           if [ -n "$RELEASE_KEYSTORE" ]; then
             echo "$RELEASE_KEYSTORE" | base64 -d > TMessagesProj/release.keystore
-            echo "signing key restored"
+            echo "signing key restored from secrets"
           else
-            echo "RELEASE_KEYSTORE не задан — сборка подпишется отладочным ключом"
+            echo "using repository release keystore"
           fi
+          ls -la TMessagesProj/release.keystore
       - name: Staging Build
         id: staging_build_step
         env:

@@ -1,14 +1,10 @@
 name: Publish Existing Build
 
 on:
-  push:
-    paths:
-      - '.github/workflows/publish-release.yml'
   workflow_dispatch:
     inputs:
       run_id:
         description: 'Run ID to publish'
-        default: '36397536358'
         required: true
 
 permissions:
@@ -22,7 +18,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Release
-          run-id: ${{ inputs.run_id || '36397536358' }}
+          run-id: ${{ inputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: apk_release
 
@@ -33,12 +29,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: test-build
-          name: ExteraMS Test Build
+          tag_name: v12.10.3
+          name: ExteraMS v12.10.3
+          make_latest: true
           body: |
-            Тестовая сборка ExteraMS:
-            - Заменён логотип на экране входа на ExteraMS без фона
-            - Добавлена векторная MD3 (Monet) тематическая иконка
-            - Обновлены адаптивные и стандартные иконки приложения
-            - Брендинг ExteraMS и имя пакета com.exterams.app
+            ### Релиз ExteraMS v12.10.3
+            - Официальный релиз ExteraMS на базе Telegram 12.10.3.
           files: apk_release/*.apk

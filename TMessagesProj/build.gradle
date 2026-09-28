@@ -233,6 +233,10 @@ android {
                 storePassword keystorePwd
                 keyAlias alias
                 keyPassword pwd
+                v1SigningEnabled true
+                v2SigningEnabled true
+                enableV3Signing = true
+                enableV4Signing = false
             }
         }
     }
@@ -277,7 +281,7 @@ android {
 androidComponents {
     onVariants(selector().all()) { variant ->
         variant.outputs.forEach { output ->
-            String gramName = 'exteraless'
+            String gramName = 'ExteraMS'
             String first = String.format('%s-v%s(%s)', gramName, verName, verCode)
             output.outputFileName.set(
                 output.outputFileName.get()

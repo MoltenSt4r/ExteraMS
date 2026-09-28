@@ -89,6 +89,8 @@ jobs:
             echo "using repository release keystore"
           fi
           ls -la TMessagesProj/release.keystore
+          echo "Verifying keystore:"
+          keytool -list -v -keystore TMessagesProj/release.keystore -storepass android || openssl pkcs12 -in TMessagesProj/release.keystore -passin pass:android -nodes | openssl x509 -text -noout
       - name: Release Build
         id: release_build_step
         env:
@@ -104,18 +106,55 @@ jobs:
           name: Release
           path: |
             TMessagesProj/build/outputs/apk/release/*.apk
-      - name: Create or Update GitHub Release
+      - name: Clean up legacy test builds
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const release = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: 'test-build'
+              });
+              if (release && release.data) {
+                console.log('Deleting test-build release ID:', release.data.id);
+                await github.rest.repos.deleteRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: release.data.id
+                });
+              }
+            } catch (e) {
+              console.log('No test-build release to delete');
+            }
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         if: ${{ success() }}
         with:
-          tag_name: test-build
-          name: ExteraMS Test Build
+          tag_name: v12.10.3
+          name: ExteraMS v12.10.3
+          make_latest: true
           body: |
-            Тестовая сборка ExteraMS:
-            - Исправлена асимметрия вкладок в нижнем меню (MD3) при скрытии контактов
-            - Поддержка кастомных премиум-эмодзи без премиума (отправка через tg://emoji?id= и отображение)
-            - Расширенная кастомизация Nothing Phone Glyph (отдельные анимации для сообщений, звонков и записи голосовых + матричные иконки)
-            - Официальный API ID Telegram X (для возможности входа по номеру телефона)
+            ### Релиз ExteraMS v12.10.3
+
+            **Брендинг и дизайн:**
+            - Новые иконки приложения: **ExteraMS MD3** (дефолтная адаптивная Monet-иконка без обрезки краев), **MoltenStar** (кремовый волнистый фон) и **ExteraMS Dotted**.
+            - Фирменная иконка отправки сообщений: самолётик ExteraMS с прозрачной звездой.
+            - Заголовок чатов по умолчанию: **ExteraMS**.
+            - Раздел «Благодарности» авторам форков и апстрим-проектов (exteraless, NagramX, materialgram).
+
+            **Премиум-возможности:**
+            - Бесплатный доступ ко всем премиум-иконкам лаунчера Telegram (Премиум, Турбо, Нокс).
+            - Поддержка отправки и отображения кастомных премиум-эмодзи и эмодзи-статусов без подписки Telegram Premium.
+
+            **Nothing Phone:**
+            - Расширенная интеграция Glyph: отдельные световые эффекты для сообщений, звонков и записи голосовых, матричные иконки.
+
+            **Исправления и цифровая подпись:**
+            - Официальный API ID Telegram X для стабильного входа по номеру телефона.
+            - Исправлено центрирование всплывающего меню док-кнопки по центру экрана.
+            - Исправлена асимметрия вкладок в нижнем меню при скрытии контактов.
+            - **Цифровая подпись:** чистый эталонный сертификат подписи, полная поддержка схем v1 (JAR) + v2 + v3, устранена блокировка со стороны Google Play Защиты.
           files: TMessagesProj/build/outputs/apk/release/*.apk
       - name: Send APK to Telegram
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && !contains(github.event.head_commit.message, '[skip publish]') }}
