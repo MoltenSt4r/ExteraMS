@@ -35,9 +35,6 @@ import org.telegram.ui.Components.LayoutHelper;
  */
 public class AboutHeaderCell extends LinearLayout {
 
-    /** Цвет подложки иконки приложения, Molten (#E53935). */
-    private static final int LOGO_BACKGROUND = 0xFFE53935;
-
     /** Путь формы логотипа. Считается один раз, сбрасывается при смене режима. */
     private Path shapePath;
 
@@ -62,9 +59,8 @@ public class AboutHeaderCell extends LinearLayout {
                 canvas.restore();
             }
         };
-        logo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        logo.setBackgroundColor(LOGO_BACKGROUND);
-        logo.setImageResource(R.drawable.exteraless_icon);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        logo.setImageResource(R.drawable.logomenu);
         logo.setOnLongClickListener(v -> {
             IconPacksConfig.toggleSystemIconShape();
             IconShapeHelper.invalidate();
