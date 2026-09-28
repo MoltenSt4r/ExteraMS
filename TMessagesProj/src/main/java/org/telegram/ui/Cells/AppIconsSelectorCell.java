@@ -344,13 +344,8 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
         }
 
         public void setAdaptiveIconMode(boolean adaptive) {
-            if (adaptive) {
-                outerPadding = AndroidUtilities.dp(2.5f);
-                backgroundOuterPadding = AndroidUtilities.dp(5);
-            } else {
-                outerPadding = AndroidUtilities.dp(5);
-                backgroundOuterPadding = AndroidUtilities.dp(42);
-            }
+            outerPadding = AndroidUtilities.dp(5);
+            backgroundOuterPadding = AndroidUtilities.dp(42);
         }
 
         @Override

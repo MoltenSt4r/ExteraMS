@@ -272,11 +272,6 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
     private int exteramsIconSelectorRow;
     private int exteramsIconShadowRow;
 
-    private int exteralessIconHeaderRow;
-    @Keep
-    private int exteralessIconSelectorRow;
-    private int exteralessIconShadowRow;
-
     private int telegramIconHeaderRow;
     @Keep
     private int telegramIconSelectorRow;
@@ -661,10 +656,6 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
         exteramsIconSelectorRow = -1;
         exteramsIconShadowRow = -1;
 
-        exteralessIconHeaderRow = -1;
-        exteralessIconSelectorRow = -1;
-        exteralessIconShadowRow = -1;
-
         telegramIconHeaderRow = -1;
         telegramIconSelectorRow = -1;
         telegramIconShadowRow = -1;
@@ -736,10 +727,6 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
             exteramsIconHeaderRow = rowCount++;
             exteramsIconSelectorRow = rowCount++;
             exteramsIconShadowRow = rowCount++;
-
-            exteralessIconHeaderRow = rowCount++;
-            exteralessIconSelectorRow = rowCount++;
-            exteralessIconShadowRow = rowCount++;
 
             telegramIconHeaderRow = rowCount++;
             telegramIconSelectorRow = rowCount++;
@@ -2141,7 +2128,6 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
         private final static int TYPE_SAVE_TO_GALLERY = 19;
         private final static int TYPE_APP_ICON = 20;
         private final static int TYPE_CHOOSE_COLOR = 21;
-        private final static int TYPE_APP_ICON_EXTERALESS = 22;
         private final static int TYPE_APP_ICON_TELEGRAM = 23;
 
         private Context mContext;
@@ -2161,7 +2147,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
             int type = holder.getItemViewType();
             return type == 0 || type == TYPE_TEXT_SETTING || type == TYPE_THEME_TYPE || type == TYPE_TEXT_CHECK ||
                     type == TYPE_NIGHT_THEME || type == TYPE_THEME_LIST || type == TYPE_THEME_ACCENT_LIST ||
-                    type == TYPE_TEXT_PREFERENCE || type == 18 || type == TYPE_APP_ICON || type == TYPE_APP_ICON_EXTERALESS || type == TYPE_APP_ICON_TELEGRAM || type == TYPE_CHOOSE_COLOR;
+                    type == TYPE_TEXT_PREFERENCE || type == 18 || type == TYPE_APP_ICON || type == TYPE_APP_ICON_TELEGRAM || type == TYPE_CHOOSE_COLOR;
         }
 
         private void showOptionsForTheme(Theme.ThemeInfo themeInfo) {
@@ -2539,9 +2525,6 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 case TYPE_APP_ICON:
                     view = new AppIconsSelectorCell(mContext, ThemeActivity.this, currentAccount, LauncherIconController.IconGroup.EXTERAMS);
                     break;
-                case TYPE_APP_ICON_EXTERALESS:
-                    view = new AppIconsSelectorCell(mContext, ThemeActivity.this, currentAccount, LauncherIconController.IconGroup.EXTERALESS);
-                    break;
                 case TYPE_APP_ICON_TELEGRAM:
                     view = new AppIconsSelectorCell(mContext, ThemeActivity.this, currentAccount, LauncherIconController.IconGroup.TELEGRAM);
                     break;
@@ -2667,8 +2650,6 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                         headerCell.setText(getString("SelectTheme", R.string.SelectTheme));
                     } else if (position == exteramsIconHeaderRow) {
                         headerCell.setText(getString(R.string.AppIconsExteraMS));
-                    } else if (position == exteralessIconHeaderRow) {
-                        headerCell.setText(getString(R.string.AppIconsExteraless));
                     } else if (position == telegramIconHeaderRow) {
                         headerCell.setText(getString(R.string.AppIconsTelegram));
                     } else if (position == otherHeaderRow) {
@@ -2833,7 +2814,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 return TYPE_TEXT_INFO_PRIVACY;
             } else if (position == themeInfoRow || position == nightTypeInfoRow || position == scheduleFromToInfoRow ||
                     position == settings2Row || position == newThemeInfoRow || position == chatListInfoRow || position == bubbleRadiusInfoRow ||
-                    position == saveToGallerySectionRow || position == exteramsIconShadowRow || position == exteralessIconShadowRow || position == telegramIconShadowRow || position == lastShadowRow || position == stickersSectionRow ||
+                    position == saveToGallerySectionRow || position == exteramsIconShadowRow || position == telegramIconShadowRow || position == lastShadowRow || position == stickersSectionRow ||
                     position == mediaSoundSectionRow || position == otherSectionRow) {
                 return TYPE_SHADOW;
             } else if (position == nightDisabledRow || position == nightScheduledRow || position == nightAutomaticRow || position == nightSystemDefaultRow) {
@@ -2841,7 +2822,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
             } else if (position == scheduleHeaderRow || position == automaticHeaderRow || position == preferedHeaderRow ||
                     position == settingsRow || position == themeHeaderRow || position == textSizeHeaderRow ||
                     position == chatListHeaderRow || position == bubbleRadiusHeaderRow || position == swipeGestureHeaderRow ||
-                    position == selectThemeHeaderRow || position == exteramsIconHeaderRow || position == exteralessIconHeaderRow || position == telegramIconHeaderRow || position == mediaSoundHeaderRow ||
+                    position == selectThemeHeaderRow || position == exteramsIconHeaderRow || position == telegramIconHeaderRow || position == mediaSoundHeaderRow ||
                     position == otherHeaderRow) {
                 return TYPE_HEADER;
             } else if (position == automaticBrightnessRow) {
@@ -2875,8 +2856,6 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 return TYPE_SAVE_TO_GALLERY;
             } else if (position == exteramsIconSelectorRow) {
                 return TYPE_APP_ICON;
-            } else if (position == exteralessIconSelectorRow) {
-                return TYPE_APP_ICON_EXTERALESS;
             } else if (position == telegramIconSelectorRow) {
                 return TYPE_APP_ICON_TELEGRAM;
             } else if (position == changeUserColor) {

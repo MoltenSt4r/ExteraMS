@@ -39,7 +39,6 @@ public class LauncherIconController {
 
     public enum IconGroup {
         EXTERAMS,
-        EXTERALESS,
         TELEGRAM
     }
 
@@ -53,20 +52,6 @@ public class LauncherIconController {
                 R.drawable.moltenstar_icon_foreground, R.string.AppIconMoltenStar, IconGroup.EXTERAMS),
         MOLTENSTAR_DOTTED("MoltenStarDottedIcon", R.drawable.moltenstar_dotted_icon_background,
                 R.drawable.moltenstar_dotted_icon_foreground, R.string.AppIconMoltenStarDotted, IconGroup.EXTERAMS),
-
-        // exteraless
-        EXTERALESS("ExteralessIcon", R.drawable.exteraless_icon_background,
-                R.drawable.exteraless_icon_foreground, R.string.AppIconExteraless, IconGroup.EXTERALESS),
-        BLUEPRINT("BlueprintIcon", R.drawable.blueprint_icon_background,
-                R.drawable.blueprint_icon_foreground, R.string.AppIconBlueprint, IconGroup.EXTERALESS),
-        RED("RedIcon", R.drawable.red_icon_background,
-                R.drawable.red_icon_foreground, R.string.AppIconRed, IconGroup.EXTERALESS),
-        NYA("NyaIcon", R.drawable.nya_icon_background,
-                R.drawable.nya_icon_foreground, R.string.AppIconNya, IconGroup.EXTERALESS),
-        AYU("AyuIcon", R.drawable.ayu_icon_background,
-                R.drawable.ayu_icon_foreground, R.string.AppIconAyu, IconGroup.EXTERALESS),
-        QUACK("QuackIcon", R.drawable.quack_icon_background,
-                R.drawable.quack_icon_foreground, R.string.AppIconQuack, IconGroup.EXTERALESS),
 
         // Telegram
         TELEGRAM("TelegramIcon", R.drawable.icon_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconTelegramOriginal, IconGroup.TELEGRAM),
