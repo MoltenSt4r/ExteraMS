@@ -80,12 +80,12 @@ public final class AvatarStatusHelper {
             int currentAccount = UserConfig.selectedAccount;
             TLRPC.User user = MessagesController.getInstance(currentAccount).getUser(userId);
             if (user == null || user.photo == null) return;
-            File f = FileLoader.getInstance(currentAccount).getPathToAttach(user.photo.photo_small, true);
+            File f = FileLoader.getInstance(currentAccount).getPathToAttach(user.photo.photo_big, true);
             if (f == null || !f.exists()) {
                 f = ImageReceiver.getAvatarLocalFile(currentAccount, user);
             }
             if (f == null || !f.exists()) {
-                f = FileLoader.getInstance(currentAccount).getPathToAttach(user.photo.photo_big, true);
+                f = FileLoader.getInstance(currentAccount).getPathToAttach(user.photo.photo_small, true);
             }
             if (f != null && f.exists()) {
                 Bitmap bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
@@ -101,7 +101,8 @@ public final class AvatarStatusHelper {
     }
 
     /**
-     * Встраивает document_id в нижний левый угол Bitmap (сетка 4x4, 13% ширины и высоты).
+     * Встраивает document_id в нижний левый край аватарки (16 пикселей вдоль нижней рамки, высота 2px).
+     * За пределами круглой маски аватара и незаметно глазу.
      */
     public static Bitmap embedStatus(Bitmap bitmap, long documentId) {
         if (bitmap == null || documentId == 0L) return bitmap;
@@ -130,35 +131,22 @@ public final class AvatarStatusHelper {
             symbols[i * 4 + 3] = b & 0x03;
         }
 
-        int gridW = Math.max(8, (int) (w * 0.13f));
-        int gridH = Math.max(8, (int) (h * 0.13f));
-        float cellW = gridW / 4.0f;
-        float cellH = gridH / 4.0f;
-
-        Canvas canvas = new Canvas(target);
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-
+        // 16 пикселей вдоль нижней рамки аватарки (высота 2px, ширина 16px).
+        // Полностью за пределами круглой маски аватара (срезается кругом) и незаметно глазу.
         for (int k = 0; k < 16; k++) {
             int r = symbols[k * 3] * 64 + 32;
             int g = symbols[k * 3 + 1] * 64 + 32;
             int b = symbols[k * 3 + 2] * 64 + 32;
-            paint.setColor(Color.rgb(r, g, b));
+            int color = Color.rgb(r, g, b);
 
-            int row = k / 4;
-            int col = k % 4;
-            float x0 = col * cellW;
-            float x1 = (col + 1) * cellW;
-            float y0 = h - gridH + row * cellH;
-            float y1 = h - gridH + (row + 1) * cellH;
-
-            canvas.drawRect(x0, y0, x1, y1, paint);
+            target.setPixel(k, h - 2, color);
+            target.setPixel(k, h - 1, color);
         }
         return target;
     }
 
     /**
-     * Очищает метку в нижнем левом углу, закрашивая её фоновым цветом соседних пикселей.
+     * Очищает метку на нижней рамке, восстанавливая фоновый цвет соседних пикселей.
      */
     public static Bitmap clearStatus(Bitmap bitmap) {
         if (bitmap == null) return null;
@@ -167,24 +155,17 @@ public final class AvatarStatusHelper {
         int h = target.getHeight();
         if (w < 20 || h < 20) return target;
 
-        int gridW = Math.max(8, (int) (w * 0.13f));
-        int gridH = Math.max(8, (int) (h * 0.13f));
-
-        int sampleX = Math.min(w - 1, gridW + 4);
-        int sampleY = Math.max(0, h - 4);
-        int sampleColor = target.getPixel(sampleX, sampleY);
-
-        Canvas canvas = new Canvas(target);
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(sampleColor);
-        canvas.drawRect(0, h - gridH, gridW, h, paint);
+        int sampleColor = target.getPixel(Math.min(w - 1, 16), Math.max(0, h - 1));
+        for (int k = 0; k < 16; k++) {
+            target.setPixel(k, h - 2, sampleColor);
+            target.setPixel(k, h - 1, sampleColor);
+        }
         return target;
     }
 
     /**
-     * Извлекает document_id из нижнего левого угла Bitmap.
-     * Если цвета не совпадают с кодом или контрольная сумма неверна, возвращает null.
+     * Извлекает document_id из нижнего левого края аватарки.
+     * Если контрольная сумма или заголовок не совпадают, возвращает null.
      */
     public static Long extractStatus(Bitmap bitmap) {
         if (bitmap == null) return null;
@@ -192,21 +173,21 @@ public final class AvatarStatusHelper {
         int h = bitmap.getHeight();
         if (w < 20 || h < 20) return null;
 
-        int gridW = Math.max(8, (int) (w * 0.13f));
-        int gridH = Math.max(8, (int) (h * 0.13f));
-        float cellW = gridW / 4.0f;
-        float cellH = gridH / 4.0f;
+        Long id = extractFromRow(bitmap, h - 1);
+        if (id != null) return id;
+        id = extractFromRow(bitmap, h - 2);
+        if (id != null) return id;
+
+        return null;
+    }
+
+    private static Long extractFromRow(Bitmap bitmap, int y) {
+        int w = bitmap.getWidth();
+        if (w < 16 || y < 0 || y >= bitmap.getHeight()) return null;
 
         int[] symbols = new int[48];
         for (int k = 0; k < 16; k++) {
-            int row = k / 4;
-            int col = k % 4;
-            int cx = Math.round((col + 0.5f) * cellW);
-            int cy = Math.round(h - gridH + (row + 0.5f) * cellH);
-            cx = Math.max(0, Math.min(w - 1, cx));
-            cy = Math.max(0, Math.min(h - 1, cy));
-
-            int pixel = bitmap.getPixel(cx, cy);
+            int pixel = bitmap.getPixel(k, y);
             int r = Color.red(pixel);
             int g = Color.green(pixel);
             int b = Color.blue(pixel);
@@ -235,22 +216,23 @@ public final class AvatarStatusHelper {
         }
 
         int checksum = payload[10] & 0xFF;
-        if ((sum & 0xFF) != checksum) {
-            return null;
-        }
-        if (docId == 0L) {
+        if ((sum & 0xFF) != checksum || docId == 0L) {
             return null;
         }
         return docId;
     }
 
+    private static Runnable pendingUploadRunnable;
+    private static long lastUploadTime = 0L;
+    private static final long MIN_UPLOAD_INTERVAL_MS = 45000L;
+    private static final long DEBOUNCE_DELAY_MS = 3500L;
+
     /**
-     * Синхронизирует выбранный эмодзи-статус с аватаркой текущего пользователя (встраивает код в фото).
+     * Синхронизирует выбранный эмодзи-статус с аватаркой текущего пользователя.
+     * Применяет статус локально МГНОВЕННО, а обновление на сервер отправляет с защитой от флуда
+     * (debounce 3.5 сек и интервал не чаще 1 раза в 45 сек), чтобы Telegram не сбрасывал сессию.
      */
     public static void syncEmojiStatusWithAvatar(int currentAccount, TLRPC.EmojiStatus status) {
-        if (!NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar().Bool()) {
-            return;
-        }
         long docId = 0L;
         if (status instanceof TLRPC.TL_emojiStatus) {
             docId = ((TLRPC.TL_emojiStatus) status).document_id;
@@ -259,20 +241,54 @@ public final class AvatarStatusHelper {
         }
         final long documentId = docId;
 
+        // 1. Всегда мгновенно применяем статус локально для себя
+        TLRPC.User currentUser = UserConfig.getInstance(currentAccount).getCurrentUser();
+        if (currentUser != null) {
+            setExtractedStatus(currentUser.id, documentId);
+        }
+
+        if (!NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar().Bool()) {
+            return;
+        }
+
+        // 2. Debounce: отменяем предыдущую попытку, если пользователь быстро переключает эмодзи
+        if (pendingUploadRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(pendingUploadRunnable);
+            pendingUploadRunnable = null;
+        }
+
+        pendingUploadRunnable = () -> {
+            pendingUploadRunnable = null;
+            long now = System.currentTimeMillis();
+            if (now - lastUploadTime < MIN_UPLOAD_INTERVAL_MS) {
+                long waitTime = MIN_UPLOAD_INTERVAL_MS - (now - lastUploadTime);
+                pendingUploadRunnable = () -> performAvatarSync(currentAccount, documentId);
+                AndroidUtilities.runOnUIThread(pendingUploadRunnable, waitTime);
+                return;
+            }
+            performAvatarSync(currentAccount, documentId);
+        };
+        AndroidUtilities.runOnUIThread(pendingUploadRunnable, DEBOUNCE_DELAY_MS);
+    }
+
+    private static void performAvatarSync(int currentAccount, long documentId) {
         Utilities.globalQueue.postRunnable(() -> {
             try {
                 TLRPC.User user = UserConfig.getInstance(currentAccount).getCurrentUser();
                 if (user == null || user.photo == null) {
                     return;
                 }
+                // Загружаем исключительно полноразмерное фото высокого разрешения (photo_big).
+                // Никаких низкокачественных миниатюр (photo_small)!
                 File avatarFile = FileLoader.getInstance(currentAccount).getPathToAttach(user.photo.photo_big, true);
-                if (avatarFile == null || !avatarFile.exists()) {
-                    avatarFile = FileLoader.getInstance(currentAccount).getPathToAttach(user.photo.photo_small, true);
-                }
                 if (avatarFile == null || !avatarFile.exists()) {
                     avatarFile = ImageReceiver.getAvatarLocalFile(currentAccount, user);
                 }
                 if (avatarFile == null || !avatarFile.exists()) {
+                    FileLoader.getInstance(currentAccount).loadFile(
+                        ImageLocation.getForUserOrChat(user, ImageLocation.TYPE_BIG),
+                        user, null, FileLoader.PRIORITY_HIGH, 1
+                    );
                     return;
                 }
 
@@ -280,6 +296,13 @@ public final class AvatarStatusHelper {
                 if (original == null) {
                     return;
                 }
+                // Защита: если изображение меньше 300x300, не обновляем, чтобы не заменять аватар миниатюрой
+                if (original.getWidth() < 300 || original.getHeight() < 300) {
+                    original.recycle();
+                    FileLog.e("AvatarStatusHelper: aborted avatar update because image is too small (" + original.getWidth() + "x" + original.getHeight() + ")");
+                    return;
+                }
+
                 Bitmap mutable = original.copy(Bitmap.Config.ARGB_8888, true);
                 original.recycle();
 
@@ -292,10 +315,12 @@ public final class AvatarStatusHelper {
                 File cacheDir = FileLoader.getDirectory(FileLoader.MEDIA_DIR_CACHE);
                 File uploadFile = new File(cacheDir, "avatar_status_" + System.currentTimeMillis() + ".jpg");
                 try (FileOutputStream fos = new FileOutputStream(uploadFile)) {
-                    mutable.compress(Bitmap.CompressFormat.JPEG, 87, fos);
+                    // 100% максимальное качество JPEG — никакого ухудшения исходной картинки
+                    mutable.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                 }
                 mutable.recycle();
 
+                lastUploadTime = System.currentTimeMillis();
                 AndroidUtilities.runOnUIThread(() -> uploadNewAvatar(currentAccount, uploadFile));
             } catch (Throwable t) {
                 FileLog.e(t);
