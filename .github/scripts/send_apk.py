@@ -7,7 +7,7 @@ from pyrogram import Client
 
 APK_GLOB = "TMessagesProj/build/outputs/apk/release/*.apk"
 CAPTION_LIMIT = 1024
-TITLE = "New CI Build!"
+TITLE = "ExteraMS v12.10.3"
 
 
 def commits():
