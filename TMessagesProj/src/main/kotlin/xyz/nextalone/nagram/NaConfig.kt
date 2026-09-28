@@ -1227,6 +1227,12 @@ object NaConfig {
             ConfigItem.configTypeBool,
             true
         )
+    val customEmojiForNonPremium =
+        addConfig(
+            "CustomEmojiForNonPremium",
+            ConfigItem.configTypeBool,
+            true
+        )
     val premiumItemEmojiStatus =
         addConfig(
             "PremiumItemEmojiStatus",

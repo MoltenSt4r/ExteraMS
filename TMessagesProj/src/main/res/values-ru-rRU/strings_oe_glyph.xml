@@ -3,10 +3,22 @@
     <string name="OEGlyphTitle">Nothing Glyph</string>
     <string name="OEGlyphEnable">Glyph Interface</string>
     <string name="OEGlyphNewMessage">Вспышка при новых сообщениях</string>
+    <string name="OEGlyphNewMessageAnim">Анимация сообщений</string>
     <string name="OEGlyphCalls">Свечение при входящем звонке</string>
+    <string name="OEGlyphCallsAnim">Анимация звонка</string>
     <string name="OEGlyphRecording">Свечение при записи голосовых</string>
+    <string name="OEGlyphRecordingAnim">Анимация записи</string>
     <string name="OEGlyphScreenOff">Сообщения только при выключенном экране</string>
     <string name="OEGlyphPreview">Предпросмотр</string>
     <string name="OEGlyphUnsupported">Glyph Interface доступен только на Nothing Phone</string>
-    <string name="OEGlyphInfo">Подсветка задней панели Nothing Phone: вспышка на входящие сообщения, логотип ExteraMS на Glyph Matrix Phone (3) и «дыхание» во время записи голосовых или входящего звонка. Заглушённые чаты вспышку не вызывают.</string>
+    <string name="OEGlyphInfo">Подсветка задней панели Nothing Phone: настраиваемые анимации для сообщений, звонков и записи голосовых, а также отдельные иконки на Glyph Matrix.</string>
+
+    <string name="OEGlyphAnimDoubleFlash">Двойная вспышка</string>
+    <string name="OEGlyphAnimStrobe">Быстрый стробоскоп</string>
+    <string name="OEGlyphAnimSoftPulse">Мягкая вспышка</string>
+    <string name="OEGlyphAnimAccentRing">Акцентное кольцо</string>
+    <string name="OEGlyphAnimPulse">Энергичный пульс</string>
+    <string name="OEGlyphAnimWave">Бегущая волна</string>
+    <string name="OEGlyphAnimBreathing">Плавное дыхание</string>
+    <string name="OEGlyphAnimHeartbeat">Ритмичный пульс</string>
 </resources>

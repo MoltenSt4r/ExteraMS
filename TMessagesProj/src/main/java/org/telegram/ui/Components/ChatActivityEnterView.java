@@ -7297,6 +7297,9 @@ public class ChatActivityEnterView extends FrameLayout implements
         allowGifs = needGifs;
         if (emojiView != null) {
             emojiView.setAllow(allowStickers, allowGifs, true);
+            if (xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool()) {
+                emojiView.allowEmojisForNonPremium(true);
+            }
         }
         setEmojiButtonImage(false, !isPaused);
     }
@@ -11545,7 +11548,20 @@ public class ChatActivityEnterView extends FrameLayout implements
                         run.flags |= TextStyleSpan.FLAG_STYLE_UNDERLINE;
                         MediaDataController.addStyleToText(new TextStyleSpan(run), entity.offset, entity.offset + entity.length, stringBuilder, true);
                     } else if (entity instanceof TLRPC.TL_messageEntityTextUrl) {
-                        stringBuilder.setSpan(new URLSpanReplacement(entity.url), entity.offset, entity.offset + entity.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        if (entity.url != null && entity.url.startsWith("tg://emoji?id=")) {
+                            long docId = 0;
+                            try {
+                                docId = Long.parseLong(entity.url.substring("tg://emoji?id=".length()));
+                            } catch (Exception ignore) {}
+                            if (docId != 0) {
+                                AnimatedEmojiSpan span = new AnimatedEmojiSpan(docId, fontMetricsInt);
+                                stringBuilder.setSpan(span, entity.offset, entity.offset + entity.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            } else {
+                                stringBuilder.setSpan(new URLSpanReplacement(entity.url), entity.offset, entity.offset + entity.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                        } else {
+                            stringBuilder.setSpan(new URLSpanReplacement(entity.url), entity.offset, entity.offset + entity.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
                     } else if (entity instanceof TLRPC.TL_messageEntityFormattedDate) {
                         TLRPC.TL_messageEntityFormattedDate entityFormattedDate = (TLRPC.TL_messageEntityFormattedDate) entity;
                         TextStyleSpan.TextStyleRun run = new TextStyleSpan.TextStyleRun();
@@ -13168,6 +13184,9 @@ public class ChatActivityEnterView extends FrameLayout implements
             emojiView.updateColors();
         }
         emojiView.setAllow(allowStickers, allowGifs, true);
+        if (xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool()) {
+            emojiView.allowEmojisForNonPremium(true);
+        }
         emojiView.setVisibility(GONE);
         emojiView.setShowing(false);
         if (windowInsetsInAppController != null) {
@@ -13222,6 +13241,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             @Override
             public boolean allowNonPremiumCustomEmoji() {
                 return !UserConfig.getInstance(currentAccount).isPremium()
+                    && !xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool()
                     && NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool()
                     && dialog_id != UserConfig.getInstance(currentAccount).getClientUserId();
             }

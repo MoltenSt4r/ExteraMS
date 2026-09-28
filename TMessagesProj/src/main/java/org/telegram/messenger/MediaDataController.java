@@ -7124,17 +7124,29 @@ public class MediaDataController extends BaseController {
         }
         for (int i = 0; i < entities.size(); ++i) {
             TLRPC.MessageEntity messageEntity = entities.get(i);
+            long customEmojiId = 0;
+            TLRPC.Document customEmojiDoc = null;
             if (messageEntity instanceof TLRPC.TL_messageEntityCustomEmoji) {
                 TLRPC.TL_messageEntityCustomEmoji entity = (TLRPC.TL_messageEntityCustomEmoji) messageEntity;
-
+                customEmojiId = entity.document_id;
+                customEmojiDoc = entity.document;
+            } else if (messageEntity instanceof TLRPC.TL_messageEntityTextUrl) {
+                TLRPC.TL_messageEntityTextUrl entity = (TLRPC.TL_messageEntityTextUrl) messageEntity;
+                if (entity.url != null && entity.url.startsWith("tg://emoji?id=")) {
+                    try {
+                        customEmojiId = Long.parseLong(entity.url.substring("tg://emoji?id=".length()));
+                    } catch (Exception ignore) {}
+                }
+            }
+            if (customEmojiId != 0 || customEmojiDoc != null) {
                 int start = messageEntity.offset;
                 int end = messageEntity.offset + messageEntity.length;
                 if (start < end && end <= spannable.length()) {
                     AnimatedEmojiSpan span;
-                    if (entity.document != null) {
-                        span = new AnimatedEmojiSpan(entity.document, fontMetricsInt);
+                    if (customEmojiDoc != null) {
+                        span = new AnimatedEmojiSpan(customEmojiDoc, fontMetricsInt);
                     } else {
-                        span = new AnimatedEmojiSpan(entity.document_id, fontMetricsInt);
+                        span = new AnimatedEmojiSpan(customEmojiId, fontMetricsInt);
                     }
                     spannable.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
@@ -7162,7 +7174,7 @@ public class MediaDataController extends BaseController {
                 entity.length = text.length() - entity.offset;
             }
 
-            if (entity instanceof TLRPC.TL_messageEntityCustomEmoji) {
+            if (entity instanceof TLRPC.TL_messageEntityCustomEmoji || (entity instanceof TLRPC.TL_messageEntityTextUrl && ((TLRPC.TL_messageEntityTextUrl) entity).url != null && ((TLRPC.TL_messageEntityTextUrl) entity).url.startsWith("tg://emoji?id="))) {
                 continue;
             }
 
@@ -7455,12 +7467,20 @@ public class MediaDataController extends BaseController {
                     AnimatedEmojiSpan span = animatedEmojiSpans[b];
                     if (span != null) {
                         try {
-                            TLRPC.TL_messageEntityCustomEmoji entity = new TLRPC.TL_messageEntityCustomEmoji();
-                            entity.offset = spannable.getSpanStart(span);
-                            entity.length = Math.min(spannable.getSpanEnd(span), message[0].length()) - entity.offset;
-                            entity.document_id = span.getDocumentId();
-                            entity.document = span.document;
-                            entities.add(entity);
+                            if (getUserConfig().isPremium() || !xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool()) {
+                                TLRPC.TL_messageEntityCustomEmoji entity = new TLRPC.TL_messageEntityCustomEmoji();
+                                entity.offset = spannable.getSpanStart(span);
+                                entity.length = Math.min(spannable.getSpanEnd(span), message[0].length()) - entity.offset;
+                                entity.document_id = span.getDocumentId();
+                                entity.document = span.document;
+                                entities.add(entity);
+                            } else {
+                                TLRPC.TL_messageEntityTextUrl entity = new TLRPC.TL_messageEntityTextUrl();
+                                entity.offset = spannable.getSpanStart(span);
+                                entity.length = Math.min(spannable.getSpanEnd(span), message[0].length()) - entity.offset;
+                                entity.url = "tg://emoji?id=" + span.getDocumentId();
+                                entities.add(entity);
+                            }
                         } catch (Exception e) {
                             FileLog.e(e);
                         }

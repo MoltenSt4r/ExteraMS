@@ -135,4 +135,6 @@
     <string name="OEChatsHdrPhotosInfo">Show HDR photos at full brightness. Turn this off if photos look dark.</string>
     <string name="SendLockedCustomEmojiAsSticker">Premium Emoji as Stickers</string>
     <string name="SendLockedCustomEmojiAsStickerInfo">Without Premium, premium emoji are sent as regular stickers. Only WebP and WebM emoji are supported.</string>
+    <string name="SendCustomEmojiWithoutPremium">Custom emoji without Premium</string>
+    <string name="SendCustomEmojiWithoutPremiumInfo">Send premium emoji via deep links (tg://emoji?id=...). Rendered as animated emoji by ExteraMS and exteragram clients.</string>
 </resources>

@@ -155,41 +155,59 @@ public class MainTabsLayout extends AnimatedLinearLayout {
         final int tabPadding = dp(PASS_PADDINGS_DP[chosenPass]);
         final int maxTabTextWidthIfEq = (maxTotalWidthForTabs / Math.max(1, visibleChildCount)) - tabPadding * 2;
 
-        float totalWidth = 0;
-        int totalWeight = 0;
-        for (int a = 0, N = getChildCount(); a < N; a++) {
-            final View child = getChildAt(a);
-            if (!isViewVisible(child)) {
-                tabsTextWidth[a] = tabsTextWidthWithMargin[a] = 0;
-                tabsWeight[a] = 0;
-                continue;
+        if (fillWidth && visibleChildCount > 0) {
+            int remWidth = maxTotalWidthForTabs;
+            int remTabs = visibleChildCount;
+            for (int a = 0, N = getChildCount(); a < N; a++) {
+                final View child = getChildAt(a);
+                if (!isViewVisible(child)) {
+                    tabsTextWidth[a] = tabsTextWidthWithMargin[a] = 0;
+                    tabsWeight[a] = 0;
+                    continue;
+                }
+                int tabW = remWidth / remTabs;
+                tabsTextWidthWithMargin[a] = tabW;
+                tabsWeight[a] = 1;
+                remWidth -= tabW;
+                remTabs--;
+            }
+        } else {
+            float totalWidth = 0;
+            int totalWeight = 0;
+            for (int a = 0, N = getChildCount(); a < N; a++) {
+                final View child = getChildAt(a);
+                if (!isViewVisible(child)) {
+                    tabsTextWidth[a] = tabsTextWidthWithMargin[a] = 0;
+                    tabsWeight[a] = 0;
+                    continue;
+                }
+
+                tabsTextWidthWithMargin[a] = tabsTextWidth[a] + tabPadding * 2;
+                tabsWeight[a] = tabsTextWidthWithMargin[a] > (maxTabTextWidthIfEq + tabPadding * 2) ? 0 : 1;
+
+                totalWidth += tabsTextWidthWithMargin[a];
+                totalWeight += tabsWeight[a];
             }
 
-            tabsTextWidthWithMargin[a] = tabsTextWidth[a] + tabPadding * 2;
-            tabsWeight[a] = tabsTextWidthWithMargin[a] > (maxTabTextWidthIfEq + tabPadding * 2) ? 0 : 1;
-
-            totalWidth += tabsTextWidthWithMargin[a];
-            totalWeight += tabsWeight[a];
-        }
-
-        if (totalWeight == 0) {
-            for (int a = 0, N = getChildCount(); a < N; a++) {
-                tabsWeight[a] = isViewVisible(getChildAt(a)) ? 1 : 0;
+            if (totalWeight == 0) {
+                for (int a = 0, N = getChildCount(); a < N; a++) {
+                    tabsWeight[a] = isViewVisible(getChildAt(a)) ? 1 : 0;
+                }
+                totalWeight = visibleChildCount;
             }
-            totalWeight = visibleChildCount;
-        }
 
-        if (totalWidth > maxTotalWidthForTabs) {
-            final float m = maxTotalWidthForTabs / totalWidth;
-            for (int a = 0, N = getChildCount(); a < N; a++) {
-                tabsTextWidthWithMargin[a] *= m;
-            }
-        } else if (totalWidth < minTotalWidthForTabs) {
-            final float growW = minTotalWidthForTabs - totalWidth;
-            final float growP = growW / totalWeight;
+            if (totalWidth > maxTotalWidthForTabs) {
+                final float m = maxTotalWidthForTabs / totalWidth;
+                for (int a = 0, N = getChildCount(); a < N; a++) {
+                    tabsTextWidthWithMargin[a] *= m;
+                }
+            } else if (totalWidth < minTotalWidthForTabs) {
+                final float growW = minTotalWidthForTabs - totalWidth;
+                final float growP = growW / totalWeight;
 
-            for (int a = 0, N = getChildCount(); a < N; a++) {
-                tabsTextWidthWithMargin[a] += growP * tabsWeight[a];
+                for (int a = 0, N = getChildCount(); a < N; a++) {
+                    tabsTextWidthWithMargin[a] += growP * tabsWeight[a];
+                }
             }
         }
 

@@ -127,6 +127,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
     // Stickers and Emoji
     private int stickersHeaderRow;
     private int disableTrendingRow;
+    private int customEmojiWithoutPremiumRow;
     private int lockedEmojiAsStickerRow;
     private int unlimitedGroupRow;
     private int unlimitedStickersRow;
@@ -337,6 +338,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
 
         stickersHeaderRow = addRow("stickersHeader");
         disableTrendingRow = addRow("disableTrending", "DisableTrending");
+        customEmojiWithoutPremiumRow = addRow(NaConfig.INSTANCE.getCustomEmojiForNonPremium().getKey());
         lockedEmojiAsStickerRow = addRow(NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().getKey());
         unlimitedGroupRow = addRow("unlimited", "unlimitedRecentStickers");
         if (unlimitedExpanded) {
@@ -1724,6 +1726,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         if (position == pauseVoiceRow) return ChatsConfig.pauseOnMinimizeVoice;
         if (position == pauseRoundRow) return ChatsConfig.pauseOnMinimizeRound;
         if (position == disableTrendingRow) return NekoConfig.disableTrending;
+        if (position == customEmojiWithoutPremiumRow) return NaConfig.INSTANCE.getCustomEmojiForNonPremium();
         if (position == lockedEmojiAsStickerRow) return NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker();
         if (position == deleteChatForBothSidesRow) return NaConfig.INSTANCE.getDeleteChatForBothSides();
         if (position == dateOfForwardedMsgRow) return NaConfig.INSTANCE.getDateOfForwardedMsg();
@@ -2349,6 +2352,10 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
                         ChatsConfig.unmuteWithVolumeButtons.Bool(), true, true);
             } else if (position == disableTrendingRow) {
                 cell.setTextAndCheck(getString(R.string.DisableTrending), NekoConfig.disableTrending.Bool(), true);
+            } else if (position == customEmojiWithoutPremiumRow) {
+                cell.setTextAndValueAndCheck(getString(R.string.SendCustomEmojiWithoutPremium),
+                        getString(R.string.SendCustomEmojiWithoutPremiumInfo),
+                        NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool(), true, true);
             } else if (position == lockedEmojiAsStickerRow) {
                 cell.setTextAndValueAndCheck(getString(R.string.SendLockedCustomEmojiAsSticker),
                         getString(R.string.SendLockedCustomEmojiAsStickerInfo),

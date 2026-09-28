@@ -16893,6 +16893,13 @@ public class MessagesStorage extends BaseController {
                     usersToLoad.add(((TLRPC.TL_inputMessageEntityMentionName) entity).user_id.user_id);
                 } else if (emojiToLoad != null && entity instanceof TLRPC.TL_messageEntityCustomEmoji) {
                     emojiToLoad.add(((TLRPC.TL_messageEntityCustomEmoji) entity).document_id);
+                } else if (emojiToLoad != null && entity instanceof TLRPC.TL_messageEntityTextUrl) {
+                    TLRPC.TL_messageEntityTextUrl textUrl = (TLRPC.TL_messageEntityTextUrl) entity;
+                    if (textUrl.url != null && textUrl.url.startsWith("tg://emoji?id=")) {
+                        try {
+                            emojiToLoad.add(Long.parseLong(textUrl.url.substring("tg://emoji?id=".length())));
+                        } catch (Exception ignore) {}
+                    }
                 }
             }
         }

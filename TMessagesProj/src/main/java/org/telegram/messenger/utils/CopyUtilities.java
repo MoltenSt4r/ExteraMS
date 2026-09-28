@@ -87,10 +87,16 @@ public class CopyUtilities {
                     quotes.add(parsedSpan);
                 }
             } else if (span instanceof AnimatedEmojiSpan) {
-                TLRPC.TL_messageEntityCustomEmoji entity = new TLRPC.TL_messageEntityCustomEmoji();
-                entity.document_id = ((AnimatedEmojiSpan) span).documentId;
-                entity.document = ((AnimatedEmojiSpan) span).document;
-                entities.add(setEntityStartEnd(entity, start, end));
+                if (org.telegram.messenger.UserConfig.getInstance(org.telegram.messenger.UserConfig.selectedAccount).isPremium() || !xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool()) {
+                    TLRPC.TL_messageEntityCustomEmoji entity = new TLRPC.TL_messageEntityCustomEmoji();
+                    entity.document_id = ((AnimatedEmojiSpan) span).documentId;
+                    entity.document = ((AnimatedEmojiSpan) span).document;
+                    entities.add(setEntityStartEnd(entity, start, end));
+                } else {
+                    TLRPC.TL_messageEntityTextUrl entity = new TLRPC.TL_messageEntityTextUrl();
+                    entity.url = "tg://emoji?id=" + ((AnimatedEmojiSpan) span).documentId;
+                    entities.add(setEntityStartEnd(entity, start, end));
+                }
             }
         }
 

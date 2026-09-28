@@ -4,10 +4,22 @@
     <string name="OEGlyphTitle">Nothing Glyph</string>
     <string name="OEGlyphEnable">Glyph Interface</string>
     <string name="OEGlyphNewMessage">Flash on new messages</string>
+    <string name="OEGlyphNewMessageAnim">Message animation</string>
     <string name="OEGlyphCalls">Glow on incoming calls</string>
+    <string name="OEGlyphCallsAnim">Call animation</string>
     <string name="OEGlyphRecording">Glow while recording</string>
+    <string name="OEGlyphRecordingAnim">Recording animation</string>
     <string name="OEGlyphScreenOff">Messages only when screen is off</string>
     <string name="OEGlyphPreview">Preview</string>
     <string name="OEGlyphUnsupported">Glyph Interface is only available on Nothing phones</string>
-    <string name="OEGlyphInfo">Lights up the Glyph Interface on the back of your Nothing phone: a flash for incoming messages, the ExteraMS logo on the Phone (3) Glyph Matrix and a breathing glow while recording voice messages or receiving a call. Muted chats never trigger the flash.</string>
+    <string name="OEGlyphInfo">Lights up the Glyph Interface on the back of your Nothing phone: customizable animations for messages, calls, and voice notes, with dedicated icons on the Glyph Matrix.</string>
+
+    <string name="OEGlyphAnimDoubleFlash">Double Flash</string>
+    <string name="OEGlyphAnimStrobe">Quick Strobe</string>
+    <string name="OEGlyphAnimSoftPulse">Soft Pulse</string>
+    <string name="OEGlyphAnimAccentRing">Accent Ring</string>
+    <string name="OEGlyphAnimPulse">Energetic Pulse</string>
+    <string name="OEGlyphAnimWave">Cascading Wave</string>
+    <string name="OEGlyphAnimBreathing">Breathing</string>
+    <string name="OEGlyphAnimHeartbeat">Heartbeat</string>
 </resources>

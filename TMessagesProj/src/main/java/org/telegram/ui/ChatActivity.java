@@ -15725,6 +15725,9 @@ public class ChatActivity extends BaseFragment implements
                             newEntity = new TLRPC.TL_messageEntityCustomEmoji();
                             ((TLRPC.TL_messageEntityCustomEmoji) newEntity).document_id = ((TLRPC.TL_messageEntityCustomEmoji) entity).document_id;
                             ((TLRPC.TL_messageEntityCustomEmoji) newEntity).document = ((TLRPC.TL_messageEntityCustomEmoji) entity).document;
+                        } else if (entity instanceof TLRPC.TL_messageEntityTextUrl && ((TLRPC.TL_messageEntityTextUrl) entity).url != null && ((TLRPC.TL_messageEntityTextUrl) entity).url.startsWith("tg://emoji?id=")) {
+                            newEntity = new TLRPC.TL_messageEntityTextUrl();
+                            ((TLRPC.TL_messageEntityTextUrl) newEntity).url = ((TLRPC.TL_messageEntityTextUrl) entity).url;
                         } else {
                             continue;
                         }
@@ -32050,7 +32053,26 @@ public class ChatActivity extends BaseFragment implements
                             run.flags |= TextStyleSpan.FLAG_STYLE_UNDERLINE;
                             MediaDataController.addStyleToText(new TextStyleSpan(run), entity.offset, entity.offset + entity.length, stringBuilder, true);
                         } else if (entity instanceof TLRPC.TL_messageEntityTextUrl) {
-                            stringBuilder.setSpan(new URLSpanReplacement(entity.url), entity.offset, entity.offset + entity.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            if (entity.url != null && entity.url.startsWith("tg://emoji?id=")) {
+                                Paint.FontMetricsInt fontMetrics = null;
+                                try {
+                                    fontMetrics = chatActivityEnterView.getEditField().getPaint().getFontMetricsInt();
+                                } catch (Exception e) {
+                                    FileLog.e(e, false);
+                                }
+                                long docId = 0;
+                                try {
+                                    docId = Long.parseLong(entity.url.substring("tg://emoji?id=".length()));
+                                } catch (Exception ignore) {}
+                                if (docId != 0) {
+                                    AnimatedEmojiSpan span = new AnimatedEmojiSpan(docId, fontMetrics);
+                                    stringBuilder.setSpan(span, entity.offset, entity.offset + entity.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                } else {
+                                    stringBuilder.setSpan(new URLSpanReplacement(entity.url), entity.offset, entity.offset + entity.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                            } else {
+                                stringBuilder.setSpan(new URLSpanReplacement(entity.url), entity.offset, entity.offset + entity.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
                         } else if (entity instanceof TLRPC.TL_messageEntitySpoiler) {
                             TextStyleSpan.TextStyleRun run = new TextStyleSpan.TextStyleRun();
                             run.flags |= TextStyleSpan.FLAG_STYLE_SPOILER;

@@ -19,6 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Gradle Build
@@ -100,6 +103,19 @@ jobs:
           name: Release
           path: |
             TMessagesProj/build/outputs/apk/release/*.apk
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: ${{ success() }}
+        with:
+          tag_name: test-build
+          name: ExteraMS Test Build
+          body: |
+            Тестовая сборка ExteraMS:
+            - Исправлена асимметрия вкладок в нижнем меню (MD3) при скрытии контактов
+            - Поддержка кастомных премиум-эмодзи без премиума (отправка через tg://emoji?id= и отображение)
+            - Расширенная кастомизация Nothing Phone Glyph (отдельные анимации для сообщений, звонков и записи голосовых + матричные иконки)
+            - Официальный API ID Telegram X (для возможности входа по номеру телефона)
+          files: TMessagesProj/build/outputs/apk/release/*.apk
       - name: Send APK to Telegram
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && !contains(github.event.head_commit.message, '[skip publish]') }}
         env:

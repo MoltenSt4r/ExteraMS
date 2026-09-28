@@ -85,8 +85,9 @@ public final class GlyphController {
 
     private final Runnable hideLogoRunnable = this::hideMatrixLogo;
 
-    /** Кэш белого битмапа логотипа — пересобирать вектор на каждый шаг дыхания дорого. */
     private Bitmap matrixLogoBitmap;
+    private Bitmap matrixCallBitmap;
+    private Bitmap matrixMicBitmap;
 
     private boolean recordingActive;
     private boolean callActive;
@@ -96,6 +97,41 @@ public final class GlyphController {
     private int breathBrightness = BREATH_MAX;
     private int breathDirection = -1;
     private int breathSteps;
+
+    private int callWaveStep = 0;
+    private final Runnable callWaveRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!callActive || stripManager == null || !stripSessionOpen) {
+                return;
+            }
+            try {
+                GlyphFrame.Builder b = stripManager.getGlyphFrameBuilder()
+                        .buildPeriod(200)
+                        .buildCycles(1)
+                        .buildInterval(0);
+                switch (callWaveStep % 4) {
+                    case 0:
+                        b.buildChannelA();
+                        break;
+                    case 1:
+                        b.buildChannelB();
+                        break;
+                    case 2:
+                        b.buildChannelD();
+                        break;
+                    case 3:
+                        b.buildChannelC().buildChannelE();
+                        break;
+                }
+                stripManager.animate(b.build());
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+            callWaveStep++;
+            handler.postDelayed(this, 180L);
+        }
+    };
 
     private final Runnable breathRunnable = new Runnable() {
         @Override
@@ -107,7 +143,8 @@ public final class GlyphController {
                 stopMatrixBreathing();
                 return;
             }
-            breathBrightness += breathDirection * BREATH_STEP;
+            int step = callActive ? 22 : BREATH_STEP;
+            breathBrightness += breathDirection * step;
             if (breathBrightness <= BREATH_MIN) {
                 breathBrightness = BREATH_MIN;
                 breathDirection = 1;
@@ -115,8 +152,10 @@ public final class GlyphController {
                 breathBrightness = BREATH_MAX;
                 breathDirection = -1;
             }
-            showMatrixLogo(breathBrightness, false);
-            handler.postDelayed(this, BREATH_STEP_MS);
+            int iconRes = callActive ? R.drawable.baseline_call_24 : (recordingActive ? R.drawable.baseline_mic_24 : R.drawable.exteraless_icon_monochrome);
+            showMatrixIcon(iconRes, breathBrightness, false);
+            long delay = callActive ? 70L : BREATH_STEP_MS;
+            handler.postDelayed(this, delay);
         }
     };
 
@@ -161,6 +200,7 @@ public final class GlyphController {
         lastFlashAt = 0;
         handler.removeCallbacks(hideLogoRunnable);
         handler.removeCallbacks(breathRunnable);
+        handler.removeCallbacks(callWaveRunnable);
         try {
             if (stripManager != null) {
                 stripManager.unInit();
@@ -262,12 +302,10 @@ public final class GlyphController {
      */
     private void updateGlyphActivity() {
         boolean active = recordingActive || callActive;
-        if (active == glyphBusy) {
-            return;
-        }
         if (!active) {
             glyphBusy = false;
             stopMatrixBreathing();
+            handler.removeCallbacks(callWaveRunnable);
             if (stripManager != null && stripSessionOpen) {
                 try {
                     stripManager.turnOff();
@@ -284,7 +322,11 @@ public final class GlyphController {
         if (matrixRegistered) {
             startMatrixBreathing();
         } else if (stripSessionOpen) {
-            breatheStrip();
+            if (callActive) {
+                startCallStrip();
+            } else if (recordingActive) {
+                startRecordingStrip();
+            }
         }
     }
 
@@ -302,9 +344,12 @@ public final class GlyphController {
 
     /** Кнопка «Предпросмотр» в настройках: логотип на матрице и/или вспышка зон. */
     public void preview() {
+        previewMessage();
+    }
+
+    public void previewMessage() {
         handler.post(() -> {
             if (!ensureReady()) {
-                // Сервис ещё биндится — покажем превью из колбэка подключения.
                 previewPending = supported && GlyphConfig.enabled();
                 return;
             }
@@ -312,6 +357,34 @@ public final class GlyphController {
                 showMatrixLogo();
             }
             pulseStrip();
+        });
+    }
+
+    public void previewCall() {
+        handler.post(() -> {
+            if (!ensureReady()) {
+                return;
+            }
+            callActive = true;
+            updateGlyphActivity();
+            handler.postDelayed(() -> {
+                callActive = false;
+                updateGlyphActivity();
+            }, 2500L);
+        });
+    }
+
+    public void previewRecording() {
+        handler.post(() -> {
+            if (!ensureReady()) {
+                return;
+            }
+            recordingActive = true;
+            updateGlyphActivity();
+            handler.postDelayed(() -> {
+                recordingActive = false;
+                updateGlyphActivity();
+            }, 2500L);
         });
     }
 
@@ -400,50 +473,155 @@ public final class GlyphController {
 
     /** Короткая вспышка всех зон — реакция на входящее сообщение. */
     private void pulseStrip() {
+        pulseStrip(GlyphConfig.messageAnimationStyle());
+    }
+
+    private void pulseStrip(int style) {
         if (stripManager == null || !stripSessionOpen) {
             return;
         }
         try {
-            GlyphFrame frame = stripManager.getGlyphFrameBuilder()
-                    .buildChannelA()
-                    .buildChannelB()
-                    .buildChannelC()
-                    .buildChannelD()
-                    .buildChannelE()
-                    .buildPeriod(600)
-                    .buildCycles(2)
-                    .buildInterval(120)
-                    .build();
-            stripManager.animate(frame);
+            GlyphFrame.Builder builder = stripManager.getGlyphFrameBuilder();
+            switch (style) {
+                case GlyphConfig.MESSAGE_ANIM_STROBE:
+                    builder.buildChannelA()
+                            .buildChannelB()
+                            .buildChannelC()
+                            .buildChannelD()
+                            .buildChannelE()
+                            .buildPeriod(140)
+                            .buildCycles(3)
+                            .buildInterval(60);
+                    break;
+                case GlyphConfig.MESSAGE_ANIM_SOFT_PULSE:
+                    builder.buildChannelA()
+                            .buildChannelB()
+                            .buildChannelC()
+                            .buildChannelD()
+                            .buildChannelE()
+                            .buildPeriod(550)
+                            .buildCycles(1)
+                            .buildInterval(0);
+                    break;
+                case GlyphConfig.MESSAGE_ANIM_ACCENT_RING:
+                    builder.buildChannelB()
+                            .buildPeriod(300)
+                            .buildCycles(2)
+                            .buildInterval(100);
+                    break;
+                case GlyphConfig.MESSAGE_ANIM_DOUBLE_FLASH:
+                default:
+                    builder.buildChannelA()
+                            .buildChannelB()
+                            .buildChannelC()
+                            .buildChannelD()
+                            .buildChannelE()
+                            .buildPeriod(250)
+                            .buildCycles(2)
+                            .buildInterval(80);
+                    break;
+            }
+            stripManager.animate(builder.build());
         } catch (Throwable t) {
             FileLog.e(t);
         }
     }
 
-    /** Медленное «дыхание» на время записи голосового; гасится через turnOff(). */
-    private void breatheStrip() {
+    private void startCallStrip() {
+        startCallStrip(GlyphConfig.callAnimationStyle());
+    }
+
+    private void startCallStrip(int style) {
+        if (stripManager == null || !stripSessionOpen) {
+            return;
+        }
+        handler.removeCallbacks(callWaveRunnable);
         try {
-            GlyphFrame frame = stripManager.getGlyphFrameBuilder()
-                    .buildChannelA()
-                    .buildChannelB()
-                    .buildChannelC()
-                    .buildChannelD()
-                    .buildChannelE()
-                    .buildPeriod(1500)
-                    .buildCycles(RECORDING_MAX_CYCLES)
-                    .buildInterval(0)
-                    .build();
-            stripManager.animate(frame);
+            switch (style) {
+                case GlyphConfig.CALL_ANIM_WAVE:
+                    callWaveStep = 0;
+                    handler.post(callWaveRunnable);
+                    break;
+                case GlyphConfig.CALL_ANIM_BREATHING:
+                    GlyphFrame breathingFrame = stripManager.getGlyphFrameBuilder()
+                            .buildChannelA()
+                            .buildChannelB()
+                            .buildChannelC()
+                            .buildChannelD()
+                            .buildChannelE()
+                            .buildPeriod(1200)
+                            .buildCycles(RECORDING_MAX_CYCLES)
+                            .buildInterval(0)
+                            .build();
+                    stripManager.animate(breathingFrame);
+                    break;
+                case GlyphConfig.CALL_ANIM_PULSE:
+                default:
+                    GlyphFrame pulseFrame = stripManager.getGlyphFrameBuilder()
+                            .buildChannelA()
+                            .buildChannelB()
+                            .buildChannelC()
+                            .buildChannelD()
+                            .buildChannelE()
+                            .buildPeriod(600)
+                            .buildCycles(RECORDING_MAX_CYCLES)
+                            .buildInterval(150)
+                            .build();
+                    stripManager.animate(pulseFrame);
+                    break;
+            }
+        } catch (Throwable t) {
+            FileLog.e(t);
+        }
+    }
+
+    private void startRecordingStrip() {
+        startRecordingStrip(GlyphConfig.recordingAnimationStyle());
+    }
+
+    private void startRecordingStrip(int style) {
+        if (stripManager == null || !stripSessionOpen) {
+            return;
+        }
+        try {
+            GlyphFrame.Builder builder = stripManager.getGlyphFrameBuilder();
+            switch (style) {
+                case GlyphConfig.RECORDING_ANIM_ACCENT_RING:
+                    builder.buildChannelB()
+                            .buildPeriod(1600)
+                            .buildCycles(RECORDING_MAX_CYCLES)
+                            .buildInterval(0);
+                    break;
+                case GlyphConfig.RECORDING_ANIM_HEARTBEAT:
+                    builder.buildChannelB()
+                            .buildChannelD()
+                            .buildPeriod(800)
+                            .buildCycles(RECORDING_MAX_CYCLES)
+                            .buildInterval(200);
+                    break;
+                case GlyphConfig.RECORDING_ANIM_BREATHING:
+                default:
+                    builder.buildChannelA()
+                            .buildChannelB()
+                            .buildChannelC()
+                            .buildChannelD()
+                            .buildChannelE()
+                            .buildPeriod(1800)
+                            .buildCycles(RECORDING_MAX_CYCLES)
+                            .buildInterval(0);
+                    break;
+            }
+            stripManager.animate(builder.build());
         } catch (Throwable t) {
             FileLog.e(t);
         }
     }
 
     private void showMatrixLogo() {
-        showMatrixLogo(BREATH_MAX, true);
+        showMatrixIcon(R.drawable.exteraless_icon_monochrome, BREATH_MAX, true);
     }
 
-    private void showMatrixLogo(int brightness, boolean autoHide) {
+    private void showMatrixIcon(int resId, int brightness, boolean autoHide) {
         if (matrixManager == null || !matrixRegistered) {
             return;
         }
@@ -451,7 +629,7 @@ public final class GlyphController {
         if (context == null) {
             return;
         }
-        Bitmap bitmap = getMatrixLogoBitmap(context);
+        Bitmap bitmap = getMatrixIconBitmap(context, resId);
         if (bitmap == null) {
             return;
         }
@@ -478,11 +656,17 @@ public final class GlyphController {
         }
     }
 
-    private Bitmap getMatrixLogoBitmap(Context context) {
-        if (matrixLogoBitmap != null) {
+    private Bitmap getMatrixIconBitmap(Context context, int resId) {
+        if (resId == R.drawable.exteraless_icon_monochrome && matrixLogoBitmap != null) {
             return matrixLogoBitmap;
         }
-        Drawable icon = context.getDrawable(R.drawable.exteraless_icon_monochrome);
+        if (resId == R.drawable.baseline_call_24 && matrixCallBitmap != null) {
+            return matrixCallBitmap;
+        }
+        if (resId == R.drawable.baseline_mic_24 && matrixMicBitmap != null) {
+            return matrixMicBitmap;
+        }
+        Drawable icon = context.getDrawable(resId);
         if (icon == null) {
             return null;
         }
@@ -490,8 +674,19 @@ public final class GlyphController {
         // монохромный знак дал бы кадр из одних нулей — тонируем в белый.
         icon = icon.mutate();
         icon.setTint(Color.WHITE);
-        matrixLogoBitmap = GlyphMatrixUtils.drawableToBitmap(icon);
-        return matrixLogoBitmap;
+        Bitmap bitmap = GlyphMatrixUtils.drawableToBitmap(icon);
+        if (resId == R.drawable.exteraless_icon_monochrome) {
+            matrixLogoBitmap = bitmap;
+        } else if (resId == R.drawable.baseline_call_24) {
+            matrixCallBitmap = bitmap;
+        } else if (resId == R.drawable.baseline_mic_24) {
+            matrixMicBitmap = bitmap;
+        }
+        return bitmap;
+    }
+
+    private Bitmap getMatrixLogoBitmap(Context context) {
+        return getMatrixIconBitmap(context, R.drawable.exteraless_icon_monochrome);
     }
 
     private void startMatrixBreathing() {
