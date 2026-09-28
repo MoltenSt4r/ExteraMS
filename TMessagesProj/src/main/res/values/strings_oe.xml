@@ -25,7 +25,14 @@
     <string name="QrWifiPasswordCopied">Password copied</string>
     <string name="QrWifiUnknownNetwork">Network name is missing from the code</string>
     <string name="QrLoginHint">This code logs into an account. Use Settings → Devices → Link Desktop Device — that screen checks the code and protects your account.</string>
+    <string name="AppIconsExteraMS" translatable="false">ExteraMS Icons</string>
+    <string name="AppIconsExteraless" translatable="false">exteraless Icons</string>
+    <string name="AppIconsTelegram" translatable="false">Telegram Icons</string>
     <string name="AppIconExteraless" translatable="false">ExteraMS</string>
+    <string name="AppIconExteraMSDotted" translatable="false">ExteraMS Dotted</string>
+    <string name="AppIconMoltenStar" translatable="false">MoltenStar</string>
+    <string name="AppIconMoltenStarDotted" translatable="false">MoltenStar Dotted</string>
+    <string name="AppIconExteralessClassic" translatable="false">Exteraless</string>
     <string name="AppIconBlueprint" translatable="false">Blueprint</string>
     <string name="AppIconRed" translatable="false">Red</string>
     <string name="AppIconNya" translatable="false">Nya</string>

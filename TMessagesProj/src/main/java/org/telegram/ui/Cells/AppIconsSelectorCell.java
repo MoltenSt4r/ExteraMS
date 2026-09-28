@@ -51,13 +51,19 @@ import java.util.List;
 public class AppIconsSelectorCell extends RecyclerListView implements NotificationCenter.NotificationCenterDelegate {
     public final static float ICONS_ROUND_RADIUS = 18;
 
+    private LauncherIconController.IconGroup iconGroup;
     private List<LauncherIconController.LauncherIcon> availableIcons = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private int currentAccount;
 
     public AppIconsSelectorCell(Context context, BaseFragment fragment, int currentAccount) {
+        this(context, fragment, currentAccount, null);
+    }
+
+    public AppIconsSelectorCell(Context context, BaseFragment fragment, int currentAccount, LauncherIconController.IconGroup iconGroup) {
         super(context);
         this.currentAccount = currentAccount;
+        this.iconGroup = iconGroup;
         setPadding(0, AndroidUtilities.dp(12), 0, AndroidUtilities.dp(12));
 
         setFocusable(false);
@@ -99,8 +105,9 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
                     outRect.right = AndroidUtilities.dp(18);
                 } else {
                     int itemCount = getAdapter().getItemCount();
-                    if (itemCount == 4) {
-                        outRect.right = (getWidth() - AndroidUtilities.dp(36) - AndroidUtilities.dp(58) * itemCount) / (itemCount - 1);
+                    int width = getWidth();
+                    if (itemCount == 4 && width > AndroidUtilities.dp(36 + 58 * 4)) {
+                        outRect.right = (width - AndroidUtilities.dp(36) - AndroidUtilities.dp(58) * itemCount) / (itemCount - 1);
                     } else {
                         outRect.right = AndroidUtilities.dp(24);
                     }
@@ -151,7 +158,11 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
     @SuppressLint("NotifyDataSetChanged")
     private void updateIconsVisibility() {
         availableIcons.clear();
-        availableIcons.addAll(Arrays.asList(LauncherIconController.LauncherIcon.values()));
+        for (LauncherIconController.LauncherIcon icon : LauncherIconController.LauncherIcon.values()) {
+            if (iconGroup == null || icon.group == iconGroup) {
+                availableIcons.add(icon);
+            }
+        }
         if (MessagesController.getInstance(currentAccount).premiumFeaturesBlocked()) {
             for (int i = 0; i < availableIcons.size(); i++) {
                 if (availableIcons.get(i).premium) {
@@ -168,6 +179,18 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
             if (LauncherIconController.isEnabled(icon)) {
                 linearLayoutManager.scrollToPositionWithOffset(i, AndroidUtilities.dp(16));
                 break;
+            }
+        }
+    }
+
+    public void updateSelection() {
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof IconHolderView) {
+                int pos = getChildAdapterPosition(child);
+                if (pos >= 0 && pos < availableIcons.size()) {
+                    ((IconHolderView) child).setSelected(LauncherIconController.isEnabled(availableIcons.get(pos)), true);
+                }
             }
         }
     }
@@ -189,6 +212,7 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
         super.onAttachedToWindow();
 
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.premiumStatusChangedGlobal);
+        NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.showBulletin);
     }
 
     @Override
@@ -196,12 +220,17 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
         super.onDetachedFromWindow();
 
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.premiumStatusChangedGlobal);
+        NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.showBulletin);
     }
 
     @Override
     public void didReceivedNotification(int id, int account, Object... args) {
         if (id == NotificationCenter.premiumStatusChangedGlobal) {
             updateIconsVisibility();
+        } else if (id == NotificationCenter.showBulletin) {
+            if (args != null && args.length > 0 && Integer.valueOf(Bulletin.TYPE_APP_ICON).equals(args[0])) {
+                updateSelection();
+            }
         }
     }
 

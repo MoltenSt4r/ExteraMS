@@ -6,7 +6,7 @@
 
 Экспериментальный форк exteraless — новые фишки раньше всех
 
-[![Исходный код](https://img.shields.io/badge/GitHub-MoltenSt4r%2FExteraMS-red?logo=github)](https://github.com/MoltenSt4r/ExteraMS)
+[![Исходный код](https://img.shields.io/badge/GitHub-MoltenSt4r%2FExteraMS-993c38?logo=github)](https://github.com/MoltenSt4r/ExteraMS)
 [![Upstream](https://img.shields.io/badge/Upstream-exteraless-blue?logo=github)](https://github.com/exteraless/exteraless)
 
 </div>

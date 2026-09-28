@@ -23,7 +23,14 @@
     <string name="QrWifiPasswordCopied">Пароль скопирован</string>
     <string name="QrWifiUnknownNetwork">В коде нет имени сети</string>
     <string name="QrLoginHint">Этот код входит в аккаунт. Используйте Настройки → Устройства → Подключить устройство: тот экран проверяет код и защищает аккаунт.</string>
+    <string name="AppIconsExteraMS" translatable="false">Иконки ExteraMS</string>
+    <string name="AppIconsExteraless" translatable="false">Иконки exteraless</string>
+    <string name="AppIconsTelegram" translatable="false">Иконки Telegram</string>
     <string name="AppIconExteraless" translatable="false">ExteraMS</string>
+    <string name="AppIconExteraMSDotted" translatable="false">ExteraMS Точки</string>
+    <string name="AppIconMoltenStar" translatable="false">MoltenStar</string>
+    <string name="AppIconMoltenStarDotted" translatable="false">MoltenStar Точки</string>
+    <string name="AppIconExteralessClassic" translatable="false">Exteraless</string>
     <string name="AppIconBlueprint" translatable="false">Blueprint</string>
     <string name="AppIconRed" translatable="false">Red</string>
     <string name="AppIconNya" translatable="false">Nya</string>

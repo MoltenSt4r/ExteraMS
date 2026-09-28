@@ -37,31 +37,51 @@ public class LauncherIconController {
         }
     }
 
+    public enum IconGroup {
+        EXTERAMS,
+        EXTERALESS,
+        TELEGRAM
+    }
+
     public enum LauncherIcon {
+        // ExteraMS
         EXTERALESS("ExteralessIcon", R.drawable.exteraless_icon_background,
-                R.drawable.exteraless_icon_foreground, R.string.AppIconExteraless),
+                R.drawable.exteraless_icon_foreground, R.string.AppIconExteraless, IconGroup.EXTERAMS),
+        EXTERAMS_DOTTED("ExteraMSDottedIcon", R.drawable.exterams_dotted_icon_background,
+                R.drawable.exterams_dotted_icon_foreground, R.string.AppIconExteraMSDotted, IconGroup.EXTERAMS),
+        MOLTENSTAR("MoltenStarIcon", R.drawable.moltenstar_icon_background,
+                R.drawable.moltenstar_icon_foreground, R.string.AppIconMoltenStar, IconGroup.EXTERAMS),
+        MOLTENSTAR_DOTTED("MoltenStarDottedIcon", R.drawable.moltenstar_dotted_icon_background,
+                R.drawable.moltenstar_dotted_icon_foreground, R.string.AppIconMoltenStarDotted, IconGroup.EXTERAMS),
+
+        // exteraless
+        EXTERALESS_CLASSIC("ExteralessClassicIcon", R.drawable.exteraless_classic_icon_background,
+                R.drawable.exteraless_classic_icon_foreground, R.string.AppIconExteralessClassic, IconGroup.EXTERALESS),
         BLUEPRINT("BlueprintIcon", R.drawable.blueprint_icon_background,
-                R.drawable.blueprint_icon_foreground, R.string.AppIconBlueprint),
+                R.drawable.blueprint_icon_foreground, R.string.AppIconBlueprint, IconGroup.EXTERALESS),
         RED("RedIcon", R.drawable.red_icon_background,
-                R.drawable.red_icon_foreground, R.string.AppIconRed),
+                R.drawable.red_icon_foreground, R.string.AppIconRed, IconGroup.EXTERALESS),
         NYA("NyaIcon", R.drawable.nya_icon_background,
-                R.drawable.nya_icon_foreground, R.string.AppIconNya),
+                R.drawable.nya_icon_foreground, R.string.AppIconNya, IconGroup.EXTERALESS),
         AYU("AyuIcon", R.drawable.ayu_icon_background,
-                R.drawable.ayu_icon_foreground, R.string.AppIconAyu),
+                R.drawable.ayu_icon_foreground, R.string.AppIconAyu, IconGroup.EXTERALESS),
         QUACK("QuackIcon", R.drawable.quack_icon_background,
-                R.drawable.quack_icon_foreground, R.string.AppIconQuack),
-        TELEGRAM("TelegramIcon", R.drawable.icon_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconTelegramOriginal),
-        VINTAGE("VintageIcon", R.drawable.icon_6_background_sa, R.mipmap.icon_6_foreground_sa, R.string.AppIconVintage),
-        AQUA("AquaIcon", R.drawable.icon_4_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconAqua),
-        PREMIUM("PremiumIcon", R.drawable.icon_3_background_sa, R.mipmap.icon_3_foreground_sa, R.string.AppIconPremium),
-        TURBO("TurboIcon", R.drawable.icon_5_background_sa, R.mipmap.icon_5_foreground_sa, R.string.AppIconTurbo),
-        NOX("NoxIcon", R.mipmap.icon_2_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconNox);
+                R.drawable.quack_icon_foreground, R.string.AppIconQuack, IconGroup.EXTERALESS),
+
+        // Telegram
+        TELEGRAM("TelegramIcon", R.drawable.icon_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconTelegramOriginal, IconGroup.TELEGRAM),
+        VINTAGE("VintageIcon", R.drawable.icon_6_background_sa, R.mipmap.icon_6_foreground_sa, R.string.AppIconVintage, IconGroup.TELEGRAM),
+        AQUA("AquaIcon", R.drawable.icon_4_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconAqua, IconGroup.TELEGRAM),
+        PREMIUM("PremiumIcon", R.drawable.icon_3_background_sa, R.mipmap.icon_3_foreground_sa, R.string.AppIconPremium, true, IconGroup.TELEGRAM),
+        TURBO("TurboIcon", R.drawable.icon_5_background_sa, R.mipmap.icon_5_foreground_sa, R.string.AppIconTurbo, true, IconGroup.TELEGRAM),
+        NOX("NoxIcon", R.mipmap.icon_2_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconNox, true, IconGroup.TELEGRAM);
 
         public final String key;
         public final int background;
         public final int foreground;
         public final int title;
         public final boolean premium;
+        public final IconGroup group;
 
         private ComponentName componentName;
 
@@ -72,16 +92,17 @@ public class LauncherIconController {
             return componentName;
         }
 
-        LauncherIcon(String key, int background, int foreground, int title) {
-            this(key, background, foreground, title, false);
+        LauncherIcon(String key, int background, int foreground, int title, IconGroup group) {
+            this(key, background, foreground, title, false, group);
         }
 
-        LauncherIcon(String key, int background, int foreground, int title, boolean premium) {
+        LauncherIcon(String key, int background, int foreground, int title, boolean premium, IconGroup group) {
             this.key = key;
             this.background = background;
             this.foreground = foreground;
             this.title = title;
             this.premium = premium;
+            this.group = group;
         }
 
     }
