@@ -5,6 +5,11 @@ on:
     paths:
       - '.github/workflows/publish-release.yml'
   workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Run ID to publish'
+        default: '36397536358'
+        required: true
 
 permissions:
   contents: write
@@ -17,7 +22,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Release
-          run-id: 36388025054
+          run-id: ${{ inputs.run_id || '36397536358' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: apk_release
 
@@ -31,5 +36,9 @@ jobs:
           tag_name: test-build
           name: ExteraMS Test Build
           body: |
-            Тестовая сборка ExteraMS с новым брендингом, именем пакета com.exterams.app и новым логотипом.
+            Тестовая сборка ExteraMS:
+            - Заменён логотип на экране входа на ExteraMS без фона
+            - Добавлена векторная MD3 (Monet) тематическая иконка
+            - Обновлены адаптивные и стандартные иконки приложения
+            - Брендинг ExteraMS и имя пакета com.exterams.app
           files: apk_release/*.apk
