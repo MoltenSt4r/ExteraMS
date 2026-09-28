@@ -29,7 +29,10 @@ import androidx.core.content.FileProvider;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.AvatarStatusHelper;
 import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.UserObject;
+import xyz.nextalone.nagram.NaConfig;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.ImageLoader;
