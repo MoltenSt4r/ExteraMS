@@ -2958,6 +2958,11 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
                 }
             }
             currentImageDrawable = drawable;
+            if (parentObject instanceof TLRPC.User && drawable instanceof BitmapDrawable) {
+                AvatarStatusHelper.checkUserAvatar((TLRPC.User) parentObject, ((BitmapDrawable) drawable).getBitmap());
+            } else if (parentObject instanceof TLRPC.Chat && drawable instanceof BitmapDrawable) {
+                AvatarStatusHelper.checkChatAvatar((TLRPC.Chat) parentObject, ((BitmapDrawable) drawable).getBitmap());
+            }
 
             if (drawable instanceof ExtendedBitmapDrawable) {
                 imageOrientation = ((ExtendedBitmapDrawable) drawable).getOrientation();

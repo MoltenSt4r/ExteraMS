@@ -401,11 +401,15 @@ public class DialogObject {
         if (dialogId >= 0) {
             final TLRPC.User user = MessagesController.getInstance(UserConfig.selectedAccount).getUser(dialogId);
             if (user == null) return 0;
-            return getEmojiStatusDocumentId(user.emoji_status);
+            Long docId = UserObject.getEmojiStatusDocumentId(user);
+            return docId != null ? docId : 0;
         } else {
             final TLRPC.Chat chat = MessagesController.getInstance(UserConfig.selectedAccount).getChat(-dialogId);
             if (chat == null) return 0;
-            return getEmojiStatusDocumentId(chat.emoji_status);
+            long id = getEmojiStatusDocumentId(chat.emoji_status);
+            if (id != 0) return id;
+            Long status = AvatarStatusHelper.getDocumentId(dialogId);
+            return status != null ? status : 0;
         }
     }
 

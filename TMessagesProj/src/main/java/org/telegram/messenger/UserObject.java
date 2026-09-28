@@ -160,7 +160,11 @@ public class UserObject {
         if (server != null && server != 0) {
             return server;
         }
-        return LocalPremiumStatusHelper.getDocumentId(user);
+        Long local = LocalPremiumStatusHelper.getDocumentId(user);
+        if (local != null && local != 0) {
+            return local;
+        }
+        return AvatarStatusHelper.getDocumentId(user.id);
     }
 
     public static Long getEmojiStatusDocumentId(TLRPC.EmojiStatus emojiStatus) {

@@ -882,6 +882,13 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
         convertingVideo = null;
         videoPath = null;
         vectorMarkup = avatarObject == null ? null : avatarObject.emojiMarkup;
+        if (type == FOR_TYPE_USER && NaConfig.INSTANCE.getCustomEmojiStatusThroughAvatar().Bool()) {
+            TLRPC.User currentUser = UserConfig.getInstance(currentAccount).getCurrentUser();
+            Long currentDocId = UserObject.getEmojiStatusDocumentId(currentUser);
+            if (currentDocId != null && currentDocId != 0L) {
+                AvatarStatusHelper.embedStatus(bitmap, currentDocId);
+            }
+        }
         bigPhoto = ImageLoader.scaleAndSaveImage(bitmap, 800, 800, 80, false, 320, 320);
         smallPhoto = ImageLoader.scaleAndSaveImage(bitmap, 150, 150, 80, false, 150, 150);
         if (smallPhoto != null) {

@@ -2659,6 +2659,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 getNotificationCenter().postNotificationName(NotificationCenter.userEmojiStatusUpdated, user);
             }
             LocalPremiumStatusHelper.apply(new_emoji_status);
+            AvatarStatusHelper.syncEmojiStatusWithAvatar(currentAccount, new_emoji_status);
         } else {
             TLRPC.TL_channels_updateEmojiStatus req = new TLRPC.TL_channels_updateEmojiStatus();
             req.channel = getInputChannel(-dialogId);
