@@ -139,4 +139,7 @@
     <string name="SendCustomEmojiWithoutPremiumInfo">Send premium emoji via deep links (tg://emoji?id=...). Rendered as animated emoji by ExteraMS and exteragram clients.</string>
     <string name="CustomEmojiStatusThroughAvatar">Emoji Statuses for ExteraMS</string>
     <string name="CustomEmojiStatusThroughAvatarInfo">Watermarks emoji status into avatar corner pixels so other ExteraMS users can see your emoji status without Telegram Premium.</string>
+    <string name="PickCustomEmojiStatus">Set Emoji Status</string>
+    <string name="PickCustomEmojiStatusInfo">Choose an animated emoji to display on your avatar and profile.</string>
+    <string name="EmojiStatusUpdated">Emoji status updated</string>
 </resources>

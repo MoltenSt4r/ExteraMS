@@ -304,19 +304,18 @@ public class DrawerHeaderView extends FrameLayout {
             subtitleView.setText(PhoneFormat.getInstance().format("+" + user.phone));
         }
 
-        final long emojiStatusId = DialogObject.getEmojiStatusDocumentId(user.emoji_status);
+        final Long customDocId = org.telegram.messenger.UserObject.getEmojiStatusDocumentId(user);
+        final long emojiStatusId = customDocId != null ? customDocId : DialogObject.getEmojiStatusDocumentId(user.emoji_status);
         final boolean premium = MessagesController.getInstance(account).isPremiumUser(user);
         final int statusColor = Theme.getColor(COLOR_KEY_STATUS);
         if (emojiStatusId != 0) {
             premiumStatusDrawable.set(emojiStatusId, true);
-        } else if (premium) {
-            premiumStatusDrawable.set(PremiumGradient.getInstance().premiumStarDrawableMini, true);
         } else {
-            premiumStatusDrawable.set((Drawable) null, true);
+            premiumStatusDrawable.set(PremiumGradient.getInstance().premiumStarDrawableMini, true);
         }
         premiumStatusDrawable.setParticles(DialogObject.isEmojiStatusCollectible(user.emoji_status), true);
         premiumStatusDrawable.setColor(statusColor);
-        nameView.setRightDrawable(emojiStatusId != 0 || premium ? premiumStatusDrawable : null);
+        nameView.setRightDrawable(premiumStatusDrawable);
 
         updateProxyStatus();
     }
