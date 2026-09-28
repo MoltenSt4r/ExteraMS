@@ -47,6 +47,8 @@ public class LauncherIconController {
         // ExteraMS
         EXTERALESS("ExteralessIcon", R.drawable.exteraless_icon_background,
                 R.drawable.exteraless_icon_foreground, R.string.AppIconExteraless, IconGroup.EXTERAMS),
+        EXTERAMS_MD3("ExteraMSMD3Icon", R.drawable.exterams_md3_icon_background,
+                R.drawable.exterams_md3_icon_foreground, R.string.AppIconExteraMSMD3, IconGroup.EXTERAMS),
         EXTERAMS_DOTTED("ExteraMSDottedIcon", R.drawable.exterams_dotted_icon_background,
                 R.drawable.exterams_dotted_icon_foreground, R.string.AppIconExteraMSDotted, IconGroup.EXTERAMS),
         MOLTENSTAR("MoltenStarIcon", R.drawable.moltenstar_icon_background,

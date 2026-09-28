@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Монохромный логотип exteraless classic. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M48.5055 58.815C51.0655 61.365 53.4555 65.675 55.2755 69.525C56.4955 72.115 60.5055 72.015 61.4155 69.305L71.1955 39.955C71.9855 37.615 69.7455 35.385 67.3955 36.155L38.0955 45.955C35.3855 46.855 35.2955 50.875 37.8755 52.095C41.6955 53.895 45.9655 56.265 48.5055 58.815Z"/>
+</vector>

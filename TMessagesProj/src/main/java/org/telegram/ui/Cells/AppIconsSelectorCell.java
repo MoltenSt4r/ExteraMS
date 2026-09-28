@@ -87,6 +87,7 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
                 holderView.iconView.setBackground(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(ICONS_ROUND_RADIUS), Color.TRANSPARENT, Theme.getColor(Theme.key_listSelector), Color.BLACK));
                 holderView.iconView.setForeground(icon.foreground);
                 holderView.iconView.setIsNekoXIcon(false);
+                holderView.iconView.setAdaptiveIconMode(icon.group != LauncherIconController.IconGroup.TELEGRAM);
             }
 
             @Override
@@ -106,10 +107,10 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
                 } else {
                     int itemCount = getAdapter().getItemCount();
                     int width = getWidth();
-                    if (itemCount == 4 && width > AndroidUtilities.dp(36 + 58 * 4)) {
+                    if (itemCount <= 4 && itemCount > 1 && width > AndroidUtilities.dp(36 + 58 * itemCount)) {
                         outRect.right = (width - AndroidUtilities.dp(36) - AndroidUtilities.dp(58) * itemCount) / (itemCount - 1);
                     } else {
-                        outRect.right = AndroidUtilities.dp(24);
+                        outRect.right = AndroidUtilities.dp(20);
                     }
                 }
             }
@@ -340,6 +341,16 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
 
         public void setIsNekoXIcon(boolean value) {
             this.isNekoXIcon = value;
+        }
+
+        public void setAdaptiveIconMode(boolean adaptive) {
+            if (adaptive) {
+                outerPadding = AndroidUtilities.dp(2.5f);
+                backgroundOuterPadding = AndroidUtilities.dp(5);
+            } else {
+                outerPadding = AndroidUtilities.dp(5);
+                backgroundOuterPadding = AndroidUtilities.dp(42);
+            }
         }
 
         @Override
