@@ -44,67 +44,91 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install fdroidserver
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y fdroidserver
+          sudo apt-get install -y fdroidserver python3-yaml
 
-      - name: Prepare F-Droid workspace
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build F-Droid repository
         run: |
-          TAG="${{ github.event.inputs.tag || github.event.release.tag_name || 'v12.10.3' }}"
-          echo "Processing release tag: $TAG"
-
-          mkdir -p fdroid_build/repo
-          mkdir -p fdroid_build/metadata
-
-          # Copy metadata
-          if [ -f .github/fdroid/metadata/com.exterams.app.yml ]; then
-            cp .github/fdroid/metadata/com.exterams.app.yml fdroid_build/metadata/
-          fi
-
-          # Download APK from GitHub Releases
-          echo "Downloading APK for $TAG..."
-          gh release download "$TAG" --repo "${{ github.repository }}" --pattern "*.apk" --dir fdroid_build/repo || {
-            echo "gh release download failed or no files matched, falling back to curl..."
-            curl -sL "https://github.com/${{ github.repository }}/releases/download/${TAG}/ExteraMS-${TAG}-4c39727.1261.apk" -o "fdroid_build/repo/ExteraMS-${TAG}.apk" || true
-          }
-
-          ls -lh fdroid_build/repo/
-
-      - name: Configure and build F-Droid repository index
-        run: |
+          mkdir -p fdroid_build
           cd fdroid_build
 
-          # Copy signing keystore
+          # Run fdroid init to discover environment and setup baseline config
+          fdroid init
+
+          # Overwrite default keystore with ExteraMS release.keystore
           cp ../TMessagesProj/release.keystore keystore.p12
 
-          # Copy app icon for repository
-          mkdir -p icons
+          # Copy launcher icon for the repository
           if [ -f ../TMessagesProj/src/main/res/mipmap-xxxhdpi/ic_launcher.png ]; then
+            mkdir -p icons
             cp ../TMessagesProj/src/main/res/mipmap-xxxhdpi/ic_launcher.png icons/icon.png
           fi
 
-          cat << 'EOF' > config.yml
-          repo_url: "https://moltenst4r.github.io/ExteraMS/fdroid/repo"
-          repo_name: "ExteraMS F-Droid Repository"
-          repo_icon: "icon.png"
-          repo_description: "Официальный F-Droid репозиторий ExteraMS — Material Design 3 Telegram Client"
-          keystore: "keystore.p12"
-          keystorepass: "android"
-          repo_keyalias: "exterams"
-          keypass: "android"
-          archive_older: 0
-          EOF
+          # Safely update config.yml using Python
+          python3 -c "
+          import yaml
+          with open('config.yml') as f:
+              cfg = yaml.safe_load(f)
 
-          # Configure Android SDK build-tools path for aapt
-          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          export PATH="$ANDROID_HOME/build-tools/34.0.0:$PATH"
+          cfg['repo_url'] = 'https://moltenst4r.github.io/ExteraMS/fdroid/repo'
+          cfg['repo_name'] = 'ExteraMS F-Droid Repository'
+          cfg['repo_icon'] = 'icon.png'
+          cfg['repo_description'] = 'Официальный F-Droid репозиторий ExteraMS — Material Design 3 Telegram Client'
+          cfg['keystore'] = 'keystore.p12'
+          cfg['keystorepass'] = 'android'
+          cfg['repo_keyalias'] = 'exterams'
+          cfg['keypass'] = 'android'
+          cfg['archive_older'] = 0
+
+          with open('config.yml', 'w') as f:
+              yaml.dump(cfg, f, default_flow_style=False)
+          "
+
+          # Restrict permissions as required by fdroidserver
+          chmod 600 config.yml
+
+          # Download APK files directly from GitHub Release
+          export GITHUB_REPOSITORY="${{ github.repository }}"
+          export TARGET_TAG="${{ github.event.inputs.tag || github.event.release.tag_name || 'v12.10.3' }}"
+          python3 -c "
+          import json, urllib.request, os
+          repo = os.environ.get('GITHUB_REPOSITORY', 'MoltenSt4r/ExteraMS')
+          tag = os.environ.get('TARGET_TAG', 'v12.10.3')
+          url = f'https://api.github.com/repos/{repo}/releases/tags/{tag}'
+          print(f'Fetching release info from {url}...')
+          req = urllib.request.Request(url, headers={'User-Agent': 'Actions-Runner'})
+          try:
+              data = json.loads(urllib.request.urlopen(req).read().decode())
+              os.makedirs('repo', exist_ok=True)
+              found = False
+              for asset in data.get('assets', []):
+                  name = asset.get('name', '')
+                  if name.endswith('.apk'):
+                      found = True
+                      dl = asset.get('browser_download_url')
+                      target_path = os.path.join('repo', name)
+                      print(f'Downloading {name}...')
+                      urllib.request.urlretrieve(dl, target_path)
+                      print(f'Downloaded {name} ({os.path.getsize(target_path)} bytes)')
+              if not found:
+                  raise RuntimeError(f'No APK assets found in release {tag}')
+          except Exception as e:
+              print(f'Error downloading APK: {e}')
+              raise
+          "
+
+          # Copy app metadata
+          if [ -f ../.github/fdroid/metadata/com.exterams.app.yml ]; then
+            mkdir -p metadata
+            cp ../.github/fdroid/metadata/com.exterams.app.yml metadata/
+          fi
 
           # Update and sign repository metadata
           fdroid update --create-metadata --verbose
 
+          echo "Repository generation finished successfully."
           ls -la repo/
 
       - name: Prepare GitHub Pages deployment artifacts
@@ -117,7 +141,7 @@ jobs:
             cp -r fdroid_build/icons deploy_pages/fdroid/
           fi
 
-          # Prevent Jekyll processing
+          # Prevent Jekyll processing on GitHub Pages
           touch deploy_pages/.nojekyll
           touch deploy_pages/fdroid/.nojekyll
 
@@ -154,6 +178,7 @@ jobs:
       - name: Deploy to GitHub Pages (gh-pages)
         uses: JamesIves/github-pages-deploy-action@v4
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: deploy_pages
           clean: false
