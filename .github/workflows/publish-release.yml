@@ -1,0 +1,35 @@
+name: Publish Existing Build
+
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact from previous run
+        uses: actions/download-artifact@v4
+        with:
+          name: Release
+          run-id: 36388025054
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: apk_release
+
+      - name: Inspect downloaded files
+        run: |
+          ls -la apk_release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: test-build
+          name: ExteraMS Test Build
+          body: |
+            Тестовая сборка ExteraMS с новым брендингом, именем пакета com.exterams.app и новым логотипом.
+          files: apk_release/*.apk
