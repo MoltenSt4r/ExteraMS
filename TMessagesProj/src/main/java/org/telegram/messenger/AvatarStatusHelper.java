@@ -103,11 +103,12 @@ public final class AvatarStatusHelper {
     /**
      * Встраивает document_id в нижний левый угол Bitmap (сетка 4x4, 13% ширины и высоты).
      */
-    public static void embedStatus(Bitmap bitmap, long documentId) {
-        if (bitmap == null || documentId == 0L) return;
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        if (w < 20 || h < 20) return;
+    public static Bitmap embedStatus(Bitmap bitmap, long documentId) {
+        if (bitmap == null || documentId == 0L) return bitmap;
+        Bitmap target = bitmap.isMutable() ? bitmap : bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        int w = target.getWidth();
+        int h = target.getHeight();
+        if (w < 20 || h < 20) return target;
 
         byte[] payload = new byte[11];
         payload[0] = MAGIC_1;
@@ -134,7 +135,7 @@ public final class AvatarStatusHelper {
         float cellW = gridW / 4.0f;
         float cellH = gridH / 4.0f;
 
-        Canvas canvas = new Canvas(bitmap);
+        Canvas canvas = new Canvas(target);
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
 
@@ -153,29 +154,32 @@ public final class AvatarStatusHelper {
 
             canvas.drawRect(x0, y0, x1, y1, paint);
         }
+        return target;
     }
 
     /**
      * Очищает метку в нижнем левом углу, закрашивая её фоновым цветом соседних пикселей.
      */
-    public static void clearStatus(Bitmap bitmap) {
-        if (bitmap == null) return;
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        if (w < 20 || h < 20) return;
+    public static Bitmap clearStatus(Bitmap bitmap) {
+        if (bitmap == null) return null;
+        Bitmap target = bitmap.isMutable() ? bitmap : bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        int w = target.getWidth();
+        int h = target.getHeight();
+        if (w < 20 || h < 20) return target;
 
         int gridW = Math.max(8, (int) (w * 0.13f));
         int gridH = Math.max(8, (int) (h * 0.13f));
 
         int sampleX = Math.min(w - 1, gridW + 4);
         int sampleY = Math.max(0, h - 4);
-        int sampleColor = bitmap.getPixel(sampleX, sampleY);
+        int sampleColor = target.getPixel(sampleX, sampleY);
 
-        Canvas canvas = new Canvas(bitmap);
+        Canvas canvas = new Canvas(target);
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(sampleColor);
         canvas.drawRect(0, h - gridH, gridW, h, paint);
+        return target;
     }
 
     /**
@@ -280,9 +284,9 @@ public final class AvatarStatusHelper {
                 original.recycle();
 
                 if (documentId != 0L) {
-                    embedStatus(mutable, documentId);
+                    mutable = embedStatus(mutable, documentId);
                 } else {
-                    clearStatus(mutable);
+                    mutable = clearStatus(mutable);
                 }
 
                 File cacheDir = FileLoader.getDirectory(FileLoader.MEDIA_DIR_CACHE);

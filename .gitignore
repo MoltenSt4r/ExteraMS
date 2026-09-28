@@ -23,7 +23,6 @@ __pycache__/
 hs_err_pid*.log
 replay_pid*.log
 
-# Ключ подписи
-TMessagesProj/release.keystore
+# Ключ подписи (папка release)
 TMessagesProj/release/
 tests/local/

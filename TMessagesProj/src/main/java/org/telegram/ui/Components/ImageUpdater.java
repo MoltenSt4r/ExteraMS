@@ -886,7 +886,7 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
             TLRPC.User currentUser = UserConfig.getInstance(currentAccount).getCurrentUser();
             Long currentDocId = UserObject.getEmojiStatusDocumentId(currentUser);
             if (currentDocId != null && currentDocId != 0L) {
-                AvatarStatusHelper.embedStatus(bitmap, currentDocId);
+                bitmap = AvatarStatusHelper.embedStatus(bitmap, currentDocId);
             }
         }
         bigPhoto = ImageLoader.scaleAndSaveImage(bitmap, 800, 800, 80, false, 320, 320);
