@@ -69,7 +69,7 @@
     <string name="OEGeneralImportEtgDone">Settings imported: %1$d</string>
     <string name="OEGeneralResetSettings">Reset Settings</string>
     <string name="OEGeneralResetSettingsInfo">All settings will be reset to their default values, and the app will restart.</string>
-    <string name="OEGeneralResetSettingsDone">exteraless preferences have been reset.</string>
+    <string name="OEGeneralResetSettingsDone">ExteraMS preferences have been reset.</string>
     <string name="OEGeneralDeleteAccount">Delete Account</string>
     <string name="DeepLFormalityDefault">Tone: as it comes</string>
     <string name="DeepLFormalityInformal">Tone: informal</string>
@@ -109,7 +109,7 @@
     <string name="OEGeneralMapProvider">Map provider</string>
     <string name="OEGeneralMapPreview">Location previews</string>
     <string name="OEGeneralMapDriftingFix">Fix map drifting</string>
-    <string name="OECrashTitle">exteraless crashed</string>
+    <string name="OECrashTitle">ExteraMS crashed</string>
     <string name="OEGeneralNetworkHeader">Network</string>
     <string name="OEGeneralDnsOverHttps" translatable="false">DNS over HTTPS</string>
     <string name="OEPrivacyFalseBottom">False Bottom</string>
@@ -125,7 +125,7 @@
     <string name="CloudConfigIncludeApiKeysDesc">API keys of AI and translation services are uploaded to the cloud too.</string>
     <string name="OECloudTitle">Cloud</string>
     <string name="OECloudHeroTitle">Settings in the cloud</string>
-    <string name="OECloudHeroText">Keep your exteraless settings in Telegram and restore them on any device signed in to this account.</string>
+    <string name="OECloudHeroText">Keep your ExteraMS settings in Telegram and restore them on any device signed in to this account.</string>
     <string name="OECloudStatus">Status</string>
     <string name="OECloudLocal">This device</string>
     <string name="OECloudRemote">Cloud</string>

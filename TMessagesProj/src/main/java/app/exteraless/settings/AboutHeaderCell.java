@@ -35,8 +35,8 @@ import org.telegram.ui.Components.LayoutHelper;
  */
 public class AboutHeaderCell extends LinearLayout {
 
-    /** Цвет подложки иконки приложения, как R.color.ic_background в exteraGram. */
-    private static final int LOGO_BACKGROUND = 0xFFE83030;
+    /** Цвет подложки иконки приложения, Molten (#E53935). */
+    private static final int LOGO_BACKGROUND = 0xFFE53935;
 
     /** Путь формы логотипа. Считается один раз, сбрасывается при смене режима. */
     private Path shapePath;

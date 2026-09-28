@@ -50,7 +50,7 @@
     <string name="OEGeneralImportEtgDone">Ajustes importados: %1$d</string>
     <string name="OEGeneralResetSettings">Restablecer ajustes</string>
     <string name="OEGeneralResetSettingsInfo">Todos los ajustes volverán a sus valores predeterminados y la app se reiniciará.</string>
-    <string name="OEGeneralResetSettingsDone">Se restablecieron los ajustes de exteraless.</string>
+    <string name="OEGeneralResetSettingsDone">Se restablecieron los ajustes de ExteraMS.</string>
     <string name="OEGeneralDeleteAccount">Eliminar cuenta</string>
     <string name="DeepLFormalityDefault">Tono: como venga</string>
     <string name="DeepLFormalityInformal">Tono: informal</string>
@@ -90,7 +90,7 @@
     <string name="OEGeneralMapProvider">Proveedor de mapas</string>
     <string name="OEGeneralMapPreview">Vistas previas de ubicación</string>
     <string name="OEGeneralMapDriftingFix">Corregir el desplazamiento del mapa</string>
-    <string name="OECrashTitle">exteraless se cerró inesperadamente</string>
+    <string name="OECrashTitle">ExteraMS se cerró inesperadamente</string>
     <string name="OEGeneralNetworkHeader">Red</string>
     <string name="OEPrivacyFalseBottom">Doble fondo</string>
     <string name="OEPrivacyFalseBottomShowIn">Mostrar en %1$s</string>

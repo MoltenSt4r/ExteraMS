@@ -1,12 +1,13 @@
 <div align="center">
 
-<img src="assets/logo.png" width="128" alt="exteraless">
+<img src="assets/logo.png" width="128" alt="ExteraMS">
 
-# exteraless
+# ExteraMS
 
-Открытая версия exteraGram — с моделью разрешений для плагинов
+Экспериментальный форк exteraless — новые фишки раньше всех
 
-[![Канал](https://img.shields.io/badge/Telegram-@exteraless-2CA5E0?logo=telegram&logoColor=white)](https://t.me/exteraless)
+[![Исходный код](https://img.shields.io/badge/GitHub-MoltenSt4r%2FExteraMS-red?logo=github)](https://github.com/MoltenSt4r/ExteraMS)
+[![Upstream](https://img.shields.io/badge/Upstream-exteraless-blue?logo=github)](https://github.com/exteraless/exteraless)
 
 </div>
 
@@ -14,31 +15,29 @@
 
 ## Что это
 
-exteraless — форк [NagramX](https://github.com/risin42/NagramX), в котором возможности
-exteraGram реализованы с открытым исходным кодом.
+**ExteraMS** — экспериментальный форк [exteraless](https://github.com/exteraless/exteraless) (идейного наследника [exteraGram](https://github.com/exteraSquad/exteraGram) и [NagramX](https://github.com/risin42/NagramX)).
 
-Отдельный упор — **безопасность плагинов**. В exteraGram плагин не ограничен ни в чём;
-здесь у него есть модель разрешений: плагин объявляет, что ему нужно, это
-видно на экране установки, и получает он только заявленное.
+**Суть и концепция проекта:**
+- **Ранний доступ к новым возможностям:** внедрение и тестирование свежих функций, интерфейсных улучшений и оптимизаций раньше, чем они попадут в основной репозиторий exteraless.
+- **Bleeding-edge:** сборки носят статус экспериментальных и могут быть нестабильными.
+- **Дружественность к апстриму:** проект **не является конкурентом** exteraless или другим клиентам Telegram. Это площадка для обкатки идей, лучшие из которых могут быть предложены в upstream.
+- **Безопасность плагинов:** сохраняется изоляция и строгая модель разрешений для плагинов из exteraless.
 
-Проект **в бете**: часть возможностей exteraGram ещё не перенесена. Если заметили, что
-каких-то функций не хватает, — откройте issue или напишите в [канал](https://t.me/exteraless?direct).
-
-* Имя пакета: `com.exteraless.app`
-* Что перенесено: экраны настроек, оформление и параметры чатов, иконпаки, полоса
-  пилюль (Pill Stack), боковое меню, движок Python-плагинов
+* **Имя пакета:** `com.exterams.app` (позволяет устанавливать приложение параллельно с exteraless)
+* **Что под капотом:** модули оформления и параметров чатов, иконпаки, полоса пилюль (Pill Stack), расширенное боковое меню, движок Python-плагинов и экспериментальные доработки ExteraMS.
 
 ### Ссылки
 
-* Канал: [@exteraless](https://t.me/exteraless)
-* Исходники: [github.com/exteraless/exteraless](https://github.com/exteraless/exteraless)
+* Исходный код ExteraMS: [github.com/MoltenSt4r/ExteraMS](https://github.com/MoltenSt4r/ExteraMS)
+* Исходный код апстрима (exteraless): [github.com/exteraless/exteraless](https://github.com/exteraless/exteraless)
+* Канал апстрима: [@exteraless](https://t.me/exteraless)
 
 ### Сборка
 
 1. Склонировать репозиторий вместе с подмодулями:
 
     ```bash
-    git clone --recursive --shallow-submodules https://github.com/exteraless/exteraless.git exteraless
+    git clone --recursive --shallow-submodules git@github.com:MoltenSt4r/ExteraMS.git ExteraMS
     ```
 
     Если репозиторий уже склонирован без подмодулей:
@@ -67,7 +66,7 @@ exteraGram реализованы с открытым исходным кодо�
    отладочным ключом Android.
 
 4. Для push-уведомлений положить свой `TMessagesProj/google-services.json`
-   (Firebase, имя пакета `com.exteraless.app`).
+   (Firebase, имя пакета `com.exterams.app`).
 
 5. Заменить метаданные проекта:
 
@@ -99,14 +98,10 @@ Python 3.12 лишь под них, и на `armeabi-v7a` конфигураци
 
 Дальше запустить workflow **Release Build**. Готовый APK лежит в артефактах прогона.
 
-### Авторы дизайна
+### Авторы дизайна и благодарности
 
-Иконки и оформление, унаследованные от exteraGram, созданы его дизайнером —
-[@the8055u](https://t.me/the8055u) и студией [@BlueprintDsgn](https://t.me/BlueprintDsgn).
-Права на эти материалы принадлежат авторам.
-
-### Благодарности
-
+- Дизайн и иконки exteraGram: [@the8055u](https://t.me/the8055u) и студия [@BlueprintDsgn](https://t.me/BlueprintDsgn).
+- [exteraless](https://github.com/exteraless/exteraless)
 - [AyuGram](https://github.com/AyuGram/AyuGram4A)
 - [Cherrygram](https://github.com/arsLan4k1390/Cherrygram)
 - [Dr4iv3rNope](https://github.com/Dr4iv3rNope/NotSoAndroidAyuGram)
@@ -122,30 +117,28 @@ Python 3.12 лишь под них, и на `armeabi-v7a` конфигураци
 
 ### What this is
 
-exteraless is a fork of [NagramX](https://github.com/risin42/NagramX) that implements
-exteraGram's features open-source.
+**ExteraMS** is an experimental fork of [exteraless](https://github.com/exteraless/exteraless) (and spiritual successor to [exteraGram](https://github.com/exteraSquad/exteraGram) & [NagramX](https://github.com/risin42/NagramX)).
 
-The special focus is **plugin security**. In exteraGram a plugin is not restricted in
-any way; here it comes with a permission model and isolation: a plugin declares what it
-needs, you see that on the install sheet, and it gets only what was declared.
+**Core concept:**
+- **Early access to new features:** Bringing and testing new features, UI tweaks, and optimizations before they land in upstream exteraless.
+- **Bleeding-edge:** Builds are experimental and generally unstable.
+- **Not a competitor:** ExteraMS is **not** a competitor to exteraless or any other client. It serves as a testing ground for experimental ideas that can later be upstreamed.
+- **Plugin isolation:** Retains exteraless's secure plugin permission model.
 
-The project is **in beta**: some exteraGram features have not been ported yet. If you
-notice a missing feature, open an issue or write to the [channel](https://t.me/exteraless?direct).
+* **Package name:** `com.exterams.app` (allows co-existence alongside exteraless on the same device)
 
-* Package name: `com.exteraless.app`
+### Links
 
-### Design credits
-
-Icons and visual design inherited from exteraGram are the work of its designer,
-[@the8055u](https://t.me/the8055u), and the [@BlueprintDsgn](https://t.me/BlueprintDsgn)
-studio. Rights to those materials belong to their authors.
+* ExteraMS repository: [github.com/MoltenSt4r/ExteraMS](https://github.com/MoltenSt4r/ExteraMS)
+* Upstream repository: [github.com/exteraless/exteraless](https://github.com/exteraless/exteraless)
+* Upstream channel: [@exteraless](https://t.me/exteraless)
 
 ### Building
 
 1. Clone with submodules:
 
     ```bash
-    git clone --recursive --shallow-submodules https://github.com/exteraless/exteraless.git exteraless
+    git clone --recursive --shallow-submodules git@github.com:MoltenSt4r/ExteraMS.git ExteraMS
     ```
 
 2. Get `TELEGRAM_APP_ID` and `TELEGRAM_APP_HASH` from [my.telegram.org](https://my.telegram.org/auth)
@@ -156,7 +149,7 @@ studio. Rights to those materials belong to their authors.
    shipped with the repository; without one the build is signed with the Android debug key.
 
 4. For push notifications, replace `TMessagesProj/google-services.json` with your own
-   Firebase config for `com.exteraless.app`.
+   Firebase config for `com.exterams.app`.
 
 5. Build with `./gradlew :TMessagesProj:assembleDebug` or from Android Studio.
 
