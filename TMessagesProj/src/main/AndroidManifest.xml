@@ -134,7 +134,7 @@
              У NagramX эту роль играл BlueIcon, из-за чего на свежей установке
              на рабочем столе появлялась синяя иконка апстрима. -->
         <activity-alias
-            android:enabled="true"
+            android:enabled="false"
             android:name="org.telegram.messenger.ExteralessIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
             android:icon="@mipmap/ic_launcher_exteraless"
@@ -150,7 +150,7 @@
         </activity-alias>
 
         <activity-alias
-            android:enabled="false"
+            android:enabled="true"
             android:name="org.telegram.messenger.ExteraMSMD3Icon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
             android:icon="@mipmap/ic_launcher_exterams_md3"
@@ -203,22 +203,6 @@
             android:targetActivity="org.telegram.ui.LaunchActivity"
             android:icon="@mipmap/ic_launcher_moltenstar_dotted"
             android:roundIcon="@mipmap/ic_launcher_moltenstar_dotted_round"
-            android:exported="true">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-            </intent-filter>
-            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
-        </activity-alias>
-
-        <activity-alias
-            android:enabled="false"
-            android:name="org.telegram.messenger.ExteralessClassicIcon"
-            android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_exteraless_classic"
-            android:roundIcon="@mipmap/ic_launcher_exteraless_classic_round"
             android:exported="true">
 
             <intent-filter>

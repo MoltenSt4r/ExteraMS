@@ -44,10 +44,11 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
     private int sourceRow;
     private int linksDividerRow;
 
-    private int designHeaderRow;
-    private int designerRow;
-    private int designStudioRow;
-    private int designDividerRow;
+    private int creditsHeaderRow;
+    private int creditsExteralessRow;
+    private int creditsNagramXRow;
+    private int creditsMaterialgramRow;
+    private int creditsDividerRow;
 
     @Override
     protected void updateRows() {
@@ -68,10 +69,11 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
         sourceRow = addRow("source");
         linksDividerRow = addRow();
 
-        designHeaderRow = addRow("designHeader");
-        designerRow = addRow("designer");
-        designStudioRow = addRow("designStudio");
-        designDividerRow = addRow();
+        creditsHeaderRow = addRow("creditsHeader");
+        creditsExteralessRow = addRow("creditsExteraless");
+        creditsNagramXRow = addRow("creditsNagramX");
+        creditsMaterialgramRow = addRow("creditsMaterialgram");
+        creditsDividerRow = addRow();
     }
 
     /**
@@ -190,10 +192,12 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
         } else if (position == sourceRow) {
             org.telegram.messenger.browser.Browser.openUrl(getParentActivity(),
                     "https://github.com/MoltenSt4r/ExteraMS");
-        } else if (position == designerRow) {
-            getMessagesController().openByUserName("the8055u", this, 1);
-        } else if (position == designStudioRow) {
-            getMessagesController().openByUserName("BlueprintDsgn", this, 1);
+        } else if (position == creditsExteralessRow) {
+            getMessagesController().openByUserName("exteraless", this, 1);
+        } else if (position == creditsNagramXRow) {
+            getMessagesController().openByUserName("NagramX", this, 1);
+        } else if (position == creditsMaterialgramRow) {
+            getMessagesController().openByUserName("materialgram", this, 1);
         }
     }
 
@@ -221,8 +225,8 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
             switch (holder.getItemViewType()) {
                 case TYPE_HEADER: {
                     HeaderCell cell = (HeaderCell) holder.itemView;
-                    if (position == designHeaderRow) {
-                        cell.setText(getString(R.string.OpenExteraDesignSection));
+                    if (position == creditsHeaderRow) {
+                        cell.setText(getString(R.string.OpenExteraCreditsSection));
                     } else if (position == categoriesHeaderRow) {
                         cell.setText(getString(R.string.OpenExteraCategories));
                     } else if (position == linksHeaderRow) {
@@ -248,12 +252,15 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
                     } else if (position == sourceRow) {
                         cell.setTextAndValueAndIcon(getString(R.string.OpenExteraSource),
                                 "GitHub", R.drawable.msg_language, false);
-                    } else if (position == designerRow) {
-                        cell.setTextAndValueAndIcon(getString(R.string.OpenExteraDesigner),
-                                "@the8055u", R.drawable.msg_theme, true);
-                    } else if (position == designStudioRow) {
-                        cell.setTextAndValueAndIcon(getString(R.string.OpenExteraDesignStudio),
-                                "@BlueprintDsgn", R.drawable.msg_groups, false);
+                    } else if (position == creditsExteralessRow) {
+                        cell.setTextAndValueAndIcon("exteraless",
+                                "@exteraless", R.drawable.msg_channel, true);
+                    } else if (position == creditsNagramXRow) {
+                        cell.setTextAndValueAndIcon("NagramX",
+                                "@NagramX", R.drawable.msg_channel, true);
+                    } else if (position == creditsMaterialgramRow) {
+                        cell.setTextAndValueAndIcon("materialgram",
+                                "@materialgram", R.drawable.msg_channel, false);
                     }
                     // ВАЖНО: только после setTextAndIcon* — они сбрасывают imageLeft в 16dp.
                     // Метрики сняты с 12.9.0 (420 dpi): иконка 88px от края экрана, текст 219px,
@@ -264,7 +271,7 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
                 }
                 case TYPE_INFO_PRIVACY: {
                     TextInfoPrivacyCell cell = (TextInfoPrivacyCell) holder.itemView;
-                    if (position == designDividerRow) {
+                    if (position == creditsDividerRow) {
                         cell.setText(null);
                         cell.setBackground(Theme.getThemedDrawable(mContext,
                                 R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
@@ -284,13 +291,13 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
             if (position == aboutRow) {
                 return TYPE_ABOUT;
             } else if (position == categoriesHeaderRow || position == linksHeaderRow
-                    || position == designHeaderRow) {
+                    || position == creditsHeaderRow) {
                 return TYPE_HEADER;
             } else if (position == categoriesDividerRow || position == linksDividerRow) {
                 // Промежуток между секциями — тень фиксированной высоты. TextInfoPrivacyCell
                 // здесь держал высоту под подпись, которой нет, и оставлял пустое поле.
                 return TYPE_SHADOW;
-            } else if (position == designDividerRow) {
+            } else if (position == creditsDividerRow) {
                 return TYPE_INFO_PRIVACY;
             }
             return TYPE_TEXT;

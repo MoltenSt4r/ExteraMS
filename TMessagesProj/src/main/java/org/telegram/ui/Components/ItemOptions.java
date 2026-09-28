@@ -1447,6 +1447,9 @@ public class ItemOptions {
                 X = (int) (container.getX() + x + scrimViewBounds.width() - layoutBounds.right);
             } else if (gravity == Gravity.CENTER_HORIZONTAL) {
                 X = (int) (container.getX() + x + scrimViewBounds.width() / 2.0f - layout.getMeasuredWidth() / 2.0f);
+                if (container != null && layout != null) {
+                    X = Math.max(AndroidUtilities.dp(8), Math.min(X, container.getWidth() - layout.getMeasuredWidth() - AndroidUtilities.dp(8)));
+                }
             } else {
                 if (x + layoutBounds.width() > container.getWidth()) {
                     X = (int) (container.getX() + x + scrimViewBounds.width() - layoutBounds.right);
@@ -1671,6 +1674,9 @@ public class ItemOptions {
             X = (int) (container.getX() + x + scrimViewBounds.width() - layoutBounds.right);
         } else if (gravity == Gravity.CENTER_HORIZONTAL) {
             X = (int) (container.getX() + x + scrimViewBounds.width() / 2.0f - layout.getMeasuredWidth() / 2.0f);
+            if (container != null && layout != null) {
+                X = Math.max(AndroidUtilities.dp(8), Math.min(X, container.getWidth() - layout.getMeasuredWidth() - AndroidUtilities.dp(8)));
+            }
         } else {
             if (x + layoutBounds.width() > container.getWidth()) {
                 X = (int) (container.getX() + x + scrimViewBounds.width() - layoutBounds.right);

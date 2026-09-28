@@ -1560,6 +1560,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     }
 
     private void setupPopupMenuStyle(ItemOptions options) {
+        options.setGravity(Gravity.CENTER_HORIZONTAL);
         options.setBlur(true);
         options.translate(0, -dp(4));
         final android.graphics.drawable.Drawable bg = MainTabsUiHelper.createMainTabsScrimBackground(resourceProvider, false);

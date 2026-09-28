@@ -26,7 +26,7 @@
     <string name="AppIconsExteraMS" translatable="false">Иконки ExteraMS</string>
     <string name="AppIconsExteraless" translatable="false">Иконки exteraless</string>
     <string name="AppIconsTelegram" translatable="false">Иконки Telegram</string>
-    <string name="AppIconExteraless" translatable="false">ExteraMS</string>
+    <string name="AppIconExteraless" translatable="false">exteraless</string>
     <string name="AppIconExteraMSMD3" translatable="false">ExteraMS MD3</string>
     <string name="AppIconExteraMSDotted" translatable="false">ExteraMS Точки</string>
     <string name="AppIconMoltenStar" translatable="false">MoltenStar</string>
@@ -38,9 +38,10 @@
     <string name="AppIconAyu" translatable="false">Ayu</string>
     <string name="AppIconQuack" translatable="false">Quack</string>
     <string name="OpenExteraPreferences">Настройки ExteraMS</string>
-    <string name="OpenExteraDesignSection">Дизайн</string>
-    <string name="OpenExteraDesigner">Иконки и дизайн</string>
-    <string name="OpenExteraDesignStudio">Студия дизайна</string>
+    <string name="OpenExteraCreditsSection">Благодарности</string>
+    <string name="OpenExteraCreditsExteraless" translatable="false">@exteraless</string>
+    <string name="OpenExteraCreditsNagramX" translatable="false">@NagramX</string>
+    <string name="OpenExteraCreditsMaterialgram" translatable="false">@materialgram</string>
     <string name="OEDownloadEmojiPacks">Загружать наборы эмодзи</string>
     <string name="OEChooseSubtitles">Выбрать субтитры</string>
     <string name="OEDisableSubtitles">Выключить субтитры</string>

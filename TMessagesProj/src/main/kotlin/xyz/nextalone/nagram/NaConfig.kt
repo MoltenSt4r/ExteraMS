@@ -181,7 +181,7 @@ object NaConfig {
         addConfig(
             "CustomTitle",
             ConfigItem.configTypeString,
-            "exteraless"
+            "ExteraMS"
         )
     val dateOfForwardedMsg =
         addConfig(
@@ -1621,6 +1621,11 @@ object NaConfig {
         val normalizedLlmApiUrl = UrlNormalizer.normalizeBaseUrl(currentLlmApiUrl)
         if (normalizedLlmApiUrl != currentLlmApiUrl) {
             llmApiUrl.setConfigString(normalizedLlmApiUrl)
+        }
+
+        val currentTitle = customTitle.String()
+        if (currentTitle.equals("exteraless", ignoreCase = true) || currentTitle.equals("exteraGram", ignoreCase = true)) {
+            customTitle.setConfigString("ExteraMS")
         }
     }
 
