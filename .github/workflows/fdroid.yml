@@ -39,146 +39,97 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fdroidserver python3-yaml
+      - name: Install fdroidserver
+        run: pip install fdroidserver
 
       - name: Build F-Droid repository
         run: |
-          mkdir -p fdroid_build
-          cd fdroid_build
+          set -ex
 
-          # Run fdroid init to discover environment and setup baseline config
-          fdroid init
+          # Create fdroid workspace
+          mkdir -p fdroid_ws/repo fdroid_ws/metadata
 
-          # Overwrite default keystore with ExteraMS release.keystore
-          cp ../TMessagesProj/release.keystore keystore.p12
+          # Copy ExteraMS release keystore (PKCS12)
+          cp TMessagesProj/release.keystore fdroid_ws/keystore.p12
 
-          # Copy launcher icon for the repository
-          if [ -f ../TMessagesProj/src/main/res/mipmap-xxxhdpi/ic_launcher.png ]; then
-            mkdir -p icons
-            cp ../TMessagesProj/src/main/res/mipmap-xxxhdpi/ic_launcher.png icons/icon.png
+          # Copy metadata
+          if [ -f .github/fdroid/metadata/com.exterams.app.yml ]; then
+            cp .github/fdroid/metadata/com.exterams.app.yml fdroid_ws/metadata/
           fi
 
-          # Safely update config.yml using Python
-          python3 -c "
-          import yaml
-          with open('config.yml') as f:
-              cfg = yaml.safe_load(f)
+          # Write config.yml manually (no fdroid init)
+          cat > fdroid_ws/config.yml << 'CFGEOF'
+          repo_url: "https://moltenst4r.github.io/ExteraMS/fdroid/repo"
+          repo_name: "ExteraMS F-Droid Repository"
+          repo_description: "Official F-Droid repository for ExteraMS"
+          archive_older: 0
+          keystore: keystore.p12
+          keystorepass: android
+          repo_keyalias: exterams
+          keypass: android
+          keydname: "CN=ExteraMS, OU=MoltenStar, O=MoltenStar, L=Unknown, ST=Unknown, C=RU"
+          CFGEOF
+          chmod 0600 fdroid_ws/config.yml
 
-          cfg['repo_url'] = 'https://moltenst4r.github.io/ExteraMS/fdroid/repo'
-          cfg['repo_name'] = 'ExteraMS F-Droid Repository'
-          cfg['repo_icon'] = 'icon.png'
-          cfg['repo_description'] = 'Официальный F-Droid репозиторий ExteraMS — Material Design 3 Telegram Client'
-          cfg['keystore'] = 'keystore.p12'
-          cfg['keystorepass'] = 'android'
-          cfg['repo_keyalias'] = 'exterams'
-          cfg['keypass'] = 'android'
-          cfg['archive_older'] = 0
+          # Download APK from GitHub Release
+          TAG="${{ github.event.inputs.tag || github.event.release.tag_name || 'v12.10.3' }}"
+          echo "Downloading APK for release $TAG..."
+          cd fdroid_ws
 
-          with open('config.yml', 'w') as f:
-              yaml.dump(cfg, f, default_flow_style=False)
-          "
-
-          # Restrict permissions as required by fdroidserver
-          chmod 600 config.yml
-
-          # Download APK files directly from GitHub Release
-          export GITHUB_REPOSITORY="${{ github.repository }}"
-          export TARGET_TAG="${{ github.event.inputs.tag || github.event.release.tag_name || 'v12.10.3' }}"
-          python3 -c "
+          python3 << PYEOF
           import json, urllib.request, os
-          repo = os.environ.get('GITHUB_REPOSITORY', 'MoltenSt4r/ExteraMS')
-          tag = os.environ.get('TARGET_TAG', 'v12.10.3')
-          url = f'https://api.github.com/repos/{repo}/releases/tags/{tag}'
-          print(f'Fetching release info from {url}...')
-          req = urllib.request.Request(url, headers={'User-Agent': 'Actions-Runner'})
-          try:
-              data = json.loads(urllib.request.urlopen(req).read().decode())
-              os.makedirs('repo', exist_ok=True)
-              found = False
-              for asset in data.get('assets', []):
-                  name = asset.get('name', '')
-                  if name.endswith('.apk'):
-                      found = True
-                      dl = asset.get('browser_download_url')
-                      target_path = os.path.join('repo', name)
-                      print(f'Downloading {name}...')
-                      urllib.request.urlretrieve(dl, target_path)
-                      print(f'Downloaded {name} ({os.path.getsize(target_path)} bytes)')
-              if not found:
-                  raise RuntimeError(f'No APK assets found in release {tag}')
-          except Exception as e:
-              print(f'Error downloading APK: {e}')
-              raise
-          "
+          repo = "${{ github.repository }}"
+          tag = "$TAG"
+          url = f"https://api.github.com/repos/{repo}/releases/tags/{tag}"
+          print(f"Fetching release info: {url}")
+          req = urllib.request.Request(url, headers={"User-Agent": "fdroid-builder"})
+          data = json.loads(urllib.request.urlopen(req).read().decode())
+          found = False
+          for asset in data.get("assets", []):
+              name = asset.get("name", "")
+              if name.endswith(".apk"):
+                  found = True
+                  dl = asset["browser_download_url"]
+                  print(f"Downloading {name}...")
+                  urllib.request.urlretrieve(dl, f"repo/{name}")
+                  sz = os.path.getsize(f"repo/{name}")
+                  print(f"  -> {sz} bytes")
+          if not found:
+              raise RuntimeError(f"No APK assets in release {tag}")
+          PYEOF
 
-          # Copy app metadata
-          if [ -f ../.github/fdroid/metadata/com.exterams.app.yml ]; then
-            mkdir -p metadata
-            cp ../.github/fdroid/metadata/com.exterams.app.yml metadata/
-          fi
+          ls -lh repo/
 
-          # Update and sign repository metadata
-          fdroid update --create-metadata --verbose
+          # Build repo index
+          fdroid update --create-metadata --verbose 2>&1 || {
+            echo "=== fdroid update failed, dumping config ==="
+            cat config.yml
+            ls -la
+            ls -la repo/
+            exit 1
+          }
 
-          echo "Repository generation finished successfully."
+          echo "F-Droid repo built successfully"
           ls -la repo/
 
-      - name: Prepare GitHub Pages deployment artifacts
+      - name: Deploy to GitHub Pages
         run: |
-          mkdir -p deploy_pages/fdroid
+          mkdir -p deploy/fdroid
+          cp -r fdroid_ws/repo deploy/fdroid/
+          touch deploy/.nojekyll deploy/fdroid/.nojekyll
 
-          # Copy repo output
-          cp -r fdroid_build/repo deploy_pages/fdroid/
-          if [ -d fdroid_build/icons ]; then
-            cp -r fdroid_build/icons deploy_pages/fdroid/
-          fi
-
-          # Prevent Jekyll processing on GitHub Pages
-          touch deploy_pages/.nojekyll
-          touch deploy_pages/fdroid/.nojekyll
-
-          # Root redirect to main project hub
-          cat << 'EOF' > deploy_pages/index.html
-          <!DOCTYPE html>
-          <html lang="ru">
-          <head>
-            <meta charset="utf-8">
-            <meta http-equiv="refresh" content="0; url=https://moltenstar.space/#exterams">
-            <title>ExteraMS</title>
-          </head>
-          <body>
-            <p>Перенаправление на <a href="https://moltenstar.space/#exterams">moltenstar.space</a>...</p>
-          </body>
-          </html>
+          cat > deploy/index.html << 'EOF'
+          <!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=https://moltenstar.space/#exterams"><title>ExteraMS</title></head><body></body></html>
           EOF
 
-          # F-Droid landing redirect
-          cat << 'EOF' > deploy_pages/fdroid/index.html
-          <!DOCTYPE html>
-          <html lang="ru">
-          <head>
-            <meta charset="utf-8">
-            <meta http-equiv="refresh" content="0; url=https://moltenstar.space/#exterams">
-            <title>ExteraMS F-Droid Repository</title>
-          </head>
-          <body>
-            <p>Перенаправление на <a href="https://moltenstar.space/#exterams">moltenstar.space</a>...</p>
-          </body>
-          </html>
+          cat > deploy/fdroid/index.html << 'EOF'
+          <!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=https://moltenstar.space/#exterams"><title>ExteraMS F-Droid</title></head><body></body></html>
           EOF
 
-      - name: Deploy to GitHub Pages (gh-pages)
+      - name: Push to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
-          folder: deploy_pages
+          folder: deploy
           clean: false
