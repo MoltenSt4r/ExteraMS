@@ -1,0 +1,159 @@
+name: Update F-Droid Repository
+
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/fdroid.yml'
+      - '.github/fdroid/**'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build F-Droid repo for (e.g. v12.10.3)'
+        required: false
+        default: 'v12.10.3'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "fdroid-repo"
+  cancel-in-progress: true
+
+jobs:
+  fdroid:
+    name: Build & Publish F-Droid Repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install fdroidserver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fdroidserver
+
+      - name: Prepare F-Droid workspace
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.event.inputs.tag || github.event.release.tag_name || 'v12.10.3' }}"
+          echo "Processing release tag: $TAG"
+
+          mkdir -p fdroid_build/repo
+          mkdir -p fdroid_build/metadata
+
+          # Copy metadata
+          if [ -f .github/fdroid/metadata/com.exterams.app.yml ]; then
+            cp .github/fdroid/metadata/com.exterams.app.yml fdroid_build/metadata/
+          fi
+
+          # Download APK from GitHub Releases
+          echo "Downloading APK for $TAG..."
+          gh release download "$TAG" --repo "${{ github.repository }}" --pattern "*.apk" --dir fdroid_build/repo || {
+            echo "gh release download failed or no files matched, falling back to curl..."
+            curl -sL "https://github.com/${{ github.repository }}/releases/download/${TAG}/ExteraMS-${TAG}-4c39727.1261.apk" -o "fdroid_build/repo/ExteraMS-${TAG}.apk" || true
+          }
+
+          ls -lh fdroid_build/repo/
+
+      - name: Configure and build F-Droid repository index
+        run: |
+          cd fdroid_build
+
+          # Copy signing keystore
+          cp ../TMessagesProj/release.keystore keystore.p12
+
+          # Copy app icon for repository
+          mkdir -p icons
+          if [ -f ../TMessagesProj/src/main/res/mipmap-xxxhdpi/ic_launcher.png ]; then
+            cp ../TMessagesProj/src/main/res/mipmap-xxxhdpi/ic_launcher.png icons/icon.png
+          fi
+
+          cat << 'EOF' > config.yml
+          repo_url: "https://moltenst4r.github.io/ExteraMS/fdroid/repo"
+          repo_name: "ExteraMS F-Droid Repository"
+          repo_icon: "icon.png"
+          repo_description: "Официальный F-Droid репозиторий ExteraMS — Material Design 3 Telegram Client"
+          keystore: "keystore.p12"
+          keystorepass: "android"
+          repo_keyalias: "exterams"
+          keypass: "android"
+          archive_older: 0
+          EOF
+
+          # Configure Android SDK build-tools path for aapt
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export PATH="$ANDROID_HOME/build-tools/34.0.0:$PATH"
+
+          # Update and sign repository metadata
+          fdroid update --create-metadata --verbose
+
+          ls -la repo/
+
+      - name: Prepare GitHub Pages deployment artifacts
+        run: |
+          mkdir -p deploy_pages/fdroid
+
+          # Copy repo output
+          cp -r fdroid_build/repo deploy_pages/fdroid/
+          if [ -d fdroid_build/icons ]; then
+            cp -r fdroid_build/icons deploy_pages/fdroid/
+          fi
+
+          # Prevent Jekyll processing
+          touch deploy_pages/.nojekyll
+          touch deploy_pages/fdroid/.nojekyll
+
+          # Root redirect to main project hub
+          cat << 'EOF' > deploy_pages/index.html
+          <!DOCTYPE html>
+          <html lang="ru">
+          <head>
+            <meta charset="utf-8">
+            <meta http-equiv="refresh" content="0; url=https://moltenstar.space/#exterams">
+            <title>ExteraMS</title>
+          </head>
+          <body>
+            <p>Перенаправление на <a href="https://moltenstar.space/#exterams">moltenstar.space</a>...</p>
+          </body>
+          </html>
+          EOF
+
+          # F-Droid landing redirect
+          cat << 'EOF' > deploy_pages/fdroid/index.html
+          <!DOCTYPE html>
+          <html lang="ru">
+          <head>
+            <meta charset="utf-8">
+            <meta http-equiv="refresh" content="0; url=https://moltenstar.space/#exterams">
+            <title>ExteraMS F-Droid Repository</title>
+          </head>
+          <body>
+            <p>Перенаправление на <a href="https://moltenstar.space/#exterams">moltenstar.space</a>...</p>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to GitHub Pages (gh-pages)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: deploy_pages
+          clean: false
