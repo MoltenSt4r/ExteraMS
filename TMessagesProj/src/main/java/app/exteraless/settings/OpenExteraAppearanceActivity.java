@@ -1075,7 +1075,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                         cell.setTextAndValue(getString(R.string.OEAppearanceStories), storiesOptions()[storiesIndex()], true);
                     } else if (position == chipFoldersRow) {
                         cell.setTextAndValue(getString(R.string.OEAppearanceChipFolders),
-                                AppearanceConfig.chipFoldersEnabled.Bool() ? getString(R.string.SettingsOn) : getString(R.string.SettingsOff), true);
+                                AppearanceConfig.chipFoldersEnabled.Bool() ? getString(R.string.NotificationsOn) : getString(R.string.NotificationsOff), true);
                     } else if (position == titleTextRow) {
                         CharSequence[] v = titleTextOptions();
                         int titleText = clamp(AppearanceConfig.titleText.Int(), v.length);

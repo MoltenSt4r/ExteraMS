@@ -379,7 +379,7 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), getResourceProvider());
         builder.setTitle(getString(R.string.OEAppearanceChipFoldersStyle));
-        builder.setSingleChoiceItems(items, AppearanceConfig.chipFoldersStyle.Int(), (dialog, which) -> {
+        builder.setItems(items, (dialog, which) -> {
             AppearanceConfig.chipFoldersStyle.setConfigInt(which);
             ChipFoldersController.getInstance().updateSettings();
             if (foldersPreviewCell != null) {
@@ -405,7 +405,7 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), getResourceProvider());
         builder.setTitle(getString(R.string.OEAppearanceChipFoldersShape));
-        builder.setSingleChoiceItems(items, AppearanceConfig.chipFoldersShape.Int(), (dialog, which) -> {
+        builder.setItems(items, (dialog, which) -> {
             AppearanceConfig.chipFoldersShape.setConfigInt(which);
             ChipFoldersController.getInstance().updateSettings();
             if (foldersPreviewCell != null) {
@@ -428,7 +428,7 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), getResourceProvider());
         builder.setTitle(getString(R.string.OEAppearanceChipFoldersAnim));
-        builder.setSingleChoiceItems(items, AppearanceConfig.chipFoldersAnim.Int(), (dialog, which) -> {
+        builder.setItems(items, (dialog, which) -> {
             AppearanceConfig.chipFoldersAnim.setConfigInt(which);
             ChipFoldersController.getInstance().updateSettings();
             if (foldersPreviewCell != null) {
@@ -450,7 +450,7 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), getResourceProvider());
         builder.setTitle(getString(R.string.OEAppearanceChipFoldersSize));
-        builder.setSingleChoiceItems(items, AppearanceConfig.chipFoldersSize.Int(), (dialog, which) -> {
+        builder.setItems(items, (dialog, which) -> {
             AppearanceConfig.chipFoldersSize.setConfigInt(which);
             ChipFoldersController.getInstance().updateSettings();
             if (foldersPreviewCell != null) {
@@ -472,7 +472,7 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), getResourceProvider());
         builder.setTitle(getString(R.string.OEAppearanceChipFoldersSpacing));
-        builder.setSingleChoiceItems(items, AppearanceConfig.chipFoldersSpacing.Int(), (dialog, which) -> {
+        builder.setItems(items, (dialog, which) -> {
             AppearanceConfig.chipFoldersSpacing.setConfigInt(which);
             ChipFoldersController.getInstance().updateSettings();
             if (foldersPreviewCell != null) {

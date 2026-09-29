@@ -407,7 +407,7 @@ public class TextAnimationSettingsActivity extends BaseFragment {
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), getResourceProvider());
         builder.setTitle(getString(R.string.OEChatsTextAnimationParticlesStyle));
-        builder.setSingleChoiceItems(items, ChatsConfig.textAnimationParticleStyle.Int(), (dialog, which) -> {
+        builder.setItems(items, (dialog, which) -> {
             ChatsConfig.textAnimationParticleStyle.setConfigInt(which);
             TextAnimationController.getInstance().updateSettings();
             dialog.dismiss();

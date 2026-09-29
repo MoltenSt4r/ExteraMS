@@ -2448,7 +2448,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
                 cell.setText(getString(R.string.VoskModelsShort), false);
             } else if (position == textAnimationRow) {
                 cell.setTextAndValue(getString(R.string.OEChatsTextAnimation),
-                        ChatsConfig.textAnimationEnabled.Bool() ? getString(R.string.SettingsOn) : getString(R.string.SettingsOff), false);
+                        ChatsConfig.textAnimationEnabled.Bool() ? getString(R.string.NotificationsOn) : getString(R.string.NotificationsOff), false);
             }
         }
 
