@@ -5,7 +5,7 @@ import os
 
 from pyrogram import Client
 
-APK_GLOB = "TMessagesProj/build/outputs/apk/release/*.apk"
+APK_GLOB = os.environ.get("APK_GLOB") or "TMessagesProj/build/outputs/apk/release/*.apk"
 CAPTION_LIMIT = 1024
 TITLE = "ExteraMS v12.10.3"
 
@@ -37,10 +37,28 @@ def quote(entries):
     return "\n".join(body)
 
 
+def get_entries():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    changelog_file = os.path.join(script_dir, "release_changelog.txt")
+    if os.path.isfile(changelog_file):
+        with open(changelog_file, "r", encoding="utf-8") as f:
+            lines = [l.strip() for l in f if l.strip() and not l.strip().startswith("#")]
+            if lines:
+                return lines
+
+    raw = os.environ.get("COMMIT_MESSAGE") or ""
+    lines = [line.strip() for line in raw.splitlines() if line.strip()]
+    bullets = [line.lstrip("•-* ").strip() for line in lines if line.startswith(("-", "*", "•"))]
+    if bullets:
+        return bullets
+
+    return commits() or [head_subject()]
+
+
 def caption():
     sha = (os.environ.get("COMMIT_SHA") or "")[:9]
     tail = f"`{sha}`\n{os.environ.get('RUN_URL', '')}"
-    entries = commits() or [head_subject()]
+    entries = get_entries()
 
     while True:
         parts = [f"**{TITLE}**"]
