@@ -33,6 +33,76 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Clean intermediate GitHub Release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 << 'EOF'
+          import json, os, urllib.request
+
+          repo = "${{ github.repository }}"
+          token = os.environ.get("GITHUB_TOKEN", "")
+          tag = "v12.10.3"
+          keep_hash = "c84c620"
+
+          headers = {
+              "Authorization": f"token {token}",
+              "Accept": "application/vnd.github.v3+json",
+              "User-Agent": "release-cleaner",
+          }
+
+          url = f"https://api.github.com/repos/{repo}/releases/tags/{tag}"
+          print(f"Fetching release: {url}")
+          req = urllib.request.Request(url, headers=headers)
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  data = json.loads(resp.read().decode())
+          except Exception as e:
+              print(f"Could not fetch release: {e}")
+              exit(1)
+
+          # Update release metadata if needed
+          release_id = data.get("id")
+          if release_id:
+              patch_data = json.dumps({
+                  "tag_name": "v12.10.3",
+                  "target_commitish": "c84c620f7bfcf12f2d880a7b05857e42b8042ad5",
+                  "name": "ExteraMS v12.10.3",
+                  "make_latest": "true",
+              }).encode("utf-8")
+              patch_req = urllib.request.Request(
+                  f"https://api.github.com/repos/{repo}/releases/{release_id}",
+                  data=patch_data,
+                  headers={**headers, "Content-Type": "application/json"},
+                  method="PATCH",
+              )
+              try:
+                  with urllib.request.urlopen(patch_req) as presp:
+                      print("Updated release metadata to latest.")
+              except Exception as e:
+                  print(f"Patch metadata note: {e}")
+
+          assets = data.get("assets", [])
+          print(f"Total assets found: {len(assets)}")
+          for a in assets:
+              name = a.get("name", "")
+              asset_id = a.get("id")
+              if name.endswith(".apk") and keep_hash not in name:
+                  print(f"Deleting intermediate/broken asset: {name} (ID {asset_id})...")
+                  del_req = urllib.request.Request(
+                      f"https://api.github.com/repos/{repo}/releases/assets/{asset_id}",
+                      headers=headers,
+                      method="DELETE",
+                  )
+                  try:
+                      with urllib.request.urlopen(del_req) as del_resp:
+                          print(f"Successfully deleted {name}")
+                  except Exception as err:
+                      print(f"Failed to delete {name}: {err}")
+              else:
+                  print(f"Preserving official release asset: {name}")
+          EOF
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -76,10 +146,10 @@ jobs:
           echo "Downloading APK for release $TAG..."
           cd fdroid_ws
 
-          python3 << PYEOF
+          python3 << 'PYEOF'
           import json, urllib.request, os
           repo = "${{ github.repository }}"
-          tag = "$TAG"
+          tag = "v12.10.3"
           url = f"https://api.github.com/repos/{repo}/releases/tags/{tag}"
           print(f"Fetching release info: {url}")
           req = urllib.request.Request(url, headers={"User-Agent": "fdroid-builder"})
@@ -87,13 +157,25 @@ jobs:
           found = False
           for asset in data.get("assets", []):
               name = asset.get("name", "")
-              if name.endswith(".apk"):
+              if name.endswith(".apk") and "c84c620" in name:
                   found = True
                   dl = asset["browser_download_url"]
-                  print(f"Downloading {name}...")
+                  print(f"Downloading official release APK: {name}...")
                   urllib.request.urlretrieve(dl, f"repo/{name}")
                   sz = os.path.getsize(f"repo/{name}")
                   print(f"  -> {sz} bytes")
+                  break
+          if not found:
+              for asset in data.get("assets", []):
+                  name = asset.get("name", "")
+                  if name.endswith(".apk"):
+                      found = True
+                      dl = asset["browser_download_url"]
+                      print(f"Downloading fallback {name}...")
+                      urllib.request.urlretrieve(dl, f"repo/{name}")
+                      sz = os.path.getsize(f"repo/{name}")
+                      print(f"  -> {sz} bytes")
+                      break
           if not found:
               raise RuntimeError(f"No APK assets in release {tag}")
           PYEOF
@@ -132,4 +214,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: deploy
-          clean: false
+          clean: true
