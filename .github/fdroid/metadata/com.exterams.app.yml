@@ -6,7 +6,13 @@ WebSite: https://moltenstar.space
 SourceCode: https://github.com/MoltenSt4r/ExteraMS
 IssueTracker: https://github.com/MoltenSt4r/ExteraMS/issues
 Name: ExteraMS
+AutoName: ExteraMS
 Summary: Modern Material Design 3 Telegram Client
 Description: |-
   ExteraMS is an experimental Telegram client fork based on exteraless and NagramX.
   Features full Material You / Monet support, free launcher icons, Chaquopy Python plugin engine, and modern UI.
+
+AutoUpdateMode: None
+UpdateCheckMode: Static
+CurrentVersion: 12.10.3
+CurrentVersionCode: 1261

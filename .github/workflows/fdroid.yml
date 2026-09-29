@@ -40,7 +40,7 @@ jobs:
           java-version: '17'
 
       - name: Install fdroidserver
-        run: pip install fdroidserver
+        run: pip install fdroidserver pillow
 
       - name: Build F-Droid repository
         run: |
@@ -52,9 +52,9 @@ jobs:
           # Copy ExteraMS release keystore (PKCS12)
           cp TMessagesProj/release.keystore fdroid_ws/keystore.p12
 
-          # Copy metadata
-          if [ -f .github/fdroid/metadata/com.exterams.app.yml ]; then
-            cp .github/fdroid/metadata/com.exterams.app.yml fdroid_ws/metadata/
+          # Copy complete metadata tree (including localized icons)
+          if [ -d .github/fdroid/metadata ]; then
+            cp -r .github/fdroid/metadata/* fdroid_ws/metadata/
           fi
 
           # Write config.yml manually (no fdroid init)
