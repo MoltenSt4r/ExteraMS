@@ -135,4 +135,43 @@
     <string name="SendLockedCustomEmojiAsStickerInfo">Без Premium премиум-эмодзи отправляются обычными стикерами. Поддерживаются только эмодзи WebP и WebM.</string>
     <string name="SendCustomEmojiWithoutPremium">Кастомные эмодзи без Premium</string>
     <string name="SendCustomEmojiWithoutPremiumInfo">Отправка премиум-эмодзи ссылками (tg://emoji?id=...). Пользователи форка и exteragram увидят их анимированными.</string>
+
+    <!-- Text typing animations -->
+    <string name="OEChatsTextAnimation">Анимации ввода текста</string>
+    <string name="OEChatsTextAnimationInfo">Плавное появление, вылет сверху, частицы при удалении и жидкий курсор.</string>
+    <string name="OEChatsTextAnimationEnable">Включить анимации текста</string>
+    <string name="OEChatsTextAnimationDuration">Длительность появления</string>
+    <string name="OEChatsTextAnimationPreviewHint">Напечатайте текст для проверки…</string>
+    <string name="OEChatsTextAnimationBlur">Плавное появление (Blur)</string>
+    <string name="OEChatsTextAnimationBlurDuration">Длительность размытия</string>
+    <string name="OEChatsTextAnimationBlurRadius">Радиус размытия</string>
+    <string name="OEChatsTextAnimationBlurDelay">Задержка текста</string>
+    <string name="OEChatsTextAnimationMotion">Движение и масштаб</string>
+    <string name="OEChatsTextAnimationSlide">Вылет сверху</string>
+    <string name="OEChatsTextAnimationSlideDist">Дистанция вылета</string>
+    <string name="OEChatsTextAnimationScale">Масштабирование</string>
+    <string name="OEChatsTextAnimationScaleStart">Начальный масштаб</string>
+    <string name="OEChatsTextAnimationRotate">Поворот</string>
+    <string name="OEChatsTextAnimationRotateAngle">Угол поворота</string>
+    <string name="OEChatsTextAnimationParticles">Частицы при удалении</string>
+    <string name="OEChatsTextAnimationParticlesStyle">Стиль частиц</string>
+    <string name="OEChatsTextAnimationParticlesDust">Пыль</string>
+    <string name="OEChatsTextAnimationParticlesSparks">Искры</string>
+    <string name="OEChatsTextAnimationParticlesSnow">Снежинки</string>
+    <string name="OEChatsTextAnimationParticlesPetals">Лепестки</string>
+    <string name="OEChatsTextAnimationParticlesLetters">Буквы</string>
+    <string name="OEChatsTextAnimationParticleCount">Количество частиц</string>
+    <string name="OEChatsTextAnimationParticleSpeed">Скорость частиц</string>
+    <string name="OEChatsTextAnimationParticleSpread">Разлёт частиц</string>
+    <string name="OEChatsTextAnimationParticleSize">Размер частиц</string>
+    <string name="OEChatsTextAnimationCursor">Курсор</string>
+    <string name="OEChatsTextAnimationCursorFluid">Плавный курсор</string>
+    <string name="OEChatsTextAnimationCursorSpeed">Скорость курсора</string>
+    <string name="OEChatsTextAnimationCursorWidth">Толщина курсора</string>
+    <string name="OEChatsTextAnimationLiquidCursor">Жидкое растяжение курсора</string>
+    <string name="OEChatsTextAnimationLiquidStretch">Сила растяжения</string>
+    <string name="OEChatsTextAnimationIgnoreSpaces">Игнорировать пробелы</string>
+    <string name="OEChatsTextAnimationAnimateAllLines">Анимировать все строки</string>
+    <string name="OEChatsTextAnimationReset">Сбросить настройки анимаций</string>
+    <string name="OEChatsTextAnimationResetConfirm">Сбросить все настройки анимаций текста к значениям по умолчанию?</string>
 </resources>

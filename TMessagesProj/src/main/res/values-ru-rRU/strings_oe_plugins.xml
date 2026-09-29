@@ -176,7 +176,7 @@
     <string name="PluginsBetaImportPy">Импорт плагинов .py</string>
     <string name="PluginsBetaImportPyInfo">Разрешить установку плагинов из файлов .py с автоматической конвертацией.</string>
     <string name="PluginsExportFormat">Формат экспорта плагинов</string>
-    <string name="PluginsExportFormatPlugin">.plugin (Рекомендуется для Telegram)</string>
+    <string name="PluginsExportFormatPlugin">.plugin (Рекомендуется)</string>
     <string name="PluginsExportFormatPy">.py (Исходный код Python)</string>
     <string name="PluginsExportFormatAsk">Спрашивать каждый раз</string>
     <string name="PluginsBackupTitle">Резервное копирование</string>

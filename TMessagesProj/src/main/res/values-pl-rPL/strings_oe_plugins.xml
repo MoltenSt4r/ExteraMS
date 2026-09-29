@@ -171,7 +171,7 @@ Wtyczka: %1$s
     <string name="PluginsBetaImportPy">Importuj wtyczki .py</string>
     <string name="PluginsBetaImportPyInfo">Zezwalaj na instalowanie wtyczek z plików .py z autokonwersją.</string>
     <string name="PluginsExportFormat">Format eksportu wtyczek</string>
-    <string name="PluginsExportFormatPlugin">.plugin (Zalecane dla Telegrama)</string>
+    <string name="PluginsExportFormatPlugin">.plugin (Zalecane)</string>
     <string name="PluginsExportFormatPy">.py (Kod źródłowy Python)</string>
     <string name="PluginsExportFormatAsk">Pytaj za każdym razem</string>
     <string name="PluginsBackupTitle">Kopia zapasowa i przywracanie</string>

@@ -121,4 +121,43 @@
     <string name="OEChatsAskWhenBotCommands">Enviar comandos de bots</string>
     <string name="OEChatsHdrPhotos">Fotos HDR</string>
     <string name="OEChatsHdrPhotosInfo">Muestra las fotos HDR con brillo completo. Desactívalo si las fotos se ven oscuras.</string>
+
+    <!-- Text typing animations -->
+    <string name="OEChatsTextAnimation">Animaciones de escritura</string>
+    <string name="OEChatsTextAnimationInfo">Aparición suave, deslizamiento, partículas al borrar y cursor líquido fluido.</string>
+    <string name="OEChatsTextAnimationEnable">Activar animaciones de texto</string>
+    <string name="OEChatsTextAnimationDuration">Duración de aparición</string>
+    <string name="OEChatsTextAnimationPreviewHint">Escribe aquí para probar…</string>
+    <string name="OEChatsTextAnimationBlur">Aparición suave (Blur)</string>
+    <string name="OEChatsTextAnimationBlurDuration">Duración de desenfoque</string>
+    <string name="OEChatsTextAnimationBlurRadius">Radio de desenfoque</string>
+    <string name="OEChatsTextAnimationBlurDelay">Retardo del texto</string>
+    <string name="OEChatsTextAnimationMotion">Movimiento y escala</string>
+    <string name="OEChatsTextAnimationSlide">Deslizar desde arriba</string>
+    <string name="OEChatsTextAnimationSlideDist">Distancia de deslizamiento</string>
+    <string name="OEChatsTextAnimationScale">Escalado</string>
+    <string name="OEChatsTextAnimationScaleStart">Escala inicial</string>
+    <string name="OEChatsTextAnimationRotate">Rotación</string>
+    <string name="OEChatsTextAnimationRotateAngle">Ángulo de rotación</string>
+    <string name="OEChatsTextAnimationParticles">Partículas al borrar</string>
+    <string name="OEChatsTextAnimationParticlesStyle">Estilo de partículas</string>
+    <string name="OEChatsTextAnimationParticlesDust">Polvo</string>
+    <string name="OEChatsTextAnimationParticlesSparks">Chispas</string>
+    <string name="OEChatsTextAnimationParticlesSnow">Copos de nieve</string>
+    <string name="OEChatsTextAnimationParticlesPetals">Pétalos</string>
+    <string name="OEChatsTextAnimationParticlesLetters">Letras</string>
+    <string name="OEChatsTextAnimationParticleCount">Cantidad de partículas</string>
+    <string name="OEChatsTextAnimationParticleSpeed">Velocidad de partículas</string>
+    <string name="OEChatsTextAnimationParticleSpread">Dispersión de partículas</string>
+    <string name="OEChatsTextAnimationParticleSize">Tamaño de partículas</string>
+    <string name="OEChatsTextAnimationCursor">Cursor</string>
+    <string name="OEChatsTextAnimationCursorFluid">Cursor fluido</string>
+    <string name="OEChatsTextAnimationCursorSpeed">Velocidad del cursor</string>
+    <string name="OEChatsTextAnimationCursorWidth">Grosor del cursor</string>
+    <string name="OEChatsTextAnimationLiquidCursor">Estiramiento líquido del cursor</string>
+    <string name="OEChatsTextAnimationLiquidStretch">Intensidad de estiramiento</string>
+    <string name="OEChatsTextAnimationIgnoreSpaces">Ignorar espacios</string>
+    <string name="OEChatsTextAnimationAnimateAllLines">Animar todas las líneas</string>
+    <string name="OEChatsTextAnimationReset">Restablecer ajustes de animación</string>
+    <string name="OEChatsTextAnimationResetConfirm">¿Restablecer todos los ajustes de animación de texto por defecto?</string>
 </resources>

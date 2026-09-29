@@ -138,6 +138,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
     // Folders
     private int foldersHeaderRow;
     private int foldersPreviewRow;
+    private int chipFoldersRow;
     private int tabTitleStyleRow;
     private int tabCounterRow;
     private int hideAllChatsRow;
@@ -193,6 +194,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
 
         foldersHeaderRow = addRow("foldersHeader");
         foldersPreviewRow = addRow("foldersPreview");
+        chipFoldersRow = addRow("chipFolders");
         tabTitleStyleRow = addRow("tabTitleStyle");
         tabCounterRow = addRow("tabCounter");
         hideAllChatsRow = addRow("hideAllChats");
@@ -538,7 +540,12 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
     private void invalidatePreviews() {
         if (avatarCornersPreviewCell != null) avatarCornersPreviewCell.invalidate();
         if (chatListPreviewCell != null) chatListPreviewCell.invalidate();
-        if (foldersPreviewCell != null) foldersPreviewCell.invalidate();
+        if (foldersPreviewCell != null) {
+            foldersPreviewCell.invalidate();
+            if (app.exteraless.appearance.ChipFoldersController.getInstance().isEnabled()) {
+                app.exteraless.appearance.ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
+            }
+        }
         if (fabShapeCell != null) fabShapeCell.invalidate();
     }
 
@@ -546,6 +553,9 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
     protected void onItemClick(View view, int position, float x, float y) {
         if (position == iconPacksRow) {
             presentFragment(new IconPacksActivity());
+            return;
+        } else if (position == chipFoldersRow) {
+            presentFragment(new app.exteraless.appearance.ChipFoldersSettingsActivity());
             return;
         } else if (position == pillStackRow) {
             presentFragment(new PillStackSettingsActivity());
@@ -1063,6 +1073,9 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                         cell.setTextAndValue(getString(R.string.OEAppearanceTabCounter), v[clamp(NaConfig.INSTANCE.getIgnoreUnreadCount().Int(), v.length)], true);
                     } else if (position == hideStoriesRow) {
                         cell.setTextAndValue(getString(R.string.OEAppearanceStories), storiesOptions()[storiesIndex()], true);
+                    } else if (position == chipFoldersRow) {
+                        cell.setTextAndValue(getString(R.string.OEAppearanceChipFolders),
+                                AppearanceConfig.chipFoldersEnabled.Bool() ? getString(R.string.SettingsOn) : getString(R.string.SettingsOff), true);
                     } else if (position == titleTextRow) {
                         CharSequence[] v = titleTextOptions();
                         int titleText = clamp(AppearanceConfig.titleText.Int(), v.length);
@@ -1164,7 +1177,8 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                 return TYPE_ROUND_CHECK;
             } else if (position == dividerStyleRow || position == glassOutlineRow
                     || position == tabTitleStyleRow || position == hideStoriesRow
-                    || position == tabCounterRow || position == titleTextRow) {
+                    || position == tabCounterRow || position == titleTextRow
+                    || position == chipFoldersRow) {
                 return TYPE_SETTINGS;
             }
             return TYPE_CHECK;
@@ -1348,6 +1362,9 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
     @Override
     public void onResume() {
         super.onResume();
+        if (listAdapter != null && chipFoldersRow != -1) {
+            listAdapter.notifyItemChanged(chipFoldersRow);
+        }
         AndroidUtilities.runOnUIThread(this::invalidatePreviews);
     }
 

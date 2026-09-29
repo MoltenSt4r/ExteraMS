@@ -171,7 +171,7 @@
     <string name="PluginsBetaImportPy">导入 .py 插件</string>
     <string name="PluginsBetaImportPyInfo">允许从 .py 文件安装插件并自动转换。</string>
     <string name="PluginsExportFormat">插件导出格式</string>
-    <string name="PluginsExportFormatPlugin">.plugin（推荐用于 Telegram）</string>
+    <string name="PluginsExportFormatPlugin">.plugin（推荐）</string>
     <string name="PluginsExportFormatPy">.py（Python 源代码）</string>
     <string name="PluginsExportFormatAsk">每次询问</string>
     <string name="PluginsBackupTitle">备份与恢复</string>

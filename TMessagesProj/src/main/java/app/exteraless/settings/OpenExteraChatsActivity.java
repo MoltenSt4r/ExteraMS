@@ -163,6 +163,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
     private int hideSendAsPeerRow;
     private int tapToSwitchRecordRow;
     private int keepAttachButtonRow;
+    private int textAnimationRow;
     private int chatsDividerRow;
 
     // Messages
@@ -389,6 +390,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         hideSendAsPeerRow = addRow("hideSendAsPeer");
         tapToSwitchRecordRow = addRow("tapToSwitchRecord", "UseChatAttachEnterMenu");
         keepAttachButtonRow = addRow("keepAttachButton");
+        textAnimationRow = addRow("textAnimation");
         chatsDividerRow = addRow();
 
         messagesHeaderRow = addRow("messagesHeader");
@@ -1459,6 +1461,9 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         } else if (position == voskModelsRow) {
             presentFragment(new app.exteraless.speech.VoskSettingsActivity());
             return;
+        } else if (position == textAnimationRow) {
+            presentFragment(new app.exteraless.chats.TextAnimationSettingsActivity());
+            return;
         }
 
         if (position == tapToSwitchRecordRow) {
@@ -2296,7 +2301,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
             } else if (position == tapToSwitchRecordRow) {
                 cell.setTextAndCheck(getString(R.string.OEChatsTapToSwitchRecord), !NekoConfig.useChatAttachMediaMenu.Bool(), true);
             } else if (position == keepAttachButtonRow) {
-                cell.setTextAndCheck(getString(R.string.OEChatsKeepAttachButton), ChatsConfig.keepAttachButton.Bool(), false);
+                cell.setTextAndCheck(getString(R.string.OEChatsKeepAttachButton), ChatsConfig.keepAttachButton.Bool(), true);
             } else if (position == removeMessageTailRow) {
                 cell.setTextAndCheck(getString(R.string.OEChatsRemoveMessageTail), ChatsConfig.removeMessageTail.Bool(), true);
             } else if (position == replaceEditedRow) {
@@ -2441,6 +2446,9 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
                 cell.setText(getString(R.string.TranscribeProviderOpenAI), false);
             } else if (position == voskModelsRow) {
                 cell.setText(getString(R.string.VoskModelsShort), false);
+            } else if (position == textAnimationRow) {
+                cell.setTextAndValue(getString(R.string.OEChatsTextAnimation),
+                        ChatsConfig.textAnimationEnabled.Bool() ? getString(R.string.SettingsOn) : getString(R.string.SettingsOff), false);
             }
         }
 
@@ -2530,7 +2538,8 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
                     || position == videoPlayerDecoderRow
                     || position == openLinkConfirmationRow || position == transcribeProviderRow
                     || position == cloudflareCredentialsRow || position == geminiApiKeyRow
-                    || position == openAiCredentialsRow || position == voskModelsRow;
+                    || position == openAiCredentialsRow || position == voskModelsRow
+                    || position == textAnimationRow;
         }
     }
 }

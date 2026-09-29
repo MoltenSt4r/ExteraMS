@@ -301,6 +301,8 @@ public class ApplicationLoader extends Application implements CameraXConfig.Prov
             org.telegram.ui.ActionBar.Theme.reloadMonetThemes();
         }
         app.exteraless.plugins.PluginsController.getInstance().init(applicationContext);
+        app.exteraless.appearance.ChipFoldersController.getInstance().init();
+        app.exteraless.chats.TextAnimationController.getInstance().init();
         SharedPrefsHelper.init(applicationContext);
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(AndroidUtil.shouldEnableCrashlytics());
         for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) { //TODO improve account

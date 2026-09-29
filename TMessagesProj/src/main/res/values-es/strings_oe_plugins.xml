@@ -171,7 +171,7 @@ Código:
     <string name="PluginsBetaImportPy">Importar complementos .py</string>
     <string name="PluginsBetaImportPyInfo">Permitir instalar complementos desde archivos .py con autoconversión.</string>
     <string name="PluginsExportFormat">Formato de exportación</string>
-    <string name="PluginsExportFormatPlugin">.plugin (Recomendado para Telegram)</string>
+    <string name="PluginsExportFormatPlugin">.plugin (Recomendado)</string>
     <string name="PluginsExportFormatPy">.py (Código fuente Python)</string>
     <string name="PluginsExportFormatAsk">Preguntar cada vez</string>
     <string name="PluginsBackupTitle">Copia de seguridad y restauración</string>

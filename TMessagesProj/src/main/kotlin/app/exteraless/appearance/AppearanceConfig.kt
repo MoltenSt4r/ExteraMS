@@ -205,6 +205,57 @@ object AppearanceConfig {
         return glassOutlineStyle.Int()
     }
 
+    // ---- Папки-чипсы Material 3 ----
+
+    @JvmField
+    val chipFoldersEnabled = addConfig("OEAppearanceChipFoldersEnabled", ConfigItem.configTypeBool, false)
+    @JvmField
+    val chipFoldersStyle = addConfig("OEAppearanceChipFoldersStyle", ConfigItem.configTypeInt, 0)
+    @JvmField
+    val chipFoldersShape = addConfig("OEAppearanceChipFoldersShape", ConfigItem.configTypeInt, 5)
+    @JvmField
+    val chipFoldersSize = addConfig("OEAppearanceChipFoldersSize", ConfigItem.configTypeInt, 1)
+    @JvmField
+    val chipFoldersSpacing = addConfig("OEAppearanceChipFoldersSpacing", ConfigItem.configTypeInt, 1)
+    @JvmField
+    val chipFoldersAnim = addConfig("OEAppearanceChipFoldersAnim", ConfigItem.configTypeInt, 0)
+    @JvmField
+    val chipFoldersAnimSpeed = addConfig("OEAppearanceChipFoldersAnimSpeed", ConfigItem.configTypeInt, 100)
+    @JvmField
+    val chipFoldersMd3Colors = addConfig("OEAppearanceChipFoldersMd3Colors", ConfigItem.configTypeBool, true)
+    @JvmField
+    val chipFoldersScrollDivider = addConfig("OEAppearanceChipFoldersScrollDivider", ConfigItem.configTypeBool, true)
+    @JvmField
+    val chipFoldersRadiusActive = addConfig("OEAppearanceChipFoldersRadiusActive", ConfigItem.configTypeInt, 20)
+    @JvmField
+    val chipFoldersRadiusInactive = addConfig("OEAppearanceChipFoldersRadiusInactive", ConfigItem.configTypeInt, 20)
+    @JvmField
+    val chipFoldersRadiusCustomActive = addConfig("OEAppearanceChipFoldersRadiusCustomActive", ConfigItem.configTypeInt, 11)
+    @JvmField
+    val chipFoldersRadiusOuter = addConfig("OEAppearanceChipFoldersRadiusOuter", ConfigItem.configTypeInt, 20)
+    @JvmField
+    val chipFoldersRadiusInner = addConfig("OEAppearanceChipFoldersRadiusInner", ConfigItem.configTypeInt, 8)
+    @JvmField
+    val chipFoldersRadiusAltActive = addConfig("OEAppearanceChipFoldersRadiusAltActive", ConfigItem.configTypeInt, 20)
+    @JvmField
+    val chipFoldersRadiusAltOuter = addConfig("OEAppearanceChipFoldersRadiusAltOuter", ConfigItem.configTypeInt, 20)
+    @JvmField
+    val chipFoldersCustomHeight = addConfig("OEAppearanceChipFoldersCustomHeight", ConfigItem.configTypeInt, 48)
+    @JvmField
+    val chipFoldersCustomSpacing = addConfig("OEAppearanceChipFoldersCustomSpacing", ConfigItem.configTypeInt, 6)
+    @JvmField
+    val chipFoldersBarBottomPadding = addConfig("OEAppearanceChipFoldersBarBottomPadding", ConfigItem.configTypeInt, 0)
+    @JvmField
+    val chipFoldersListTopPadding = addConfig("OEAppearanceChipFoldersListTopPadding", ConfigItem.configTypeInt, 5)
+    @JvmField
+    val chipFoldersColorActive = addConfig("OEAppearanceChipFoldersColorActive", ConfigItem.configTypeInt, 0)
+    @JvmField
+    val chipFoldersColorInactive = addConfig("OEAppearanceChipFoldersColorInactive", ConfigItem.configTypeInt, 0)
+    @JvmField
+    val chipFoldersColorTextActive = addConfig("OEAppearanceChipFoldersColorTextActive", ConfigItem.configTypeInt, 0)
+    @JvmField
+    val chipFoldersColorTextInactive = addConfig("OEAppearanceChipFoldersColorTextInactive", ConfigItem.configTypeInt, 0)
+
     // ---- Material Design 3 ----
     // switchStyle и sliderStyle уже есть у NagramX (NaConfig, дефолт 2 = MD3) — не дублируем.
 

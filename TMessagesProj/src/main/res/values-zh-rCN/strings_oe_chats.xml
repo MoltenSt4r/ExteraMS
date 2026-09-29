@@ -121,4 +121,43 @@
     <string name="OEChatsAskWhenBotCommands">发送机器人指令</string>
     <string name="OEChatsHdrPhotos">HDR 照片</string>
     <string name="OEChatsHdrPhotosInfo">以完整亮度显示 HDR 照片。若照片发暗，请关闭。</string>
+
+    <!-- Text typing animations -->
+    <string name="OEChatsTextAnimation">输入文本动画</string>
+    <string name="OEChatsTextAnimationInfo">柔和显现、自上滑入、退格粒子爆炸与丝滑流动光标。</string>
+    <string name="OEChatsTextAnimationEnable">启用文本动画</string>
+    <string name="OEChatsTextAnimationDuration">显现时长</string>
+    <string name="OEChatsTextAnimationPreviewHint">在此输入以测试动画效果…</string>
+    <string name="OEChatsTextAnimationBlur">柔和显现（模糊）</string>
+    <string name="OEChatsTextAnimationBlurDuration">模糊时长</string>
+    <string name="OEChatsTextAnimationBlurRadius">模糊半径</string>
+    <string name="OEChatsTextAnimationBlurDelay">文字延迟</string>
+    <string name="OEChatsTextAnimationMotion">动效与缩放</string>
+    <string name="OEChatsTextAnimationSlide">自上滑入</string>
+    <string name="OEChatsTextAnimationSlideDist">滑入距离</string>
+    <string name="OEChatsTextAnimationScale">缩放出现</string>
+    <string name="OEChatsTextAnimationScaleStart">起始缩放</string>
+    <string name="OEChatsTextAnimationRotate">旋转</string>
+    <string name="OEChatsTextAnimationRotateAngle">旋转角度</string>
+    <string name="OEChatsTextAnimationParticles">退格删除粒子</string>
+    <string name="OEChatsTextAnimationParticlesStyle">粒子样式</string>
+    <string name="OEChatsTextAnimationParticlesDust">灰尘</string>
+    <string name="OEChatsTextAnimationParticlesSparks">火花</string>
+    <string name="OEChatsTextAnimationParticlesSnow">雪花</string>
+    <string name="OEChatsTextAnimationParticlesPetals">花瓣</string>
+    <string name="OEChatsTextAnimationParticlesLetters">字符</string>
+    <string name="OEChatsTextAnimationParticleCount">粒子数量</string>
+    <string name="OEChatsTextAnimationParticleSpeed">粒子速度</string>
+    <string name="OEChatsTextAnimationParticleSpread">粒子发散</string>
+    <string name="OEChatsTextAnimationParticleSize">粒子大小</string>
+    <string name="OEChatsTextAnimationCursor">光标</string>
+    <string name="OEChatsTextAnimationCursorFluid">平滑光标</string>
+    <string name="OEChatsTextAnimationCursorSpeed">光标速度</string>
+    <string name="OEChatsTextAnimationCursorWidth">光标宽度</string>
+    <string name="OEChatsTextAnimationLiquidCursor">液体拉伸光标</string>
+    <string name="OEChatsTextAnimationLiquidStretch">拉伸强度</string>
+    <string name="OEChatsTextAnimationIgnoreSpaces">忽略空格</string>
+    <string name="OEChatsTextAnimationAnimateAllLines">所有行均播放动画</string>
+    <string name="OEChatsTextAnimationReset">重置动画设置</string>
+    <string name="OEChatsTextAnimationResetConfirm">是否将所有文本动画设置恢复为默认值？</string>
 </resources>

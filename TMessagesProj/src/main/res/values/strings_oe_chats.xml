@@ -137,4 +137,43 @@
     <string name="SendLockedCustomEmojiAsStickerInfo">Without Premium, premium emoji are sent as regular stickers. Only WebP and WebM emoji are supported.</string>
     <string name="SendCustomEmojiWithoutPremium">Custom emoji without Premium</string>
     <string name="SendCustomEmojiWithoutPremiumInfo">Send premium emoji via deep links (tg://emoji?id=...). Rendered as animated emoji by ExteraMS and exteragram clients.</string>
+
+    <!-- Text typing animations -->
+    <string name="OEChatsTextAnimation">Text Typing Animations</string>
+    <string name="OEChatsTextAnimationInfo">Soft appearance, slide, particles on backspace, and fluid liquid cursor.</string>
+    <string name="OEChatsTextAnimationEnable">Enable Text Animations</string>
+    <string name="OEChatsTextAnimationDuration">Appearance Duration</string>
+    <string name="OEChatsTextAnimationPreviewHint">Type here to test animations…</string>
+    <string name="OEChatsTextAnimationBlur">Soft Appearance (Blur)</string>
+    <string name="OEChatsTextAnimationBlurDuration">Blur Duration</string>
+    <string name="OEChatsTextAnimationBlurRadius">Blur Radius</string>
+    <string name="OEChatsTextAnimationBlurDelay">Text Delay</string>
+    <string name="OEChatsTextAnimationMotion">Motion and Scale</string>
+    <string name="OEChatsTextAnimationSlide">Slide From Above</string>
+    <string name="OEChatsTextAnimationSlideDist">Slide Distance</string>
+    <string name="OEChatsTextAnimationScale">Scale Up</string>
+    <string name="OEChatsTextAnimationScaleStart">Initial Scale</string>
+    <string name="OEChatsTextAnimationRotate">Rotate</string>
+    <string name="OEChatsTextAnimationRotateAngle">Rotation Angle</string>
+    <string name="OEChatsTextAnimationParticles">Particles on Delete</string>
+    <string name="OEChatsTextAnimationParticlesStyle">Particle Style</string>
+    <string name="OEChatsTextAnimationParticlesDust">Dust</string>
+    <string name="OEChatsTextAnimationParticlesSparks">Sparks</string>
+    <string name="OEChatsTextAnimationParticlesSnow">Snowflakes</string>
+    <string name="OEChatsTextAnimationParticlesPetals">Petals</string>
+    <string name="OEChatsTextAnimationParticlesLetters">Letters</string>
+    <string name="OEChatsTextAnimationParticleCount">Particle Count</string>
+    <string name="OEChatsTextAnimationParticleSpeed">Particle Speed</string>
+    <string name="OEChatsTextAnimationParticleSpread">Particle Spread</string>
+    <string name="OEChatsTextAnimationParticleSize">Particle Size</string>
+    <string name="OEChatsTextAnimationCursor">Cursor</string>
+    <string name="OEChatsTextAnimationCursorFluid">Fluid Cursor</string>
+    <string name="OEChatsTextAnimationCursorSpeed">Cursor Speed</string>
+    <string name="OEChatsTextAnimationCursorWidth">Cursor Width</string>
+    <string name="OEChatsTextAnimationLiquidCursor">Liquid Cursor Stretch</string>
+    <string name="OEChatsTextAnimationLiquidStretch">Stretch Intensity</string>
+    <string name="OEChatsTextAnimationIgnoreSpaces">Ignore Spaces</string>
+    <string name="OEChatsTextAnimationAnimateAllLines">Animate All Lines</string>
+    <string name="OEChatsTextAnimationReset">Reset Animation Settings</string>
+    <string name="OEChatsTextAnimationResetConfirm">Reset all text animation settings to default?</string>
 </resources>

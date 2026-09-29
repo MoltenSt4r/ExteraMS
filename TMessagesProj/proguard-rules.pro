@@ -218,3 +218,16 @@
 -keep class * extends com.sun.jna.Structure { *; }
 -dontwarn java.awt.**
 -dontwarn com.sun.jna.**
+
+# Text Animation & Chip Folders built-in modules
+-keep class app.exteraless.chats.TextAnimation** { *; }
+-keep class app.exteraless.appearance.ChipFolders** { *; }
+-keep class com.textanimation.** { *; }
+-keep class dev.rooni.chipfolders.** { *; }
+-keep class org.telegram.ui.Components.FilterTabsView** { *; }
+-keep class org.telegram.ui.Components.EditTextBoldCursor** { *; }
+-keep class org.telegram.ui.Components.EditTextEffects** { *; }
+-keep class org.telegram.ui.Components.EditTextCaption** { *; }
+-keep class org.telegram.ui.Components.ChatActivityEditTextCaption** { *; }
+-keep class org.telegram.ui.DialogsActivity** { *; }
+

@@ -65,6 +65,59 @@ object ChatsConfig {
         return if (value in BOTTOM_BUTTON_HIDE..BOTTOM_BUTTON_DISCUSS) value else BOTTOM_BUTTON_MUTE
     }
 
+    // ---- Анимация ввода текста ----
+
+    @JvmField
+    val textAnimationEnabled = addConfig("OEChatsTextAnimationEnabled", ConfigItem.configTypeBool, false)
+    @JvmField
+    val textAnimationDuration = addConfig("OEChatsTextAnimationDuration", ConfigItem.configTypeInt, 300)
+    @JvmField
+    val textAnimationBlurEnabled = addConfig("OEChatsTextAnimationBlurEnabled", ConfigItem.configTypeBool, true)
+    @JvmField
+    val textAnimationBlurDuration = addConfig("OEChatsTextAnimationBlurDuration", ConfigItem.configTypeInt, 300)
+    @JvmField
+    val textAnimationBlurRadius = addConfig("OEChatsTextAnimationBlurRadius", ConfigItem.configTypeInt, 10)
+    @JvmField
+    val textAnimationBlurTextDelay = addConfig("OEChatsTextAnimationBlurTextDelay", ConfigItem.configTypeInt, 20)
+    @JvmField
+    val textAnimationSlideEnabled = addConfig("OEChatsTextAnimationSlideEnabled", ConfigItem.configTypeBool, true)
+    @JvmField
+    val textAnimationSlideDist = addConfig("OEChatsTextAnimationSlideDist", ConfigItem.configTypeInt, 20)
+    @JvmField
+    val textAnimationScaleEnabled = addConfig("OEChatsTextAnimationScaleEnabled", ConfigItem.configTypeBool, false)
+    @JvmField
+    val textAnimationScaleStart = addConfig("OEChatsTextAnimationScaleStart", ConfigItem.configTypeInt, 0)
+    @JvmField
+    val textAnimationRotateEnabled = addConfig("OEChatsTextAnimationRotateEnabled", ConfigItem.configTypeBool, false)
+    @JvmField
+    val textAnimationRotateAngle = addConfig("OEChatsTextAnimationRotateAngle", ConfigItem.configTypeInt, -15)
+    @JvmField
+    val textAnimationDeleteEnabled = addConfig("OEChatsTextAnimationDeleteEnabled", ConfigItem.configTypeBool, true)
+    @JvmField
+    val textAnimationParticleStyle = addConfig("OEChatsTextAnimationParticleStyle", ConfigItem.configTypeInt, 0)
+    @JvmField
+    val textAnimationParticleCount = addConfig("OEChatsTextAnimationParticleCount", ConfigItem.configTypeInt, 5)
+    @JvmField
+    val textAnimationParticleSpeed = addConfig("OEChatsTextAnimationParticleSpeed", ConfigItem.configTypeInt, 50)
+    @JvmField
+    val textAnimationParticleSpread = addConfig("OEChatsTextAnimationParticleSpread", ConfigItem.configTypeInt, 50)
+    @JvmField
+    val textAnimationParticleSize = addConfig("OEChatsTextAnimationParticleSize", ConfigItem.configTypeInt, 50)
+    @JvmField
+    val textAnimationCursorEnabled = addConfig("OEChatsTextAnimationCursorEnabled", ConfigItem.configTypeBool, true)
+    @JvmField
+    val textAnimationCursorSpeed = addConfig("OEChatsTextAnimationCursorSpeed", ConfigItem.configTypeInt, 25)
+    @JvmField
+    val textAnimationCursorWidth = addConfig("OEChatsTextAnimationCursorWidth", ConfigItem.configTypeInt, 5)
+    @JvmField
+    val textAnimationLiquidCursorEnabled = addConfig("OEChatsTextAnimationLiquidCursorEnabled", ConfigItem.configTypeBool, false)
+    @JvmField
+    val textAnimationLiquidStretch = addConfig("OEChatsTextAnimationLiquidStretch", ConfigItem.configTypeInt, 60)
+    @JvmField
+    val textAnimationIgnoreSpaces = addConfig("OEChatsTextAnimationIgnoreSpaces", ConfigItem.configTypeBool, true)
+    @JvmField
+    val textAnimationAnimateAllLines = addConfig("OEChatsTextAnimationAnimateAllLines", ConfigItem.configTypeBool, false)
+
     // ---- Камера ----
 
     /**

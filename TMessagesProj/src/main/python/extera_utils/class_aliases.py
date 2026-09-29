@@ -73,6 +73,8 @@ _EXACT = {
         "com.exteragram.messenger.preferences.BasePreferencesActivity",
     "com.exteragram.messenger.preferences.components.AltSeekbar":
         "app.exteraless.appearance.AltSeekbar",
+    "com.exteragram.messenger.preferences.appearance.components.FilterTabsPreviewCell":
+        "app.exteraless.appearance.FoldersPreviewCell",
     "com.exteragram.messenger.utils.chats.MainMenuHelper":
         "app.exteraless.drawer.MainMenuHelper",
     "com.exteragram.messenger.icons.ui.IconPacksActivity":

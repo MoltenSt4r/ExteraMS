@@ -181,7 +181,7 @@ Source:
     <string name="PluginsBetaImportPy">Import .py plugins</string>
     <string name="PluginsBetaImportPyInfo">Allow installing plugins from .py files with automatic conversion.</string>
     <string name="PluginsExportFormat">Plugin export format</string>
-    <string name="PluginsExportFormatPlugin">.plugin (Recommended for Telegram)</string>
+    <string name="PluginsExportFormatPlugin">.plugin (Recommended)</string>
     <string name="PluginsExportFormatPy">.py (Python source code)</string>
     <string name="PluginsExportFormatAsk">Ask each time</string>
     <string name="PluginsBackupTitle">Backup and restore</string>
