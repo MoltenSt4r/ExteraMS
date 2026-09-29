@@ -105,7 +105,10 @@ public final class PluginsBackupHelper {
                         pObj.put("level", PluginTrustLevel.getLevel(p.id));
 
                         JSONArray perms = new JSONArray();
-                        List<String> granted = PluginPermissions.getGranted(p.id);
+                        List<String> granted = PluginPermissions.getStored(p.id);
+                        if (granted == null) {
+                            granted = PluginPermissions.getEffective(p.id);
+                        }
                         if (granted != null) {
                             for (String perm : granted) {
                                 perms.put(perm);
