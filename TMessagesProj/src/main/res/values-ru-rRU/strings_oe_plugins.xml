@@ -170,4 +170,24 @@
     <string name="PluginWatchdogMuted">%1$s больше не будет предупреждать о тормозах. Вернуть предупреждения можно в настройках плагина.</string>
     <string name="PluginWatchdogWarnings">Предупреждать о тормозах</string>
     <string name="PluginWatchdogWarningsInfo">Сообщать, когда плагин надолго занимает главный поток или перестаёт отвечать.</string>
+
+    <!-- ExteraMS: Beta & Backup/Export -->
+    <string name="PluginsBetaTitle">Бета-функции</string>
+    <string name="PluginsBetaImportPy">Импорт плагинов .py</string>
+    <string name="PluginsBetaImportPyInfo">Разрешить установку плагинов из файлов .py с автоматической конвертацией.</string>
+    <string name="PluginsExportFormat">Формат экспорта плагинов</string>
+    <string name="PluginsExportFormatPlugin">.plugin (Рекомендуется для Telegram)</string>
+    <string name="PluginsExportFormatPy">.py (Исходный код Python)</string>
+    <string name="PluginsExportFormatAsk">Спрашивать каждый раз</string>
+    <string name="PluginsBackupTitle">Резервное копирование</string>
+    <string name="PluginsBackupCreate">Создать резервную копию всех плагинов</string>
+    <string name="PluginsBackupRestore">Восстановить плагины из резервной копии</string>
+    <string name="PluginsBackupSummary">Сохраните все установленные плагины, их настройки и разрешения для переноса на другое устройство.</string>
+    <string name="PluginsBackupCreating">Создание резервной копии…</string>
+    <string name="PluginsBackupRestoring">Восстановление плагинов…</string>
+    <string name="PluginsBackupRestored">Успешно восстановлено плагинов: %1$d.</string>
+    <string name="PluginsBackupNoPlugins">Нет установленных плагинов для резервной копии.</string>
+    <string name="PluginsBackupInvalid">Файл не является корректной резервной копией плагинов.</string>
+    <string name="PluginsBackupRestoreConfirm">Восстановить %1$d плагинов из этой резервной копии?</string>
+    <string name="PluginsBackupShareTitle">Экспорт резервной копии плагинов</string>
 </resources>

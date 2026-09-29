@@ -165,4 +165,24 @@ Wtyczka: %1$s
     <string name="PluginWatchdogMuted">%1$s nie będzie już ostrzegać o spowolnieniach. Ostrzeżenia można przywrócić w ustawieniach wtyczki.</string>
     <string name="PluginWatchdogWarnings">Ostrzeżenia o spowolnieniach</string>
     <string name="PluginWatchdogWarningsInfo">Ostrzegaj, gdy wtyczka zbyt długo blokuje główny wątek lub przestaje odpowiadać.</string>
+
+    <!-- ExteraMS: Beta & Backup/Export -->
+    <string name="PluginsBetaTitle">Funkcje beta</string>
+    <string name="PluginsBetaImportPy">Importuj wtyczki .py</string>
+    <string name="PluginsBetaImportPyInfo">Zezwalaj na instalowanie wtyczek z plików .py z autokonwersją.</string>
+    <string name="PluginsExportFormat">Format eksportu wtyczek</string>
+    <string name="PluginsExportFormatPlugin">.plugin (Zalecane dla Telegrama)</string>
+    <string name="PluginsExportFormatPy">.py (Kod źródłowy Python)</string>
+    <string name="PluginsExportFormatAsk">Pytaj za każdym razem</string>
+    <string name="PluginsBackupTitle">Kopia zapasowa i przywracanie</string>
+    <string name="PluginsBackupCreate">Utwórz kopię zapasową wszystkich wtyczek</string>
+    <string name="PluginsBackupRestore">Przywróć wtyczki z kopii zapasowej</string>
+    <string name="PluginsBackupSummary">Zapisz wszystkie zainstalowane wtyczki, ich ustawienia i uprawnienia, aby przenieść je na inne urządzenie.</string>
+    <string name="PluginsBackupCreating">Tworzenie kopii zapasowej…</string>
+    <string name="PluginsBackupRestoring">Przywracanie wtyczek…</string>
+    <string name="PluginsBackupRestored">Pomyślnie przywrócono wtyczki: %1$d.</string>
+    <string name="PluginsBackupNoPlugins">Brak zainstalowanych wtyczek do utworzenia kopii zapasowej.</string>
+    <string name="PluginsBackupInvalid">Plik nie jest poprawną kopią zapasową wtyczek.</string>
+    <string name="PluginsBackupRestoreConfirm">Przywrócić wtyczki (%1$d) z tej kopii zapasowej?</string>
+    <string name="PluginsBackupShareTitle">Eksportuj kopię zapasową wtyczek</string>
 </resources>

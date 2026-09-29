@@ -152,7 +152,7 @@ public final class GlyphController {
                 breathBrightness = BREATH_MAX;
                 breathDirection = -1;
             }
-            int iconRes = callActive ? R.drawable.baseline_call_24 : (recordingActive ? R.drawable.baseline_mic_24 : R.drawable.exteraless_icon_monochrome);
+            int iconRes = callActive ? R.drawable.baseline_call_24 : (recordingActive ? R.drawable.baseline_mic_24 : R.drawable.exterams_md3_icon_monochrome);
             showMatrixIcon(iconRes, breathBrightness, false);
             long delay = callActive ? 70L : BREATH_STEP_MS;
             handler.postDelayed(this, delay);
@@ -618,7 +618,7 @@ public final class GlyphController {
     }
 
     private void showMatrixLogo() {
-        showMatrixIcon(R.drawable.exteraless_icon_monochrome, BREATH_MAX, true);
+        showMatrixIcon(R.drawable.exterams_md3_icon_monochrome, BREATH_MAX, true);
     }
 
     private void showMatrixIcon(int resId, int brightness, boolean autoHide) {
@@ -636,16 +636,12 @@ public final class GlyphController {
         try {
             GlyphMatrixObject object = new GlyphMatrixObject.Builder()
                     .setImageSource(bitmap)
-                    // Знак занимает центральные 2/3 канваса иконки; scale 150 кропает
-                    // ровно до него, иначе на матрице 25x25 лого выглядит крошечным.
-                    .setScale(150)
+                    .setScale(105)
                     .setBrightness(brightness)
                     .build();
             GlyphMatrixFrame frame = new GlyphMatrixFrame.Builder()
                     .addTop(object)
                     .build(context);
-            // setAppMatrixFrame, а не setMatrixFrame: у приложения приоритет ниже
-            // Glyph Toy, и системный глиф-сервис не должен с ним конфликтовать.
             matrixManager.setAppMatrixFrame(frame.render());
             handler.removeCallbacks(hideLogoRunnable);
             if (autoHide) {
@@ -657,7 +653,7 @@ public final class GlyphController {
     }
 
     private Bitmap getMatrixIconBitmap(Context context, int resId) {
-        if (resId == R.drawable.exteraless_icon_monochrome && matrixLogoBitmap != null) {
+        if ((resId == R.drawable.exterams_md3_icon_monochrome || resId == R.drawable.exteraless_icon_monochrome) && matrixLogoBitmap != null) {
             return matrixLogoBitmap;
         }
         if (resId == R.drawable.baseline_call_24 && matrixCallBitmap != null) {
@@ -675,7 +671,7 @@ public final class GlyphController {
         icon = icon.mutate();
         icon.setTint(Color.WHITE);
         Bitmap bitmap = GlyphMatrixUtils.drawableToBitmap(icon);
-        if (resId == R.drawable.exteraless_icon_monochrome) {
+        if (resId == R.drawable.exterams_md3_icon_monochrome || resId == R.drawable.exteraless_icon_monochrome) {
             matrixLogoBitmap = bitmap;
         } else if (resId == R.drawable.baseline_call_24) {
             matrixCallBitmap = bitmap;
@@ -686,7 +682,7 @@ public final class GlyphController {
     }
 
     private Bitmap getMatrixLogoBitmap(Context context) {
-        return getMatrixIconBitmap(context, R.drawable.exteraless_icon_monochrome);
+        return getMatrixIconBitmap(context, R.drawable.exterams_md3_icon_monochrome);
     }
 
     private void startMatrixBreathing() {

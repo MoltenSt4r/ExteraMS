@@ -41,12 +41,21 @@ import java.util.Map;
  */
 public final class PluginInstallHelper {
 
-    /** Расширения, которые движок умеет ставить. */
-    private static final String[] EXTENSIONS = {
-            PluginsConstants.PLUGIN_EXT,       // .plugin
-            PluginsConstants.PLUGIN_EXT_ELYX,  // .elyx
-            PluginsConstants.PLUGIN_EXT_EAF,   // .eaf
-    };
+    public static String[] getExtensions() {
+        if (PluginsController.getInstance().isBetaImportPyEnabled()) {
+            return new String[]{
+                    PluginsConstants.PLUGIN_EXT,
+                    PluginsConstants.PLUGIN_EXT_PY,
+                    PluginsConstants.PLUGIN_EXT_ELYX,
+                    PluginsConstants.PLUGIN_EXT_EAF,
+            };
+        }
+        return new String[]{
+                PluginsConstants.PLUGIN_EXT,
+                PluginsConstants.PLUGIN_EXT_ELYX,
+                PluginsConstants.PLUGIN_EXT_EAF,
+        };
+    }
 
     private PluginInstallHelper() {
     }
@@ -71,7 +80,7 @@ public final class PluginInstallHelper {
             return null;
         }
         name = name.toLowerCase(Locale.ROOT);
-        for (String ext : EXTENSIONS) {
+        for (String ext : getExtensions()) {
             if (name.endsWith(ext)) {
                 return ext;
             }
@@ -106,8 +115,18 @@ public final class PluginInstallHelper {
             return false;
         }
         String lower = name.toLowerCase(Locale.ROOT);
+        if (lower.endsWith(PluginsConstants.PLUGIN_EXT_BACKUP)
+                || (lower.endsWith(".zip") && lower.contains("plugin"))) {
+            File backup = FileLoader.getInstance(UserConfig.selectedAccount)
+                    .getPathToMessage(message.messageOwner);
+            if (backup != null && backup.exists() && backup.length() > 0) {
+                Uri uri = Uri.fromFile(backup);
+                AndroidUtilities.runOnUIThread(() -> PluginsBackupHelper.restoreBackup(null, uri, null));
+                return true;
+            }
+        }
         boolean isPlugin = false;
-        for (String ext : EXTENSIONS) {
+        for (String ext : getExtensions()) {
             if (lower.endsWith(ext)) {
                 isPlugin = true;
                 break;
@@ -122,8 +141,11 @@ public final class PluginInstallHelper {
             // Ещё не скачан — пусть отработает штатная загрузка.
             return false;
         }
+        final File finalFile = PluginsController.getInstance().isBetaImportPyEnabled() && lower.endsWith(".py")
+                ? PluginAutoConverter.autoConvertIfNeeded(file)
+                : file;
         AndroidUtilities.runOnUIThread(() -> PluginsController.getInstance()
-                .showInstallDialog(null, file.getAbsolutePath(), false));
+                .showInstallDialog(null, finalFile.getAbsolutePath(), false));
         return true;
     }
 
@@ -214,10 +236,13 @@ public final class PluginInstallHelper {
     public static void confirmAndInstall(Activity activity,
                                          com.exteragram.messenger.plugins.ui.components
                                                  .InstallPluginBottomSheet.PluginInstallParams params) {
-        final File file = params.toFile();
-        if (file == null) {
+        final File rawFile = params.toFile();
+        if (rawFile == null) {
             return;
         }
+        final File file = PluginsController.getInstance().isBetaImportPyEnabled()
+                ? PluginAutoConverter.autoConvertIfNeeded(rawFile)
+                : rawFile;
         PluginsController controller = PluginsController.getInstance();
         if (!controller.isEngineEnabled()) {
             // Не отказываем молча: движок выключен по умолчанию, и пользователю

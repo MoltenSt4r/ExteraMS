@@ -2,7 +2,9 @@ package app.exteraless.plugins.ui;
 
 import static org.telegram.messenger.LocaleController.getString;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -10,6 +12,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.browser.Browser;
 import org.telegram.ui.ActionBar.ActionBar;
+import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.BulletinFactory;
@@ -20,6 +23,7 @@ import org.telegram.ui.Components.UniversalRecyclerView;
 
 import java.util.ArrayList;
 
+import app.exteraless.plugins.PluginsBackupHelper;
 import app.exteraless.plugins.PluginsConstants;
 import app.exteraless.plugins.PluginsController;
 
@@ -51,6 +55,12 @@ public class PluginsInfoActivity extends BaseFragment {
     private static final int ID_DOCUMENTATION = 7;
     private static final int ID_TRUSTED = 8;
     private static final int ID_UNSAFE_MODE = 9;
+    private static final int ID_BETA_IMPORT_PY = 10;
+    private static final int ID_EXPORT_FORMAT = 11;
+    private static final int ID_BACKUP_CREATE = 12;
+    private static final int ID_BACKUP_RESTORE = 13;
+
+    private static final int REQUEST_CODE_PICK_BACKUP = 9782;
 
     private static final String DOCS_URL = "https://plugins.exteragram.app";
     private static final String TRUSTED_URL = "https://t.me/addlist/pPhOtEq00KhjYTc6";
@@ -121,6 +131,32 @@ public class PluginsInfoActivity extends BaseFragment {
                 .setEnabled(engineOn && !safeMode));
         items.add(UItem.asShadow(getString(R.string.PluginsUnsafeModeSummary)));
 
+        items.add(UItem.asHeader(getString(R.string.PluginsBetaTitle)));
+        items.add(PluginUiItem.check(ID_BETA_IMPORT_PY,
+                        getString(R.string.PluginsBetaImportPy),
+                        R.drawable.msg_bot)
+                .setChecked(controller.isBetaImportPyEnabled())
+                .setValue(getString(R.string.PluginsBetaImportPyInfo))
+                .setMultiline(true)
+                .setEnabled(engineOn));
+        int exportFormat = controller.getPluginExportFormat();
+        String formatName = exportFormat == PluginsConstants.EXPORT_FORMAT_PY
+                ? getString(R.string.PluginsExportFormatPy)
+                : (exportFormat == PluginsConstants.EXPORT_FORMAT_ASK
+                ? getString(R.string.PluginsExportFormatAsk)
+                : getString(R.string.PluginsExportFormatPlugin));
+        items.add(UItem.asButton(ID_EXPORT_FORMAT, getString(R.string.PluginsExportFormat))
+                .setValue(formatName)
+                .setIcon(R.drawable.msg_share));
+        items.add(UItem.asShadow(null));
+
+        items.add(UItem.asHeader(getString(R.string.PluginsBackupTitle)));
+        items.add(UItem.asButton(ID_BACKUP_CREATE, getString(R.string.PluginsBackupCreate))
+                .setIcon(R.drawable.msg_download));
+        items.add(UItem.asButton(ID_BACKUP_RESTORE, getString(R.string.PluginsBackupRestore))
+                .setIcon(R.drawable.msg_retry));
+        items.add(UItem.asShadow(getString(R.string.PluginsBackupSummary)));
+
         items.add(UItem.asHeader("Python SDK"));
         items.add(UItem.asButton(ID_SDK_VERSION, getString(R.string.PluginsPythonSdk))
                 .setValue("v" + PluginsConstants.SDK_VERSION));
@@ -165,6 +201,17 @@ public class PluginsInfoActivity extends BaseFragment {
                 confirmUnsafeMode();
                 return;
             }
+        } else if (item.id == ID_BETA_IMPORT_PY) {
+            controller.setBetaImportPyEnabled(!controller.isBetaImportPyEnabled());
+        } else if (item.id == ID_EXPORT_FORMAT) {
+            showExportFormatDialog();
+            return;
+        } else if (item.id == ID_BACKUP_CREATE) {
+            PluginsBackupHelper.createBackup(this);
+            return;
+        } else if (item.id == ID_BACKUP_RESTORE) {
+            openBackupPicker();
+            return;
         } else if (item.id == ID_INSTALL_FROM_FILE) {
             PluginsActivity.openPluginPicker(this);
             return;
@@ -180,6 +227,58 @@ public class PluginsInfoActivity extends BaseFragment {
         if (listView != null) {
             listView.adapter.update(true);
         }
+    }
+
+    private void showExportFormatDialog() {
+        if (getParentActivity() == null) {
+            return;
+        }
+        PluginsController controller = PluginsController.getInstance();
+        CharSequence[] options = new CharSequence[]{
+                getString(R.string.PluginsExportFormatPlugin),
+                getString(R.string.PluginsExportFormatPy),
+                getString(R.string.PluginsExportFormatAsk)
+        };
+        new AlertDialog.Builder(getParentActivity())
+                .setTitle(getString(R.string.PluginsExportFormat))
+                .setItems(options, (dialog, which) -> {
+                    int format = which == 1 ? PluginsConstants.EXPORT_FORMAT_PY
+                            : (which == 2 ? PluginsConstants.EXPORT_FORMAT_ASK : PluginsConstants.EXPORT_FORMAT_PLUGIN);
+                    controller.setPluginExportFormat(format);
+                    if (listView != null) {
+                        listView.adapter.update(true);
+                    }
+                })
+                .show();
+    }
+
+    private void openBackupPicker() {
+        Activity activity = getParentActivity();
+        if (activity == null) {
+            return;
+        }
+        try {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            startActivityForResult(intent, REQUEST_CODE_PICK_BACKUP);
+        } catch (Exception e) {
+            FileLog.e("PluginsInfoActivity: pick backup failed", e);
+        }
+    }
+
+    @Override
+    public void onActivityResultFragment(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_BACKUP && resultCode == Activity.RESULT_OK
+                && data != null && data.getData() != null) {
+            PluginsBackupHelper.restoreBackup(this, data.getData(), () -> {
+                if (listView != null) {
+                    listView.adapter.update(true);
+                }
+            });
+            return;
+        }
+        super.onActivityResultFragment(requestCode, resultCode, data);
     }
 
     private void confirmUnsafeMode() {

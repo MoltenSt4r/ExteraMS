@@ -304,6 +304,28 @@ public class PluginsActivity extends BaseFragment {
         if (activity == null || plugin == null || plugin.path == null) {
             return;
         }
+        int format = PluginsController.getInstance().getPluginExportFormat();
+        if (format == app.exteraless.plugins.PluginsConstants.EXPORT_FORMAT_ASK) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle(getString(R.string.PluginsExportFormat));
+            CharSequence[] formats = new CharSequence[]{
+                    getString(R.string.PluginsExportFormatPlugin),
+                    getString(R.string.PluginsExportFormatPy)
+            };
+            builder.setItems(formats, (dialog, which) -> {
+                doSharePlugin(plugin, which == 0 ? app.exteraless.plugins.PluginsConstants.EXPORT_FORMAT_PLUGIN : app.exteraless.plugins.PluginsConstants.EXPORT_FORMAT_PY);
+            });
+            showDialog(builder.create());
+        } else {
+            doSharePlugin(plugin, format);
+        }
+    }
+
+    private void doSharePlugin(Plugin plugin, int exportFormat) {
+        Activity activity = getParentActivity();
+        if (activity == null || plugin == null || plugin.path == null) {
+            return;
+        }
         try {
             File source = new File(plugin.path);
             if (!source.exists()) {
@@ -311,9 +333,17 @@ public class PluginsActivity extends BaseFragment {
             }
             File dir = new File(activity.getCacheDir(), "share");
             dir.mkdirs();
-            String ext = source.getName().contains(".")
-                    ? source.getName().substring(source.getName().lastIndexOf('.'))
-                    : ".plugin";
+            String nameLower = source.getName().toLowerCase(Locale.ROOT);
+            String ext;
+            if (nameLower.endsWith(".elyx")) {
+                ext = ".elyx";
+            } else if (nameLower.endsWith(".eaf")) {
+                ext = ".eaf";
+            } else {
+                ext = (exportFormat == app.exteraless.plugins.PluginsConstants.EXPORT_FORMAT_PY)
+                        ? app.exteraless.plugins.PluginsConstants.PLUGIN_EXT_PY
+                        : app.exteraless.plugins.PluginsConstants.PLUGIN_EXT;
+            }
             File copy = new File(dir, plugin.id + ext);
             try (InputStream in = new java.io.FileInputStream(source);
                  FileOutputStream out = new FileOutputStream(copy)) {
@@ -558,6 +588,14 @@ public class PluginsActivity extends BaseFragment {
         // Расширение обязано пережить копирование: движок по нему отличает
         // .elyx/.eaf (ZIP-архивы) от обычного .py-модуля.
         String name = resolveFileName(activity, uri);
+        if (name != null && (name.toLowerCase(Locale.ROOT).endsWith(app.exteraless.plugins.PluginsConstants.PLUGIN_EXT_BACKUP)
+                || name.toLowerCase(Locale.ROOT).endsWith(".zip"))) {
+            app.exteraless.plugins.PluginsBackupHelper.restoreBackup(this, uri, () -> {
+                refreshPlugins(true);
+                updateRows();
+            });
+            return;
+        }
         String ext = ".py";
         for (String candidate : new String[]{".elyx", ".eaf", ".plugin", ".py"}) {
             if (name != null && name.toLowerCase(Locale.ROOT).endsWith(candidate)) {
@@ -589,7 +627,10 @@ public class PluginsActivity extends BaseFragment {
         // Через диалог согласия, а не installPlugin напрямую: иначе выбор файла
         // на этом экране выдавал бы плагину все объявленные разрешения молча,
         // в обход единственного места, где пользователь их видит.
-        PluginsController.getInstance().showInstallDialog(this, tmp.getAbsolutePath(), false);
+        final File fileToInstall = (PluginsController.getInstance().isBetaImportPyEnabled() && ext.equals(".py"))
+                ? app.exteraless.plugins.PluginAutoConverter.autoConvertIfNeeded(tmp)
+                : tmp;
+        PluginsController.getInstance().showInstallDialog(this, fileToInstall.getAbsolutePath(), false);
     }
 
     /** Имя файла за content://-ссылкой; нужно только ради расширения. */

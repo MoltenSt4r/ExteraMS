@@ -175,4 +175,24 @@ Source:
     <string name="PluginWatchdogMuted">%1$s will no longer warn about slowdowns. You can bring the warnings back in the plugin settings.</string>
     <string name="PluginWatchdogWarnings">Slowdown warnings</string>
     <string name="PluginWatchdogWarningsInfo">Warn when this plugin holds the main thread for too long or stops responding.</string>
+
+    <!-- ExteraMS: Beta & Backup/Export -->
+    <string name="PluginsBetaTitle">Beta features</string>
+    <string name="PluginsBetaImportPy">Import .py plugins</string>
+    <string name="PluginsBetaImportPyInfo">Allow installing plugins from .py files with automatic conversion.</string>
+    <string name="PluginsExportFormat">Plugin export format</string>
+    <string name="PluginsExportFormatPlugin">.plugin (Recommended for Telegram)</string>
+    <string name="PluginsExportFormatPy">.py (Python source code)</string>
+    <string name="PluginsExportFormatAsk">Ask each time</string>
+    <string name="PluginsBackupTitle">Backup and restore</string>
+    <string name="PluginsBackupCreate">Backup all plugins</string>
+    <string name="PluginsBackupRestore">Restore plugins from backup</string>
+    <string name="PluginsBackupSummary">Save all installed plugins, their settings, and permissions to transfer to another device.</string>
+    <string name="PluginsBackupCreating">Creating backup…</string>
+    <string name="PluginsBackupRestoring">Restoring plugins…</string>
+    <string name="PluginsBackupRestored">Successfully restored %1$d plugins.</string>
+    <string name="PluginsBackupNoPlugins">No plugins installed to backup.</string>
+    <string name="PluginsBackupInvalid">The file is not a valid plugin backup.</string>
+    <string name="PluginsBackupRestoreConfirm">Restore %1$d plugins from this backup?</string>
+    <string name="PluginsBackupShareTitle">Export plugins backup</string>
 </resources>

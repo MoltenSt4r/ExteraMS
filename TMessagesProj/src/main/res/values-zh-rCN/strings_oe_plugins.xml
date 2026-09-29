@@ -165,4 +165,24 @@
     <string name="PluginWatchdogMuted">%1$s 将不再提示卡顿。可以在插件设置中恢复提示。</string>
     <string name="PluginWatchdogWarnings">卡顿提示</string>
     <string name="PluginWatchdogWarningsInfo">当插件长时间占用主线程或停止响应时提示。</string>
+
+    <!-- ExteraMS: Beta & Backup/Export -->
+    <string name="PluginsBetaTitle">测试版功能</string>
+    <string name="PluginsBetaImportPy">导入 .py 插件</string>
+    <string name="PluginsBetaImportPyInfo">允许从 .py 文件安装插件并自动转换。</string>
+    <string name="PluginsExportFormat">插件导出格式</string>
+    <string name="PluginsExportFormatPlugin">.plugin（推荐用于 Telegram）</string>
+    <string name="PluginsExportFormatPy">.py（Python 源代码）</string>
+    <string name="PluginsExportFormatAsk">每次询问</string>
+    <string name="PluginsBackupTitle">备份与恢复</string>
+    <string name="PluginsBackupCreate">备份所有插件</string>
+    <string name="PluginsBackupRestore">从备份恢复插件</string>
+    <string name="PluginsBackupSummary">保存所有已安装的插件、其设置和权限，以便迁移到其他设备。</string>
+    <string name="PluginsBackupCreating">正在创建备份…</string>
+    <string name="PluginsBackupRestoring">正在恢复插件…</string>
+    <string name="PluginsBackupRestored">成功恢复了 %1$d 个插件。</string>
+    <string name="PluginsBackupNoPlugins">没有已安装的插件可备份。</string>
+    <string name="PluginsBackupInvalid">该文件不是有效的插件备份。</string>
+    <string name="PluginsBackupRestoreConfirm">是否从该备份恢复 %1$d 个插件？</string>
+    <string name="PluginsBackupShareTitle">导出插件备份</string>
 </resources>

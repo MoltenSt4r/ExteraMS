@@ -165,4 +165,24 @@ Código:
     <string name="PluginWatchdogMuted">%1$s ya no avisará sobre ralentizaciones. Puedes restaurar los avisos en los ajustes del complemento.</string>
     <string name="PluginWatchdogWarnings">Avisos de ralentización</string>
     <string name="PluginWatchdogWarningsInfo">Avisar cuando el complemento ocupe el hilo principal demasiado tiempo o deje de responder.</string>
+
+    <!-- ExteraMS: Beta & Backup/Export -->
+    <string name="PluginsBetaTitle">Funciones beta</string>
+    <string name="PluginsBetaImportPy">Importar complementos .py</string>
+    <string name="PluginsBetaImportPyInfo">Permitir instalar complementos desde archivos .py con autoconversión.</string>
+    <string name="PluginsExportFormat">Formato de exportación</string>
+    <string name="PluginsExportFormatPlugin">.plugin (Recomendado para Telegram)</string>
+    <string name="PluginsExportFormatPy">.py (Código fuente Python)</string>
+    <string name="PluginsExportFormatAsk">Preguntar cada vez</string>
+    <string name="PluginsBackupTitle">Copia de seguridad y restauración</string>
+    <string name="PluginsBackupCreate">Crear copia de todos los complementos</string>
+    <string name="PluginsBackupRestore">Restaurar complementos de copia</string>
+    <string name="PluginsBackupSummary">Guarda todos los complementos instalados, sus ajustes y permisos para transferir a otro dispositivo.</string>
+    <string name="PluginsBackupCreating">Creando copia de seguridad…</string>
+    <string name="PluginsBackupRestoring">Restaurando complementos…</string>
+    <string name="PluginsBackupRestored">Se restauraron con éxito %1$d complementos.</string>
+    <string name="PluginsBackupNoPlugins">No hay complementos instalados para respaldar.</string>
+    <string name="PluginsBackupInvalid">El archivo no es una copia de seguridad válida.</string>
+    <string name="PluginsBackupRestoreConfirm">¿Restaurar %1$d complementos de esta copia?</string>
+    <string name="PluginsBackupShareTitle">Exportar copia de seguridad</string>
 </resources>

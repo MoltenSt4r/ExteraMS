@@ -257,6 +257,28 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
         }
     }
 
+    public boolean isBetaImportPyEnabled() {
+        return preferences != null && preferences.getBoolean(PluginsConstants.KEY_BETA_IMPORT_PY, false);
+    }
+
+    public void setBetaImportPyEnabled(boolean enabled) {
+        if (preferences != null) {
+            preferences.edit().putBoolean(PluginsConstants.KEY_BETA_IMPORT_PY, enabled).apply();
+        }
+    }
+
+    public int getPluginExportFormat() {
+        return preferences != null
+                ? preferences.getInt(PluginsConstants.KEY_PLUGIN_EXPORT_FORMAT, PluginsConstants.EXPORT_FORMAT_PLUGIN)
+                : PluginsConstants.EXPORT_FORMAT_PLUGIN;
+    }
+
+    public void setPluginExportFormat(int format) {
+        if (preferences != null) {
+            preferences.edit().putInt(PluginsConstants.KEY_PLUGIN_EXPORT_FORMAT, format).apply();
+        }
+    }
+
     private static boolean hasPluginExtension(String name) {
         if (name == null) {
             return false;

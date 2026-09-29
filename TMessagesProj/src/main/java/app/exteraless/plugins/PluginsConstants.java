@@ -60,6 +60,14 @@ public final class PluginsConstants {
     public static final String PLUGIN_EXT_PY = ".py";
     public static final String PLUGIN_EXT_ELYX = ".elyx";
     public static final String PLUGIN_EXT_EAF = ".eaf";
+    public static final String PLUGIN_EXT_BACKUP = ".exteraplugins";
+
+    /** Бета-функции и настройки экспорта/бэкапа. */
+    public static final String KEY_BETA_IMPORT_PY = "plugins_beta_import_py";
+    public static final String KEY_PLUGIN_EXPORT_FORMAT = "plugins_export_format";
+    public static final int EXPORT_FORMAT_PLUGIN = 0;
+    public static final int EXPORT_FORMAT_PY = 1;
+    public static final int EXPORT_FORMAT_ASK = 2;
 
     /** Версия нашего Python SDK. Своя линейка, к 1.4.5.0 из exteraGram отношения не имеет. */
     /**
