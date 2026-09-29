@@ -46,6 +46,13 @@ public class NekoXConfig {
     public static int customAppId = preferences.getInt("custom_app_id", 0);
     public static String customAppHash = preferences.getString("custom_app_hash", "");
 
+    static {
+        if (customAppId == 21724 || (customAppHash != null && customAppHash.equalsIgnoreCase("3e0cb5efcd52300aec5994fdfc5bdc16"))) {
+            resetCustomApi();
+            saveCustomApi();
+        }
+    }
+
     public static int currentAppId() {
         return customApi == API_TYPE_CUSTOM ? customAppId : BuildConfig.APP_ID;
     }
@@ -163,8 +170,10 @@ public class NekoXConfig {
                     AndroidUtil.showInputError(inputs[0]);
                     return Unit.INSTANCE;
                 }
+                int parsedAppId = 0;
                 try {
-                    if (Integer.parseInt(appIdStr) == 0) {
+                    parsedAppId = Integer.parseInt(appIdStr);
+                    if (parsedAppId == 0) {
                         AndroidUtil.showInputError(inputs[0]);
                         return Unit.INSTANCE;
                     }
@@ -174,13 +183,19 @@ public class NekoXConfig {
                     return Unit.INSTANCE;
                 }
 
+                if (parsedAppId == 21724 || "3e0cb5efcd52300aec5994fdfc5bdc16".equalsIgnoreCase(appHashStr)) {
+                    AndroidUtil.showInputError(inputs[0]);
+                    AndroidUtil.showErrorDialog(getString(R.string.CustomApiDisallowed));
+                    return Unit.INSTANCE;
+                }
+
                 if (isAppHashEmpty || appHashStr.length() != 32) {
                     AndroidUtil.showInputError(inputs[1]);
                     return Unit.INSTANCE;
                 }
 
                 NekoXConfig.customApi = API_TYPE_CUSTOM;
-                NekoXConfig.customAppId = Integer.parseInt(appIdStr);
+                NekoXConfig.customAppId = parsedAppId;
                 NekoXConfig.customAppHash = appHashStr;
 
                 AndroidUtil.setPushService(false);

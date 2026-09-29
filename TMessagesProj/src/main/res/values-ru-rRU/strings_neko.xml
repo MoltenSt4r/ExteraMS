@@ -179,6 +179,7 @@
     <string name="UseCustomApiNotice">Войдите в систему, используя пользовательский API. Если вы не можете зарегистрироваться или войти в систему, это может помочь.\n\nПримечание: FCM не будет работать, если вы используете пользовательский API.</string>
     <string name="CustomApiNo">Не использовать (рекомендуется)</string>
     <string name="CustomApiInput">Ввести вручную</string>
+    <string name="CustomApiDisallowed">Ключи Telegram X (21724) запрещены: сервер Telegram сбрасывает все активные сессии аккаунта.</string>
     <string name="LinkedGroupChat">Привязанная группа</string>
     <string name="LinkedChannelChat">Привязанный канал</string>
     <string name="ChangeTranslateProvider">Изменить сервис перевода</string>

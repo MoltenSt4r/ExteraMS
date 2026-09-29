@@ -181,6 +181,7 @@
     <string name="UseCustomApiNotice">Log in using the custom API, if you are unable to register or log in, this may help.\n\nNote: FCM will not work if you are using a custom API.</string>
     <string name="CustomApiNo">Don\'t use custom API</string>
     <string name="CustomApiInput">Manual input</string>
+    <string name="CustomApiDisallowed">Using official Telegram X keys (21724) is blocked because Telegram server revokes all account sessions.</string>
     <string name="LinkedGroupChat">Linked Group</string>
     <string name="LinkedChannelChat">Linked Channel</string>
     <string name="ChangeTranslateProvider">Change Provider</string>
