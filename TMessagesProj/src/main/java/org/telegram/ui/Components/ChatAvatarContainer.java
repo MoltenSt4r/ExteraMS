@@ -344,7 +344,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
                 parentFragment.getChatMode() == ChatActivity.MODE_WELCOME_MESSAGES ||
                 parentFragment.getChatMode() == ChatActivity.MODE_EDIT_BUSINESS_LINK
             );
-            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideAvatar().Bool()) {
+            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideAvatar.Bool()) {
                 avatarImageIsHidden = true;
             }
             if (avatarImageIsHidden) {

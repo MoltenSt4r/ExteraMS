@@ -2522,7 +2522,7 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
 
     @Override
     public void draw(Canvas canvas) {
-        if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getMd3ActionBarRounded().Bool()) {
+        if (app.exteraless.appearance.AppearanceConfig.md3ActionBarRounded.Bool()) {
             if (roundedClipPath == null) {
                 roundedClipPath = new android.graphics.Path();
                 roundedRectF = new android.graphics.RectF();

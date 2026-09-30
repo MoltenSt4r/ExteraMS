@@ -5199,7 +5199,7 @@ public class ChatActivity extends BaseFragment implements
 
         contentView.setOccupyStatusBar(!inBubbleMode && !isInsideContainer && !inPreviewMode);
 
-        if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getMd3ActionBarRounded().Bool()) {
+        if (app.exteraless.appearance.AppearanceConfig.md3ActionBarRounded.Bool()) {
             actionBar.setBackgroundColor(getThemedColor(Theme.key_actionBarDefault));
         } else {
             actionBar.setupGlass(
@@ -14646,7 +14646,7 @@ public class ChatActivity extends BaseFragment implements
             return;
         }
 
-        if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getMd3AttachMenu().Bool()) {
+        if (app.exteraless.appearance.AppearanceConfig.md3AttachMenu.Bool()) {
             app.exteraless.components.Md3AttachAlert alert = new app.exteraless.components.Md3AttachAlert(getParentActivity(), this, key -> {
                 switch (key) {
                     case "photo":
@@ -14737,39 +14737,39 @@ public class ChatActivity extends BaseFragment implements
     }
 
     private void applyChatHeaderCustomization() {
-        if (avatarContainer != null && app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideAvatar().Bool()) {
+        if (avatarContainer != null && app.exteraless.appearance.AppearanceConfig.chatHeaderHideAvatar.Bool()) {
             if (avatarContainer.avatarImageView != null) {
                 avatarContainer.avatarImageView.setVisibility(View.GONE);
             }
         }
         if (headerItem != null) {
-            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideCall().Bool()) {
+            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideCall.Bool()) {
                 headerItem.hideSubItem(call);
             }
-            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideVideoCall().Bool()) {
+            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideVideoCall.Bool()) {
                 headerItem.hideSubItem(video_call);
             }
-            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideSearch().Bool()) {
+            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideSearch.Bool()) {
                 headerItem.hideSubItem(search);
             }
-            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideMute().Bool() && muteItem != null) {
+            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideMute.Bool() && muteItem != null) {
                 muteItem.setVisibility(View.GONE);
                 if (muteItemGap != null) {
                     muteItemGap.setVisibility(View.GONE);
                 }
             }
         }
-        if (audioCallIconItem != null && app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideCall().Bool()) {
+        if (audioCallIconItem != null && app.exteraless.appearance.AppearanceConfig.chatHeaderHideCall.Bool()) {
             audioCallIconItem.setVisibility(View.GONE);
         }
-        if (searchIconItem != null && app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideSearch().Bool()) {
+        if (searchIconItem != null && app.exteraless.appearance.AppearanceConfig.chatHeaderHideSearch.Bool()) {
             searchIconItem.setVisibility(View.GONE);
         }
 
         if (actionBar != null) {
             org.telegram.ui.ActionBar.ActionBarMenu menu = actionBar.getMenu();
             if (menu != null) {
-                String orderStr = app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderItemsOrder().String();
+                String orderStr = app.exteraless.appearance.AppearanceConfig.chatHeaderItemsOrder.String();
                 if (orderStr != null && !orderStr.isEmpty()) {
                     String[] order = orderStr.split(",");
                     ArrayList<View> orderedViews = new ArrayList<>();
