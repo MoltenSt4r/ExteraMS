@@ -8,6 +8,7 @@ on:
       - '**.md'
       - '.github/**'
       - '!.github/workflows/release.yml'
+      - '!.github/workflows/fdroid.yml'
       - '!.github/scripts/**'
   workflow_dispatch:
     inputs:
@@ -107,7 +108,7 @@ jobs:
           name: Release
           path: |
             TMessagesProj/build/outputs/apk/release/*.apk
-      - name: Clean up legacy test builds
+      - name: Clean up legacy test builds and existing release APKs
         uses: actions/github-script@v7
         with:
           script: |
@@ -127,6 +128,27 @@ jobs:
               }
             } catch (e) {
               console.log('No test-build release to delete');
+            }
+            try {
+              const release = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: 'v12.10.3'
+              });
+              if (release && release.data && release.data.assets) {
+                for (const asset of release.data.assets) {
+                  if (asset.name.endsWith('.apk')) {
+                    console.log('Deleting superseded APK asset:', asset.name, asset.id);
+                    await github.rest.repos.deleteReleaseAsset({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      asset_id: asset.id
+                    });
+                  }
+                }
+              }
+            } catch (e) {
+              console.log('No existing v12.10.3 release assets to clean');
             }
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

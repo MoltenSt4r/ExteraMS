@@ -2,7 +2,7 @@
 
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="com.exterams.app"
-    android:icon="@mipmap/ic_launcher_exteraless_round"
-    android:smallIcon="@mipmap/ic_launcher_exteraless_round"
+    android:icon="@mipmap/ic_launcher_exterams_md3_round"
+    android:smallIcon="@mipmap/ic_launcher_exterams_md3_round"
     android:label="@string/AppName"
     android:accountPreferences="@xml/auth_menu"/>

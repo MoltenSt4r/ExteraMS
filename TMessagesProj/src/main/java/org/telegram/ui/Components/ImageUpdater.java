@@ -301,12 +301,6 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
             ids.add(ID_RECORD_VIDEO);
         }
 
-        if (!(parentFragment instanceof ProfileActivity || parentFragment instanceof ChatEditActivity)) {
-            items.add(LocaleController.getString(R.string.ChooseFromGallery));
-            icons.add(R.drawable.msg_photos);
-            ids.add(ID_UPLOAD_FROM_GALLERY);
-        }
-
         if (searchAvailable) {
             items.add(LocaleController.getString(R.string.ChooseFromSearch));
             icons.add(R.drawable.msg_search);
