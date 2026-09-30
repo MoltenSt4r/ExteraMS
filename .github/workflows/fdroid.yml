@@ -1,5 +1,6 @@
 name: Update F-Droid Repository
 
+# Auto-sync trigger for release v12.10.3
 on:
   release:
     types: [published]
