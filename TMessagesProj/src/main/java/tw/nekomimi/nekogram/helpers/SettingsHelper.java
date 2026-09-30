@@ -41,6 +41,7 @@ public class SettingsHelper {
 
     private static final String HOST_NAGRAM = "nasettings";
     private static final String HOST_EXTERALESS = "exteraless";
+    private static final String HOST_EXTERAMS = "exterams";
 
     private static final Map<String, String> SEARCH_TITLE_ALIASES = new HashMap<>();
     private static final Map<String, String> TRANSLATOR_ROWS = new HashMap<>();
@@ -85,10 +86,13 @@ public class SettingsHelper {
         if (path.startsWith(HOST_NAGRAM + "/")) {
             return true;
         }
-        if (!path.startsWith(HOST_EXTERALESS + "/")) {
-            return false;
+        if (path.startsWith(HOST_EXTERAMS + "/")) {
+            return EXTERALESS_SCREENS.contains(path.substring(HOST_EXTERAMS.length() + 1));
         }
-        return EXTERALESS_SCREENS.contains(path.substring(HOST_EXTERALESS.length() + 1));
+        if (path.startsWith(HOST_EXTERALESS + "/")) {
+            return EXTERALESS_SCREENS.contains(path.substring(HOST_EXTERALESS.length() + 1));
+        }
+        return false;
     }
 
     public static String linkPathFor(String key) {
@@ -97,19 +101,25 @@ public class SettingsHelper {
         }
         switch (key) {
             case "exteraless":
-                return HOST_EXTERALESS + "/settings";
+            case "exterams":
+                return HOST_EXTERAMS + "/settings";
             case "exteraless_general":
-                return HOST_EXTERALESS + "/general";
+            case "exterams_general":
+                return HOST_EXTERAMS + "/general";
             case "exteraless_appearance":
-                return HOST_EXTERALESS + "/appearance";
+            case "exterams_appearance":
+                return HOST_EXTERAMS + "/appearance";
             case "exteraless_chats":
-                return HOST_EXTERALESS + "/chats";
+            case "exterams_chats":
+                return HOST_EXTERAMS + "/chats";
             case "exteraless_other":
-                return HOST_EXTERALESS + "/other";
+            case "exterams_other":
+                return HOST_EXTERAMS + "/other";
             case "exteraless_ayumoments":
-                return HOST_EXTERALESS + "/ayumoments";
+            case "exterams_ayumoments":
+                return HOST_EXTERAMS + "/ayumoments";
             case "pillstack":
-                return HOST_EXTERALESS + "/pillstack";
+                return HOST_EXTERAMS + "/pillstack";
             default:
                 return HOST_NAGRAM + "/" + key;
         }
@@ -125,7 +135,7 @@ public class SettingsHelper {
             unknown.run();
             return;
         }
-        final boolean exteraless = HOST_EXTERALESS.equals(segments.get(0));
+        final boolean exteraless = HOST_EXTERAMS.equals(segments.get(0)) || HOST_EXTERALESS.equals(segments.get(0));
         if (!exteraless && !HOST_NAGRAM.equals(segments.get(0))) {
             unknown.run();
             return;

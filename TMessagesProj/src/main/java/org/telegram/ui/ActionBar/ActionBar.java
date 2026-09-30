@@ -2517,6 +2517,30 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
         super.dispatchDraw(canvas);
     }
 
+    private android.graphics.Path roundedClipPath;
+    private android.graphics.RectF roundedRectF;
+
+    @Override
+    public void draw(Canvas canvas) {
+        if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getMd3ActionBarRounded().Bool()) {
+            if (roundedClipPath == null) {
+                roundedClipPath = new android.graphics.Path();
+                roundedRectF = new android.graphics.RectF();
+            }
+            roundedClipPath.reset();
+            roundedRectF.set(0, 0, getWidth(), getHeight());
+            float r = AndroidUtilities.dp(24);
+            float[] radii = new float[]{0, 0, 0, 0, r, r, r, r};
+            roundedClipPath.addRoundRect(roundedRectF, radii, android.graphics.Path.Direction.CW);
+            canvas.save();
+            canvas.clipPath(roundedClipPath);
+            super.draw(canvas);
+            canvas.restore();
+        } else {
+            super.draw(canvas);
+        }
+    }
+
     public void setForceSkipTouches(boolean forceSkipTouches) {
         this.forceSkipTouches = forceSkipTouches;
     }

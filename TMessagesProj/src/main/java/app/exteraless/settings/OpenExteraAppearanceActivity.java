@@ -113,6 +113,11 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
     private int md3SwitchRow;
     private int md3ChatHeaderRow;
     private int md3NavBarRow;
+    private int md3ChatInputRow;
+    private int md3ActionBarRoundedRow;
+    private int md3ChatHeaderCustomRow;
+    private int md3AttachMenuRow;
+    private int md3AttachMenuCustomRow;
     private boolean md3Expanded;
     private int iosGroupRow;
     private int iosNavBarRow;
@@ -224,8 +229,15 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
             md3SwitchRow = addRow("md3Switch");
             md3ChatHeaderRow = addRow("md3ChatHeader");
             md3NavBarRow = addRow("md3NavBar");
+            md3ChatInputRow = addRow("md3ChatInput");
+            md3ActionBarRoundedRow = addRow("md3ActionBarRounded");
+            md3ChatHeaderCustomRow = addRow("md3ChatHeaderCustom");
+            md3AttachMenuRow = addRow("md3AttachMenu");
+            md3AttachMenuCustomRow = addRow("md3AttachMenuCustom");
         } else {
-            md3LoadingRow = md3SliderRow = md3SwitchRow = md3ChatHeaderRow = md3NavBarRow = -1;
+            md3LoadingRow = md3SliderRow = md3SwitchRow = md3ChatHeaderRow = md3NavBarRow =
+                    md3ChatInputRow = md3ActionBarRoundedRow = md3ChatHeaderCustomRow =
+                    md3AttachMenuRow = md3AttachMenuCustomRow = -1;
         }
         iosGroupRow = addRow("iosStyles");
         if (iosExpanded) {
@@ -602,6 +614,24 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                 leaveFloatingBottomNavigation();
             }
             rebuildAllAndSelf(view, enable);
+            return;
+        } else if (position == md3ChatInputRow) {
+            AppearanceConfig.md3ChatInput.setConfigBool(!AppearanceConfig.md3ChatInput.Bool());
+            rebuildAllAndSelf(view, AppearanceConfig.md3ChatInput.Bool());
+            return;
+        } else if (position == md3ActionBarRoundedRow) {
+            AppearanceConfig.md3ActionBarRounded.setConfigBool(!AppearanceConfig.md3ActionBarRounded.Bool());
+            rebuildAllAndSelf(view, AppearanceConfig.md3ActionBarRounded.Bool());
+            return;
+        } else if (position == md3ChatHeaderCustomRow) {
+            presentFragment(new ChatHeaderSettingsActivity());
+            return;
+        } else if (position == md3AttachMenuRow) {
+            AppearanceConfig.md3AttachMenu.setConfigBool(!AppearanceConfig.md3AttachMenu.Bool());
+            rebuildAllAndSelf(view, AppearanceConfig.md3AttachMenu.Bool());
+            return;
+        } else if (position == md3AttachMenuCustomRow) {
+            presentFragment(new AttachMenuSettingsActivity());
             return;
         } else if (position == iosGroupRow) {
             iosExpanded = !iosExpanded;
@@ -1026,7 +1056,16 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                                 AppearanceConfig.newChatHeaderStyle.Bool(), true, true);
                     } else if (position == md3NavBarRow) {
                         cell.setText(getString(R.string.OEAppearanceNewNavigationBarStyle), "",
-                                AppearanceConfig.newNavigationBarStyle.Bool(), false, true);
+                                AppearanceConfig.newNavigationBarStyle.Bool(), true, true);
+                    } else if (position == md3ChatInputRow) {
+                        cell.setText(getString(R.string.OEAppearanceMd3ChatInput), "",
+                                AppearanceConfig.md3ChatInput.Bool(), true, true);
+                    } else if (position == md3ActionBarRoundedRow) {
+                        cell.setText(getString(R.string.OEAppearanceMd3ActionBarRounded), "",
+                                AppearanceConfig.md3ActionBarRounded.Bool(), true, true);
+                    } else if (position == md3AttachMenuRow) {
+                        cell.setText(getString(R.string.OEAppearanceMd3AttachMenu), "",
+                                AppearanceConfig.md3AttachMenu.Bool(), true, true);
                     } else if (position == iosNavBarRow) {
                         cell.setText(getString(R.string.OEAppearanceIosNavigationBarStyle), "",
                                 AppearanceConfig.iosNavigationBarStyle.Bool(), true, true);
@@ -1095,6 +1134,10 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                         cell.setTextAndValueAndIcon(getString(R.string.EmojiSets), getString(R.string.OEAppearanceEmojiSetsInfo), R.drawable.msg_emoji_smiles, true);
                     } else if (position == pillStackRow) {
                         cell.setTextAndValueAndIcon(getString(R.string.OEAppearancePillStack), getString(R.string.OEAppearancePillStackInfo), R.drawable.outline_header_search, false);
+                    } else if (position == md3ChatHeaderCustomRow) {
+                        cell.setTextAndValueAndIcon(getString(R.string.OEAppearanceChatHeaderCustomization), "", R.drawable.calls_menu_phone, true);
+                    } else if (position == md3AttachMenuCustomRow) {
+                        cell.setTextAndValueAndIcon(getString(R.string.OEAppearanceAttachMenuCustomization), "", R.drawable.msg_attach, false);
                     }
                     break;
                 }
@@ -1163,14 +1206,17 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
             } else if (position == fabShapeRow) {
                 return TYPE_FAB_SHAPE;
             } else if (position == appNavigationRow || position == iconPacksRow
-                    || position == emojiSetsRow || position == pillStackRow) {
+                    || position == emojiSetsRow || position == pillStackRow
+                    || position == md3ChatHeaderCustomRow || position == md3AttachMenuCustomRow) {
                 return TYPE_DETAIL_SETTINGS;
             } else if (position == md3GroupRow || position == hideAiGroupRow
                     || position == iosGroupRow || position == hideSettingsGroupRow) {
                 return TYPE_EXPANDABLE_SWITCH;
             } else if (position == md3LoadingRow || position == md3SliderRow
                     || position == md3SwitchRow || position == md3ChatHeaderRow
-                    || position == md3NavBarRow || position == hideAiEditorRow
+                    || position == md3NavBarRow || position == md3ChatInputRow
+                    || position == md3ActionBarRoundedRow || position == md3AttachMenuRow
+                    || position == hideAiEditorRow
                     || position == hideAiSummaryRow || position == hideAiIvRow
                     || position == iosNavBarRow || position == iosFolderTapRow
                     || position == hidePremiumSectionRow || position == hideHelpSectionRow) {
@@ -1281,8 +1327,8 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         showDialog(builder.create());
     }
 
-    /** Сколько стилей MD3 включено. Счётчик «N/5» рядом с шевроном. */
-    private static final int MD3_STYLE_COUNT = 5;
+    /** Сколько стилей MD3 включено. Счётчик «N/8» рядом с шевроном. */
+    private static final int MD3_STYLE_COUNT = 8;
     /** Значение селектора NagramX, соответствующее Material Design 3. */
     private static final int STYLE_MD3 = 2;
 
@@ -1297,6 +1343,9 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         if (isMd3(NaConfig.INSTANCE.getSwitchStyle().Int())) n++;
         if (AppearanceConfig.newChatHeaderStyle.Bool()) n++;
         if (AppearanceConfig.newNavigationBarStyle.Bool()) n++;
+        if (AppearanceConfig.md3ChatInput.Bool()) n++;
+        if (AppearanceConfig.md3ActionBarRounded.Bool()) n++;
+        if (AppearanceConfig.md3AttachMenu.Bool()) n++;
         return n;
     }
 
@@ -1339,6 +1388,9 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         AppearanceConfig.newLoadingStyle.setConfigBool(enable);
         AppearanceConfig.newChatHeaderStyle.setConfigBool(enable);
         AppearanceConfig.newNavigationBarStyle.setConfigBool(enable);
+        AppearanceConfig.md3ChatInput.setConfigBool(enable);
+        AppearanceConfig.md3ActionBarRounded.setConfigBool(enable);
+        AppearanceConfig.md3AttachMenu.setConfigBool(enable);
         if (enable) {
             AppearanceConfig.iosNavigationBarStyle.setConfigBool(false);
             leaveFloatingBottomNavigation();
@@ -1348,7 +1400,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         if (avatarCornersPreviewCell != null) {
             avatarCornersPreviewCell.invalidate();
         }
-        // Перезапуск не нужен: все пять стилей читаются при отрисовке или при создании вьюх.
+        // Перезапуск не нужен: стили читаются при отрисовке или при создании вьюх.
         rebuildAll();
         rebuildRowsAndNotify();
     }

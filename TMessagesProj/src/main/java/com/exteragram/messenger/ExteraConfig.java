@@ -514,6 +514,36 @@ public final class ExteraConfig {
         AppearanceConfig.newNavigationBarStyle.setConfigBool(value);
     }
 
+    public static boolean getMd3ChatInput() {
+        ensureLoaded();
+        return AppearanceConfig.md3ChatInput.Bool();
+    }
+
+    public static void setMd3ChatInput(boolean value) {
+        ensureLoaded();
+        AppearanceConfig.md3ChatInput.setConfigBool(value);
+    }
+
+    public static boolean getMd3ActionBarRounded() {
+        ensureLoaded();
+        return AppearanceConfig.md3ActionBarRounded.Bool();
+    }
+
+    public static void setMd3ActionBarRounded(boolean value) {
+        ensureLoaded();
+        AppearanceConfig.md3ActionBarRounded.setConfigBool(value);
+    }
+
+    public static boolean getMd3AttachMenu() {
+        ensureLoaded();
+        return AppearanceConfig.md3AttachMenu.Bool();
+    }
+
+    public static void setMd3AttachMenu(boolean value) {
+        ensureLoaded();
+        AppearanceConfig.md3AttachMenu.setConfigBool(value);
+    }
+
     public static int getTabletMode() {
         ensureLoaded();
         return NekoConfig.tabletMode.Int();

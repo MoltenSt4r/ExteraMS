@@ -1627,6 +1627,11 @@ object NaConfig {
         if (currentTitle.equals("exteraless", ignoreCase = true) || currentTitle.equals("exteraGram", ignoreCase = true)) {
             customTitle.setConfigString("ExteraMS")
         }
+
+        val currentSavePath = NekoConfig.customSavePath.String()
+        if (currentSavePath.equals("exteraless", ignoreCase = true) || currentSavePath.equals("exteraGram", ignoreCase = true)) {
+            NekoConfig.customSavePath.setConfigString("ExteraMS")
+        }
     }
 
     private fun resetInvalidConfig(o: ConfigItem, e: RuntimeException) {

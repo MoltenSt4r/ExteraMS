@@ -5199,11 +5199,16 @@ public class ChatActivity extends BaseFragment implements
 
         contentView.setOccupyStatusBar(!inBubbleMode && !isInsideContainer && !inPreviewMode);
 
-        actionBar.setupGlass(
-            glassBackgroundDrawableFactory,
-            BlurredBackgroundProviderImpl.topPanelChatActivity(themeDelegate),
-            ChatObject.isForum(currentChat));
-        app.exteraless.appearance.ChatHeaderUiHelper.applyChatHeaderGlassStyle(actionBar);
+        if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getMd3ActionBarRounded().Bool()) {
+            actionBar.setBackgroundColor(getThemedColor(Theme.key_actionBarDefault));
+        } else {
+            actionBar.setupGlass(
+                glassBackgroundDrawableFactory,
+                BlurredBackgroundProviderImpl.topPanelChatActivity(themeDelegate),
+                ChatObject.isForum(currentChat));
+            app.exteraless.appearance.ChatHeaderUiHelper.applyChatHeaderGlassStyle(actionBar);
+        }
+        applyChatHeaderCustomization();
         //actionBar.setChatAvatarContainer(avatarContainer);
         //avatarContainer.setActionBar(actionBar);
 
@@ -14641,6 +14646,39 @@ public class ChatActivity extends BaseFragment implements
             return;
         }
 
+        if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getMd3AttachMenu().Bool()) {
+            app.exteraless.components.Md3AttachAlert alert = new app.exteraless.components.Md3AttachAlert(getParentActivity(), this, key -> {
+                switch (key) {
+                    case "photo":
+                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_PHOTO);
+                        break;
+                    case "camera":
+                        openCameraFromMd3();
+                        break;
+                    case "gif":
+                        openGifsFromMd3();
+                        break;
+                    case "file":
+                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_DOCUMENTS);
+                        break;
+                    case "poll":
+                        openPollCreate(null);
+                        break;
+                    case "location":
+                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_LOCATION);
+                        break;
+                    case "contact":
+                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_CONTACTS);
+                        break;
+                    case "music":
+                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_MUSIC);
+                        break;
+                }
+            });
+            showDialog(alert);
+            return;
+        }
+
         final boolean isEphemeralMessage = chatActivityEnterView != null && chatActivityEnterView.isEphemeralMessageVisible();
 
         createChatAttachView();
@@ -14661,6 +14699,117 @@ public class ChatActivity extends BaseFragment implements
         chatAttachAlert.getCommentView().setText(chatActivityEnterView.getFieldText());
         chatAttachAlert.parentThemeDelegate = themeDelegate;
         showDialog(chatAttachAlert);
+    }
+
+    public void openAttachMenuWithLayout(int layoutType) {
+        if (getParentActivity() == null || chatActivityEnterView != null && !TextUtils.isEmpty(chatActivityEnterView.getSlowModeTimer())) {
+            return;
+        }
+        createChatAttachView();
+        chatAttachAlert.restrictEphemeralMessageTypes = (chatActivityEnterView != null && chatActivityEnterView.isEphemeralMessageVisible()) || chatMode == MODE_WELCOME_MESSAGES;
+        if (layoutType == org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_PHOTO) {
+            chatAttachAlert.getPhotoLayout().loadGalleryPhotos();
+        }
+        if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
+            if (chatActivityEnterView != null) chatActivityEnterView.closeKeyboard();
+        }
+        chatAttachAlert.setMaxSelectedPhotos(-1, true);
+        chatAttachAlert.init();
+        if (chatActivityEnterView != null && chatAttachAlert.getCommentView() != null) {
+            chatAttachAlert.getCommentView().setText(chatActivityEnterView.getFieldText());
+        }
+        chatAttachAlert.parentThemeDelegate = themeDelegate;
+        chatAttachAlert.openLayoutByType(layoutType);
+        showDialog(chatAttachAlert);
+    }
+
+    public void openCameraFromMd3() {
+        processSelectedAttach(attach_photo);
+    }
+
+    public void openGifsFromMd3() {
+        if (chatActivityEnterView != null) {
+            chatActivityEnterView.showEmojiView();
+            if (chatActivityEnterView.getEmojiView() != null) {
+                chatActivityEnterView.getEmojiView().switchToGifRecent();
+            }
+        }
+    }
+
+    private void applyChatHeaderCustomization() {
+        if (avatarContainer != null && app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideAvatar().Bool()) {
+            if (avatarContainer.avatarImageView != null) {
+                avatarContainer.avatarImageView.setVisibility(View.GONE);
+            }
+        }
+        if (headerItem != null) {
+            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideCall().Bool()) {
+                headerItem.hideSubItem(call);
+            }
+            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideVideoCall().Bool()) {
+                headerItem.hideSubItem(video_call);
+            }
+            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideSearch().Bool()) {
+                headerItem.hideSubItem(search);
+            }
+            if (app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideMute().Bool() && muteItem != null) {
+                muteItem.setVisibility(View.GONE);
+                if (muteItemGap != null) {
+                    muteItemGap.setVisibility(View.GONE);
+                }
+            }
+        }
+        if (audioCallIconItem != null && app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideCall().Bool()) {
+            audioCallIconItem.setVisibility(View.GONE);
+        }
+        if (searchIconItem != null && app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderHideSearch().Bool()) {
+            searchIconItem.setVisibility(View.GONE);
+        }
+
+        if (actionBar != null) {
+            org.telegram.ui.ActionBar.ActionBarMenu menu = actionBar.getMenu();
+            if (menu != null) {
+                String orderStr = app.exteraless.appearance.AppearanceConfig.INSTANCE.getChatHeaderItemsOrder().String();
+                if (orderStr != null && !orderStr.isEmpty()) {
+                    String[] order = orderStr.split(",");
+                    ArrayList<View> orderedViews = new ArrayList<>();
+                    for (String key : order) {
+                        View v = null;
+                        switch (key.trim()) {
+                            case "call":
+                                v = menu.findViewWithTag(call);
+                                break;
+                            case "video_call":
+                                v = menu.findViewWithTag(video_call);
+                                break;
+                            case "search":
+                                v = menu.findViewWithTag(search);
+                                if (v == null) v = menu.findViewWithTag(chat_menu_search);
+                                break;
+                            case "other":
+                                v = menu.findViewWithTag(chat_menu_options);
+                                break;
+                        }
+                        if (v != null && !orderedViews.contains(v)) {
+                            orderedViews.add(v);
+                        }
+                    }
+                    int childCount = menu.getChildCount();
+                    for (int i = 0; i < childCount; i++) {
+                        View child = menu.getChildAt(i);
+                        if (!orderedViews.contains(child)) {
+                            orderedViews.add(child);
+                        }
+                    }
+                    if (orderedViews.size() == childCount) {
+                        menu.removeAllViews();
+                        for (View v : orderedViews) {
+                            menu.addView(v);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void openAttachMenuForCreatingSticker() {
@@ -31531,6 +31680,7 @@ public class ChatActivity extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        applyChatHeaderCustomization();
         cachedIsGestureNavigation = AndroidUtil.isGestureNavigation(getContext());
         checkShowBlur(false);
         activityResumeTime = System.currentTimeMillis();
