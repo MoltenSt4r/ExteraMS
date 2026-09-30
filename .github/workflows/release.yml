@@ -8,7 +8,6 @@ on:
       - '**.md'
       - '.github/**'
       - '!.github/workflows/release.yml'
-      - '!.github/workflows/fdroid.yml'
       - '!.github/scripts/**'
   workflow_dispatch:
     inputs:
