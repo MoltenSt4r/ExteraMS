@@ -1137,7 +1137,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                     } else if (position == md3ChatHeaderCustomRow) {
                         cell.setTextAndValueAndIcon(getString(R.string.OEAppearanceChatHeaderCustomization), "", R.drawable.calls_menu_phone, true);
                     } else if (position == md3AttachMenuCustomRow) {
-                        cell.setTextAndValueAndIcon(getString(R.string.OEAppearanceAttachMenuCustomization), "", R.drawable.msg_attach, false);
+                        cell.setTextAndValueAndIcon(getString(R.string.OEAppearanceAttachMenuCustomization), "", R.drawable.input_attach, false);
                     }
                     break;
                 }

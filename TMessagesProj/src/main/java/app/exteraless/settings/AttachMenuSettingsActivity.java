@@ -29,10 +29,10 @@ public class AttachMenuSettingsActivity extends BaseFragment {
     private static final int ID_TOGGLE_BASE = 100;
     private static final int ID_ORDER_BASE = 200;
 
+    private static final String[] ALL_KEYS = {"photo", "camera", "file", "gif", "poll", "location", "contact", "music"};
+
     private final List<String> currentOrder = new ArrayList<>();
     private final Set<String> hiddenItems = new HashSet<>();
-
-    private static final String DEFAULT_ORDER = "photo,camera,gif,file,poll,location,contact,music";
 
     @Override
     public boolean onFragmentCreate() {
@@ -42,24 +42,25 @@ public class AttachMenuSettingsActivity extends BaseFragment {
 
     private void initData() {
         currentOrder.clear();
-        String saved = AppearanceConfig.attachMenuItemsOrder.String();
-        if (saved != null && !saved.isEmpty()) {
-            currentOrder.addAll(Arrays.asList(saved.split(",")));
+        String savedOrder = AppearanceConfig.attachMenuItemsOrder.String();
+        if (savedOrder != null && !savedOrder.isEmpty()) {
+            currentOrder.addAll(Arrays.asList(savedOrder.split(",")));
         } else {
-            currentOrder.addAll(Arrays.asList(DEFAULT_ORDER.split(",")));
-        }
-        // Ensure all default items are present in currentOrder
-        for (String def : DEFAULT_ORDER.split(",")) {
-            if (!currentOrder.contains(def)) {
-                currentOrder.add(def);
-            }
+            currentOrder.addAll(Arrays.asList(ALL_KEYS));
         }
 
         hiddenItems.clear();
-        String hidden = AppearanceConfig.attachMenuHideItems.String();
-        if (hidden != null && !hidden.isEmpty()) {
-            hiddenItems.addAll(Arrays.asList(hidden.split(",")));
+        String savedHidden = AppearanceConfig.attachMenuHideItems.String();
+        if (savedHidden != null && !savedHidden.isEmpty()) {
+            hiddenItems.addAll(Arrays.asList(savedHidden.split(",")));
         }
+    }
+
+    private int getAttachKeyIndex(String key) {
+        for (int i = 0; i < ALL_KEYS.length; i++) {
+            if (ALL_KEYS[i].equals(key)) return i;
+        }
+        return 0;
     }
 
     @Override
@@ -106,10 +107,12 @@ public class AttachMenuSettingsActivity extends BaseFragment {
 
         items.add(UItem.asHeader(LocaleController.getString(R.string.OEAppearanceChatHeaderOrder)));
         adapter.whiteSectionStart();
+        adapter.reorderSectionStart();
         for (int i = 0; i < currentOrder.size(); i++) {
             String key = currentOrder.get(i);
-            items.add(UItem.asReorder(ID_ORDER_BASE + i, getItemTitle(key), getItemIcon(key)));
+            items.add(UItem.asButton(ID_ORDER_BASE + getAttachKeyIndex(key), getItemIcon(key), getItemTitle(key)));
         }
+        adapter.reorderSectionEnd();
         adapter.whiteSectionEnd();
         items.add(UItem.asShadow(null));
     }
@@ -183,23 +186,19 @@ public class AttachMenuSettingsActivity extends BaseFragment {
         AppearanceConfig.attachMenuHideItems.setConfigString(sb.toString());
     }
 
-    private void onReordered(int fromPosition, int toPosition) {
-        int fromIndex = -1;
-        int toIndex = -1;
-        for (int i = 0; i < currentOrder.size(); i++) {
-            int id = ID_ORDER_BASE + i;
-            if (listView.adapter.getItemId(fromPosition) == id) fromIndex = i;
-            if (listView.adapter.getItemId(toPosition) == id) toIndex = i;
-        }
-        if (fromIndex >= 0 && toIndex >= 0 && fromIndex != toIndex) {
-            String item = currentOrder.remove(fromIndex);
-            currentOrder.add(toIndex, item);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < currentOrder.size(); i++) {
-                if (i > 0) sb.append(",");
-                sb.append(currentOrder.get(i));
+    private void onReordered(int section, ArrayList<UItem> reordered) {
+        currentOrder.clear();
+        for (UItem item : reordered) {
+            int idx = item.id - ID_ORDER_BASE;
+            if (idx >= 0 && idx < ALL_KEYS.length) {
+                currentOrder.add(ALL_KEYS[idx]);
             }
-            AppearanceConfig.attachMenuItemsOrder.setConfigString(sb.toString());
         }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < currentOrder.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(currentOrder.get(i));
+        }
+        AppearanceConfig.attachMenuItemsOrder.setConfigString(sb.toString());
     }
 }

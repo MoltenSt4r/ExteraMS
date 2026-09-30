@@ -114,11 +114,11 @@ public class Md3AttachAlert extends BottomSheet {
                 titleRes = R.string.OEAppearanceAttachItemGif;
                 break;
             case "file":
-                iconRes = R.drawable.msg_file;
+                iconRes = R.drawable.baseline_insert_drive_file_24;
                 titleRes = R.string.OEAppearanceAttachItemFile;
                 break;
             case "poll":
-                iconRes = R.drawable.msg_poll;
+                iconRes = R.drawable.baseline_poll_24;
                 titleRes = R.string.OEAppearanceAttachItemPoll;
                 break;
             case "location":
@@ -130,7 +130,7 @@ public class Md3AttachAlert extends BottomSheet {
                 titleRes = R.string.OEAppearanceAttachItemContact;
                 break;
             case "music":
-                iconRes = R.drawable.msg_music;
+                iconRes = R.drawable.baseline_music_note_24;
                 titleRes = R.string.OEAppearanceAttachItemMusic;
                 break;
             default:

@@ -1,11 +1,9 @@
 package app.exteraless.settings;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.ActionBar;
@@ -34,6 +32,8 @@ public class ChatHeaderSettingsActivity extends BaseFragment {
 
     private static final int ID_ORDER_BASE = 100;
 
+    private static final String[] ALL_KEYS = {"call", "video_call", "search", "mute", "other"};
+
     private final List<String> currentOrder = new ArrayList<>();
 
     @Override
@@ -48,8 +48,15 @@ public class ChatHeaderSettingsActivity extends BaseFragment {
         if (saved != null && !saved.isEmpty()) {
             currentOrder.addAll(Arrays.asList(saved.split(",")));
         } else {
-            currentOrder.addAll(Arrays.asList("call", "video_call", "search", "mute", "other"));
+            currentOrder.addAll(Arrays.asList(ALL_KEYS));
         }
+    }
+
+    private int getHeaderKeyIndex(String key) {
+        for (int i = 0; i < ALL_KEYS.length; i++) {
+            if (ALL_KEYS[i].equals(key)) return i;
+        }
+        return 0;
     }
 
     @Override
@@ -98,10 +105,12 @@ public class ChatHeaderSettingsActivity extends BaseFragment {
 
         items.add(UItem.asHeader(LocaleController.getString(R.string.OEAppearanceChatHeaderOrder)));
         adapter.whiteSectionStart();
+        adapter.reorderSectionStart();
         for (int i = 0; i < currentOrder.size(); i++) {
             String key = currentOrder.get(i);
-            items.add(UItem.asReorder(ID_ORDER_BASE + i, getItemTitle(key), getItemIcon(key)));
+            items.add(UItem.asButton(ID_ORDER_BASE + getHeaderKeyIndex(key), getItemIcon(key), getItemTitle(key)));
         }
+        adapter.reorderSectionEnd();
         adapter.whiteSectionEnd();
         items.add(UItem.asShadow(null));
     }
@@ -131,7 +140,7 @@ public class ChatHeaderSettingsActivity extends BaseFragment {
             case "search":
                 return R.drawable.outline_header_search;
             case "mute":
-                return R.drawable.msg_bell_mute;
+                return R.drawable.msg_mute;
             case "other":
             default:
                 return R.drawable.ic_ab_other;
@@ -157,23 +166,19 @@ public class ChatHeaderSettingsActivity extends BaseFragment {
         }
     }
 
-    private void onReordered(int fromPosition, int toPosition) {
-        int fromIndex = -1;
-        int toIndex = -1;
-        for (int i = 0; i < currentOrder.size(); i++) {
-            int id = ID_ORDER_BASE + i;
-            if (listView.adapter.getItemId(fromPosition) == id) fromIndex = i;
-            if (listView.adapter.getItemId(toPosition) == id) toIndex = i;
-        }
-        if (fromIndex >= 0 && toIndex >= 0 && fromIndex != toIndex) {
-            String item = currentOrder.remove(fromIndex);
-            currentOrder.add(toIndex, item);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < currentOrder.size(); i++) {
-                if (i > 0) sb.append(",");
-                sb.append(currentOrder.get(i));
+    private void onReordered(int section, ArrayList<UItem> reordered) {
+        currentOrder.clear();
+        for (UItem item : reordered) {
+            int idx = item.id - ID_ORDER_BASE;
+            if (idx >= 0 && idx < ALL_KEYS.length) {
+                currentOrder.add(ALL_KEYS[idx]);
             }
-            AppearanceConfig.chatHeaderItemsOrder.setConfigString(sb.toString());
         }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < currentOrder.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(currentOrder.get(i));
+        }
+        AppearanceConfig.chatHeaderItemsOrder.setConfigString(sb.toString());
     }
 }

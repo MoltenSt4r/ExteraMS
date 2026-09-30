@@ -14767,7 +14767,7 @@ public class ChatActivity extends BaseFragment implements
         }
 
         if (actionBar != null) {
-            org.telegram.ui.ActionBar.ActionBarMenu menu = actionBar.getMenu();
+            org.telegram.ui.ActionBar.ActionBarMenu menu = actionBar.menu;
             if (menu != null) {
                 String orderStr = app.exteraless.appearance.AppearanceConfig.chatHeaderItemsOrder.String();
                 if (orderStr != null && !orderStr.isEmpty()) {
