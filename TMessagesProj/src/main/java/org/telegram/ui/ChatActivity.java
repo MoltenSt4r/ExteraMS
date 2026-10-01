@@ -5199,15 +5199,11 @@ public class ChatActivity extends BaseFragment implements
 
         contentView.setOccupyStatusBar(!inBubbleMode && !isInsideContainer && !inPreviewMode);
 
-        if (app.exteraless.appearance.AppearanceConfig.md3ActionBarRounded.Bool()) {
-            actionBar.setBackgroundColor(getThemedColor(Theme.key_actionBarDefault));
-        } else {
-            actionBar.setupGlass(
+        actionBar.setupGlass(
                 glassBackgroundDrawableFactory,
                 BlurredBackgroundProviderImpl.topPanelChatActivity(themeDelegate),
                 ChatObject.isForum(currentChat));
-            app.exteraless.appearance.ChatHeaderUiHelper.applyChatHeaderGlassStyle(actionBar);
-        }
+        app.exteraless.appearance.ChatHeaderUiHelper.applyChatHeaderGlassStyle(actionBar);
         applyChatHeaderCustomization();
         //actionBar.setChatAvatarContainer(avatarContainer);
         //avatarContainer.setActionBar(actionBar);
@@ -14646,39 +14642,6 @@ public class ChatActivity extends BaseFragment implements
             return;
         }
 
-        if (app.exteraless.appearance.AppearanceConfig.md3AttachMenu.Bool()) {
-            app.exteraless.components.Md3AttachAlert alert = new app.exteraless.components.Md3AttachAlert(getParentActivity(), this, key -> {
-                switch (key) {
-                    case "photo":
-                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_PHOTO);
-                        break;
-                    case "camera":
-                        openCameraFromMd3();
-                        break;
-                    case "gif":
-                        openGifsFromMd3();
-                        break;
-                    case "file":
-                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_DOCUMENTS);
-                        break;
-                    case "poll":
-                        openPollCreate(null);
-                        break;
-                    case "location":
-                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_LOCATION);
-                        break;
-                    case "contact":
-                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_CONTACTS);
-                        break;
-                    case "music":
-                        openAttachMenuWithLayout(org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_MUSIC);
-                        break;
-                }
-            });
-            showDialog(alert);
-            return;
-        }
-
         final boolean isEphemeralMessage = chatActivityEnterView != null && chatActivityEnterView.isEphemeralMessageVisible();
 
         createChatAttachView();
@@ -14699,41 +14662,6 @@ public class ChatActivity extends BaseFragment implements
         chatAttachAlert.getCommentView().setText(chatActivityEnterView.getFieldText());
         chatAttachAlert.parentThemeDelegate = themeDelegate;
         showDialog(chatAttachAlert);
-    }
-
-    public void openAttachMenuWithLayout(int layoutType) {
-        if (getParentActivity() == null || chatActivityEnterView != null && !TextUtils.isEmpty(chatActivityEnterView.getSlowModeTimer())) {
-            return;
-        }
-        createChatAttachView();
-        chatAttachAlert.restrictEphemeralMessageTypes = (chatActivityEnterView != null && chatActivityEnterView.isEphemeralMessageVisible()) || chatMode == MODE_WELCOME_MESSAGES;
-        if (layoutType == org.telegram.ui.Components.ChatAttachAlert.LAYOUT_TYPE_PHOTO) {
-            chatAttachAlert.getPhotoLayout().loadGalleryPhotos();
-        }
-        if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
-            if (chatActivityEnterView != null) chatActivityEnterView.closeKeyboard();
-        }
-        chatAttachAlert.setMaxSelectedPhotos(-1, true);
-        chatAttachAlert.init();
-        if (chatActivityEnterView != null && chatAttachAlert.getCommentView() != null) {
-            chatAttachAlert.getCommentView().setText(chatActivityEnterView.getFieldText());
-        }
-        chatAttachAlert.parentThemeDelegate = themeDelegate;
-        chatAttachAlert.openLayoutByType(layoutType);
-        showDialog(chatAttachAlert);
-    }
-
-    public void openCameraFromMd3() {
-        processSelectedAttach(attach_photo);
-    }
-
-    public void openGifsFromMd3() {
-        if (chatActivityEnterView != null) {
-            chatActivityEnterView.showEmojiView();
-            if (chatActivityEnterView.getEmojiView() != null) {
-                chatActivityEnterView.getEmojiView().switchToGifRecent();
-            }
-        }
     }
 
     private void applyChatHeaderCustomization() {

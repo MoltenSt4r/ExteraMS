@@ -4726,30 +4726,6 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
         showPollLayout(false, quiz);
     }
 
-    public void openLayoutByType(int type) {
-        if (type == LAYOUT_TYPE_PHOTO) {
-            showLayout(photoLayout);
-        } else if (type == LAYOUT_TYPE_MUSIC) {
-            openAudioLayout(true);
-        } else if (type == LAYOUT_TYPE_DOCUMENTS) {
-            openDocumentsLayout(true);
-        } else if (type == LAYOUT_TYPE_CONTACTS) {
-            openContactsLayout();
-        } else if (type == LAYOUT_TYPE_LOCATION) {
-            if (locationLayout == null) {
-                layouts[5] = locationLayout = new ChatAttachAlertLocationLayout(this, getContext(), resourcesProvider, !isPollAttach && !restrictEphemeralMessageTypes);
-                if (locationActivityDelegate != null) {
-                    locationLayout.setDelegate(locationActivityDelegate);
-                } else if (baseFragment instanceof ChatActivity) {
-                    locationLayout.setDelegate((location, live, notify, scheduleDate, payStars) -> ((ChatActivity) baseFragment).didSelectLocation(location, live, notify, scheduleDate, payStars));
-                }
-            }
-            showLayout(locationLayout);
-        } else if (type == LAYOUT_TYPE_POLL) {
-            showPollLayout(true, null);
-        }
-    }
-
     private void showLayout(AttachAlertLayout layout, long newId) {
         showLayout(layout, newId, true);
     }

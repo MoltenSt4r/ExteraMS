@@ -17,8 +17,6 @@ import static org.telegram.messenger.LocaleController.formatString;
 import static org.telegram.messenger.LocaleController.getString;
 import static org.telegram.ui.LaunchActivity.getLastFragment;
 
-import app.exteraless.appearance.AppearanceConfig;
-
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -674,7 +672,6 @@ public class ChatActivityEnterView extends FrameLayout implements
     private LinearLayout attachLayout;
     private ViewPropertyAnimator attachButtonAnimator;
     private ImageView attachButton;
-    private ImageView quickPhotoButton;
     private AiButtonDrawable aiButtonIcon;
     private ImageView aiButton;
     private ImageView richButton;
@@ -2762,16 +2759,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
         };
         frameLayout.setClipChildren(false);
-        boolean md3Input = AppearanceConfig.md3ChatInput.Bool();
-        if (md3Input) {
-            int panelBg = getThemedColor(Theme.key_chat_messagePanelBackground);
-            boolean isDark = AndroidUtilities.computePerceivedBrightness(panelBg) < 0.721f;
-            int pillBg = isDark ? Theme.blendOver(panelBg, 0x1effffff) : Theme.blendOver(panelBg, 0x12000000);
-            frameLayout.setBackground(Theme.createRoundRectDrawable(dp(24), pillBg));
-            textFieldContainer.addView(frameLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, 48, 0, 52, 0));
-        } else {
-            textFieldContainer.addView(frameLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, 0, 0, DEFAULT_HEIGHT, 0));
-        }
+        textFieldContainer.addView(frameLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, 0, 0, DEFAULT_HEIGHT, 0));
 
         if (ChatActivityEnterViewStaticIconView.isStaticIconsEnabled()) {
             emojiButton = new ChatActivityEnterViewStaticIconView(context, this) {
@@ -2829,7 +2817,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                 }
             }
         });
-        messageEditTextContainer.addView(emojiButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, md3Input ? (Gravity.BOTTOM | Gravity.RIGHT) : (Gravity.BOTTOM | Gravity.LEFT), md3Input ? 0 : 2, 0, md3Input ? (isChat ? 40 : 4) : 0, 0));
+        messageEditTextContainer.addView(emojiButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.LEFT, 2, 0, 0, 0));
         setEmojiButtonImage(false, false);
 
         deleteRichDraftButton = new ImageView(context);
@@ -2903,26 +2891,6 @@ public class ChatActivityEnterView extends FrameLayout implements
                 });
             }
 
-            if (md3Input) {
-                quickPhotoButton = new ImageView(context);
-                quickPhotoButton.setScaleType(ImageView.ScaleType.CENTER);
-                quickPhotoButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.MULTIPLY));
-                quickPhotoButton.setImageResource(R.drawable.baseline_image_24);
-                quickPhotoButton.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector), Theme.RIPPLE_MASK_CIRCLE_20DP, dp(16)));
-                quickPhotoButton.setContentDescription(getString(R.string.AttachPhoto));
-                quickPhotoButton.setOnClickListener(v -> {
-                    if (adjustPanLayoutHelper != null && adjustPanLayoutHelper.animationInProgress()) {
-                        return;
-                    }
-                    if (parentFragment instanceof ChatActivity) {
-                        ((ChatActivity) parentFragment).openAttachMenuWithLayout(ChatAttachAlert.LAYOUT_TYPE_PHOTO);
-                    } else if (delegate != null) {
-                        delegate.didPressAttachButton();
-                    }
-                });
-                messageEditTextContainer.addView(quickPhotoButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.RIGHT, 0, 0, 4, 0));
-            }
-
             attachButton = new ImageView(context) {
                 @Override
                 public boolean dispatchTouchEvent(MotionEvent event) {
@@ -2931,20 +2899,10 @@ public class ChatActivityEnterView extends FrameLayout implements
                 }
             };
             attachButton.setScaleType(ImageView.ScaleType.CENTER);
-            if (md3Input) {
-                int addBtnBg = Theme.getColor(Theme.key_chat_messagePanelSend, resourcesProvider);
-                int addBtnPressed = Theme.blendOver(addBtnBg, 0x22000000);
-                attachButton.setBackground(Theme.createSimpleSelectorRoundRectDrawable(dp(19), addBtnBg, addBtnPressed));
-                int addBtnIconColor = AndroidUtilities.computePerceivedBrightness(addBtnBg) < 0.721f ? 0xffffffff : 0xff1b1b1b;
-                attachButton.setColorFilter(new PorterDuffColorFilter(addBtnIconColor, PorterDuff.Mode.SRC_IN));
-                attachButton.setImageResource(R.drawable.baseline_add_24);
-                textFieldContainer.addView(attachButton, LayoutHelper.createFrame(38, 48, Gravity.BOTTOM | Gravity.LEFT, 5, 0, 0, 0));
-            } else {
-                attachButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.MULTIPLY));
-                attachButton.setImageResource(R.drawable.msg_input_attach2);
-                attachButton.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector)));
-                messageEditTextContainer.addView(attachButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.RIGHT));
-            }
+            attachButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.MULTIPLY));
+            attachButton.setImageResource(R.drawable.msg_input_attach2);
+            attachButton.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector)));
+            messageEditTextContainer.addView(attachButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.RIGHT));
             attachButton.setOnClickListener(v -> {
                 if (adjustPanLayoutHelper != null && adjustPanLayoutHelper.animationInProgress() || attachLayoutPaddingAlpha == 0f) {
                     return;
@@ -4798,9 +4756,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             messageTextTranslationX = offset;
             updateMessageTextParams();
         }
-        if (!AppearanceConfig.md3ChatInput.Bool()) {
-            attachButton.setTranslationX(attachLayoutPaddingTranslationX + attachLayoutTranslationX + offset);
-        }
+        attachButton.setTranslationX(attachLayoutPaddingTranslationX + attachLayoutTranslationX + offset);
         audioVideoSendButton.setTranslationX(offset);
         if (botButton != null) {
             botButton.setTranslationX(offset);
@@ -6668,9 +6624,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         messageEditText.setHintTextColor(getThemedColor(Theme.key_chat_messagePanelHint));
         messageEditText.setCursorColor(getThemedColor(Theme.key_chat_messagePanelCursor));
         messageEditText.setHandlesColor(getThemedColor(Theme.key_chat_TextSelectionCursor));
-        int editLeft = AppearanceConfig.md3ChatInput.Bool() ? 16 : 52;
-        int editRight = AppearanceConfig.md3ChatInput.Bool() ? (quickPhotoButton != null ? 80 : 44) : (isChat ? 50 : 2);
-        messageEditTextContainer.addView(messageEditText, 1, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, editLeft, 0, editRight, 1.5f));
+        messageEditTextContainer.addView(messageEditText, 1, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, 52, 0, isChat ? 50 : 2, 1.5f));
 
         richDraftPreview = new RichMessageLayout.PreviewView(getContext(), currentAccount, resourcesProvider);
         richDraftPreview.setAllowActions(false);
@@ -6679,7 +6633,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         richDraftPreview.setVisibility(View.GONE);
         richDraftPreview.setPadding(dp(8), dp(9), dp(8), dp(10));
         richDraftPreview.setOnClickListener(v -> openRichEditor());
-        messageEditTextContainer.addView(richDraftPreview, 2, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, editLeft - 8, 0, editRight - 8, 1.5f));
+        messageEditTextContainer.addView(richDraftPreview, 2, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, 52 - 8, 0, (isChat ? 50 : 2) - 8, 1.5f));
         messageEditText.setOnKeyListener(new OnKeyListener() {
 
             @Override
@@ -8101,18 +8055,6 @@ public class ChatActivityEnterView extends FrameLayout implements
                 suggestButton.setVisibility(VISIBLE);
             }
         }
-        if (AppearanceConfig.md3ChatInput.Bool()) {
-            if (attachButton != null) {
-                attachButton.setImageResource(R.drawable.baseline_add_24);
-                attachButton.setOnClickListener(v -> {
-                    if (adjustPanLayoutHelper != null && adjustPanLayoutHelper.animationInProgress()) {
-                        return;
-                    }
-                    delegate.didPressAttachButton();
-                });
-            }
-            return;
-        }
         if (use && app.exteraless.chats.ChatsConfig.keepAttachButton.Bool()) {
             use = false;
         }
@@ -9242,7 +9184,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                             if (sideButtons != null && (!NekoConfig.useChatAttachMediaMenu.Bool() || isStories)) {
                                 sideButtons.showButton(ChatActivitySideControlsButtonsLayout.BUTTON_ATTACH, false, true);
                             }
-                            if (attachButton != null && (!NekoConfig.useChatAttachMediaMenu.Bool() || isStories) && !AppearanceConfig.md3ChatInput.Bool()) {
+                            if (attachButton != null && (!NekoConfig.useChatAttachMediaMenu.Bool() || isStories)) {
                                 animators.add(ObjectAnimator.ofFloat(attachButton, View.ALPHA, attachButtonAlpha = 0.0f));
                                 animators.add(ObjectAnimator.ofFloat(attachButton, View.SCALE_X, 0.5f));
                                 animators.add(ObjectAnimator.ofFloat(attachButton, View.SCALE_Y, 0.5f));
@@ -9458,12 +9400,12 @@ public class ChatActivityEnterView extends FrameLayout implements
                             }
                             if (sideButtons != null && (!NekoConfig.useChatAttachMediaMenu.Bool() || isStories)) {
                                 sideButtons.showButton(ChatActivitySideControlsButtonsLayout.BUTTON_ATTACH, captionNearAttach, true);
-                                if (attachButton != null && !AppearanceConfig.md3ChatInput.Bool()) {
+                                if (attachButton != null) {
                                     animators.add(ObjectAnimator.ofFloat(attachButton, View.ALPHA, attachButtonAlpha = captionNearAttach ? 0.0f : 1.0f));
                                     animators.add(ObjectAnimator.ofFloat(attachButton, View.SCALE_X, captionNearAttach ? 0.5f : 1.0f));
                                     animators.add(ObjectAnimator.ofFloat(attachButton, View.SCALE_Y, captionNearAttach ? 0.5f : 1.0f));
                                 }
-                            } else if (attachButton != null && (!NekoConfig.useChatAttachMediaMenu.Bool() || isStories) && !AppearanceConfig.md3ChatInput.Bool()) {
+                            } else if (attachButton != null && (!NekoConfig.useChatAttachMediaMenu.Bool() || isStories)) {
                                 animators.add(ObjectAnimator.ofFloat(attachButton, View.ALPHA, attachButtonAlpha = 0.0f));
                                 animators.add(ObjectAnimator.ofFloat(attachButton, View.SCALE_X, 0.5f));
                                 animators.add(ObjectAnimator.ofFloat(attachButton, View.SCALE_Y, 0.5f));
@@ -9643,7 +9585,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                                     attachButton.setScaleX(captionNearAttach ? 0.5f : 1.0f);
                                     attachButton.setScaleY(captionNearAttach ? 0.5f : 1.0f);
                                 }
-                            } else if (attachButton != null && !AppearanceConfig.md3ChatInput.Bool()) {
+                            } else if (attachButton != null) {
                                 attachButton.setAlpha(attachButtonAlpha = 0.0f);
                                 attachButton.setScaleX(0.5f);
                                 attachButton.setScaleY(0.5f);
@@ -9668,7 +9610,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             } else {
                 if (sideButtons != null && (!NekoConfig.useChatAttachMediaMenu.Bool() || isStories)) {
                     sideButtons.showButton(ChatActivitySideControlsButtonsLayout.BUTTON_ATTACH, captionNearAttach, true);
-                    if (attachButton != null && !AppearanceConfig.md3ChatInput.Bool()) {
+                    if (attachButton != null) {
                         if (attachButtonAnimator != null) {
                             attachButtonAnimator.cancel();
                             attachButtonAnimator = null;
@@ -10052,7 +9994,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     checkAttachButton(false, 0);
                     updateFieldRight(1);
                 }
-                if (attachButton != null && !AppearanceConfig.md3ChatInput.Bool()) {
+                if (attachButton != null) {
                     if (attachButtonAnimator != null) {
                         attachButtonAnimator.cancel();
                         attachButtonAnimator = null;
@@ -10077,38 +10019,6 @@ public class ChatActivityEnterView extends FrameLayout implements
                     scheduledButton.setTranslationX(0);
                 }
             }
-        }
-        if (AppearanceConfig.md3ChatInput.Bool()) {
-            if (quickPhotoButton != null) {
-                if (shownSendButton) {
-                    if (animated) {
-                        quickPhotoButton.animate().alpha(0.0f).scaleX(0.5f).scaleY(0.5f).setDuration(120).withEndAction(() -> quickPhotoButton.setVisibility(View.GONE)).start();
-                    } else {
-                        quickPhotoButton.setAlpha(0.0f);
-                        quickPhotoButton.setScaleX(0.5f);
-                        quickPhotoButton.setScaleY(0.5f);
-                        quickPhotoButton.setVisibility(View.GONE);
-                    }
-                } else {
-                    quickPhotoButton.setVisibility(View.VISIBLE);
-                    if (animated) {
-                        quickPhotoButton.animate().alpha(1.0f).scaleX(1.0f).scaleY(1.0f).setDuration(120).start();
-                    } else {
-                        quickPhotoButton.setAlpha(1.0f);
-                        quickPhotoButton.setScaleX(1.0f);
-                        quickPhotoButton.setScaleY(1.0f);
-                    }
-                }
-            }
-            if (emojiButton != null) {
-                float targetTranslation = shownSendButton ? dp(36) : 0;
-                if (animated) {
-                    emojiButton.animate().translationX(targetTranslation).setDuration(150).start();
-                } else {
-                    emojiButton.setTranslationX(targetTranslation);
-                }
-            }
-            updateFieldRight(shownSendButton ? 0 : 1);
         }
         if (isStories && suggestButton != null) {
             if (animated) {
@@ -10135,13 +10045,6 @@ public class ChatActivityEnterView extends FrameLayout implements
         }
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) messageEditText.getLayoutParams();
         int oldRightMargin = layoutParams.rightMargin;
-        if (AppearanceConfig.md3ChatInput.Bool()) {
-            layoutParams.rightMargin = (quickPhotoButton != null && quickPhotoButton.getVisibility() == VISIBLE) ? dp(80) : dp(44);
-            if (oldRightMargin != layoutParams.rightMargin) {
-                messageEditText.setLayoutParams(layoutParams);
-            }
-            return;
-        }
         if (isStories && isLiveComment) {
             layoutParams.rightMargin = dp(suggestButtonVisible ? 50 : 2) + Math.max(0, sendButton.width() - dp(DEFAULT_HEIGHT));
         } else if (attachVisible == 1 || attachVisible == 2/* && layoutParams.rightMargin != dp(2)*/) {
@@ -11833,22 +11736,6 @@ public class ChatActivityEnterView extends FrameLayout implements
         deleteRichDraftButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
         deleteRichDraftButton.setBackground(Theme.createInsetRoundRectDrawable(getThemedColor(Theme.key_listSelector), dp(19), dp(1), dp(3)));
         sendOutlineView.setColorFilter(getThemedColor(Theme.key_telegram_color), PorterDuff.Mode.SRC_IN);
-        if (AppearanceConfig.md3ChatInput.Bool()) {
-            int panelBg = getThemedColor(Theme.key_chat_messagePanelBackground);
-            boolean isDark = AndroidUtilities.computePerceivedBrightness(panelBg) < 0.721f;
-            int pillBg = isDark ? Theme.blendOver(panelBg, 0x1effffff) : Theme.blendOver(panelBg, 0x12000000);
-            messageEditTextContainer.setBackground(Theme.createRoundRectDrawable(dp(24), pillBg));
-            if (attachButton != null) {
-                int addBtnBg = Theme.getColor(Theme.key_chat_messagePanelSend, resourcesProvider);
-                int addBtnPressed = Theme.blendOver(addBtnBg, 0x22000000);
-                attachButton.setBackground(Theme.createSimpleSelectorRoundRectDrawable(dp(19), addBtnBg, addBtnPressed));
-                int addBtnIconColor = AndroidUtilities.computePerceivedBrightness(addBtnBg) < 0.721f ? 0xffffffff : 0xff1b1b1b;
-                attachButton.setColorFilter(new PorterDuffColorFilter(addBtnIconColor, PorterDuff.Mode.SRC_IN));
-            }
-            if (quickPhotoButton != null) {
-                quickPhotoButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.MULTIPLY));
-            }
-        }
     }
 
     private void updateAudioVideoSendButtonColor() {
@@ -16236,24 +16123,15 @@ public class ChatActivityEnterView extends FrameLayout implements
                 ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(54) + width;
             }
         } else {
-            if (AppearanceConfig.md3ChatInput.Bool()) {
-                if (messageEditText != null) {
-                    ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(16);
-                }
-                if (richDraftPreview != null) {
-                    ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(16);
-                }
-            } else {
-                ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(3);
-                if (deleteRichDraftButton != null) {
-                    ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(3);
-                }
-                if (messageEditText != null) {
-                    ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(50);
-                }
-                if (richDraftPreview != null) {
-                    ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(50);
-                }
+            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(3);
+            if (deleteRichDraftButton != null) {
+                ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(3);
+            }
+            if (messageEditText != null) {
+                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(50);
+            }
+            if (richDraftPreview != null) {
+                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(50);
             }
         }
         updateBotCommandsMenuContainerTopPadding();
@@ -16503,7 +16381,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     private void updateAttachButtonTranslationX() {
-        if (attachButton == null || AppearanceConfig.md3ChatInput.Bool()) return;
+        if (attachButton == null) return;
         attachButton.setTranslationX(attachLayoutPaddingTranslationX + attachLayoutTranslationX + (sendButton != null ? (
             -Math.max(0, sendButton.width() - dp(DEFAULT_HEIGHT + 12)) * sendButton.getAlpha()
         ) : 0));

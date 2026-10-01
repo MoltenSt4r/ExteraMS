@@ -269,21 +269,6 @@ object AppearanceConfig {
     val newChatHeaderStyle =
         addConfig("OEAppearanceNewChatHeaderStyle", ConfigItem.configTypeBool, false)
 
-    /** Редизайн поля ввода в стиле Google Chat MD3. */
-    @JvmField
-    val md3ChatInput =
-        addConfig("OEAppearanceMd3ChatInput", ConfigItem.configTypeBool, false)
-
-    /** Скругление углов Action Bar во всех разделах в стиле MD3. */
-    @JvmField
-    val md3ActionBarRounded =
-        addConfig("OEAppearanceMd3ActionBarRounded", ConfigItem.configTypeBool, false)
-
-    /** Меню выбора файлов/вложений в стиле Google Chat MD3. */
-    @JvmField
-    val md3AttachMenu =
-        addConfig("OEAppearanceMd3AttachMenu", ConfigItem.configTypeBool, false)
-
     /** Настройки элементов верхней панели чата. */
     @JvmField
     val chatHeaderHideAvatar =
@@ -304,14 +289,6 @@ object AppearanceConfig {
     val chatHeaderItemsOrder =
         addConfig("OEAppearanceChatHeaderItemsOrder", ConfigItem.configTypeString, "call,video_call,search,mute,other")
 
-    /** Настройки меню вложений MD3. */
-    @JvmField
-    val attachMenuItemsOrder =
-        addConfig("OEAppearanceAttachMenuItemsOrder", ConfigItem.configTypeString, "photo,camera,file,gif,poll,location,contact")
-    @JvmField
-    val attachMenuHideItems =
-        addConfig("OEAppearanceAttachMenuHideItems", ConfigItem.configTypeString, "")
-
     /** M3-нижняя панель вкладок. Дефолт false, как в exteraGram. */
     @JvmField
     val newNavigationBarStyle =
@@ -327,24 +304,6 @@ object AppearanceConfig {
     fun newChatHeaderStyle(): Boolean {
         ensureLoaded()
         return newChatHeaderStyle.Bool()
-    }
-
-    @JvmStatic
-    fun md3ChatInput(): Boolean {
-        ensureLoaded()
-        return md3ChatInput.Bool()
-    }
-
-    @JvmStatic
-    fun md3ActionBarRounded(): Boolean {
-        ensureLoaded()
-        return md3ActionBarRounded.Bool()
-    }
-
-    @JvmStatic
-    fun md3AttachMenu(): Boolean {
-        ensureLoaded()
-        return md3AttachMenu.Bool()
     }
 
     @JvmStatic
