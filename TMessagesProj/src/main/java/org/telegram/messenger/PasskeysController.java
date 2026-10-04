@@ -101,7 +101,7 @@ public class PasskeysController {
                 }
 
                 final CreatePublicKeyCredentialRequest credentialRequest =
-                    new CreatePublicKeyCredentialRequest(requestJson, clientDataHash, false, rpId);
+                    new CreatePublicKeyCredentialRequest(requestJson, clientDataHash, false, null);
 
                 try {
                     credentialManager.createCredential(context, credentialRequest, ktxCallback((res2, err2) -> {
@@ -136,7 +136,16 @@ public class PasskeysController {
                             final JSONObject response = json.getJSONObject("response");
                             final TL_account.inputPasskeyResponseRegister passkeyResponse = new TL_account.inputPasskeyResponseRegister();
                             passkeyResponse.client_data = new TLRPC.TL_dataJSON();
-                            passkeyResponse.client_data.data = clientDataJSON;
+                            if (response.has("clientDataJSON")) {
+                                try {
+                                    String decoded = new String(Base64.decode(response.getString("clientDataJSON"), Base64.URL_SAFE), StandardCharsets.UTF_8);
+                                    passkeyResponse.client_data.data = decoded != null && !decoded.isEmpty() ? decoded : clientDataJSON;
+                                } catch (Exception ignored) {
+                                    passkeyResponse.client_data.data = clientDataJSON;
+                                }
+                            } else {
+                                passkeyResponse.client_data.data = clientDataJSON;
+                            }
                             passkeyResponse.attestation_object = Base64.decode(response.getString("attestationObject"), Base64.URL_SAFE);
 
                             FileLog.d("AAGUID: " + bytesToHex(Arrays.copyOfRange(passkeyResponse.attestation_object, 67, 67 + 16)));
@@ -219,7 +228,6 @@ public class PasskeysController {
             final GetCredentialRequest request = new GetCredentialRequest.Builder()
                     .addCredentialOption(passkeyOption)
                     .setPreferImmediatelyAvailableCredentials(!clickedButton)
-                    .setOrigin(rpId)
                     .build();
 
             try {
@@ -245,7 +253,16 @@ public class PasskeysController {
                             final JSONObject response = json.getJSONObject("response");
                             final TL_account.inputPasskeyResponseLogin passkeyResponse = new TL_account.inputPasskeyResponseLogin();
                             passkeyResponse.client_data = new TLRPC.TL_dataJSON();
-                            passkeyResponse.client_data.data = clientDataJSON;
+                            if (response.has("clientDataJSON")) {
+                                try {
+                                    String decoded = new String(Base64.decode(response.getString("clientDataJSON"), Base64.URL_SAFE), StandardCharsets.UTF_8);
+                                    passkeyResponse.client_data.data = decoded != null && !decoded.isEmpty() ? decoded : clientDataJSON;
+                                } catch (Exception ignored) {
+                                    passkeyResponse.client_data.data = clientDataJSON;
+                                }
+                            } else {
+                                passkeyResponse.client_data.data = clientDataJSON;
+                            }
 
                             passkeyResponse.authenticator_data = Base64.decode(response.getString("authenticatorData"), Base64.URL_SAFE);
                             passkeyResponse.signature = Base64.decode(response.getString("signature"), Base64.URL_SAFE);

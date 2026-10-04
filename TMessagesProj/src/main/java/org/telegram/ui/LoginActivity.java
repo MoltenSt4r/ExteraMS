@@ -2108,7 +2108,15 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             });
 
             subtitleView = new LinkSpanDrawable.LinksTextView(context);
-            subtitleView.setText(getString(activityMode == MODE_CHANGE_PHONE_NUMBER ? R.string.ChangePhoneHelp : R.string.StartText));
+            if (activityMode == MODE_CHANGE_PHONE_NUMBER) {
+                subtitleView.setText(getString(R.string.ChangePhoneHelp));
+            } else if (activityMode == MODE_LOGIN && Build.VERSION.SDK_INT >= 28 && BuildVars.SUPPORTS_PASSKEYS) {
+                subtitleView.setText(AndroidUtilities.replaceArrows(AndroidUtilities.replaceSingleTag(getString(R.string.StartTextPasskey), () -> {
+                    requestPasskey(true, false);
+                }), true));
+            } else {
+                subtitleView.setText(getString(R.string.StartText));
+            }
             subtitleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
             subtitleView.setGravity(Gravity.CENTER);
             subtitleView.setLineSpacing(dp(2), 1.0f);
@@ -3484,7 +3492,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                     }
                 }
                 if (activityMode == MODE_LOGIN) {
-                    // requestPasskey(false);
+                    requestPasskey(false, false);
                 }
             }, SHOW_DELAY);
         }
@@ -3520,12 +3528,12 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 cancelRequestingPasskey = null;
                 requestingPasskey = false;
                 if (err != null && ("EMPTY".equals(err) || "CANCELLED".equals(err))) {
-                    if (subtitleView != null && "CANCELLED".equals(err)) {
+                    if (subtitleView != null) {
                         subtitleView.setText(AndroidUtilities.replaceArrows(AndroidUtilities.replaceSingleTag(getString(R.string.StartTextPasskey), () -> {
                             requestPasskey(true, false);
                         }), true));
                     }
-                    if ("EMPTY".equals(err)) {
+                    if ("EMPTY".equals(err) && clickedButton) {
                         BulletinFactory.of(LoginActivity.this).createSimpleBulletin(R.raw.info, getString(R.string.PasskeyNoCredentialAvailable)).show();
                     }
                     return;

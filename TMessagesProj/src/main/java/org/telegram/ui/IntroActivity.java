@@ -828,7 +828,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                 return false;
             }
 
-            GLES20.glGenTextures(23, textures, 0);
+            GLES20.glGenTextures(24, textures, 0);
             loadTexture(R.drawable.intro_fast_arrow_shadow, 0);
             loadTexture(R.drawable.intro_fast_arrow, 1);
             loadTexture(R.drawable.intro_fast_body, 2);
@@ -937,10 +937,6 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         }
 
         private void loadTexture(GenericProvider<Void, Bitmap> bitmapProvider, int index, boolean rebind) {
-            if (rebind) {
-                GLES20.glDeleteTextures(1, textures, index);
-                GLES20.glGenTextures(1, textures, index);
-            }
             Bitmap bm = bitmapProvider.provide(null);
             GLES20.glBindTexture(GL10.GL_TEXTURE_2D, textures[index]);
             GLES20.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR);
@@ -958,11 +954,6 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         private void loadTexture(int resId, int index, int tintColor, boolean rebind) {
             Drawable drawable = getParentActivity().getResources().getDrawable(resId);
             if (drawable instanceof BitmapDrawable) {
-                if (rebind) {
-                    GLES20.glDeleteTextures(1, textures, index);
-                    GLES20.glGenTextures(1, textures, index);
-                }
-
                 Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
                 GLES20.glBindTexture(GL10.GL_TEXTURE_2D, textures[index]);
                 GLES20.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR);

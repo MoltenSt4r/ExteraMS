@@ -5204,7 +5204,6 @@ public class ChatActivity extends BaseFragment implements
                 BlurredBackgroundProviderImpl.topPanelChatActivity(themeDelegate),
                 ChatObject.isForum(currentChat));
         app.exteraless.appearance.ChatHeaderUiHelper.applyChatHeaderGlassStyle(actionBar);
-        applyChatHeaderCustomization();
         //actionBar.setChatAvatarContainer(avatarContainer);
         //avatarContainer.setActionBar(actionBar);
 
@@ -14662,82 +14661,6 @@ public class ChatActivity extends BaseFragment implements
         chatAttachAlert.getCommentView().setText(chatActivityEnterView.getFieldText());
         chatAttachAlert.parentThemeDelegate = themeDelegate;
         showDialog(chatAttachAlert);
-    }
-
-    private void applyChatHeaderCustomization() {
-        if (avatarContainer != null && app.exteraless.appearance.AppearanceConfig.chatHeaderHideAvatar.Bool()) {
-            if (avatarContainer.avatarImageView != null) {
-                avatarContainer.avatarImageView.setVisibility(View.GONE);
-            }
-        }
-        if (headerItem != null) {
-            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideCall.Bool()) {
-                headerItem.hideSubItem(call);
-            }
-            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideVideoCall.Bool()) {
-                headerItem.hideSubItem(video_call);
-            }
-            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideSearch.Bool()) {
-                headerItem.hideSubItem(search);
-            }
-            if (app.exteraless.appearance.AppearanceConfig.chatHeaderHideMute.Bool() && muteItem != null) {
-                muteItem.setVisibility(View.GONE);
-                if (muteItemGap != null) {
-                    muteItemGap.setVisibility(View.GONE);
-                }
-            }
-        }
-        if (audioCallIconItem != null && app.exteraless.appearance.AppearanceConfig.chatHeaderHideCall.Bool()) {
-            audioCallIconItem.setVisibility(View.GONE);
-        }
-        if (searchIconItem != null && app.exteraless.appearance.AppearanceConfig.chatHeaderHideSearch.Bool()) {
-            searchIconItem.setVisibility(View.GONE);
-        }
-
-        if (actionBar != null) {
-            org.telegram.ui.ActionBar.ActionBarMenu menu = actionBar.menu;
-            if (menu != null) {
-                String orderStr = app.exteraless.appearance.AppearanceConfig.chatHeaderItemsOrder.String();
-                if (orderStr != null && !orderStr.isEmpty()) {
-                    String[] order = orderStr.split(",");
-                    ArrayList<View> orderedViews = new ArrayList<>();
-                    for (String key : order) {
-                        View v = null;
-                        switch (key.trim()) {
-                            case "call":
-                                v = menu.findViewWithTag(call);
-                                break;
-                            case "video_call":
-                                v = menu.findViewWithTag(video_call);
-                                break;
-                            case "search":
-                                v = menu.findViewWithTag(search);
-                                if (v == null) v = menu.findViewWithTag(chat_menu_search);
-                                break;
-                            case "other":
-                                v = menu.findViewWithTag(chat_menu_options);
-                                break;
-                        }
-                        if (v != null && !orderedViews.contains(v)) {
-                            orderedViews.add(v);
-                        }
-                    }
-                    int childCount = menu.getChildCount();
-                    for (int i = 0; i < childCount; i++) {
-                        View child = menu.getChildAt(i);
-                        if (!orderedViews.contains(child)) {
-                            orderedViews.add(child);
-                        }
-                    }
-                    if (orderedViews.size() == childCount) {
-                        menu.removeAllViews();
-                        for (View v : orderedViews) {
-                            menu.addView(v);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     public void openAttachMenuForCreatingSticker() {
@@ -31608,7 +31531,6 @@ public class ChatActivity extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        applyChatHeaderCustomization();
         cachedIsGestureNavigation = AndroidUtil.isGestureNavigation(getContext());
         checkShowBlur(false);
         activityResumeTime = System.currentTimeMillis();

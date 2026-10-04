@@ -118,13 +118,6 @@
     <string name="OEAppearanceNewLoadingStyle">Loading Indicators</string>
     <string name="OEAppearanceNewChatHeaderStyle">Chat Header</string>
     <string name="OEAppearanceNewNavigationBarStyle">Navigation Bar</string>
-    <string name="OEAppearanceChatHeaderCustomization">Chat Header Items</string>
-    <string name="OEAppearanceChatHeaderHideAvatar">Hide Avatar</string>
-    <string name="OEAppearanceChatHeaderHideCall">Hide Audio Call</string>
-    <string name="OEAppearanceChatHeaderHideVideoCall">Hide Video Call</string>
-    <string name="OEAppearanceChatHeaderHideSearch">Hide Search</string>
-    <string name="OEAppearanceChatHeaderHideMute">Hide Mute</string>
-    <string name="OEAppearanceChatHeaderOrder">Order of Header Items</string>
     <string name="OEAppearanceIosDesign" translatable="false">iOS Design</string>
     <string name="OEAppearanceIosNavigationBarStyle">Navigation Bar</string>
     <string name="OEAppearanceIosFirstFolderOnTabTap">Tab Tap Opens First Folder</string>

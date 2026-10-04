@@ -1705,6 +1705,8 @@ JNIEXPORT void Java_org_telegram_messenger_Intro_setBackgroundColor(JNIEnv *env,
     powerful_mask.params = was_mask.params;
 
     telegram_mask = create_textured_rectangle(CSizeMake(200, 150), telegram_mask_texture);
+    telegram_sphere.texture = telegram_sphere_texture;
+    telegram_plane.texture = telegram_plane_texture;
 }
 
 JNIEXPORT void Java_org_telegram_messenger_Intro_onDrawFrame(JNIEnv *env, jclass class, jint deltaMs) {
@@ -2637,6 +2639,9 @@ JNIEXPORT void Java_org_telegram_messenger_Intro_setTelegramTextures(JNIEnv *env
     telegram_sphere_texture = a_telegram_sphere;
     telegram_plane_texture = a_telegram_plane;
     telegram_mask_texture = a_telegram_mask;
+    telegram_sphere.texture = a_telegram_sphere;
+    telegram_plane.texture = a_telegram_plane;
+    telegram_mask.texture = a_telegram_mask;
 }
 
 JNIEXPORT void Java_org_telegram_messenger_Intro_setFastTextures(JNIEnv *env, jclass class, GLuint a_fast_body, GLuint a_fast_spiral, GLuint a_fast_arrow, GLuint a_fast_arrow_shadow) {
@@ -2656,6 +2661,10 @@ JNIEXPORT void Java_org_telegram_messenger_Intro_setPowerfulTextures(JNIEnv *env
     powerful_star_texture = a_powerful_star;
     powerful_infinity_texture = a_powerful_infinity;
     powerful_infinity_white_texture = a_powerful_infinity_white;
+    powerful_mask.texture = a_powerful_mask;
+    powerful_star.texture = a_powerful_star;
+    powerful_infinity.texture = a_powerful_infinity;
+    powerful_infinity_white.texture = a_powerful_infinity_white;
 }
 
 JNIEXPORT void Java_org_telegram_messenger_Intro_setPrivateTextures(JNIEnv *env, jclass class, GLuint a_private_door, GLuint a_private_screw) {

@@ -269,26 +269,6 @@ object AppearanceConfig {
     val newChatHeaderStyle =
         addConfig("OEAppearanceNewChatHeaderStyle", ConfigItem.configTypeBool, false)
 
-    /** Настройки элементов верхней панели чата. */
-    @JvmField
-    val chatHeaderHideAvatar =
-        addConfig("OEAppearanceChatHeaderHideAvatar", ConfigItem.configTypeBool, false)
-    @JvmField
-    val chatHeaderHideCall =
-        addConfig("OEAppearanceChatHeaderHideCall", ConfigItem.configTypeBool, false)
-    @JvmField
-    val chatHeaderHideVideoCall =
-        addConfig("OEAppearanceChatHeaderHideVideoCall", ConfigItem.configTypeBool, false)
-    @JvmField
-    val chatHeaderHideSearch =
-        addConfig("OEAppearanceChatHeaderHideSearch", ConfigItem.configTypeBool, false)
-    @JvmField
-    val chatHeaderHideMute =
-        addConfig("OEAppearanceChatHeaderHideMute", ConfigItem.configTypeBool, false)
-    @JvmField
-    val chatHeaderItemsOrder =
-        addConfig("OEAppearanceChatHeaderItemsOrder", ConfigItem.configTypeString, "call,video_call,search,mute,other")
-
     /** M3-нижняя панель вкладок. Дефолт false, как в exteraGram. */
     @JvmField
     val newNavigationBarStyle =
