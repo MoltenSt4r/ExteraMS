@@ -108,6 +108,7 @@ public class OpenExteraGeneralActivity extends BaseNekoSettingsActivity {
     private int useIPv6Row;
     private int dnsTypeRow;
     private int customDoHRow;
+    private int torSettingsRow;
     private int networkDividerRow;
 
     private int storageHeaderRow;
@@ -177,6 +178,7 @@ public class OpenExteraGeneralActivity extends BaseNekoSettingsActivity {
         useIPv6Row = addRow("IPv6");
         dnsTypeRow = addRow("dnsType", "DnsType");
         customDoHRow = NekoConfig.dnsType.Int() == NekoConfig.DNS_TYPE_CUSTOM_DOH ? addRow("customDoH", "CustomDoH") : -1;
+        torSettingsRow = addRow("torSettings");
         networkDividerRow = addRow();
 
         storageHeaderRow = addRow("storageHeader");
@@ -249,6 +251,14 @@ public class OpenExteraGeneralActivity extends BaseNekoSettingsActivity {
         return new ListAdapter(context);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (listAdapter != null && torSettingsRow != -1) {
+            listAdapter.notifyItemChanged(torSettingsRow);
+        }
+    }
+
     /** Перерисовать экраны под нами. */
     private void rebuildAll() {
         if (getParentLayout() != null) {
@@ -313,6 +323,11 @@ public class OpenExteraGeneralActivity extends BaseNekoSettingsActivity {
 
         if (position == customDoHRow) {
             showCustomDoHDialog();
+            return;
+        }
+
+        if (position == torSettingsRow) {
+            presentFragment(new app.exteraless.tor.TorSettingsActivity());
             return;
         }
 
@@ -1209,9 +1224,14 @@ public class OpenExteraGeneralActivity extends BaseNekoSettingsActivity {
                         CharSequence[] options = dnsTypeOptions();
                         int type = NekoConfig.dnsType.Int();
                         cell.setTextAndValue(getString(R.string.DnsType),
-                                options[type < 0 || type >= options.length ? 0 : type], customDoHRow != -1);
+                                options[type < 0 || type >= options.length ? 0 : type], true);
                     } else if (position == customDoHRow) {
-                        cell.setTextAndValue(getString(R.string.CustomDoH), NekoConfig.customDoH.String(), false);
+                        cell.setTextAndValue(getString(R.string.CustomDoH), NekoConfig.customDoH.String(), true);
+                    } else if (position == torSettingsRow) {
+                        cell.setTextAndValue(getString(R.string.TorSettingsTitle),
+                                app.exteraless.tor.TorController.getInstance().isEnabled()
+                                        ? getString(R.string.TorEnabled)
+                                        : getString(R.string.TorDisabled), false);
                     } else if (position == pushServiceTypeRow) {
                         CharSequence[] options = pushServiceTypeOptions();
                         int type = NaConfig.INSTANCE.getPushServiceType().Int();

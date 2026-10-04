@@ -113,6 +113,7 @@
         android:backupAgent=".BackupAgent"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher_exterams_md3"
+        android:extractNativeLibs="true"
         android:label="@string/NagramX"
         android:largeHeap="true"
         android:theme="@style/Theme.TMessages.Start"

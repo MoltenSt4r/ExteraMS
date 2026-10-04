@@ -96,6 +96,8 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
     private int useProxyRow;
     private int disableConditionsRow;
     private int useProxyShadowRow;
+    private int torRow;
+    private int torShadowRow;
     private int connectionsHeaderRow;
     private int proxyStartRow;
     private int proxyEndRow;
@@ -557,6 +559,8 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
                 ConnectionsManager.setProxySettings(useProxySettings, SharedConfig.currentProxy.settings);
             } else if (position == proxyAddRow) {
                 presentFragment(new ProxySettingsActivity());
+            } else if (position == torRow) {
+                presentFragment(new app.exteraless.tor.TorSettingsActivity());
             } else if (position == deleteAllRow) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
                 builder.setMessage(getString(R.string.DeleteAllProxiesConfirm));
@@ -711,6 +715,8 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
         } else {
             useProxyShadowRow = -1;
         }
+        torRow = rowCount++;
+        torShadowRow = rowCount++;
         connectionsHeaderRow = rowCount++;
 
         if (notify) {
@@ -963,6 +969,19 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
                     } else if (position == deleteAllRow) {
                         textCell.setTextColor(Theme.getColor(Theme.key_text_RedRegular));
                         textCell.setText(getString(R.string.DeleteAllProxies), false);
+                    } else if (position == torRow) {
+                        app.exteraless.tor.TorController torController = app.exteraless.tor.TorController.getInstance();
+                        String statusStr;
+                        if (torController.isEnabled()) {
+                            if (torController.getStatus() == app.exteraless.tor.TorController.STATUS_CONNECTED) {
+                                statusStr = LocaleController.getString(R.string.TorConnected);
+                            } else {
+                                statusStr = LocaleController.formatString(R.string.TorConnecting, torController.getProgress());
+                            }
+                        } else {
+                            statusStr = LocaleController.getString(R.string.TorDisabled);
+                        }
+                        textCell.setTextAndValue(LocaleController.getString(R.string.TorSettingsTitle), statusStr, false);
                     }
                     break;
                 }
@@ -1065,7 +1084,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
         @Override
         public boolean isEnabled(RecyclerView.ViewHolder holder) {
             int position = holder.getAdapterPosition();
-            return position == useProxyRow || position == rotationRow || position == callsRow || position == proxyAddRow || position == deleteAllRow || position >= proxyStartRow && position < proxyEndRow;
+            return position == useProxyRow || position == rotationRow || position == callsRow || position == proxyAddRow || position == deleteAllRow || position == torRow || position >= proxyStartRow && position < proxyEndRow;
         }
 
         @Override
@@ -1150,9 +1169,9 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
 
         @Override
         public int getItemViewType(int position) {
-            if (position == useProxyShadowRow || position == proxyShadowRow) {
+            if (position == useProxyShadowRow || position == proxyShadowRow || position == torShadowRow) {
                 return VIEW_TYPE_SHADOW;
-            } else if (position == proxyAddRow || position == deleteAllRow) {
+            } else if (position == proxyAddRow || position == deleteAllRow || position == torRow) {
                 return VIEW_TYPE_TEXT_SETTING;
             } else if (position == useProxyRow || position == rotationRow || position == callsRow) {
                 return VIEW_TYPE_TEXT_CHECK;

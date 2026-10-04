@@ -355,4 +355,37 @@
     <string name="ImportAyuDBAlert">The current message database will be replaced. The app will restart after the import.</string>
     <string name="DisableSwipeToNext">Disable Swipe to Next</string>
     <string name="ForceFontWeightFallback">Force Font Weight Fallback</string>
+
+    <!-- Embedded Tor / Orbot -->
+    <string name="TorSettingsTitle">Embedded Tor</string>
+    <string name="TorEnabled">Enabled</string>
+    <string name="TorDisabled">Disabled</string>
+    <string name="TorEnableCheck">Use Tor Network</string>
+    <string name="TorStatusHeader">Connection Status</string>
+    <string name="TorConnected">Connected to Tor</string>
+    <string name="TorConnecting">Connecting to Tor: %1$d%%</string>
+    <string name="TorStarting">Starting Tor...</string>
+    <string name="TorStopping">Stopping Tor...</string>
+    <string name="TorError">Connection Error</string>
+    <string name="TorProtectedDetail">Telegram traffic is protected and routed via Tor SOCKS5</string>
+    <string name="TorDisabledDetail">Telegram uses direct connection or your configured proxy</string>
+    <string name="TorNewIdentity">New Identity (New Circuit)</string>
+    <string name="TorNewIdentitySuccess">Tor circuit renewed</string>
+    <string name="TorNotConnected">Tor is not connected</string>
+    <string name="TorRoutingHeader">Routing &amp; Bridges</string>
+    <string name="TorExitCountry">Exit Node</string>
+    <string name="TorExitCountryTitle">Exit Node (Country)</string>
+    <string name="TorBridgeType">Bridge</string>
+    <string name="TorBridgeConfigTitle">Configure Connection</string>
+    <string name="TorBridgeConfigSubtitle">There are many ways to reach Tor. Some may work better in your network.</string>
+    <string name="TorBridgeDirect">Direct Connection (No Bridges)</string>
+    <string name="TorBridgeSmart">Smart Connection</string>
+    <string name="TorBridgeSnowflake">Snowflake (WebRTC — bypass blocks)</string>
+    <string name="TorBridgeSnowflakeAmp">Snowflake AMP</string>
+    <string name="TorBridgeObfs4">Built-in Bridges (obfs4)</string>
+    <string name="TorBridgeCustom">Custom Bridges</string>
+    <string name="TorCustomBridgesTitle">Custom Bridges</string>
+    <string name="TorCustomBridgesPrompt">Enter obfs4 bridge lines (e.g. from @GetBridgesBot):</string>
+    <string name="TorCustomBridgesSave">Save</string>
+    <string name="TorInfoPrivacy">Embedded Tor provides anonymity and robust censorship circumvention without the need to install a separate Orbot app. Snowflake uses WebRTC technology to mask traffic as normal voice/video calls.</string>
 </resources>

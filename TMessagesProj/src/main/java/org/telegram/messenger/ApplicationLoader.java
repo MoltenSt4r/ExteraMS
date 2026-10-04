@@ -422,6 +422,9 @@ public class ApplicationLoader extends Application implements CameraXConfig.Prov
 
         LauncherIconController.tryFixLauncherIconIfNeeded();
         ProxyRotationController.init();
+        if (app.exteraless.tor.TorController.getInstance().isEnabled()) {
+            app.exteraless.tor.TorController.getInstance().start();
+        }
     }
 
     // Local Push Service, TFoss implementation
