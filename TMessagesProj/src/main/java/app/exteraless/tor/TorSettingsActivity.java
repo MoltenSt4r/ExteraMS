@@ -174,7 +174,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), resourcesProvider);
         builder.setTitle(LocaleController.getString(R.string.TorExitCountryTitle));
-        builder.setSingleChoiceItems(items, selectedIndex, (dialog, which) -> {
+        builder.setItems(items, (dialog, which) -> {
             controller.setExitCountry(COUNTRIES[which][0]);
             dialog.dismiss();
             if (listAdapter != null) {
@@ -228,7 +228,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
 
         for (int i = 0; i < bridgeNames.length; i++) {
             final int index = i;
-            TextRadioCell cell = new TextRadioCell(context, resourcesProvider);
+            TextRadioCell cell = new TextRadioCell(context, 21, true);
             cell.setTextAndCheck(bridgeNames[i], currentBridge == i, false);
             cell.setOnClickListener(v -> {
                 selected[0] = index;
@@ -255,7 +255,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
         buttonLayout.addView(cancelButton);
 
         TextView applyButton = new TextView(context);
-        applyButton.setText(LocaleController.getString(R.string.Apply));
+        applyButton.setText(LocaleController.getString(R.string.OK));
         applyButton.setTextSize(14);
         applyButton.setTypeface(AndroidUtilities.bold());
         applyButton.setTextColor(getThemedColor(Theme.key_dialogTextBlue2));
