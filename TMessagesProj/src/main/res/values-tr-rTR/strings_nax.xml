@@ -270,7 +270,7 @@
     <string name="FixLinkPreview">Bağlantı Önizlemesini Düzelt</string>
     <string name="NoQuoteForwardShort">Alıntısız</string>
     <string name="ViewDeleted">Silinenleri Görüntüle</string>
-    <string name="PasskeyLogin">Geçiş Anahtarı (Passkey) ile Giriş</string>
+    <string name="PasskeyLogin">Geçiş Anahtarı ile Giriş</string>
     <string name="PasskeyInfo2">Bu özellik yalnızca kullanıcının ayrıcalıklı uygulamalar için güven ayarlarını yönetmesine olanak tanıyan **Bitwarden** ve **KeePassDX** gibi parola yöneticileriyle çalışır.</string>
     <string name="PasskeyUnsupportedTitle">Desteklenmeyen parola yöneticisi</string>
     <string name="PasskeyUnsupportedMessage">**Bitwarden** veya **KeePassDX** gibi diğer parola yöneticilerini deneyin.</string>
