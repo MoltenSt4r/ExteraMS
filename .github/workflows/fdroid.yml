@@ -2,6 +2,10 @@ name: Update F-Droid Repository
 
 # Auto-sync trigger for release v12.10.3
 on:
+  workflow_run:
+    workflows: ["Release Build"]
+    types:
+      - completed
   release:
     types: [published]
   push:
@@ -27,6 +31,7 @@ concurrency:
 jobs:
   fdroid:
     name: Build & Publish F-Droid Repository
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

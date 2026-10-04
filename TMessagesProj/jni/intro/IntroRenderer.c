@@ -2662,7 +2662,7 @@ JNIEXPORT void Java_org_telegram_messenger_Intro_setPowerfulTextures(JNIEnv *env
     powerful_infinity_texture = a_powerful_infinity;
     powerful_infinity_white_texture = a_powerful_infinity_white;
     powerful_mask.texture = a_powerful_mask;
-    powerful_star.texture = a_powerful_star;
+    star.texture = a_powerful_star;
     powerful_infinity.texture = a_powerful_infinity;
     powerful_infinity_white.texture = a_powerful_infinity_white;
 }
