@@ -3491,7 +3491,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                         }
                     }
                 }
-                if (activityMode == MODE_LOGIN) {
+                if (activityMode == MODE_LOGIN && BuildVars.SUPPORTS_PASSKEYS) {
                     requestPasskey(false, false);
                 }
             }, SHOW_DELAY);
