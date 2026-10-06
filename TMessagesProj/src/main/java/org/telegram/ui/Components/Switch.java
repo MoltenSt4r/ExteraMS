@@ -469,6 +469,38 @@ public class Switch extends View {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        int defaultWidth = AndroidUtilities.dp(37);
+        int defaultHeight = AndroidUtilities.dp(24);
+
+        int measuredWidth;
+        int measuredHeight;
+
+        if (widthMode == MeasureSpec.EXACTLY) {
+            measuredWidth = widthSize;
+        } else if (widthMode == MeasureSpec.AT_MOST) {
+            measuredWidth = Math.min(defaultWidth, widthSize);
+        } else {
+            measuredWidth = defaultWidth;
+        }
+
+        if (heightMode == MeasureSpec.EXACTLY) {
+            measuredHeight = heightSize;
+        } else if (heightMode == MeasureSpec.AT_MOST) {
+            measuredHeight = Math.min(defaultHeight, heightSize);
+        } else {
+            measuredHeight = defaultHeight;
+        }
+
+        setMeasuredDimension(measuredWidth, measuredHeight);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         if (getVisibility() != VISIBLE) {
             return;

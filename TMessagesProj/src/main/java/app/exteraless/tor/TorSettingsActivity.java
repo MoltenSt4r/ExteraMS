@@ -470,6 +470,15 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
         }
 
         @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            int width = MeasureSpec.getSize(widthMeasureSpec);
+            int height = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY
+                    ? MeasureSpec.getSize(heightMeasureSpec)
+                    : AndroidUtilities.dp(4);
+            setMeasuredDimension(width, height);
+        }
+
+        @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
             int w = getWidth();
@@ -506,6 +515,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
 
         public TorHeroCard(Context context, Theme.ResourcesProvider resourcesProvider) {
             super(context);
+            setTag(RecyclerListView.TAG_NOT_SECTION);
 
             int radius = AndroidUtilities.dp(Math.max(14, AppearanceConfig.sectionRadius()));
             setBackground(Theme.createRoundRectDrawable(radius, getThemedColor(Theme.key_windowBackgroundWhite)));
@@ -519,20 +529,23 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             LinearLayout headerRow = new LinearLayout(context);
             headerRow.setOrientation(LinearLayout.HORIZONTAL);
             headerRow.setGravity(Gravity.CENTER_VERTICAL);
+            headerRow.setBackground(Theme.createSimpleSelectorRoundRectDrawable(
+                    AndroidUtilities.dp(8), 0, Theme.multAlpha(getThemedColor(Theme.key_listSelector), 0.5f)
+            ));
             headerRow.setOnClickListener(v -> toggleTorState());
 
             iconContainer = new FrameLayout(context);
             iconView = new ImageView(context);
             iconView.setImageResource(R.drawable.ic_orbot);
             iconView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            iconContainer.addView(iconView, LayoutHelper.createFrame(28, 28, Gravity.CENTER));
-            headerRow.addView(iconContainer, LayoutHelper.createLinear(52, 52, Gravity.CENTER_VERTICAL));
+            iconContainer.addView(iconView, LayoutHelper.createFrame(26, 26, Gravity.CENTER));
+            headerRow.addView(iconContainer, LayoutHelper.createLinear(48, 48, Gravity.CENTER_VERTICAL));
 
             LinearLayout textCol = new LinearLayout(context);
             textCol.setOrientation(LinearLayout.VERTICAL);
 
             titleView = new TextView(context);
-            titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
             titleView.setTypeface(AndroidUtilities.bold());
             titleView.setTextColor(getThemedColor(Theme.key_windowBackgroundWhiteBlackText));
             textCol.addView(titleView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
@@ -542,12 +555,13 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             subtitleView.setTextColor(getThemedColor(Theme.key_windowBackgroundWhiteGrayText));
             textCol.addView(subtitleView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 3, 0, 0));
 
-            headerRow.addView(textCol, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1.0f, Gravity.CENTER_VERTICAL, 14, 0, 8, 0));
+            headerRow.addView(textCol, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1.0f, Gravity.CENTER_VERTICAL, 14, 0, 10, 0));
 
             switchView = new Switch(context, resourcesProvider);
             switchView.setColors(Theme.key_switch2Track, Theme.key_switch2TrackChecked, Theme.key_windowBackgroundWhite, Theme.key_windowBackgroundWhite);
-            switchView.setOnClickListener(v -> toggleTorState());
-            headerRow.addView(switchView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL));
+            switchView.setFocusable(false);
+            switchView.setClickable(false);
+            headerRow.addView(switchView, LayoutHelper.createLinear(37, 24, Gravity.CENTER_VERTICAL));
 
             mainLayout.addView(headerRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
@@ -601,6 +615,14 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             update();
         }
 
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            super.onMeasure(
+                    MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            );
+        }
+
         private void toggleTorState() {
             if (isToggling) return;
             isToggling = true;
@@ -620,14 +642,14 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             switchView.setChecked(enabled, true);
 
             if (status == TorController.STATUS_CONNECTED) {
-                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(52), 0x224CAF50));
+                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x224CAF50));
                 iconView.setColorFilter(new PorterDuffColorFilter(0xFF4CAF50, PorterDuff.Mode.MULTIPLY));
                 titleView.setText(LocaleController.getString(R.string.TorConnected));
                 subtitleView.setText(LocaleController.getString(R.string.TorProtectedDetail));
                 progressContainer.setVisibility(View.GONE);
                 newIdentityButton.setVisibility(View.VISIBLE);
             } else if (status == TorController.STATUS_CONNECTING || status == TorController.STATUS_STARTING) {
-                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(52), 0x24FF9800));
+                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x24FF9800));
                 iconView.setColorFilter(new PorterDuffColorFilter(0xFFFF9800, PorterDuff.Mode.MULTIPLY));
                 titleView.setText(status == TorController.STATUS_STARTING
                         ? LocaleController.getString(R.string.TorStarting)
@@ -640,7 +662,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
                 progressTextView.setText(controller.getProgress() + "% • " + (TextUtils.isEmpty(controller.getStatusMessage()) ? "Подключение к узлам" : controller.getStatusMessage()));
                 newIdentityButton.setVisibility(View.GONE);
             } else if (status == TorController.STATUS_ERROR) {
-                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(52), 0x24F44336));
+                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x24F44336));
                 iconView.setColorFilter(new PorterDuffColorFilter(0xFFF44336, PorterDuff.Mode.MULTIPLY));
                 titleView.setText(LocaleController.getString(R.string.TorError));
                 subtitleView.setText(controller.getStatusMessage());
@@ -648,9 +670,9 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
                 newIdentityButton.setVisibility(View.GONE);
             } else {
                 // STATUS_STOPPED или STATUS_STOPPING
-                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(52), 0x147F7F7F));
+                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x147F7F7F));
                 iconView.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteGrayIcon), PorterDuff.Mode.MULTIPLY));
-                titleView.setText(LocaleController.getString(R.string.TorDisabled));
+                titleView.setText(LocaleController.getString(R.string.TorSettingsTitle));
                 subtitleView.setText(LocaleController.getString(R.string.TorDisabledDetail));
                 progressContainer.setVisibility(View.GONE);
                 newIdentityButton.setVisibility(View.GONE);
@@ -714,15 +736,18 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
                 cell.setText(LocaleController.getString(R.string.TorRoutingHeader));
             } else if (position == exitCountryRow) {
                 TextSettingsCell cell = (TextSettingsCell) holder.itemView;
+                cell.setIcon(0);
                 cell.setTextAndValue(LocaleController.getString(R.string.TorExitCountry), getCountryNameByCode(controller.getExitCountry()), true);
             } else if (position == bridgeTypeRow) {
                 TextSettingsCell cell = (TextSettingsCell) holder.itemView;
+                cell.setIcon(0);
                 cell.setTextAndValue(LocaleController.getString(R.string.TorBridgeType), getBridgeName(controller.getBridgeType()), true);
             } else if (position == getBridgesBotRow) {
                 TextCell cell = (TextCell) holder.itemView;
                 cell.setTextAndValueAndIcon(LocaleController.getString(R.string.TorGetBridgesTelegramBot), "@GetBridgesBot", R.drawable.msg_bots_solar, true);
             } else if (position == customBridgesRow) {
                 TextSettingsCell cell = (TextSettingsCell) holder.itemView;
+                cell.setIcon(0);
                 boolean hasBridges = !TextUtils.isEmpty(controller.getCustomBridges());
                 cell.setTextAndValue(LocaleController.getString(R.string.TorCustomBridgesTitle), hasBridges ? "Настроены" : "Не заданы", false);
             } else if (position == infoPrivacyRow) {

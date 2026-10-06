@@ -1190,6 +1190,7 @@ public class OpenExteraGeneralActivity extends BaseNekoSettingsActivity {
                 }
                 case TYPE_SETTINGS: {
                     TextSettingsCell cell = (TextSettingsCell) holder.itemView;
+                    cell.setIcon(0);
                     if (position == pushStatusRow) {
                         cell.setTextAndValue(getString(R.string.OEGeneralPushStatus),
                                 formatPushStatus(), true);
