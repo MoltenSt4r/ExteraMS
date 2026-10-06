@@ -519,7 +519,16 @@ public class TorController {
                 // 4. Запуск службы TorService
                 try {
                     Intent serviceIntent = new Intent(context, TorService.class);
-                    context.startService(serviceIntent);
+                    serviceIntent.setAction(TorService.ACTION_START);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        try {
+                            context.startForegroundService(serviceIntent);
+                        } catch (Throwable ignored) {
+                            context.startService(serviceIntent);
+                        }
+                    } else {
+                        context.startService(serviceIntent);
+                    }
                     context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
                     updateStatus(STATUS_CONNECTING, 15, "Подключение к сети Tor...");
                     startStallWatchdog();
@@ -561,6 +570,8 @@ public class TorController {
 
                 try {
                     Intent stopIntent = new Intent(context, TorService.class);
+                    stopIntent.setAction(TorService.ACTION_STOP);
+                    context.startService(stopIntent);
                     context.stopService(stopIntent);
                 } catch (Exception ignored) {}
 

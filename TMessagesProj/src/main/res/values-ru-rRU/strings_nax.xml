@@ -365,8 +365,8 @@
     <string name="TorBridgeConfigTitle">Выбор режима подключения</string>
     <string name="TorBridgeConfigSubtitle">Прямое подключение к Tor или использование мостов для обхода блокировок провайдера.</string>
     <string name="TorBridgeDirect">Прямое подключение (без мостов)</string>
-    <string name="TorBridgeCustom">Мосты Tor (кастомные)</string>
-    <string name="TorAutoGetBridges">Получить мосты автоматически</string>
+    <string name="TorBridgeCustom">Мосты Tor</string>
+    <string name="TorAutoGetBridges">Получить мосты</string>
     <string name="TorAutoGetBridgesLoading">Запрос мостов у @GetBridgesBot...</string>
     <string name="TorAutoGetBridgesSuccess">Получено мостов: %1$d! Мосты применены.</string>
     <string name="TorAutoGetBridgesTimeout">Бот не ответил вовремя. Открываем чат...</string>

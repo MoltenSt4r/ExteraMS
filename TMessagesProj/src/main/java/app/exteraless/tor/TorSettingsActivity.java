@@ -664,12 +664,16 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
         public TorHeroCard(Context context, Theme.ResourcesProvider resourcesProvider) {
             super(context);
             setTag(RecyclerListView.TAG_NOT_SECTION);
+            setClipChildren(false);
+            setClipToPadding(false);
 
             int radius = AndroidUtilities.dp(Math.max(14, AppearanceConfig.sectionRadius()));
             setBackground(Theme.createRoundRectDrawable(radius, getThemedColor(Theme.key_windowBackgroundWhite)));
 
             LinearLayout mainLayout = new LinearLayout(context);
             mainLayout.setOrientation(LinearLayout.VERTICAL);
+            mainLayout.setClipChildren(false);
+            mainLayout.setClipToPadding(false);
             mainLayout.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(16), AndroidUtilities.dp(16), AndroidUtilities.dp(16));
             addView(mainLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
@@ -677,6 +681,8 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             LinearLayout headerRow = new LinearLayout(context);
             headerRow.setOrientation(LinearLayout.HORIZONTAL);
             headerRow.setGravity(Gravity.CENTER_VERTICAL);
+            headerRow.setClipChildren(false);
+            headerRow.setClipToPadding(false);
             headerRow.setBackground(Theme.createSimpleSelectorRoundRectDrawable(
                     AndroidUtilities.dp(8), 0, Theme.multAlpha(getThemedColor(Theme.key_listSelector), 0.5f)
             ));
@@ -709,7 +715,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             switchView.setColors(Theme.key_switch2Track, Theme.key_switch2TrackChecked, Theme.key_windowBackgroundWhite, Theme.key_windowBackgroundWhite);
             switchView.setFocusable(false);
             switchView.setClickable(false);
-            headerRow.addView(switchView, LayoutHelper.createLinear(37, 24, Gravity.CENTER_VERTICAL));
+            headerRow.addView(switchView, LayoutHelper.createLinear(40, 24, Gravity.CENTER_VERTICAL, 0, 0, 6, 0));
 
             mainLayout.addView(headerRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 

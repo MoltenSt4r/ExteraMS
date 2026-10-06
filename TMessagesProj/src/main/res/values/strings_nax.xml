@@ -379,8 +379,8 @@
     <string name="TorBridgeConfigTitle">Select Connection Mode</string>
     <string name="TorBridgeConfigSubtitle">Direct connection to Tor or bridges for censorship circumvention.</string>
     <string name="TorBridgeDirect">Direct Connection (No Bridges)</string>
-    <string name="TorBridgeCustom">Tor Bridges (Custom)</string>
-    <string name="TorAutoGetBridges">Get Bridges Automatically</string>
+    <string name="TorBridgeCustom">Tor Bridges</string>
+    <string name="TorAutoGetBridges">Get Bridges</string>
     <string name="TorAutoGetBridgesLoading">Requesting bridges from @GetBridgesBot...</string>
     <string name="TorAutoGetBridgesSuccess">Received %1$d bridges! Bridges applied.</string>
     <string name="TorAutoGetBridgesTimeout">Bot didn\'t respond in time. Opening chat...</string>
