@@ -79,10 +79,13 @@ async def main() -> None:
     apk = apks[-1]
     print(f"{os.path.basename(apk)} — {os.path.getsize(apk) / 1024 / 1024:.1f} МБ")
 
+    api_id = int(os.environ.get("TG_API_ID") or 39205442)
+    api_hash = os.environ.get("TG_API_HASH") or "1090b570704d1d97975994ee9c177dba"
+
     async with Client(
         "ci",
-        api_id=int(os.environ["TG_API_ID"]),
-        api_hash=os.environ["TG_API_HASH"],
+        api_id=api_id,
+        api_hash=api_hash,
         bot_token=os.environ["TG_BOT_TOKEN"],
         in_memory=True,
         no_updates=True,

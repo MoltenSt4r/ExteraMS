@@ -155,9 +155,9 @@ jobs:
             - **Встроенная сеть Tor (Orbot):**
               - Полная работа через Tor прямо внутри приложения без необходимости устанавливать сторонний Orbot APK.
               - Выбор выходного узла (страны) с флагами.
-              - Мгновенная смена личности / маршрута («Новая личность» / NEWNYM).
-              - Поддержка мостов Pluggable Transports: прямое, умное, Snowflake (WebRTC), Snowflake AMP, obfs4 и добавление собственных мостов.
-              - Автоматическая маршрутизация трафика Telegram через встроенный SOCKS5-прокси.
+              - Поддержка прямого подключения либо надёжных мостов Tor (obfs4, Snowflake, WebTunnel).
+              - Автоматическое получение мостов от @GetBridgesBot в один тап прямо из настроек.
+              - Интерактивная плашка активного подключения: отображение реального выходного IP, флага страны и пинга.
             - **Анимации ввода текста:** мягкое появление с размытием, вылет букв, частицы при удалении (пыль, искры, снежинки, лепестки, буквы), плавный и жидкий курсор, интерактивное превью в настройках.
               - *Особая благодарность создателям оригинальных плагинов:* @private_let, @TextAnimation, @mihailkotovski, @mishabotov.
             - **Папки-чипсы Material 3:** панель папок в стиле Material 3, стили (Filled / Outlined / Ghost), плавный морфинг скруглений (Capsule, Rounded, Soft, Square, Expressive, Custom), анимации переходов (Jelly, Squeeze, Press, Spring), настройка цветов и живой предпросмотр.
@@ -179,8 +179,8 @@ jobs:
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && !contains(github.event.head_commit.message, '[skip publish]') }}
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_API_ID: ${{ secrets.TG_API_ID || '39205442' }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH || '1090b570704d1d97975994ee9c177dba' }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
           COMMIT_SHA: ${{ github.sha }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
@@ -188,8 +188,8 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           APK_GLOB: "TMessagesProj/build/outputs/apk/release/*.apk"
         run: |
-          if [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_API_ID" ] || [ -z "$TG_API_HASH" ] || [ -z "$TG_CHAT_ID" ]; then
-            echo "секреты Telegram не заданы — отправка пропущена"
+          if [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
+            echo "секреты Telegram (TG_BOT_TOKEN или TG_CHAT_ID) не заданы — отправка пропущена"
             exit 0
           fi
           pip install --quiet kurigram tgcrypto

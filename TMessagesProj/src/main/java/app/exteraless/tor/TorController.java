@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import net.freehaven.tor.control.RawEventListener;
 import net.freehaven.tor.control.TorControlCommands;
 import net.freehaven.tor.control.TorControlConnection;
 
+import org.json.JSONObject;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
@@ -32,7 +34,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +48,7 @@ import java.util.regex.Pattern;
 /**
  * Встроенный контроллер Tor (Orbot) для ExteraMS.
  * Управляет нативным демоном Tor через TorService / libtor.so,
- * мостами Pluggable Transports (Snowflake, Snowflake AMP, obfs4)
+ * мостами Pluggable Transports (obfs4, Snowflake)
  * и автоматическим переключением SOCKS5-прокси Telegram.
  */
 public class TorController {
@@ -68,13 +74,9 @@ public class TorController {
     public static final int STATUS_STOPPING = 4;
     public static final int STATUS_ERROR = 5;
 
-    // Типы мостов
-    public static final int BRIDGE_DIRECT = 0;        // Прямое подключение
-    public static final int BRIDGE_SMART = 1;         // Умное подключение
-    public static final int BRIDGE_SNOWFLAKE = 2;     // Snowflake (WebRTC)
-    public static final int BRIDGE_SNOWFLAKE_AMP = 3; // Snowflake AMP
-    public static final int BRIDGE_OBFS4 = 4;         // Встроенные мосты obfs4
-    public static final int BRIDGE_CUSTOM = 5;        // Пользовательские мосты
+    // Режимы подключения: только прямое и мосты
+    public static final int BRIDGE_DIRECT = 0;        // Прямое подключение (без мостов)
+    public static final int BRIDGE_CUSTOM = 1;        // Мосты Tor (кастомные / из @GetBridgesBot)
 
     public static final int DEFAULT_SOCKS_PORT = 9050;
     public static final int DEFAULT_CONTROL_PORT = 9051;
@@ -96,13 +98,25 @@ public class TorController {
         void onLog(String line);
     }
 
+    public interface ExitNodeListener {
+        void onExitNodeInfoUpdated(String ip, String country, String flag, long ping);
+    }
+
     private final List<Listener> listeners = new ArrayList<>();
+    private final List<ExitNodeListener> exitNodeListeners = new ArrayList<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private Runnable stallWatchdogRunnable;
 
     private int currentStatus = STATUS_STOPPED;
     private int currentProgress = 0;
     private String currentStatusMessage = "";
+
+    private String currentExitIp = "";
+    private String currentExitCountry = "";
+    private String currentExitCountryCode = "";
+    private String currentExitFlag = "";
+    private long currentPing = -1;
+    private boolean isCheckingExitNode = false;
 
     private TorService boundTorService;
     private TorControlConnection controlConnection;
@@ -194,15 +208,14 @@ public class TorController {
     }
 
     public int getBridgeType() {
-        if (!getPrefs().getBoolean("tor_bridge_explicitly_set", false)) {
-            return BRIDGE_SMART;
-        }
-        return getPrefs().getInt("tor_bridge_type", BRIDGE_SMART);
+        int val = getPrefs().getInt("tor_bridge_type", BRIDGE_CUSTOM);
+        return val == BRIDGE_DIRECT ? BRIDGE_DIRECT : BRIDGE_CUSTOM;
     }
 
     public void setBridgeType(int type) {
+        int finalType = type == BRIDGE_DIRECT ? BRIDGE_DIRECT : BRIDGE_CUSTOM;
         getPrefs().edit()
-                .putInt("tor_bridge_type", type)
+                .putInt("tor_bridge_type", finalType)
                 .putBoolean("tor_bridge_explicitly_set", true)
                 .apply();
         if (currentStatus == STATUS_CONNECTED || currentStatus == STATUS_CONNECTING) {
@@ -234,6 +247,18 @@ public class TorController {
         }
     }
 
+    public String getEffectiveBridges() {
+        String custom = getCustomBridges();
+        if (!TextUtils.isEmpty(custom.trim())) {
+            return custom.trim();
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String b : DEFAULT_OBFS4_BRIDGES) {
+            sb.append(b).append("\n");
+        }
+        return sb.toString().trim();
+    }
+
     public int getStatus() {
         return currentStatus;
     }
@@ -257,14 +282,171 @@ public class TorController {
         listeners.remove(listener);
     }
 
+    public void addExitNodeListener(ExitNodeListener listener) {
+        if (!exitNodeListeners.contains(listener)) {
+            exitNodeListeners.add(listener);
+            listener.onExitNodeInfoUpdated(currentExitIp, currentExitCountry, currentExitFlag, currentPing);
+        }
+    }
+
+    public void removeExitNodeListener(ExitNodeListener listener) {
+        exitNodeListeners.remove(listener);
+    }
+
+    private void notifyExitNodeListeners() {
+        mainHandler.post(() -> {
+            for (ExitNodeListener l : new ArrayList<>(exitNodeListeners)) {
+                l.onExitNodeInfoUpdated(currentExitIp, currentExitCountry, currentExitFlag, currentPing);
+            }
+        });
+    }
+
+    public String getExitNodeIp() {
+        return currentExitIp;
+    }
+
+    public String getExitNodeCountry() {
+        return currentExitCountry;
+    }
+
+    public String getExitNodeCountryCode() {
+        return currentExitCountryCode;
+    }
+
+    public String getExitNodeFlag() {
+        return currentExitFlag;
+    }
+
+    public long getExitNodePing() {
+        return currentPing;
+    }
+
+    public boolean isCheckingExitNode() {
+        return isCheckingExitNode;
+    }
+
+    public static String getCountryFlag(String countryCode) {
+        if (TextUtils.isEmpty(countryCode) || countryCode.length() != 2) return "🌐";
+        try {
+            int firstChar = Character.toUpperCase(countryCode.charAt(0)) - 'A' + 0x1F1E6;
+            int secondChar = Character.toUpperCase(countryCode.charAt(1)) - 'A' + 0x1F1E6;
+            return new String(Character.toChars(firstChar)) + new String(Character.toChars(secondChar));
+        } catch (Exception e) {
+            return "🌐";
+        }
+    }
+
+    public void checkExitNodeInfo() {
+        if (currentStatus != STATUS_CONNECTED) {
+            return;
+        }
+        isCheckingExitNode = true;
+        notifyExitNodeListeners();
+
+        new Thread(() -> {
+            int port = DEFAULT_SOCKS_PORT;
+            if (boundTorService != null) {
+                int sp = boundTorService.getSocksPort();
+                if (sp > 0) port = sp;
+            }
+
+            Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1", port));
+            String fetchedIp = null;
+            String fetchedCountry = null;
+            String fetchedCode = null;
+            String fetchedFlag = null;
+            long pingMs = -1;
+
+            try {
+                long start = SystemClock.elapsedRealtime();
+                URL url = new URL("https://ipwho.is/");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection(proxy);
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+                if (conn.getResponseCode() == 200) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) sb.append(line);
+                        JSONObject json = new JSONObject(sb.toString());
+                        if (json.optBoolean("success", true)) {
+                            fetchedIp = json.optString("ip");
+                            fetchedCountry = json.optString("country");
+                            fetchedCode = json.optString("country_code");
+                            JSONObject flagObj = json.optJSONObject("flag");
+                            if (flagObj != null) {
+                                fetchedFlag = flagObj.optString("emoji");
+                            }
+                            pingMs = SystemClock.elapsedRealtime() - start;
+                        }
+                    }
+                }
+                conn.disconnect();
+            } catch (Exception e) {
+                FileLog.e("ipwho.is check failed: " + e.getMessage());
+            }
+
+            if (TextUtils.isEmpty(fetchedIp)) {
+                try {
+                    long start = SystemClock.elapsedRealtime();
+                    URL url = new URL("http://ip-api.com/json");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection(proxy);
+                    conn.setConnectTimeout(8000);
+                    conn.setReadTimeout(8000);
+                    conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+                    if (conn.getResponseCode() == 200) {
+                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                            StringBuilder sb = new StringBuilder();
+                            String line;
+                            while ((line = reader.readLine()) != null) sb.append(line);
+                            JSONObject json = new JSONObject(sb.toString());
+                            if ("success".equalsIgnoreCase(json.optString("status"))) {
+                                fetchedIp = json.optString("query");
+                                fetchedCountry = json.optString("country");
+                                fetchedCode = json.optString("countryCode");
+                                pingMs = SystemClock.elapsedRealtime() - start;
+                            }
+                        }
+                    }
+                    conn.disconnect();
+                } catch (Exception e) {
+                    FileLog.e("ip-api.com check failed: " + e.getMessage());
+                }
+            }
+
+            if (TextUtils.isEmpty(fetchedFlag) && !TextUtils.isEmpty(fetchedCode)) {
+                fetchedFlag = getCountryFlag(fetchedCode);
+            }
+
+            final String finalIp = fetchedIp;
+            final String finalCountry = fetchedCountry;
+            final String finalCode = fetchedCode;
+            final String finalFlag = !TextUtils.isEmpty(fetchedFlag) ? fetchedFlag : "🌐";
+            final long finalPing = pingMs;
+
+            mainHandler.post(() -> {
+                isCheckingExitNode = false;
+                if (!TextUtils.isEmpty(finalIp)) {
+                    currentExitIp = finalIp;
+                    currentExitCountry = finalCountry != null ? finalCountry : "";
+                    currentExitCountryCode = finalCode != null ? finalCode : "";
+                    currentExitFlag = finalFlag;
+                    currentPing = finalPing;
+                }
+                notifyExitNodeListeners();
+            });
+        }, "TorExitNodeChecker").start();
+    }
+
     private void startStallWatchdog() {
         stopStallWatchdog();
         stallWatchdogRunnable = () -> {
             if (currentStatus == STATUS_CONNECTING && currentProgress <= 15) {
                 int bridge = getBridgeType();
                 if (bridge == BRIDGE_DIRECT) {
-                    postLog("Обнаружена блокировка прямого подключения Tor. Автоматическое переключение на умный мост Snowflake AMP...");
-                    setBridgeType(BRIDGE_SMART);
+                    postLog("Обнаружена блокировка прямого подключения Tor. Автоматическое переключение на мосты...");
+                    setBridgeType(BRIDGE_CUSTOM);
                 } else {
                     postLog("Таймаут первичного рукопожатия Tor. Перезапуск соединения...");
                     restart();
@@ -404,6 +586,14 @@ public class TorController {
                 stopPluggableTransports();
                 restorePreviousProxyState();
 
+                currentExitIp = "";
+                currentExitCountry = "";
+                currentExitCountryCode = "";
+                currentExitFlag = "";
+                currentPing = -1;
+                isCheckingExitNode = false;
+                notifyExitNodeListeners();
+
                 updateStatus(STATUS_STOPPED, 0, "Отключено");
             } catch (Exception e) {
                 FileLog.e(e);
@@ -438,6 +628,7 @@ public class TorController {
                         postLog("Смена цепи Tor: получена новая личность");
                     }
                 }
+                mainHandler.postDelayed(this::checkExitNodeInfo, 1500);
             } catch (Exception e) {
                 FileLog.e(e);
             }
@@ -531,26 +722,33 @@ public class TorController {
             SharedConfig.setProxyEnable(true);
             NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged);
         });
+        checkExitNodeInfo();
     }
 
     private void startPluggableTransports(File ptStateDir, int bridgeType) {
         stopPluggableTransports();
+        if (bridgeType == BRIDGE_DIRECT) {
+            return;
+        }
 
         try {
-            if (bridgeType == BRIDGE_SNOWFLAKE || bridgeType == BRIDGE_SNOWFLAKE_AMP || bridgeType == BRIDGE_SMART) {
-                ptController = new IPtProxy.Controller(ptStateDir.getAbsolutePath(), true, false, "INFO", null);
+            String bridges = getEffectiveBridges();
+            boolean needSnowflake = bridges.contains("snowflake");
+            boolean needObfs4 = bridges.contains("obfs4") || !needSnowflake;
+
+            ptController = new IPtProxy.Controller(ptStateDir.getAbsolutePath(), true, false, "INFO", null);
+
+            if (needSnowflake) {
                 ptController.setSnowflakeIceServers(DEFAULT_STUN_SERVER);
                 ptController.setSnowflakeFrontDomains(DEFAULT_FRONT_DOMAIN);
                 ptController.setSnowflakeBrokerUrl(DEFAULT_SNOWFLAKE_BROKER);
-                if (bridgeType == BRIDGE_SNOWFLAKE_AMP || bridgeType == BRIDGE_SMART) {
-                    ptController.setSnowflakeAmpCacheUrl(DEFAULT_AMP_CACHE);
-                }
+                ptController.setSnowflakeAmpCacheUrl(DEFAULT_AMP_CACHE);
                 ptController.start("snowflake", "");
                 ptSnowflakePort = (int) ptController.port("snowflake");
-                postLog("Snowflake запущен на локальном порту " + ptSnowflakePort + (bridgeType == BRIDGE_SNOWFLAKE_AMP || bridgeType == BRIDGE_SMART ? " (AMP Cache)" : ""));
+                postLog("Snowflake запущен на локальном порту " + ptSnowflakePort);
+            }
 
-            } else if (bridgeType == BRIDGE_OBFS4 || bridgeType == BRIDGE_CUSTOM) {
-                ptController = new IPtProxy.Controller(ptStateDir.getAbsolutePath(), true, false, "INFO", null);
+            if (needObfs4) {
                 ptController.start("obfs4", "");
                 ptObfs4Port = (int) ptController.port("obfs4");
                 postLog("obfs4 запущен на локальном порту " + ptObfs4Port);
@@ -609,30 +807,18 @@ public class TorController {
                 writer.println("StrictNodes 1");
             }
 
-            // Настройка мостов
-            if (bridgeType == BRIDGE_SNOWFLAKE || bridgeType == BRIDGE_SNOWFLAKE_AMP || bridgeType == BRIDGE_SMART) {
-                if (ptSnowflakePort > 0) {
-                    writer.println("UseBridges 1");
-                    writer.println("ClientTransportPlugin snowflake socks5 127.0.0.1:" + ptSnowflakePort);
-                    writer.println("Bridge snowflake 192.0.2.3:1 2B280B23E1107BB62ABFC40DDCC8824814F80A72");
-                    writer.println("Bridge snowflake 192.0.2.4:1 8838024498816A039FCBBAB14E6E40A0843051FA");
-                }
-            } else if (bridgeType == BRIDGE_OBFS4) {
-                if (ptObfs4Port > 0) {
-                    writer.println("UseBridges 1");
-                    writer.println("ClientTransportPlugin obfs4 socks5 127.0.0.1:" + ptObfs4Port);
-                    for (String b : DEFAULT_OBFS4_BRIDGES) {
-                        writer.println("Bridge " + b);
-                    }
-                }
-            } else if (bridgeType == BRIDGE_CUSTOM) {
-                String custom = getCustomBridges();
-                if (!TextUtils.isEmpty(custom)) {
+            // Настройка мостов (только в режиме BRIDGE_CUSTOM)
+            if (bridgeType == BRIDGE_CUSTOM) {
+                String bridges = getEffectiveBridges();
+                if (!TextUtils.isEmpty(bridges)) {
                     writer.println("UseBridges 1");
                     if (ptObfs4Port > 0) {
                         writer.println("ClientTransportPlugin obfs4 socks5 127.0.0.1:" + ptObfs4Port);
                     }
-                    String[] lines = custom.split("\\r?\\n");
+                    if (ptSnowflakePort > 0) {
+                        writer.println("ClientTransportPlugin snowflake socks5 127.0.0.1:" + ptSnowflakePort);
+                    }
+                    String[] lines = bridges.split("\\r?\\n");
                     for (String line : lines) {
                         String trimmed = line.trim();
                         if (!trimmed.isEmpty()) {
