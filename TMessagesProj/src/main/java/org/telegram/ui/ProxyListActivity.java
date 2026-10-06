@@ -982,6 +982,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
                             statusStr = LocaleController.getString(R.string.TorDisabled);
                         }
                         textCell.setTextAndValue(LocaleController.getString(R.string.TorSettingsTitle), statusStr, false);
+                        textCell.setIcon(R.drawable.ic_orbot);
                     }
                     break;
                 }

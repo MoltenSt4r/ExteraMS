@@ -343,7 +343,7 @@
     <string name="IconReplacementRemix">Remix Icons от @Remixicon</string>
 
     <!-- Встроенный Tor / Orbot -->
-    <string name="TorSettingsTitle">Встроенный Tor</string>
+    <string name="TorSettingsTitle">Встроенный Tor (Orbot)</string>
     <string name="TorEnabled">Включено</string>
     <string name="TorDisabled">Отключено</string>
     <string name="TorEnableCheck">Использовать сеть Tor</string>
@@ -353,15 +353,15 @@
     <string name="TorStarting">Запуск Tor...</string>
     <string name="TorStopping">Остановка Tor...</string>
     <string name="TorError">Ошибка подключения</string>
-    <string name="TorProtectedDetail">Трафик Telegram защищён и направлен через Tor SOCKS5</string>
-    <string name="TorDisabledDetail">Telegram использует прямое соединение или ваш прокси</string>
+    <string name="TorProtectedDetail">Трафик Telegram защищён через SOCKS5 (127.0.0.1:9050)</string>
+    <string name="TorDisabledDetail">Прямое подключение или ваш обычный прокси</string>
     <string name="TorNewIdentity">Сменить цепь (Новая личность)</string>
     <string name="TorNewIdentitySuccess">Цепь Tor обновлена</string>
     <string name="TorNotConnected">Tor не подключен</string>
     <string name="TorRoutingHeader">Маршрутизация и мосты</string>
     <string name="TorExitCountry">Выходной узел</string>
     <string name="TorExitCountryTitle">Выходной узел (Страна)</string>
-    <string name="TorBridgeType">Мост</string>
+    <string name="TorBridgeType">Тип моста</string>
     <string name="TorBridgeConfigTitle">Настроить подключение</string>
     <string name="TorBridgeConfigSubtitle">Есть много способов добраться до Tor. Некоторые из них могут сработать лучше в вашей сети.</string>
     <string name="TorBridgeDirect">Прямое подключение (Без мостов)</string>
@@ -373,5 +373,10 @@
     <string name="TorCustomBridgesTitle">Пользовательские мосты</string>
     <string name="TorCustomBridgesPrompt">Введите строки мостов obfs4 (например, от @GetBridgesBot):</string>
     <string name="TorCustomBridgesSave">Сохранить</string>
+    <string name="TorGetBridgesTelegramBot">Получить мосты у @GetBridgesBot</string>
+    <string name="TorGetBridgesTelegramBotInfo">Официальный бот Tor Project в Telegram</string>
+    <string name="TorPasteFromClipboard">Вставить из буфера</string>
+    <string name="TorBridgesPasted">Вставлено строк мостов: %1$d</string>
+    <string name="TorNoBridgesInClipboard">В буфере не найдены мосты (строки начинающиеся с obfs4)</string>
     <string name="TorInfoPrivacy">Встроенный Tor обеспечивает анонимность и стабильный обход блокировок без необходимости устанавливать отдельное приложение Orbot. Snowflake использует технологию WebRTC для маскировки трафика под обычные звонки.</string>
 </resources>

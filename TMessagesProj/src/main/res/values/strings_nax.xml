@@ -357,7 +357,7 @@
     <string name="ForceFontWeightFallback">Force Font Weight Fallback</string>
 
     <!-- Embedded Tor / Orbot -->
-    <string name="TorSettingsTitle">Embedded Tor</string>
+    <string name="TorSettingsTitle">Embedded Tor (Orbot)</string>
     <string name="TorEnabled">Enabled</string>
     <string name="TorDisabled">Disabled</string>
     <string name="TorEnableCheck">Use Tor Network</string>
@@ -367,7 +367,7 @@
     <string name="TorStarting">Starting Tor...</string>
     <string name="TorStopping">Stopping Tor...</string>
     <string name="TorError">Connection Error</string>
-    <string name="TorProtectedDetail">Telegram traffic is protected and routed via Tor SOCKS5</string>
+    <string name="TorProtectedDetail">Telegram traffic is protected and routed via Tor SOCKS5 (127.0.0.1:9050)</string>
     <string name="TorDisabledDetail">Telegram uses direct connection or your configured proxy</string>
     <string name="TorNewIdentity">New Identity (New Circuit)</string>
     <string name="TorNewIdentitySuccess">Tor circuit renewed</string>
@@ -387,5 +387,10 @@
     <string name="TorCustomBridgesTitle">Custom Bridges</string>
     <string name="TorCustomBridgesPrompt">Enter obfs4 bridge lines (e.g. from @GetBridgesBot):</string>
     <string name="TorCustomBridgesSave">Save</string>
+    <string name="TorGetBridgesTelegramBot">Get Bridges from @GetBridgesBot</string>
+    <string name="TorGetBridgesTelegramBotInfo">Official Tor Project bot on Telegram</string>
+    <string name="TorPasteFromClipboard">Paste from Clipboard</string>
+    <string name="TorBridgesPasted">Pasted bridge lines: %1$d</string>
+    <string name="TorNoBridgesInClipboard">No valid bridge lines found in clipboard (starting with obfs4)</string>
     <string name="TorInfoPrivacy">Embedded Tor provides anonymity and robust censorship circumvention without the need to install a separate Orbot app. Snowflake uses WebRTC technology to mask traffic as normal voice/video calls.</string>
 </resources>

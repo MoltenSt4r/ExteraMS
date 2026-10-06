@@ -1232,6 +1232,7 @@ public class OpenExteraGeneralActivity extends BaseNekoSettingsActivity {
                                 app.exteraless.tor.TorController.getInstance().isEnabled()
                                         ? getString(R.string.TorEnabled)
                                         : getString(R.string.TorDisabled), false);
+                        cell.setIcon(R.drawable.ic_orbot);
                     } else if (position == pushServiceTypeRow) {
                         CharSequence[] options = pushServiceTypeOptions();
                         int type = NaConfig.INSTANCE.getPushServiceType().Int();
@@ -1296,6 +1297,7 @@ public class OpenExteraGeneralActivity extends BaseNekoSettingsActivity {
             } else if (position == downloadSpeedRow) {
                 return TYPE_SLIDE;
             } else if (position == dnsTypeRow || position == customDoHRow
+                    || position == torSettingsRow
                     || position == pushServiceTypeRow || position == pushGatewayRow) {
                 return TYPE_SETTINGS;
             } else if (position == mapProviderRow || position == mapPreviewRow
