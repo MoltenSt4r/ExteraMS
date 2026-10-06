@@ -75,7 +75,7 @@ public final class CrashReportDialog {
         try {
             final ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             if (clipboard != null) {
-                clipboard.setPrimaryClip(ClipData.newPlainText("exteraless crash", report));
+                clipboard.setPrimaryClip(ClipData.newPlainText("ExteraMS crash", report));
             }
         } catch (Throwable ignore) {
             return;

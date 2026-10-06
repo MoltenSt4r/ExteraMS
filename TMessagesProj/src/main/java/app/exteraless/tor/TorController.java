@@ -520,14 +520,10 @@ public class TorController {
                 try {
                     Intent serviceIntent = new Intent(context, TorService.class);
                     serviceIntent.setAction(TorService.ACTION_START);
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        try {
-                            context.startForegroundService(serviceIntent);
-                        } catch (Throwable ignored) {
-                            context.startService(serviceIntent);
-                        }
-                    } else {
+                    try {
                         context.startService(serviceIntent);
+                    } catch (Throwable t) {
+                        FileLog.e("TorService startService failed, relying on bindService: " + t.getMessage());
                     }
                     context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
                     updateStatus(STATUS_CONNECTING, 15, "Подключение к сети Tor...");

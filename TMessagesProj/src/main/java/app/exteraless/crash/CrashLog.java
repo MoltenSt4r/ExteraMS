@@ -39,7 +39,7 @@ public final class CrashLog {
             printer.flush();
 
             final StringBuilder report = new StringBuilder();
-            report.append("exteraless ").append(BuildConfig.VERSION_NAME)
+            report.append("ExteraMS ").append(BuildConfig.VERSION_NAME)
                     .append(" (").append(BuildConfig.BUILD_COMMIT_ID).append(")\n");
             report.append("Android ").append(android.os.Build.VERSION.RELEASE)
                     .append(" (API ").append(android.os.Build.VERSION.SDK_INT).append(")\n");

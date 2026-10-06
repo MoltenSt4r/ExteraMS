@@ -218,9 +218,18 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
 
         bridgeBotProgressDialog = new AlertDialog(getParentActivity(), AlertDialog.ALERT_TYPE_SPINNER);
         bridgeBotProgressDialog.setMessage(LocaleController.getString(R.string.TorAutoGetBridgesLoading));
-        bridgeBotProgressDialog.setCanceledOnTouchOutside(false);
+        bridgeBotProgressDialog.setCanceledOnTouchOutside(true);
         bridgeBotProgressDialog.setOnCancelListener(dialog -> cleanupBridgeBotRequest());
         showDialog(bridgeBotProgressDialog);
+
+        bridgeBotTimeoutRunnable = () -> {
+            cleanupBridgeBotRequest();
+            BulletinFactory.of(TorSettingsActivity.this)
+                    .createSimpleBulletin(R.raw.info, LocaleController.getString(R.string.TorAutoGetBridgesTimeout))
+                    .show();
+            openBridgesBot();
+        };
+        AndroidUtilities.runOnUIThread(bridgeBotTimeoutRunnable, 12000);
 
         getMessagesController().getUserNameResolver().resolve("GetBridgesBot", (peerId) -> {
             if (peerId == null || peerId <= 0) {
@@ -271,15 +280,6 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             };
 
             getNotificationCenter().addObserver(bridgeBotDelegate, NotificationCenter.didReceiveNewMessages);
-
-            bridgeBotTimeoutRunnable = () -> {
-                cleanupBridgeBotRequest();
-                BulletinFactory.of(TorSettingsActivity.this)
-                        .createSimpleBulletin(R.raw.info, LocaleController.getString(R.string.TorAutoGetBridgesTimeout))
-                        .show();
-                openBridgesBot();
-            };
-            AndroidUtilities.runOnUIThread(bridgeBotTimeoutRunnable, 12000);
 
             SendMessagesHelper.getInstance(currentAccount).sendMessage(
                     SendMessagesHelper.SendMessageParams.of(!TextUtils.isEmpty(command) ? command : "/obfs4", botId, null, null, null, true, null, null, null, true, 0, 0, null, false)
