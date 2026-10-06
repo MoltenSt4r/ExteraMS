@@ -384,6 +384,9 @@
     <string name="TorAutoGetBridgesLoading">Requesting bridges from @GetBridgesBot...</string>
     <string name="TorAutoGetBridgesSuccess">Received %1$d bridges! Bridges applied.</string>
     <string name="TorAutoGetBridgesTimeout">Bot didn\'t respond in time. Opening chat...</string>
+    <string name="TorGetBridgesChooseType">Select bridge type to request</string>
+    <string name="TorGetBridgesObfs4">🛡️ obfs4 bridges (/obfs4 - recommended)</string>
+    <string name="TorGetBridgesWebTunnel">🌐 WebTunnel bridges (/webtunnel)</string>
     <string name="TorCustomBridgesTitle">Configure Bridges Manually</string>
     <string name="TorCustomBridgesPrompt">Enter obfs4, webtunnel or snowflake bridge lines (e.g. from @GetBridgesBot):</string>
     <string name="TorCustomBridgesSave">Save</string>

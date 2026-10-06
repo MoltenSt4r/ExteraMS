@@ -192,6 +192,26 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
     }
 
     private void requestBridgesFromBot() {
+        showBridgeBotTypeDialog(null);
+    }
+
+    private void showBridgeBotTypeDialog(final EditText targetEditText) {
+        if (getParentActivity() == null) return;
+        CharSequence[] items = new CharSequence[]{
+                LocaleController.getString(R.string.TorGetBridgesObfs4),
+                LocaleController.getString(R.string.TorGetBridgesWebTunnel)
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), resourcesProvider);
+        builder.setTitle(LocaleController.getString(R.string.TorGetBridgesChooseType));
+        builder.setItems(items, (dialog, which) -> {
+            dialog.dismiss();
+            requestBridgesFromBot(which == 0 ? "/obfs4" : "/webtunnel", targetEditText);
+        });
+        builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+        showDialog(builder.create());
+    }
+
+    private void requestBridgesFromBot(final String command, final EditText targetEditText) {
         if (getParentActivity() == null) return;
 
         cleanupBridgeBotRequest();
@@ -225,6 +245,9 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
                                         cleanupBridgeBotRequest();
                                         TorController.getInstance().setCustomBridges(extracted);
                                         TorController.getInstance().setBridgeType(TorController.BRIDGE_CUSTOM);
+                                        if (targetEditText != null) {
+                                            targetEditText.setText(extracted);
+                                        }
                                         if (listAdapter != null) {
                                             listAdapter.notifyItemChanged(bridgeTypeRow);
                                             listAdapter.notifyItemChanged(customBridgesRow);
@@ -234,6 +257,11 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
                                                 .createSimpleBulletin(R.raw.done, LocaleController.formatString(R.string.TorAutoGetBridgesSuccess, count))
                                                 .show();
                                         return;
+                                    } else if (text.contains("/obfs4") || text.contains("/webtunnel")) {
+                                        // Бот прислал список доступных команд — отправляем выбранную команду
+                                        SendMessagesHelper.getInstance(currentAccount).sendMessage(
+                                                SendMessagesHelper.SendMessageParams.of(!TextUtils.isEmpty(command) ? command : "/obfs4", botId, null, null, null, true, null, null, null, true, 0, 0, null, false)
+                                        );
                                     }
                                 }
                             }
@@ -254,7 +282,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             AndroidUtilities.runOnUIThread(bridgeBotTimeoutRunnable, 12000);
 
             SendMessagesHelper.getInstance(currentAccount).sendMessage(
-                    SendMessagesHelper.SendMessageParams.of("/bridges", botId, null, null, null, true, null, null, null, true, 0, 0, null, false)
+                    SendMessagesHelper.SendMessageParams.of(!TextUtils.isEmpty(command) ? command : "/obfs4", botId, null, null, null, true, null, null, null, true, 0, 0, null, false)
             );
         });
     }
@@ -281,7 +309,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
         String[] lines = text.split("\n");
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
-            String trimmed = line.trim();
+            String trimmed = line.replace('\u00A0', ' ').replace("`", "").trim();
             if (trimmed.startsWith("Bridge ")) {
                 trimmed = trimmed.substring(7).trim();
             }
@@ -445,7 +473,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
                 Theme.multAlpha(getThemedColor(Theme.key_featuredStickers_addButton), 0.25f)
         ));
         askBotBtn.setPadding(AndroidUtilities.dp(10), AndroidUtilities.dp(6), AndroidUtilities.dp(10), AndroidUtilities.dp(6));
-        askBotBtn.setOnClickListener(v -> openBridgesBot());
+        askBotBtn.setOnClickListener(v -> showBridgeBotTypeDialog(editText));
         quickActions.addView(askBotBtn, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL, 0, 0, 8, 0));
 
         final EditText editText = new EditText(context);
@@ -512,7 +540,7 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             StringBuilder sb = new StringBuilder();
             int count = 0;
             for (String line : lines) {
-                String trimmed = line.trim();
+                String trimmed = line.replace('\u00A0', ' ').replace("`", "").trim();
                 if (trimmed.startsWith("Bridge ")) {
                     trimmed = trimmed.substring(7).trim();
                 }

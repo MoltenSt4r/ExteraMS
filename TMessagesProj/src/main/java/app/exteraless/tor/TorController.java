@@ -127,6 +127,7 @@ public class TorController {
     private IPtProxy.Controller ptController;
     private int ptSnowflakePort = -1;
     private int ptObfs4Port = -1;
+    private int ptWebtunnelPort = -1;
 
     private SharedConfig.ProxyInfo previousProxy;
     private boolean previousProxyEnabled;
@@ -734,7 +735,8 @@ public class TorController {
         try {
             String bridges = getEffectiveBridges();
             boolean needSnowflake = bridges.contains("snowflake");
-            boolean needObfs4 = bridges.contains("obfs4") || !needSnowflake;
+            boolean needWebtunnel = bridges.contains("webtunnel");
+            boolean needObfs4 = bridges.contains("obfs4") || (!needSnowflake && !needWebtunnel);
 
             ptController = new IPtProxy.Controller(ptStateDir.getAbsolutePath(), true, false, "INFO", null);
 
@@ -746,6 +748,17 @@ public class TorController {
                 ptController.start("snowflake", "");
                 ptSnowflakePort = (int) ptController.port("snowflake");
                 postLog("Snowflake запущен на локальном порту " + ptSnowflakePort);
+            }
+
+            if (needWebtunnel) {
+                try {
+                    ptController.start("webtunnel", "");
+                    ptWebtunnelPort = (int) ptController.port("webtunnel");
+                    postLog("WebTunnel запущен на локальном порту " + ptWebtunnelPort);
+                } catch (Throwable t) {
+                    FileLog.e(t);
+                    postLog("Предупреждение запуска webtunnel: " + t.getMessage());
+                }
             }
 
             if (needObfs4) {
@@ -767,12 +780,18 @@ public class TorController {
                 }
             } catch (Exception ignored) {}
             try {
+                if (ptWebtunnelPort > 0) {
+                    ptController.stop("webtunnel");
+                }
+            } catch (Exception ignored) {}
+            try {
                 if (ptObfs4Port > 0) {
                     ptController.stop("obfs4");
                 }
             } catch (Exception ignored) {}
             ptController = null;
             ptSnowflakePort = -1;
+            ptWebtunnelPort = -1;
             ptObfs4Port = -1;
         }
     }
@@ -817,6 +836,9 @@ public class TorController {
                     }
                     if (ptSnowflakePort > 0) {
                         writer.println("ClientTransportPlugin snowflake socks5 127.0.0.1:" + ptSnowflakePort);
+                    }
+                    if (ptWebtunnelPort > 0) {
+                        writer.println("ClientTransportPlugin webtunnel socks5 127.0.0.1:" + ptWebtunnelPort);
                     }
                     String[] lines = bridges.split("\\r?\\n");
                     for (String line : lines) {
