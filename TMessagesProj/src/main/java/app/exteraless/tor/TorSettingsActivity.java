@@ -228,12 +228,12 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
         final int currentBridge = controller.getBridgeType();
 
         String[] bridgeNames = new String[]{
-                LocaleController.getString(R.string.TorBridgeDirect),
-                LocaleController.getString(R.string.TorBridgeSmart),
-                LocaleController.getString(R.string.TorBridgeSnowflake),
-                LocaleController.getString(R.string.TorBridgeSnowflakeAmp),
-                LocaleController.getString(R.string.TorBridgeObfs4),
-                LocaleController.getString(R.string.TorBridgeCustom)
+                "🌐 " + LocaleController.getString(R.string.TorBridgeDirect),
+                "⚡ " + LocaleController.getString(R.string.TorBridgeSmart) + " (Snowflake AMP)",
+                "❄️ " + LocaleController.getString(R.string.TorBridgeSnowflake),
+                "🚀 " + LocaleController.getString(R.string.TorBridgeSnowflakeAmp) + " (Cloudflare)",
+                "🛡️ " + LocaleController.getString(R.string.TorBridgeObfs4),
+                "✏️ " + LocaleController.getString(R.string.TorBridgeCustom)
         };
 
         final TextRadioCell[] cells = new TextRadioCell[bridgeNames.length];
@@ -432,18 +432,18 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
     private String getBridgeName(int type) {
         switch (type) {
             case TorController.BRIDGE_SMART:
-                return LocaleController.getString(R.string.TorBridgeSmart);
-            case TorController.BRIDGE_SNOWFLAKE:
-                return "Snowflake (WebRTC)";
+                return "⚡ " + LocaleController.getString(R.string.TorBridgeSmart);
             case TorController.BRIDGE_SNOWFLAKE_AMP:
-                return "Snowflake AMP";
+                return "🚀 Snowflake AMP";
+            case TorController.BRIDGE_SNOWFLAKE:
+                return "❄️ Snowflake (WebRTC)";
             case TorController.BRIDGE_OBFS4:
-                return LocaleController.getString(R.string.TorBridgeObfs4);
+                return "🛡️ " + LocaleController.getString(R.string.TorBridgeObfs4);
             case TorController.BRIDGE_CUSTOM:
-                return LocaleController.getString(R.string.TorBridgeCustom);
+                return "✏️ " + LocaleController.getString(R.string.TorBridgeCustom);
             case TorController.BRIDGE_DIRECT:
             default:
-                return LocaleController.getString(R.string.TorBridgeDirect);
+                return "🌐 " + LocaleController.getString(R.string.TorBridgeDirect);
         }
     }
 
@@ -486,12 +486,13 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             if (w <= 0 || h <= 0) return;
             float r = h / 2f;
 
-            trackPaint.setColor(Theme.getColor(Theme.key_switch2Track, resourcesProvider));
+            int accentColor = Theme.getColor(Theme.key_featuredStickers_addButton, resourcesProvider);
+            trackPaint.setColor(Theme.multAlpha(accentColor, 0.18f));
             rect.set(0, 0, w, h);
             canvas.drawRoundRect(rect, r, r, trackPaint);
 
             if (progress > 0) {
-                progressPaint.setColor(Theme.getColor(Theme.key_featuredStickers_addButton, resourcesProvider));
+                progressPaint.setColor(accentColor);
                 rect.set(0, 0, Math.max(h, w * progress), h);
                 canvas.drawRoundRect(rect, r, r, progressPaint);
             }
@@ -642,36 +643,36 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             switchView.setChecked(enabled, true);
 
             if (status == TorController.STATUS_CONNECTED) {
-                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x224CAF50));
-                iconView.setColorFilter(new PorterDuffColorFilter(0xFF4CAF50, PorterDuff.Mode.MULTIPLY));
+                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x2210B981));
+                iconView.setColorFilter(new PorterDuffColorFilter(0xFF10B981, PorterDuff.Mode.SRC_IN));
                 titleView.setText(LocaleController.getString(R.string.TorConnected));
-                subtitleView.setText(LocaleController.getString(R.string.TorProtectedDetail));
+                subtitleView.setText("127.0.0.1:9050 • " + LocaleController.getString(R.string.TorProtectedDetail));
                 progressContainer.setVisibility(View.GONE);
                 newIdentityButton.setVisibility(View.VISIBLE);
             } else if (status == TorController.STATUS_CONNECTING || status == TorController.STATUS_STARTING) {
-                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x24FF9800));
-                iconView.setColorFilter(new PorterDuffColorFilter(0xFFFF9800, PorterDuff.Mode.MULTIPLY));
+                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x26F59E0B));
+                iconView.setColorFilter(new PorterDuffColorFilter(0xFFF59E0B, PorterDuff.Mode.SRC_IN));
                 titleView.setText(status == TorController.STATUS_STARTING
                         ? LocaleController.getString(R.string.TorStarting)
                         : LocaleController.formatString(R.string.TorConnecting, controller.getProgress()));
                 subtitleView.setText(TextUtils.isEmpty(controller.getStatusMessage())
-                        ? "Установление анонимного соединения..."
+                        ? "Установление соединения и обход блокировок..."
                         : controller.getStatusMessage());
                 progressContainer.setVisibility(View.VISIBLE);
                 progressBar.setProgress(controller.getProgress() / 100.0f);
-                progressTextView.setText(controller.getProgress() + "% • " + (TextUtils.isEmpty(controller.getStatusMessage()) ? "Подключение к узлам" : controller.getStatusMessage()));
+                progressTextView.setText(controller.getProgress() + "% • " + (TextUtils.isEmpty(controller.getStatusMessage()) ? "Подключение к сети Tor..." : controller.getStatusMessage()));
                 newIdentityButton.setVisibility(View.GONE);
             } else if (status == TorController.STATUS_ERROR) {
-                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x24F44336));
-                iconView.setColorFilter(new PorterDuffColorFilter(0xFFF44336, PorterDuff.Mode.MULTIPLY));
+                iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x26EF4444));
+                iconView.setColorFilter(new PorterDuffColorFilter(0xFFEF4444, PorterDuff.Mode.SRC_IN));
                 titleView.setText(LocaleController.getString(R.string.TorError));
-                subtitleView.setText(controller.getStatusMessage());
+                subtitleView.setText(TextUtils.isEmpty(controller.getStatusMessage()) ? "Не удалось подключиться к Tor" : controller.getStatusMessage());
                 progressContainer.setVisibility(View.GONE);
                 newIdentityButton.setVisibility(View.GONE);
             } else {
                 // STATUS_STOPPED или STATUS_STOPPING
                 iconContainer.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(48), 0x147F7F7F));
-                iconView.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteGrayIcon), PorterDuff.Mode.MULTIPLY));
+                iconView.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteGrayIcon), PorterDuff.Mode.SRC_IN));
                 titleView.setText(LocaleController.getString(R.string.TorSettingsTitle));
                 subtitleView.setText(LocaleController.getString(R.string.TorDisabledDetail));
                 progressContainer.setVisibility(View.GONE);
@@ -748,8 +749,14 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
             } else if (position == customBridgesRow) {
                 TextSettingsCell cell = (TextSettingsCell) holder.itemView;
                 cell.setIcon(0);
-                boolean hasBridges = !TextUtils.isEmpty(controller.getCustomBridges());
-                cell.setTextAndValue(LocaleController.getString(R.string.TorCustomBridgesTitle), hasBridges ? "Настроены" : "Не заданы", false);
+                String custom = controller.getCustomBridges();
+                int count = 0;
+                if (!TextUtils.isEmpty(custom)) {
+                    for (String l : custom.split("\\r?\\n")) {
+                        if (!l.trim().isEmpty()) count++;
+                    }
+                }
+                cell.setTextAndValue(LocaleController.getString(R.string.TorCustomBridgesTitle), count > 0 ? "Мостов: " + count : "Не заданы", false);
             } else if (position == infoPrivacyRow) {
                 TextInfoPrivacyCell cell = (TextInfoPrivacyCell) holder.itemView;
                 cell.setText(LocaleController.getString(R.string.TorInfoPrivacy));

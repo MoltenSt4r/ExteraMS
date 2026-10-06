@@ -102,7 +102,17 @@ def chat():
     try:
         return int(raw)
     except ValueError:
+        if not raw.startswith(("@", "-")):
+            return "@" + raw
         return raw
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    import sys
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        import traceback
+        print(f"::warning::Ошибка отправки APK в Telegram: {type(e).__name__}: {e}")
+        traceback.print_exc()
+        sys.exit(1)

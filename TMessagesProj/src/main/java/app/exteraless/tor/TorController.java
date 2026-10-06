@@ -79,9 +79,9 @@ public class TorController {
     public static final int DEFAULT_SOCKS_PORT = 9050;
     public static final int DEFAULT_CONTROL_PORT = 9051;
 
-    // Стандартные серверы Snowflake
-    private static final String DEFAULT_STUN_SERVER = "stun:stun.l.google.com:19302";
-    private static final String DEFAULT_FRONT_DOMAIN = "cdn.sstatic.net";
+    // Стандартные серверы Snowflake с поддержкой нескольких STUN и Front domains
+    private static final String DEFAULT_STUN_SERVER = "stun:stun.l.google.com:19302,stun:stun.antisip.com:3478,stun:stun.bluesip.net:3478,stun:stun.dus.net:3478,stun:stun.sonetel.com:28901,stun:stun.sonetel.net:28901,stun:stun.voipgate.com:3478,stun:stun.voys.nl:3478";
+    private static final String DEFAULT_FRONT_DOMAIN = "cdn.sstatic.net,foursquare.com,github.githubassets.com";
     private static final String DEFAULT_SNOWFLAKE_BROKER = "https://snowflake-broker.torproject.net/";
     private static final String DEFAULT_AMP_CACHE = "https://amp.cloudflare.com/";
 
@@ -98,6 +98,7 @@ public class TorController {
 
     private final List<Listener> listeners = new ArrayList<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private Runnable stallWatchdogRunnable;
 
     private int currentStatus = STATUS_STOPPED;
     private int currentProgress = 0;
@@ -193,11 +194,17 @@ public class TorController {
     }
 
     public int getBridgeType() {
-        return getPrefs().getInt("tor_bridge_type", BRIDGE_DIRECT);
+        if (!getPrefs().getBoolean("tor_bridge_explicitly_set", false)) {
+            return BRIDGE_SMART;
+        }
+        return getPrefs().getInt("tor_bridge_type", BRIDGE_SMART);
     }
 
     public void setBridgeType(int type) {
-        getPrefs().edit().putInt("tor_bridge_type", type).apply();
+        getPrefs().edit()
+                .putInt("tor_bridge_type", type)
+                .putBoolean("tor_bridge_explicitly_set", true)
+                .apply();
         if (currentStatus == STATUS_CONNECTED || currentStatus == STATUS_CONNECTING) {
             restart();
         }
@@ -250,10 +257,37 @@ public class TorController {
         listeners.remove(listener);
     }
 
+    private void startStallWatchdog() {
+        stopStallWatchdog();
+        stallWatchdogRunnable = () -> {
+            if (currentStatus == STATUS_CONNECTING && currentProgress <= 15) {
+                int bridge = getBridgeType();
+                if (bridge == BRIDGE_DIRECT) {
+                    postLog("Обнаружена блокировка прямого подключения Tor. Автоматическое переключение на умный мост Snowflake AMP...");
+                    setBridgeType(BRIDGE_SMART);
+                } else {
+                    postLog("Таймаут первичного рукопожатия Tor. Перезапуск соединения...");
+                    restart();
+                }
+            }
+        };
+        mainHandler.postDelayed(stallWatchdogRunnable, 25000);
+    }
+
+    private void stopStallWatchdog() {
+        if (stallWatchdogRunnable != null) {
+            mainHandler.removeCallbacks(stallWatchdogRunnable);
+            stallWatchdogRunnable = null;
+        }
+    }
+
     private void updateStatus(int status, int progress, String message) {
         currentStatus = status;
         currentProgress = progress;
         currentStatusMessage = message != null ? message : "";
+        if (progress > 15 || status == STATUS_CONNECTED || status == STATUS_STOPPED || status == STATUS_ERROR) {
+            stopStallWatchdog();
+        }
         mainHandler.post(() -> {
             for (Listener l : new ArrayList<>(listeners)) {
                 l.onStatusChanged(status, progress, currentStatusMessage);
@@ -305,6 +339,7 @@ public class TorController {
                     context.startService(serviceIntent);
                     context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
                     updateStatus(STATUS_CONNECTING, 15, "Подключение к сети Tor...");
+                    startStallWatchdog();
                 } catch (Throwable t) {
                     FileLog.e("TorService start error, trying standalone fallback: " + t.getMessage());
                     startStandaloneFallback(context, torrcFile);
@@ -328,6 +363,7 @@ public class TorController {
             return;
         }
 
+        stopStallWatchdog();
         updateStatus(STATUS_STOPPING, 0, "Остановка Tor...");
 
         new Thread(() -> {
@@ -506,12 +542,12 @@ public class TorController {
                 ptController.setSnowflakeIceServers(DEFAULT_STUN_SERVER);
                 ptController.setSnowflakeFrontDomains(DEFAULT_FRONT_DOMAIN);
                 ptController.setSnowflakeBrokerUrl(DEFAULT_SNOWFLAKE_BROKER);
-                if (bridgeType == BRIDGE_SNOWFLAKE_AMP) {
+                if (bridgeType == BRIDGE_SNOWFLAKE_AMP || bridgeType == BRIDGE_SMART) {
                     ptController.setSnowflakeAmpCacheUrl(DEFAULT_AMP_CACHE);
                 }
                 ptController.start("snowflake", "");
                 ptSnowflakePort = (int) ptController.port("snowflake");
-                postLog("Snowflake запущен на локальном порту " + ptSnowflakePort);
+                postLog("Snowflake запущен на локальном порту " + ptSnowflakePort + (bridgeType == BRIDGE_SNOWFLAKE_AMP || bridgeType == BRIDGE_SMART ? " (AMP Cache)" : ""));
 
             } else if (bridgeType == BRIDGE_OBFS4 || bridgeType == BRIDGE_CUSTOM) {
                 ptController = new IPtProxy.Controller(ptStateDir.getAbsolutePath(), true, false, "INFO", null);
@@ -556,6 +592,15 @@ public class TorController {
             writer.println("CookieAuthentication 0");
             writer.println("KeepalivePeriod 60");
             writer.println("Log notice stdout");
+
+            // Оптимизация скорости и надежности подключения Tor
+            writer.println("ClientOnly 1");
+            writer.println("AvoidDiskWrites 1");
+            writer.println("FastFirstHopPK 1");
+            writer.println("CircuitBuildTimeout 15");
+            writer.println("LearnCircuitBuildTimeout 1");
+            writer.println("NumEntryGuards 3");
+            writer.println("ConnectionPadding 1");
 
             // Выходной узел
             String country = getExitCountry();
@@ -623,6 +668,7 @@ public class TorController {
 
             standaloneProcess = pb.start();
             updateStatus(STATUS_CONNECTING, 20, "Запуск процесса Tor...");
+            startStallWatchdog();
 
             logReaderThread = new Thread(() -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(standaloneProcess.getInputStream()))) {
