@@ -570,8 +570,6 @@ public class TorController {
 
                 try {
                     Intent stopIntent = new Intent(context, TorService.class);
-                    stopIntent.setAction(TorService.ACTION_STOP);
-                    context.startService(stopIntent);
                     context.stopService(stopIntent);
                 } catch (Exception ignored) {}
 

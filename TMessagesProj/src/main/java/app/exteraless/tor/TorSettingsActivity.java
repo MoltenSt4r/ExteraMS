@@ -454,6 +454,8 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
         builder.setTitle(LocaleController.getString(R.string.TorCustomBridgesTitle));
         builder.setMessage(LocaleController.getString(R.string.TorCustomBridgesPrompt));
 
+        final EditText editText = new EditText(context);
+
         LinearLayout dialogContent = new LinearLayout(context);
         dialogContent.setOrientation(LinearLayout.VERTICAL);
         dialogContent.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(4), AndroidUtilities.dp(24), AndroidUtilities.dp(4));
@@ -475,8 +477,6 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
         askBotBtn.setPadding(AndroidUtilities.dp(10), AndroidUtilities.dp(6), AndroidUtilities.dp(10), AndroidUtilities.dp(6));
         askBotBtn.setOnClickListener(v -> showBridgeBotTypeDialog(editText));
         quickActions.addView(askBotBtn, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL, 0, 0, 8, 0));
-
-        final EditText editText = new EditText(context);
 
         TextView pasteBtn = new TextView(context);
         pasteBtn.setText("📋 " + LocaleController.getString(R.string.TorPasteFromClipboard));
