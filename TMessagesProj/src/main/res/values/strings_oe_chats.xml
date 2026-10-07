@@ -49,8 +49,18 @@
     <string name="OEChatsUnlimited">Unlimited</string>
     <string name="OEChatsUnlimitedStickers">Stickers</string>
     <string name="OEChatsUnlimitedGifs">GIFs</string>
+    <string name="OEChatsWidePostsGroup">Wide Posts</string>
+    <string name="OEChatsWidePostsChannels">In Channels</string>
+    <string name="OEChatsWidePostsFeed">In Feed</string>
+    <string name="OEChatsAiFeatures">AI Features</string>
+    <string name="OEChatsAiEditor">Editor</string>
+    <string name="OEChatsAiSummary">Brief Summaries</string>
+    <string name="OEChatsAiIvSummary">Instant View Summaries</string>
     <string name="OEChatsAdminShortcuts">Quick Admin Shortcuts</string>
     <string name="OEChatsDisableGreetingSticker">Disable Greeting Sticker</string>
+    <string name="OEChatsMathResults">Calculation Results</string>
+    <string name="OEChatsMathResultsInfo">Show results after \"=\" and insert with space.</string>
+    <string name="OEChatsRememberLastCameraInfo">When recording video messages, the last used camera will be automatically selected.</string>
     <string name="OEChatsHideSendAsPeer">Hide \"Send as…\" Button</string>
     <string name="OEChatsHideSendAsPeerInfo">You can still access the \"Send as…\" menu by long pressing the Emojis/Stickers/GIFs button.</string>
     <string name="OEChatsDisableGlobalSearch">Disable Global Search</string>

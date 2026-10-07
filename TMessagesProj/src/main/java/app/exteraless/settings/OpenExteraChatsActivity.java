@@ -160,6 +160,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
     private int hideKeyboardOnScrollRow;
     private int disableGlobalSearchRow;
     private int addCommaRow;
+    private int mathResultsRow;
     private int hideSendAsPeerRow;
     private int tapToSwitchRecordRow;
     private int keepAttachButtonRow;
@@ -387,6 +388,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         hideKeyboardOnScrollRow = addRow("hideKeyboardOnScroll");
         disableGlobalSearchRow = addRow("disableGlobalSearch");
         addCommaRow = addRow("addCommaAfterMention");
+        mathResultsRow = addRow("mathResults");
         hideSendAsPeerRow = addRow("hideSendAsPeer");
         tapToSwitchRecordRow = addRow("tapToSwitchRecord", "UseChatAttachEnterMenu");
         keepAttachButtonRow = addRow("keepAttachButton");
@@ -1658,6 +1660,7 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         if (position == hideKeyboardOnScrollRow) return NekoConfig.hideKeyboardOnChatScroll;
         if (position == disableGlobalSearchRow) return NaConfig.INSTANCE.getDisableGlobalSearch();
         if (position == addCommaRow) return OpenExteraConfig.addCommaAfterMention;
+        if (position == mathResultsRow) return ChatsConfig.mathResults;
         if (position == hideSendAsPeerRow) return NekoConfig.hideSendAsChannel;
         if (position == keepAttachButtonRow) return ChatsConfig.keepAttachButton;
         if (position == removeMessageTailRow) return ChatsConfig.removeMessageTail;
@@ -2296,6 +2299,10 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
                 cell.setTextAndCheck(getString(R.string.OEChatsDisableGlobalSearch), NaConfig.INSTANCE.getDisableGlobalSearch().Bool(), true);
             } else if (position == addCommaRow) {
                 cell.setTextAndCheck(getString(R.string.AddCommaAfterMention), OpenExteraConfig.addCommaAfterMention.Bool(), true);
+            } else if (position == mathResultsRow) {
+                cell.setTextAndValueAndCheck(TextCell.applyNewSpan(getString(R.string.OEChatsMathResults)),
+                        getString(R.string.OEChatsMathResultsInfo),
+                        ChatsConfig.mathResults.Bool(), true, true);
             } else if (position == hideSendAsPeerRow) {
                 cell.setTextAndCheck(getString(R.string.OEChatsHideSendAsPeer), NekoConfig.hideSendAsChannel.Bool(), true);
             } else if (position == tapToSwitchRecordRow) {
@@ -2334,10 +2341,10 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
                 cell.setTextAndCheck(getString(R.string.GroupedMessageMenu), NaConfig.INSTANCE.getGroupedMessageMenu().Bool(), false);
             } else if (position == rememberLastUsedCameraRow) {
                 cell.setTextAndValueAndCheck(getString(R.string.OEChatsRememberLastUsedCamera),
-                        getString(R.string.OEChatsRememberLastUsedCameraInfo),
+                        getString(R.string.OEChatsRememberLastCameraInfo),
                         ChatsConfig.rememberLastUsedCamera.Bool(), true, true);
             } else if (position == zoomSliderRow) {
-                cell.setTextAndValueAndCheck(getString(R.string.OEChatsZoomSlider),
+                cell.setTextAndValueAndCheck(TextCell.applyNewSpan(getString(R.string.OEChatsZoomSlider)),
                         getString(R.string.OEChatsZoomSliderInfo),
                         ChatsConfig.zoomSlider.Bool(), true, true);
             } else if (position == staticZoomRow) {

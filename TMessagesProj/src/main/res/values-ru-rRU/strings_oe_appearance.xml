@@ -30,7 +30,7 @@
     <string name="OEAppearanceHideAllChats">Скрыть вкладку «%1$s»</string>
     <string name="OEAppearanceFoldersInfo">Иконки папок синхронизируются с вашим аккаунтом.</string>
 
-    <string name="OEAppearanceNavigation">Навигация</string>
+    <string name="OEAppearanceNavigation">Навигация в приложении</string>
 
     <string name="OEAppearanceGeneral">Общее оформление</string>
     <string name="OEAppearanceUseSystemFonts">Системные шрифты</string>
@@ -65,10 +65,13 @@
     <string name="OEAppearanceGlassOutlineHidden">Скрыт</string>
     <string name="OEAppearanceGlassMessageMenu">Стеклянное меню сообщения</string>
     <string name="OEAppearanceIconPacks">Наборы иконок</string>
-    <string name="OEAppearanceIconPacksInfo">Заменить иконки приложения на свой набор.</string>
-    <string name="OEAppearancePillStack">Плашки</string>
-    <string name="OEAppearancePillStackInfo">Настройка информационных плашек в списке чатов.</string>
-    <string name="OEAppearanceNavigationSub">Меню в правом верхнем углу и боковое меню</string>
+    <string name="OEAppearanceIconPacksInfo">Настройка иконок во всём приложении</string>
+    <string name="OEAppearancePillStack">Pill Stack</string>
+    <string name="OEAppearancePillStackInfo">Интерактивные виджеты в поле поиска</string>
+    <string name="OEAppearanceNavigationSub">Настройки верхнего меню и боковой панели</string>
+    <string name="OEAppearanceAppIcon">Иконка приложения</string>
+    <string name="OEAppearanceAppIconKeep">Оставить такую</string>
+    <string name="OEAppearanceAppIconSelect">Выбрать</string>
     <string name="OEAppNavigation">Навигация в приложении</string>
     <string name="OEGeneral">Основные</string>
     <string name="OETabletMode">Планшетный режим</string>
@@ -106,8 +109,9 @@
     <string name="OEBottomNavigationModeHide">Скрывать</string>
     <string name="OEBackAnimationInfo">Плавнее переключает экраны и открывает боковое меню.</string>
     <string name="OEAppearanceNewLoadingStyle">Индикаторы загрузки</string>
-    <string name="OEAppearanceNewChatHeaderStyle">Шапка чата</string>
-    <string name="OEAppearanceNewNavigationBarStyle">Панель навигации</string>
+    <string name="OEAppearanceNewChatHeaderStyle">Заголовок чата</string>
+    <string name="OEAppearanceNewNavigationBarStyle">Нижняя панель навигации</string>
+    <string name="OEAppearanceSquareFab">Плавающая кнопка</string>
     <string name="OEAppearanceIosDesign" translatable="false">iOS Design</string>
     <string name="OEAppearanceIosNavigationBarStyle">Панель навигации</string>
     <string name="OEAppearanceIosFirstFolderOnTabTap">Тап по вкладке — первая папка</string>

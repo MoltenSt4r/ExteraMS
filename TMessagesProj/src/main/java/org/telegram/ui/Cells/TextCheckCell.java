@@ -301,11 +301,11 @@ public class TextCheckCell extends FrameLayout {
         super.setPressed(pressed);
     }
 
-    public void setTextAndValueAndCheck(String text, String value, boolean checked, boolean multiline, boolean divider) {
+    public void setTextAndValueAndCheck(CharSequence text, String value, boolean checked, boolean multiline, boolean divider) {
         setTextAndValueAndCheck(text, value, checked, multiline, divider, false);
     }
 
-    public void setTextAndValueAndCheck(String text, String value, boolean checked, boolean multiline, boolean divider, boolean isNekoCell) {
+    public void setTextAndValueAndCheck(CharSequence text, String value, boolean checked, boolean multiline, boolean divider, boolean isNekoCell) {
         AvatarSpan.checkSpansParent(text, this);
         textView.setText(text);
         if (value != null && value.contains(ARROW_PLACEHOLDER)) {

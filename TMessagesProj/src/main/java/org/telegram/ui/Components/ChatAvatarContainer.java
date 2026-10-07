@@ -255,77 +255,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
 
             @Override
             public boolean onTouchEvent(MotionEvent event) {
-                if (isCentered() && avatarOptionsMenuItem != null && avatarOptionsMenuItem.hasSubMenu()) {
-                    final int action = event.getActionMasked();
-                    if (action == MotionEvent.ACTION_MOVE) {
-                        if (!avatarOptionsMenuItem.isSubMenuShowing()) {
-                            if (event.getY() > getHeight()) {
-                                final ActionBar actionBar = parentFragment != null ? parentFragment.getActionBar() : null;
-                                if (actionBar != null && actionBar.actionBarMenuOnItemClick != null && !actionBar.actionBarMenuOnItemClick.canOpenMenu()) {
-                                    return false;
-                                }
-                                if (getParent() != null) {
-                                    getParent().requestDisallowInterceptTouchEvent(true);
-                                }
-                                avatarOptionsMenuItem.toggleSubMenu();
-                                setPressed(false);
-                                cancelLongPress();
-                                return true;
-                            }
-                        } else {
-                            final ActionBarPopupWindow.ActionBarPopupWindowLayout popupLayout = avatarOptionsMenuItem.getPopupLayout();
-                            final float x = event.getRawX();
-                            final float y = event.getRawY();
-
-                            popupLayout.getLocationOnScreen(avatarOptionsMenuLocation);
-                            float localX = x - avatarOptionsMenuLocation[0];
-                            float localY = y - avatarOptionsMenuLocation[1];
-
-                            avatarOptionsSelectedView = null;
-                            for (int a = 0; a < popupLayout.getItemsCount(); a++) {
-                                View child = popupLayout.getItemAt(a);
-                                child.getHitRect(avatarOptionsMenuRect);
-                                Object tag = child.getTag();
-                                if (tag instanceof Integer && (Integer) tag < 3000) {
-                                    if (!avatarOptionsMenuRect.contains((int) localX, (int) localY)) {
-                                        child.setPressed(false);
-                                        child.setSelected(false);
-                                    } else {
-                                        child.setPressed(true);
-                                        child.setSelected(true);
-                                        child.drawableHotspotChanged(localX, localY - child.getTop());
-                                        avatarOptionsSelectedView = child;
-                                    }
-                                }
-                            }
-                            setPressed(false);
-                            return true;
-                        }
-                    } else if (action == MotionEvent.ACTION_UP) {
-                        if (avatarOptionsMenuItem.isSubMenuShowing()) {
-                            if (avatarOptionsSelectedView != null) {
-                                avatarOptionsSelectedView.setSelected(false);
-                                avatarOptionsSelectedView.performClick();
-                            }
-                            if (avatarOptionsSelectedView == null || avatarOptionsMenuItem.isSubMenuShowing()) {
-                                avatarOptionsMenuItem.closeSubMenu();
-                            }
-                            avatarOptionsSelectedView = null;
-                            setPressed(false);
-                            return true;
-                        }
-                    } else if (action == MotionEvent.ACTION_CANCEL) {
-                        if (avatarOptionsMenuItem.isSubMenuShowing()) {
-                            avatarOptionsMenuItem.closeSubMenu();
-                        }
-                        if (avatarOptionsSelectedView != null) {
-                            avatarOptionsSelectedView.setSelected(false);
-                            avatarOptionsSelectedView = null;
-                        }
-                        setPressed(false);
-                    }
-                }
-                if (allowDrawStories && !isCentered()) {
+                if (allowDrawStories) {
                     if (params.checkOnTouchEvent(event, this)) {
                         return true;
                     }
@@ -717,7 +647,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
     }
 
     public void openProfile(boolean byAvatar) {
-        openProfile(byAvatar, !isCentered(), false);
+        openProfile(byAvatar, true, false);
     }
 
     public void openProfile(boolean byAvatar, boolean fromChatAnimation, boolean removeLast) {

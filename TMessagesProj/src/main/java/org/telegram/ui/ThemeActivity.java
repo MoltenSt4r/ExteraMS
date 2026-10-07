@@ -266,7 +266,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
     @Keep
     private int liteModeRow;
     private int liteModeInfoRow;
-
+    private int appIconRow;
     private int exteramsIconHeaderRow;
     @Keep
     private int exteramsIconSelectorRow;
@@ -652,6 +652,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
         editThemeRow = -1;
         createNewThemeRow = -1;
 
+        appIconRow = -1;
         exteramsIconHeaderRow = -1;
         exteramsIconSelectorRow = -1;
         exteramsIconShadowRow = -1;
@@ -722,15 +723,17 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
 
             chatListHeaderRow = rowCount++;
             chatListRow = rowCount++;
-            chatListInfoRow = rowCount++;
+            chatListInfoRow = -1;
 
-            exteramsIconHeaderRow = rowCount++;
-            exteramsIconSelectorRow = rowCount++;
-            exteramsIconShadowRow = rowCount++;
+            appIconRow = rowCount++;
 
-            telegramIconHeaderRow = rowCount++;
-            telegramIconSelectorRow = rowCount++;
-            telegramIconShadowRow = rowCount++;
+            exteramsIconHeaderRow = -1;
+            exteramsIconSelectorRow = -1;
+            exteramsIconShadowRow = -1;
+
+            telegramIconHeaderRow = -1;
+            telegramIconSelectorRow = -1;
+            telegramIconShadowRow = -1;
 
             swipeGestureHeaderRow = rowCount++;
             swipeGestureRow = rowCount++;
@@ -1179,6 +1182,8 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 }
             } else if (position == backgroundRow) {
                 presentFragment(new WallpapersListActivity(WallpapersListActivity.TYPE_ALL));
+            } else if (position == appIconRow) {
+                presentFragment(new app.exteraless.settings.OpenExteraAppIconsActivity());
             } else if (position == changeUserColor) {
                 presentFragment(new PeerColorActivity(0).setOnApplied(this));
             } else if (position == sendByEnterRow) {
@@ -2586,6 +2591,10 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                     } else if (position == bluetoothScoRow) {
                         cell.setTextAndValue(getString(R.string.MicrophoneForVoiceMessages), getString(SharedConfig.recordViaSco ? R.string.MicrophoneForVoiceMessagesSco : R.string.MicrophoneForVoiceMessagesBuiltIn), updateRecordViaSco, false);
                         updateRecordViaSco = false;
+                    } else if (position == appIconRow) {
+                        LauncherIconController.LauncherIcon currentIcon = LauncherIconController.getCurrentIcon();
+                        cell.setTextAndValue(getString("AppIcon", R.string.AppIcon), getString(currentIcon.title), false);
+                        cell.setValueIcon(LauncherIconController.createIconPreviewDrawable(mContext, currentIcon, 24));
                     }
                     break;
                 }

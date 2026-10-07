@@ -206,13 +206,15 @@ object ChatsConfig {
 
     // ---- Чаты ----
 
-    // ---- Сообщения ----
-
     @JvmField
     val wideChannelPosts = addConfig("OEChatsWideChannelPosts", ConfigItem.configTypeBool, false)
 
     @JvmField
     val wideFeedPosts = addConfig("OEChatsWideFeedPosts", ConfigItem.configTypeBool, false)
+
+    /** Результаты вычислений: показывать результат после «=» и вставлять его пробелом. */
+    @JvmField
+    val mathResults = addConfig("OEChatsMathResults", ConfigItem.configTypeBool, true)
 
     /** Убрать «хвостик» пузыря (только UI). */
     @JvmField

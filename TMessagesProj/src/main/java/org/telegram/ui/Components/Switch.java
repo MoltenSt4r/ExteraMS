@@ -927,11 +927,25 @@ public class Switch extends View {
         final float trackRight = measuredWidth + dp(3);              // smali 907-912
         final float trackRadius = dpf2(14);                          // smali 959 (dpf2 of v19=14)
 
-        int trackOff = processColor(Theme.getColor(trackColorKey, resourcesProvider));         // smali 778-783
-        int trackOn = processColor(Theme.getColor(trackCheckedColorKey, resourcesProvider));   // smali 785-790
-        paint.setColor(lerpColor(trackOff, trackOn, colorProgress));                           // smali 819-891
+        int trackColor = processColor(Theme.getColor(trackColorKey, resourcesProvider));
+        int md3OffTrackFillColor = processColor(Theme.blendOver(
+                Theme.getColor(Theme.key_windowBackgroundWhite, resourcesProvider),
+                Theme.multAlpha(trackColor, Theme.isCurrentThemeDay() ? 0.2f : 0.1f)
+        ));
+        int trackOn = processColor(Theme.getColor(trackCheckedColorKey, resourcesProvider));
+        paint.setColor(lerpColor(md3OffTrackFillColor, trackOn, colorProgress));
         rectF.set(trackLeft, trackTop, trackRight, trackBottom);
-        canvas.drawRoundRect(rectF, trackRadius, trackRadius, paint);                          // smali 964
+        canvas.drawRoundRect(rectF, trackRadius, trackRadius, paint);
+
+        // Outline / обводка тумблера как в exteraGram
+        if (colorProgress < 1f) {
+            googleBorderPaint.setStrokeWidth(dpf2(1.5f));
+            googleBorderPaint.setColor(trackColor);
+            googleBorderPaint.setAlpha((int) (255 * (1f - colorProgress)));
+            final float inset = dpf2(0.75f);
+            rectF.set(trackLeft + inset, trackTop + inset, trackRight - inset, trackBottom - inset);
+            canvas.drawRoundRect(rectF, trackRadius - inset, trackRadius - inset, googleBorderPaint);
+        }
 
         // Thumb centre (smali 641-659).
         final int cx = (measuredWidth - dp(31)) / 2 + dp(8) + (int) (dp(16) * pp);
@@ -943,8 +957,8 @@ public class Switch extends View {
             rippleDrawable.draw(canvas);
         }
 
-        // Thumb colour (smali 1130-1246): lerp(thumbColorKey -> thumbCheckedColorKey).
-        int thumbOff = processColor(Theme.getColor(thumbColorKey, resourcesProvider));
+        // Thumb colour (smali 1130-1246): lerp(trackColor -> thumbCheckedColorKey).
+        int thumbOff = trackColor;
         int thumbOn = processColor(Theme.getColor(thumbCheckedColorKey, resourcesProvider));
         paint.setColor(lerpColor(thumbOff, thumbOn, colorProgress));
 

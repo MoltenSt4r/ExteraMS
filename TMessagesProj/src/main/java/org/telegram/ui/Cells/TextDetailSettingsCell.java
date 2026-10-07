@@ -98,6 +98,20 @@ public class TextDetailSettingsCell extends FrameLayout {
         }
     }
 
+    private AppIconsSelectorCell.AdaptiveIconImageView rightLauncherIconView;
+
+    private void updatePaddings(boolean hasLeftIcon, boolean hasRightIcon) {
+        int left = hasLeftIcon ? AndroidUtilities.dp(50) : 0;
+        int right = hasRightIcon ? AndroidUtilities.dp(64) : 0;
+        if (LocaleController.isRTL) {
+            int tmp = left;
+            left = right;
+            right = tmp;
+        }
+        textView.setPadding(left, 0, right, 0);
+        valueTextView.setPadding(left, 0, right, multiline ? AndroidUtilities.dp(12) : 0);
+    }
+
     public void setTextAndValue(CharSequence text, CharSequence value, boolean divider) {
         textView.setText(text);
         if (TextUtils.isEmpty(value)) {
@@ -108,6 +122,10 @@ public class TextDetailSettingsCell extends FrameLayout {
         valueTextView.setText(value);
         needDivider = divider;
         imageView.setVisibility(GONE);
+        if (rightLauncherIconView != null) {
+            rightLauncherIconView.setVisibility(GONE);
+        }
+        updatePaddings(false, false);
         setWillNotDraw(!divider);
     }
 
@@ -116,10 +134,33 @@ public class TextDetailSettingsCell extends FrameLayout {
         valueTextView.setText(value);
         imageView.setImageResource(resId);
         imageView.setVisibility(VISIBLE);
-        textView.setPadding(LocaleController.isRTL ? 0 : AndroidUtilities.dp(50), 0, LocaleController.isRTL ? AndroidUtilities.dp(50) : 0, 0);
-        valueTextView.setPadding(LocaleController.isRTL ? 0 : AndroidUtilities.dp(50), 0, LocaleController.isRTL ? AndroidUtilities.dp(50) : 0, multiline ? AndroidUtilities.dp(12) : 0);
+        if (rightLauncherIconView != null) {
+            rightLauncherIconView.setVisibility(GONE);
+        }
+        updatePaddings(true, false);
         needDivider = divider;
         setWillNotDraw(!divider);
+    }
+
+    public void setRightLauncherIcon(org.telegram.ui.LauncherIconController.LauncherIcon icon) {
+        if (icon == null) {
+            if (rightLauncherIconView != null) {
+                rightLauncherIconView.setVisibility(GONE);
+            }
+            updatePaddings(imageView.getVisibility() == VISIBLE, false);
+            return;
+        }
+        if (rightLauncherIconView == null) {
+            rightLauncherIconView = new AppIconsSelectorCell.AdaptiveIconImageView(getContext());
+            addView(rightLauncherIconView, LayoutHelper.createFrame(36, 36, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.CENTER_VERTICAL, 21, 0, 21, 0));
+        }
+        rightLauncherIconView.setVisibility(VISIBLE);
+        rightLauncherIconView.setImageResource(icon.background);
+        rightLauncherIconView.setForeground(icon.foreground);
+        rightLauncherIconView.setOuterPadding(AndroidUtilities.dp(3));
+        rightLauncherIconView.setBackgroundOuterPadding(AndroidUtilities.dp(20));
+        rightLauncherIconView.setAdaptiveIconMode(icon.group != org.telegram.ui.LauncherIconController.IconGroup.TELEGRAM);
+        updatePaddings(imageView.getVisibility() == VISIBLE, true);
     }
 
     public void setValue(CharSequence value) {

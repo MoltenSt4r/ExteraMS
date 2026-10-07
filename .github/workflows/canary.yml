@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -59,7 +59,7 @@ jobs:
       - name: Set up Android SDK Tools
         uses: android-actions/setup-android@v4
         with:
-          packages: "build-tools;36.0.0 ndk;27.2.12479018 platforms;android-37.0"
+          packages: "build-tools;36.0.0 ndk;27.2.12479018 platforms;android-37.0 cmake;3.31.6"
       - name: Install Native Build Dependencies
         run: |
           sudo apt-get update
@@ -103,3 +103,49 @@ jobs:
           name: Staging
           path: |
             TMessagesProj/build/outputs/apk/staging/*.apk
+
+      - name: Create Canary Pre-Release
+        uses: softprops/action-gh-release@v2
+        if: ${{ success() }}
+        with:
+          tag_name: canary
+          name: ExteraMS Canary (Unstable)
+          prerelease: true
+          make_latest: false
+          body: |
+            ### ⚠️ ExteraMS Canary Build (Unstable / Test)
+
+            **Новый функционал:**
+            - **Экран выбора иконки приложения** (в стиле Nothing / Google) с авторскими плашками, сеткой 4 столбца и кнопкой выбора
+            - **Карточка настроек под папками чатов (4 пункта)**:
+              1. «Навигация в приложении»
+              2. «Иконка приложения» (с круглой иконкой текущего стиля)
+              3. «Наборы иконок»
+              4. «Pill Stack»
+            - **Шапка чата**: разделены аватарка и меню «три точки» (клик по аватарке плавно открывает профиль)
+            - **MD3 переключатели**: аккуратная обводка 1.5dp в выключенном состоянии
+            - **Инлайн-калькулятор**: моментальный подсчёт выражений после знака `=` в чате
+            - Исправлен дубликат Ghost mode в меню диалогов
+          files: |
+            TMessagesProj/build/outputs/apk/staging/*.apk
+
+      - name: Send APK to Telegram
+        continue-on-error: true
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && !contains(github.event.head_commit.message, '[skip publish]') }}
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_API_ID: ${{ secrets.TG_API_ID || '39205442' }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH || '1090b570704d1d97975994ee9c177dba' }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMITS_JSON: ${{ toJSON(github.event.commits) }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          APK_GLOB: "TMessagesProj/build/outputs/apk/staging/*.apk"
+        run: |
+          if [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
+            echo "секреты Telegram (TG_BOT_TOKEN или TG_CHAT_ID) не заданы — отправка пропущена"
+            exit 0
+          fi
+          pip install --quiet kurigram tgcrypto
+          python3 .github/scripts/send_apk.py

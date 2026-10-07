@@ -25,15 +25,16 @@
     <string name="OEChatsCameraMirrorMode">Зеркальный режим</string>
     <string name="OEChatsStartWithWideAngle">Начинать с широкоугольной</string>
     <string name="OEChatsExtendedFps">Расширенный диапазон FPS</string>
-    <string name="OEChatsZoomSlider">Плашка зума</string>
-    <string name="OEChatsZoomSliderInfo">Показывать управление зумом под камерой видеосообщений.</string>
+    <string name="OEChatsZoomSlider">Слайдер зума</string>
+    <string name="OEChatsZoomSliderInfo">Показывать регулятор приближения под камерой видеосообщений.</string>
     <string name="OEChatsStaticZoom">Статичный зум</string>
-    <string name="OEChatsStaticZoomInfo">При записи видеосообщений уровень зума не сбрасывается, когда вы убираете пальцы.</string>
+    <string name="OEChatsStaticZoomInfo">При записи видеосообщений уровень приближения не будет сбрасываться, если отпустить пальцы.</string>
+    <string name="OEChatsRememberLastCameraInfo">При записи видеосообщений будет автоматически выбрана последняя использованная камера.</string>
 
     <string name="OEChatsPhoto">Фото</string>
     <string name="OEChatsAlwaysSendInHD">Всегда отправлять в HD</string>
     <string name="OEChatsHideCameraTile">Скрыть плитку камеры</string>
-    <string name="OEChatsHideCameraTileInfo">Плитка камеры в меню вложений будет скрыта.</string>
+    <string name="OEChatsHideCameraTileInfo">Плитка камеры будет заменена плавающей кнопкой. Нажатие на неё запускает камеру Telegram, удержание — системную камеру.</string>
 
     <string name="OEChatsDoubleTapSeekDuration">Перемотка двойным тапом</string>
     <string name="OEChatsPauseOnMinimize">Автопауза</string>
@@ -47,14 +48,23 @@
     <string name="OEChatsUnlimited">Бесконечные</string>
     <string name="OEChatsUnlimitedStickers">Стикеры</string>
     <string name="OEChatsUnlimitedGifs">GIF</string>
-    <string name="OEChatsAdminShortcuts">Быстрые действия администратора</string>
-    <string name="OEChatsDisableGreetingSticker">Отключить приветственный стикер</string>
-    <string name="OEChatsHideSendAsPeer">Скрыть кнопку «Отправить как…»</string>
-    <string name="OEChatsHideSendAsPeerInfo">Меню «Отправить как…» остаётся доступным по долгому нажатию на кнопку эмодзи/стикеров/GIF.</string>
+    <string name="OEChatsWidePostsGroup">Широкие посты</string>
+    <string name="OEChatsWidePostsChannels">В каналах</string>
+    <string name="OEChatsWidePostsFeed">В ленте</string>
+    <string name="OEChatsAiFeatures">ИИ-функции</string>
+    <string name="OEChatsAiEditor">Редактор</string>
+    <string name="OEChatsAiSummary">Краткие сводки</string>
+    <string name="OEChatsAiIvSummary">Сводки в Instant View</string>
+    <string name="OEChatsAdminShortcuts">Быстрые админ-действия</string>
+    <string name="OEChatsDisableGreetingSticker">Скрыть приветственный стикер</string>
+    <string name="OEChatsMathResults">Результаты вычислений</string>
+    <string name="OEChatsMathResultsInfo">Показывать результат после «=» и вставлять его пробелом.</string>
+    <string name="OEChatsHideSendAsPeer">Скрыть кнопку \"Отправить как...\"</string>
+    <string name="OEChatsHideSendAsPeerInfo">Вы по-прежнему сможете открыть меню выбора отправителя долгим нажатием на кнопку Эмодзи/Стикеров/GIF.</string>
     <string name="OEChatsDisableGlobalSearch">Отключить глобальный поиск</string>
     <string name="OEChatsTapToSwitchRecord">Нажатие переключает голос и видео</string>
     <string name="OEChatsKeepAttachButton">Сохранять кнопку вложения при наборе</string>
-    <string name="OEChatsRemoveMessageTail">Убрать «хвостик» пузыря</string>
+    <string name="OEChatsRemoveMessageTail">Убрать хвост у сообщений</string>
     <string name="OEChatsReplaceEditedWithIcon">Заменять «изменено» иконкой</string>
     <string name="OEChatsShowOnlineStatus">Показывать индикатор онлайна</string>
     <string name="OEChatsHideShareButton">Скрыть боковую кнопку «Поделиться»</string>

@@ -281,6 +281,16 @@ public class TextSettingsCell extends FrameLayout {
         valueTextView.setText(value, animated);
     }
 
+    public void setValueIcon(android.graphics.drawable.Drawable drawable) {
+        if (drawable != null) {
+            valueImageView.setVisibility(VISIBLE);
+            valueImageView.setImageDrawable(drawable);
+            valueImageView.setColorFilter(null);
+        } else {
+            valueImageView.setVisibility(INVISIBLE);
+        }
+    }
+
     public void setIcon(int resId) {
         MarginLayoutParams params = (MarginLayoutParams) textView.getLayoutParams();
         imageViewIsColorful = false;

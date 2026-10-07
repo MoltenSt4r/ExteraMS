@@ -4640,21 +4640,6 @@ public class ChatActivity extends BaseFragment implements
 
             @Override
             protected boolean onAvatarClick() {
-                if (isTitleCentered()) {
-                    if (editTextItem != null && editTextItem.getTag() != null) {
-                        checkEditTextItemMenu();
-                        editTextItem.createView().performClick();
-                        return true;
-                    }
-                    if (headerItem != null) {
-                        if (attachItem != null && chatActivityEnterView.hasText() && TextUtils.isEmpty(chatActivityEnterView.getSlowModeTimer()) && (currentChat == null || ChatObject.canSendPlain(currentChat))) {
-                            attachItem.createView().performClick();
-                            return true;
-                        }
-                        headerItem.performClick();
-                        return true;
-                    }
-                }
                 if (currentUser != null && currentUser.linked_community_id != 0) {
                     showDialog(new CommunitySheet(ChatActivity.this, currentUser.linked_community_id));
                     return true;
@@ -4667,7 +4652,7 @@ public class ChatActivity extends BaseFragment implements
 
             @Override
             protected boolean isCentered() {
-                return isTitleCentered();
+                return false;
             }
 
             @Override
@@ -4831,7 +4816,7 @@ public class ChatActivity extends BaseFragment implements
             if (avatarContainer != null) {
                 avatarContainer.setAvatarOptionsMenuItem(headerItem);
             }
-            headerItem.setForceHidden(isTitleCentered());
+            headerItem.setForceHidden(false);
 
             if (currentUser != null && currentUser.self && chatMode != MODE_SAVED) {
                 savedChatsItem = headerItem.lazilyAddSubItem(view_as_topics, R.drawable.msg_topics, LocaleController.getString(R.string.SavedViewAsChats));
@@ -50621,7 +50606,7 @@ public class ChatActivity extends BaseFragment implements
     }
 
     private boolean isTitleCentered() {
-        return canShowCenteredTitle(this);
+        return false;
     }
 
     private boolean canShowCenteredTitle(ChatActivity parentFragment) {

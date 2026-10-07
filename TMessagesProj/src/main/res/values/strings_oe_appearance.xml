@@ -86,7 +86,10 @@
     <string name="OEAppearanceIconPacksInfo">Customize icons across the app</string>
     <string name="OEAppearancePillStack">Pill Stack</string>
     <string name="OEAppearancePillStackInfo">Display interactive pills in the search field</string>
-    <string name="OEAppearanceNavigationSub">Top-right menu and drawer settings</string>
+    <string name="OEAppearanceNavigationSub">Top menu and drawer settings</string>
+    <string name="OEAppearanceAppIcon">App Icon</string>
+    <string name="OEAppearanceAppIconKeep">Keep This</string>
+    <string name="OEAppearanceAppIconSelect">Select</string>
     <string name="OEAppNavigation">App Navigation</string>
     <string name="OEGeneral">General</string>
     <string name="OETabletMode">Tablet Mode</string>
@@ -118,6 +121,7 @@
     <string name="OEAppearanceNewLoadingStyle">Loading Indicators</string>
     <string name="OEAppearanceNewChatHeaderStyle">Chat Header</string>
     <string name="OEAppearanceNewNavigationBarStyle">Navigation Bar</string>
+    <string name="OEAppearanceSquareFab">Floating Action Button</string>
     <string name="OEAppearanceIosDesign" translatable="false">iOS Design</string>
     <string name="OEAppearanceIosNavigationBarStyle">Navigation Bar</string>
     <string name="OEAppearanceIosFirstFolderOnTabTap">Tab Tap Opens First Folder</string>

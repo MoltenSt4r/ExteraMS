@@ -22,10 +22,12 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Cells.TextCell;
 import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Cells.TextDetailSettingsCell;
 import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.TextSettingsCell;
+import org.telegram.ui.LauncherIconController;
 import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.Components.EditTextBoldCursor;
 import org.telegram.ui.Components.LayoutHelper;
@@ -113,6 +115,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
     private int md3SwitchRow;
     private int md3ChatHeaderRow;
     private int md3NavBarRow;
+    private int md3FabRow;
     private boolean md3Expanded;
     private int iosGroupRow;
     private int iosNavBarRow;
@@ -147,8 +150,8 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
     // Links
     private int linksHeaderRow;
     private int appNavigationRow;
+    private int appIconRow;
     private int iconPacksRow;
-    private int emojiSetsRow;
     private int pillStackRow;
     private int linksDividerRow;
 
@@ -200,12 +203,11 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         hideAllChatsRow = addRow("hideAllChats");
         foldersDividerRow = addRow();
 
-        // Порядок как в 12.9.0: строки-переходы идут сразу после «Chat Folders»,
-        // до секции общего вида.
-        linksHeaderRow = addRow("linksHeader");
+        // Карточка под «Chat Folders» точно как на скриншоте (Screenshot_20261007-134256.png)
+        linksHeaderRow = -1;
         appNavigationRow = addRow("appNavigation");
+        appIconRow = addRow("appIcon");
         iconPacksRow = addRow("iconPacks");
-        emojiSetsRow = addRow("emojiSets", "EmojiSets");
         pillStackRow = addRow("pillStack");
         linksDividerRow = addRow();
 
@@ -224,8 +226,9 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
             md3SwitchRow = addRow("md3Switch");
             md3ChatHeaderRow = addRow("md3ChatHeader");
             md3NavBarRow = addRow("md3NavBar");
+            md3FabRow = addRow("md3Fab");
         } else {
-            md3LoadingRow = md3SliderRow = md3SwitchRow = md3ChatHeaderRow = md3NavBarRow = -1;
+            md3LoadingRow = md3SliderRow = md3SwitchRow = md3ChatHeaderRow = md3NavBarRow = md3FabRow = -1;
         }
         iosGroupRow = addRow("iosStyles");
         if (iosExpanded) {
@@ -554,6 +557,9 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         if (position == iconPacksRow) {
             presentFragment(new IconPacksActivity());
             return;
+        } else if (position == appIconRow) {
+            presentFragment(new OpenExteraAppIconsActivity());
+            return;
         } else if (position == chipFoldersRow) {
             presentFragment(new app.exteraless.appearance.ChipFoldersSettingsActivity());
             return;
@@ -562,9 +568,6 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
             return;
         } else if (position == appNavigationRow) {
             presentFragment(new OpenExteraAppNavigationActivity());
-            return;
-        } else if (position == emojiSetsRow) {
-            presentFragment(new NekoEmojiSettingsActivity());
             return;
         } else if (position == md3GroupRow) {
             md3Expanded = !md3Expanded;
@@ -601,6 +604,11 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                 AppearanceConfig.iosNavigationBarStyle.setConfigBool(false);
                 leaveFloatingBottomNavigation();
             }
+            rebuildAllAndSelf(view, enable);
+            return;
+        } else if (position == md3FabRow) {
+            boolean enable = !AppearanceConfig.squareFab.Bool();
+            AppearanceConfig.squareFab.setConfigBool(enable);
             rebuildAllAndSelf(view, enable);
             return;
         } else if (position == iosGroupRow) {
@@ -1022,11 +1030,14 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                         cell.setText(getString(R.string.OEAppearanceSwitchStyle), "",
                                 isMd3(NaConfig.INSTANCE.getSwitchStyle().Int()), true, true);
                     } else if (position == md3ChatHeaderRow) {
-                        cell.setText(getString(R.string.OEAppearanceNewChatHeaderStyle), "",
+                        cell.setText(TextCell.applyNewSpan(getString(R.string.OEAppearanceNewChatHeaderStyle)), "",
                                 AppearanceConfig.newChatHeaderStyle.Bool(), true, true);
                     } else if (position == md3NavBarRow) {
-                        cell.setText(getString(R.string.OEAppearanceNewNavigationBarStyle), "",
+                        cell.setText(TextCell.applyNewSpan(getString(R.string.OEAppearanceNewNavigationBarStyle)), "",
                                 AppearanceConfig.newNavigationBarStyle.Bool(), true, true);
+                    } else if (position == md3FabRow) {
+                        cell.setText(TextCell.applyNewSpan(getString(R.string.OEAppearanceSquareFab)), "",
+                                AppearanceConfig.squareFab.Bool(), true, true);
                     } else if (position == iosNavBarRow) {
                         cell.setText(getString(R.string.OEAppearanceIosNavigationBarStyle), "",
                                 AppearanceConfig.iosNavigationBarStyle.Bool(), true, true);
@@ -1089,10 +1100,12 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                     TextDetailSettingsCell cell = (TextDetailSettingsCell) holder.itemView;
                     if (position == appNavigationRow) {
                         cell.setTextAndValueAndIcon(getString(R.string.OEAppearanceNavigation), getString(R.string.OEAppearanceNavigationSub), R.drawable.msg_newphone, true);
+                    } else if (position == appIconRow) {
+                        LauncherIconController.LauncherIcon currentIcon = LauncherIconController.getCurrentIcon();
+                        cell.setTextAndValueAndIcon(getString(R.string.OEAppearanceAppIcon), getString(currentIcon.title), R.drawable.msg_theme, true);
+                        cell.setRightLauncherIcon(currentIcon);
                     } else if (position == iconPacksRow) {
                         cell.setTextAndValueAndIcon(getString(R.string.OEAppearanceIconPacks), getString(R.string.OEAppearanceIconPacksInfo), R.drawable.msg_sticker, true);
-                    } else if (position == emojiSetsRow) {
-                        cell.setTextAndValueAndIcon(getString(R.string.EmojiSets), getString(R.string.OEAppearanceEmojiSetsInfo), R.drawable.msg_emoji_smiles, true);
                     } else if (position == pillStackRow) {
                         cell.setTextAndValueAndIcon(getString(R.string.OEAppearancePillStack), getString(R.string.OEAppearancePillStackInfo), R.drawable.outline_header_search, false);
                     }
@@ -1162,15 +1175,15 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
                 return TYPE_INFO_PRIVACY;
             } else if (position == fabShapeRow) {
                 return TYPE_FAB_SHAPE;
-            } else if (position == appNavigationRow || position == iconPacksRow
-                    || position == emojiSetsRow || position == pillStackRow) {
+            } else if (position == appNavigationRow || position == appIconRow
+                    || position == iconPacksRow || position == pillStackRow) {
                 return TYPE_DETAIL_SETTINGS;
             } else if (position == md3GroupRow || position == hideAiGroupRow
                     || position == iosGroupRow || hideSettingsGroupRow == position) {
                 return TYPE_EXPANDABLE_SWITCH;
             } else if (position == md3LoadingRow || position == md3SliderRow
                     || position == md3SwitchRow || position == md3ChatHeaderRow
-                    || position == md3NavBarRow
+                    || position == md3NavBarRow || position == md3FabRow
                     || position == hideAiEditorRow
                     || position == hideAiSummaryRow || position == hideAiIvRow
                     || position == iosNavBarRow || position == iosFolderTapRow
@@ -1282,8 +1295,8 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         showDialog(builder.create());
     }
 
-    /** Сколько стилей MD3 включено. Счётчик «N/5» рядом с шевроном. */
-    private static final int MD3_STYLE_COUNT = 5;
+    /** Сколько стилей MD3 включено. Счётчик «N/6» рядом с шевроном. */
+    private static final int MD3_STYLE_COUNT = 6;
     /** Значение селектора NagramX, соответствующее Material Design 3. */
     private static final int STYLE_MD3 = 2;
 
@@ -1298,6 +1311,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         if (isMd3(NaConfig.INSTANCE.getSwitchStyle().Int())) n++;
         if (AppearanceConfig.newChatHeaderStyle.Bool()) n++;
         if (AppearanceConfig.newNavigationBarStyle.Bool()) n++;
+        if (AppearanceConfig.squareFab.Bool()) n++;
         return n;
     }
 
@@ -1340,6 +1354,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         AppearanceConfig.newLoadingStyle.setConfigBool(enable);
         AppearanceConfig.newChatHeaderStyle.setConfigBool(enable);
         AppearanceConfig.newNavigationBarStyle.setConfigBool(enable);
+        AppearanceConfig.squareFab.setConfigBool(enable);
         if (enable) {
             AppearanceConfig.iosNavigationBarStyle.setConfigBool(false);
             leaveFloatingBottomNavigation();
@@ -1365,6 +1380,9 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
         super.onResume();
         if (listAdapter != null && chipFoldersRow != -1) {
             listAdapter.notifyItemChanged(chipFoldersRow);
+        }
+        if (listAdapter != null && appIconRow != -1) {
+            listAdapter.notifyItemChanged(appIconRow);
         }
         AndroidUtilities.runOnUIThread(this::invalidatePreviews);
     }
