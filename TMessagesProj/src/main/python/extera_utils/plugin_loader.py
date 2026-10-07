@@ -1523,6 +1523,24 @@ def _proxy_return_defaults_uncached(interfaces):
 
 
 def _guard_proxy_method(fn, default, owner):
+    try:
+        from java.chaquopy import GuardedMethod
+    except Exception:
+        GuardedMethod = None
+    if GuardedMethod is not None:
+        name = getattr(fn, "__name__", "?")
+
+        def on_error(e):
+            if isinstance(e, PermissionError):
+                print(f"[exteraless:plugin_loader] {owner}.{name} denied: {e}",
+                      file=sys.stderr)
+                return
+            import traceback
+            print(f"[exteraless:plugin_loader] {owner}.{name} "
+                  f"raised into Java:\n{traceback.format_exc()}", file=sys.stderr)
+
+        return GuardedMethod(fn, default, on_error)
+
     import functools
 
     @functools.wraps(fn)
@@ -1650,7 +1668,23 @@ def _callable_interface_proxy(interface, fn):
     return proxy
 
 
+def _interface_call_fallback(cls, fn):
+    if isinstance(fn, type) or not callable(fn) or hasattr(fn, "getClass"):
+        return None
+    try:
+        return _callable_interface_proxy(cls, fn)
+    except Exception:
+        return None
+
+
 def _install_interface_call_shim() -> None:
+    try:
+        from java.chaquopy import set_call_fallback
+    except Exception:
+        set_call_fallback = None
+    if set_call_fallback is not None:
+        set_call_fallback(_interface_call_fallback)
+        return
     try:
         from java.chaquopy import JavaClass
         original = JavaClass.__call__

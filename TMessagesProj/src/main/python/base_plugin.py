@@ -289,9 +289,54 @@ class HookParam:
         return f"HookParam({object.__getattribute__(self, '_param')!r})"
 
 
-def dispatch_hook(handler, attr, param):
-    """Entry point for the Java hook bridge: calls *handler.attr(param)*."""
-    return getattr(handler, attr)(HookParam(param))
+_param_accessors = None
+
+
+def _install_param_accessors():
+    try:
+        from java import jclass
+        cls = jclass("de.robv.android.xposed.XC_MethodHook$MethodHookParam")
+    except Exception:
+        return False
+    if not isinstance(cls, type) or "_chaquopy_j_klass" not in cls.__dict__:
+        return False
+    type.__setattr__(cls, "result", property(lambda p: p.getResult(),
+                                             lambda p, value: p.setResult(value)))
+    type.__setattr__(cls, "throwable", property(lambda p: p.getThrowable(),
+                                                lambda p, value: p.setThrowable(value)))
+    type.__setattr__(cls, "java", property(lambda p: p))
+    return True
+
+
+def _direct_params():
+    global _param_accessors
+    if _param_accessors is None:
+        _param_accessors = _install_param_accessors()
+    return _param_accessors
+
+
+def bind_hook(handler, attr, stat_id=-1):
+    fn = getattr(handler, attr, None)
+    if fn is None or not callable(fn):
+        return None
+    base = getattr(MethodHook, attr, None)
+    if base is not None and getattr(fn, "__func__", None) is base:
+        return None
+    profile = _internal("hook_profile")
+    if not _direct_params():
+        handler_fn = fn
+        fn = lambda param: handler_fn(HookParam(param))
+
+    def call(param):
+        if not profile.active:
+            return fn(param)
+        start = profile.clock()
+        try:
+            return fn(param)
+        finally:
+            profile.record(stat_id, profile.clock() - start)
+
+    return call
 
 
 def _filter_value(value):

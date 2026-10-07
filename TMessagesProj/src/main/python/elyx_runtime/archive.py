@@ -41,17 +41,57 @@ LOCAL_LIBS_DIRNAME = "elyx_local_libs"
 _COMPLETE_MARKER = ".elyx_complete"
 _WHEEL_MARKER = ".elyx_wheel_complete"
 
+# Extraction limits are intentionally generous for plugins (including bundled
+# native libraries), but finite. ZIP metadata is checked before any member is
+# read or written so a tiny archive cannot expand until it fills app storage.
+MAX_ARCHIVE_MEMBERS = 4096
+MAX_ARCHIVE_UNCOMPRESSED_BYTES = 128 * 1024 * 1024
+MAX_ARCHIVE_MEMBER_BYTES = 64 * 1024 * 1024
+
 
 # ZIP basics
+
+def _validate_archive(zf: zipfile.ZipFile) -> None:
+    infos = zf.infolist()
+    if len(infos) > MAX_ARCHIVE_MEMBERS:
+        raise ElyxArchiveError(
+            f"archive has {len(infos)} entries, over the "
+            f"{MAX_ARCHIVE_MEMBERS} entry limit"
+        )
+
+    total_size = 0
+    for info in infos:
+        _check_member_safety(info.filename)
+        if info.is_dir():
+            continue
+        if info.file_size > MAX_ARCHIVE_MEMBER_BYTES:
+            raise ElyxArchiveError(
+                f"archive member {info.filename!r} expands to "
+                f"{info.file_size} bytes, over the "
+                f"{MAX_ARCHIVE_MEMBER_BYTES} byte per-file limit"
+            )
+        total_size += info.file_size
+        if total_size > MAX_ARCHIVE_UNCOMPRESSED_BYTES:
+            raise ElyxArchiveError(
+                f"archive expands to more than "
+                f"{MAX_ARCHIVE_UNCOMPRESSED_BYTES} bytes"
+            )
+
 
 def open_archive(path: str) -> zipfile.ZipFile:
     """Open *path* as a ZIP, raising a clear error for non-archives."""
     try:
-        return zipfile.ZipFile(path)
+        archive = zipfile.ZipFile(path)
     except zipfile.BadZipFile as e:
         raise ElyxArchiveError(f"{path!r} is not a valid ZIP/Elyx archive: {e}")
     except OSError as e:
         raise ElyxArchiveError(f"cannot read archive {path!r}: {e}")
+    try:
+        _validate_archive(archive)
+    except Exception:
+        archive.close()
+        raise
+    return archive
 
 
 def archive_digest(path: str) -> str:
@@ -156,8 +196,7 @@ def _check_member_safety(name: str) -> None:
 
 
 def _safe_extract(zf: zipfile.ZipFile, dest: str) -> None:
-    for info in zf.infolist():
-        _check_member_safety(info.filename)
+    _validate_archive(zf)
     zf.extractall(dest)
 
 

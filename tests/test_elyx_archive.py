@@ -70,3 +70,62 @@ def test_native_libraries_land_where_plugins_look(archive_module):
                 "uninstall must remove the reference path too")
         finally:
             shutil.rmtree(root, ignore_errors=True)
+
+
+def _write_archive(path, members):
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for name, content in members:
+            archive.writestr(name, content)
+
+
+def test_extract_rejects_oversized_member_before_writing(
+        archive_module, monkeypatch, tmp_path):
+    monkeypatch.setattr(archive_module, "MAX_ARCHIVE_MEMBER_BYTES", 32)
+    archive_path = tmp_path / "oversized.elyx"
+    _write_archive(archive_path, [("main.py", b"x" * 33)])
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+
+    with pytest.raises(archive_module.ElyxArchiveError, match="per-file limit"):
+        archive_module.extract_archive(
+            str(archive_path), str(plugins_dir), "oversized")
+
+    extraction_root = plugins_dir / archive_module.EXTRACTED_DIRNAME / "oversized"
+    if extraction_root.exists():
+        assert not list(extraction_root.glob("**/*"))
+    assert not os.path.lexists(
+        archive_module.reference_dir(str(plugins_dir), "oversized"))
+
+
+def test_extract_rejects_excessive_total_size(
+        archive_module, monkeypatch, tmp_path):
+    monkeypatch.setattr(archive_module, "MAX_ARCHIVE_MEMBER_BYTES", 64)
+    monkeypatch.setattr(archive_module, "MAX_ARCHIVE_UNCOMPRESSED_BYTES", 64)
+    archive_path = tmp_path / "bomb.elyx"
+    _write_archive(archive_path, [
+        ("first.py", b"a" * 40),
+        ("second.py", b"b" * 40),
+    ])
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+
+    with pytest.raises(archive_module.ElyxArchiveError, match="expands to more than"):
+        archive_module.extract_archive(
+            str(archive_path), str(plugins_dir), "bomb")
+
+
+def test_extract_rejects_too_many_members(
+        archive_module, monkeypatch, tmp_path):
+    monkeypatch.setattr(archive_module, "MAX_ARCHIVE_MEMBERS", 2)
+    archive_path = tmp_path / "too_many.elyx"
+    _write_archive(archive_path, [
+        ("one.py", b""),
+        ("two.py", b""),
+        ("three.py", b""),
+    ])
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+
+    with pytest.raises(archive_module.ElyxArchiveError, match="entry limit"):
+        archive_module.extract_archive(
+            str(archive_path), str(plugins_dir), "too_many")
