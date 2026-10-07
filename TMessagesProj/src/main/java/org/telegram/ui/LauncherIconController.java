@@ -78,25 +78,25 @@ public class LauncherIconController {
     public enum LauncherIcon {
         // ExteraMS
         EXTERAMS_MD3("ExteraMSMD3Icon", R.drawable.exterams_md3_icon_background,
-                R.drawable.exterams_md3_icon_foreground, R.string.AppIconExteraMSMD3, IconGroup.EXTERAMS, "It just works"),
+                R.drawable.exterams_md3_icon_foreground, R.string.AppIconExteraMSMD3, IconGroup.EXTERAMS, "@moltenst4r", "It just works", 0xFF601816),
         EXTERAMS_DOTTED("ExteraMSDottedIcon", R.drawable.exterams_dotted_icon_background,
-                R.drawable.exterams_dotted_icon_foreground, R.string.AppIconExteraMSDotted, IconGroup.EXTERAMS, "@exteraGram"),
+                R.drawable.exterams_dotted_icon_foreground, R.string.AppIconExteraMSDotted, IconGroup.EXTERAMS, "@exteraGram", "Dotted style", 0xFF381826),
         EXTERAMS_GOOGLE("ExteraMSGoogleIcon", R.drawable.exterams_google_icon_background,
-                R.drawable.exterams_google_icon_foreground, R.string.AppIconExteraMSGoogle, IconGroup.EXTERAMS, "@moltenst4r"),
+                R.drawable.exterams_google_icon_foreground, R.string.AppIconExteraMSGoogle, IconGroup.EXTERAMS, "@moltenst4r", "Material 3 Expressive", 0xFF183048),
         MOLTENSTAR("MoltenStarIcon", R.drawable.moltenstar_icon_background,
-                R.drawable.moltenstar_icon_foreground, R.string.AppIconMoltenStar, IconGroup.EXTERAMS, "@moltenst4r"),
+                R.drawable.moltenstar_icon_foreground, R.string.AppIconMoltenStar, IconGroup.EXTERAMS, "@moltenst4r", "Signature star", 0xFF541814),
         MOLTENSTAR_DOTTED("MoltenStarDottedIcon", R.drawable.moltenstar_dotted_icon_background,
-                R.drawable.moltenstar_dotted_icon_foreground, R.string.AppIconMoltenStarDotted, IconGroup.EXTERAMS, "@moltenst4r"),
+                R.drawable.moltenstar_dotted_icon_foreground, R.string.AppIconMoltenStarDotted, IconGroup.EXTERAMS, "@moltenst4r", "Dotted star", 0xFF381820),
         MOLTENSTAR_GOOGLE("MoltenStarGoogleIcon", R.drawable.moltenstar_google_icon_background,
-                R.drawable.moltenstar_google_icon_foreground, R.string.AppIconMoltenStarGoogle, IconGroup.EXTERAMS, "@moltenst4r"),
+                R.drawable.moltenstar_google_icon_foreground, R.string.AppIconMoltenStarGoogle, IconGroup.EXTERAMS, "@moltenst4r", "Google Pixel star", 0xFF1A3246),
 
         // Telegram
-        TELEGRAM("TelegramIcon", R.drawable.icon_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconTelegramOriginal, IconGroup.TELEGRAM, "@telegram"),
-        VINTAGE("VintageIcon", R.drawable.icon_6_background_sa, R.mipmap.icon_6_foreground_sa, R.string.AppIconVintage, IconGroup.TELEGRAM, "@telegram"),
-        AQUA("AquaIcon", R.drawable.icon_4_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconAqua, IconGroup.TELEGRAM, "@telegram"),
-        PREMIUM("PremiumIcon", R.drawable.icon_3_background_sa, R.mipmap.icon_3_foreground_sa, R.string.AppIconPremium, IconGroup.TELEGRAM, "@telegram"),
-        TURBO("TurboIcon", R.drawable.icon_5_background_sa, R.mipmap.icon_5_foreground_sa, R.string.AppIconTurbo, IconGroup.TELEGRAM, "@telegram"),
-        NOX("NoxIcon", R.mipmap.icon_2_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconNox, IconGroup.TELEGRAM, "@telegram");
+        TELEGRAM("TelegramIcon", R.drawable.icon_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconTelegramOriginal, IconGroup.TELEGRAM, "@telegram", "The classic paper plane", 0xFF143854),
+        VINTAGE("VintageIcon", R.drawable.icon_6_background_sa, R.mipmap.icon_6_foreground_sa, R.string.AppIconVintage, IconGroup.TELEGRAM, "@telegram", "Retro nostalgic style", 0xFF442A16),
+        AQUA("AquaIcon", R.drawable.icon_4_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconAqua, IconGroup.TELEGRAM, "@telegram", "Deep ocean water drop", 0xFF123C4A),
+        PREMIUM("PremiumIcon", R.drawable.icon_3_background_sa, R.mipmap.icon_3_foreground_sa, R.string.AppIconPremium, IconGroup.TELEGRAM, "@telegram", "Telegram Star gradient", 0xFF36184E),
+        TURBO("TurboIcon", R.drawable.icon_5_background_sa, R.mipmap.icon_5_foreground_sa, R.string.AppIconTurbo, IconGroup.TELEGRAM, "@telegram", "Speed and propulsion", 0xFF14345C),
+        NOX("NoxIcon", R.mipmap.icon_2_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconNox, IconGroup.TELEGRAM, "@telegram", "Starry night sky", 0xFF161628);
 
         public final String key;
         public final int background;
@@ -105,6 +105,8 @@ public class LauncherIconController {
         public final boolean premium;
         public final IconGroup group;
         public final String author;
+        public final String description;
+        public final int glowColor;
 
         private ComponentName componentName;
 
@@ -115,11 +117,11 @@ public class LauncherIconController {
             return componentName;
         }
 
-        LauncherIcon(String key, int background, int foreground, int title, IconGroup group, String author) {
-            this(key, background, foreground, title, false, group, author);
+        LauncherIcon(String key, int background, int foreground, int title, IconGroup group, String author, String description, int glowColor) {
+            this(key, background, foreground, title, false, group, author, description, glowColor);
         }
 
-        LauncherIcon(String key, int background, int foreground, int title, boolean premium, IconGroup group, String author) {
+        LauncherIcon(String key, int background, int foreground, int title, boolean premium, IconGroup group, String author, String description, int glowColor) {
             this.key = key;
             this.background = background;
             this.foreground = foreground;
@@ -127,6 +129,16 @@ public class LauncherIconController {
             this.premium = premium;
             this.group = group;
             this.author = author;
+            this.description = description;
+            this.glowColor = glowColor;
+        }
+
+        LauncherIcon(String key, int background, int foreground, int title, IconGroup group, String author) {
+            this(key, background, foreground, title, false, group, author, null, 0xFF202020);
+        }
+
+        LauncherIcon(String key, int background, int foreground, int title, boolean premium, IconGroup group, String author) {
+            this(key, background, foreground, title, premium, group, author, null, 0xFF202020);
         }
 
     }
