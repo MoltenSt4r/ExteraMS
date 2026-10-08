@@ -269,6 +269,7 @@ import tw.nekomimi.nekogram.helpers.SettingsHelper;
 import tw.nekomimi.nekogram.helpers.remote.EmojiHelper;
 import tw.nekomimi.nekogram.helpers.remote.PagePreviewRulesHelper;
 import tw.nekomimi.nekogram.helpers.remote.UpdateHelper;
+import app.exteraless.chats.UserLookup;
 import app.exteraless.settings.OpenExteraSettingsActivity;
 import tw.nekomimi.nekogram.utils.AlertUtil;
 import tw.nekomimi.nekogram.utils.AndroidUtil;
@@ -1656,6 +1657,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         }
         boolean pushOpened = false;
         long push_user_id = 0;
+        boolean userIdLink = false;
         long push_chat_id = 0;
         long[] push_story_dids = null;
         int push_story_id = -1;
@@ -2307,6 +2309,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                                     long userId = Utilities.parseLong(StringsKt.substringAfter(path, "@id", "0"));
                                                     if (userId != 0) {
                                                         push_user_id = userId;
+                                                        userIdLink = true;
                                                     }
                                                 } catch (Exception e) {
                                                     FileLog.e(e);
@@ -2790,6 +2793,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                             long userId = Utilities.parseLong(data.getQueryParameter("id"));
                                             if (userId != 0) {
                                                 push_user_id = userId;
+                                                userIdLink = true;
                                             }
                                         } catch (Exception e) {
                                             FileLog.e(e);
@@ -3181,6 +3185,18 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     } else {
                         VoIPPendingCall.startOrSchedule(this, push_user_id, videoCallUser, AccountInstance.getInstance(intentAccount[0]));
                     }
+                } else if (userIdLink && !mainFragmentsStack.isEmpty() && MessagesController.getInstance(intentAccount[0]).getUser(push_user_id) == null && MessagesStorage.getInstance(intentAccount[0]).getUserSync(push_user_id) == null) {
+                    long lookupUserId = push_user_id;
+                    BaseFragment lastFragment = mainFragmentsStack.get(mainFragmentsStack.size() - 1);
+                    UserLookup.show(this, intentAccount[0], lastFragment.getResourceProvider(), lookupUserId, user -> {
+                        if (user != null) {
+                            Bundle args = new Bundle();
+                            args.putLong("user_id", user.id);
+                            presentFragment(new ProfileActivity(args));
+                        } else {
+                            BulletinFactory.of(lastFragment).createErrorBulletin(LocaleController.formatString(R.string.OEUserLookupNotFound, lookupUserId)).show();
+                        }
+                    });
                 } else {
                     Bundle args = new Bundle();
                     args.putLong("user_id", push_user_id);

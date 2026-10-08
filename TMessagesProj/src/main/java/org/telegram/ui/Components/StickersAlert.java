@@ -114,6 +114,8 @@ import tw.nekomimi.nekogram.NekoConfig;
 import xyz.nextalone.nagram.NaConfig;
 import xyz.nextalone.nagram.helper.StickerSetHelper;
 
+import app.exteraless.chats.UserLookup;
+
 public class StickersAlert extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 
     public final static boolean DISABLE_STICKER_EDITOR = false;
@@ -1468,22 +1470,30 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
             if ((stickerSet.set.id >> 24 & 0xff) != 0) {
                 userId += 0x100000000L;
             }
+            long ownerId = userId;
             if (parentFragment != null) {
-                TLRPC.User user = parentFragment.getMessagesController().getUser(userId);
-                if (user != null) {
-                    MessagesController.getInstance(currentAccount).openChatOrProfileWith(user, null, parentFragment, 0, false);
-                    return;
-                }
+                UserLookup.show(getContext(), currentAccount, resourcesProvider, ownerId, user -> {
+                    if (user != null) {
+                        MessagesController.getInstance(currentAccount).openChatOrProfileWith(user, null, parentFragment, 0, false);
+                    } else {
+                        copyOwnerId(ownerId);
+                    }
+                });
+                return;
             }
-            try {
-                AndroidUtilities.addToClipboard("" + userId);
-                BulletinFactory.of((FrameLayout) containerView, resourcesProvider).createCopyLinkBulletin().show();
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
+            copyOwnerId(ownerId);
         } else if (id == menu_refresh) {
             stickerSet = null;
             loadStickerSet(true);
+        }
+    }
+
+    private void copyOwnerId(long ownerId) {
+        try {
+            AndroidUtilities.addToClipboard("" + ownerId);
+            BulletinFactory.of((FrameLayout) containerView, resourcesProvider).createCopyLinkBulletin().show();
+        } catch (Exception e) {
+            FileLog.e(e);
         }
     }
 

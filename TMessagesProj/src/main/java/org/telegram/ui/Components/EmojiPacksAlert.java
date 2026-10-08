@@ -88,6 +88,8 @@ import java.util.regex.Pattern;
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.utils.ProxyUtil;
 
+import app.exteraless.chats.UserLookup;
+
 public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 
     private LongSparseArray<AnimatedEmojiDrawable> animatedEmojiDrawables;
@@ -1537,19 +1539,27 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
             if ((stickerSet.set.id >> 24 & 0xff) != 0) {
                 userId += 0x100000000L;
             }
+            long ownerId = userId;
             if (fragment != null) {
-                TLRPC.User user = fragment.getMessagesController().getUser(userId);
-                if (user != null) {
-                    MessagesController.getInstance(currentAccount).openChatOrProfileWith(user, null, fragment, 0, false);
-                    return;
-                }
+                UserLookup.show(getContext(), currentAccount, resourcesProvider, ownerId, user -> {
+                    if (user != null) {
+                        MessagesController.getInstance(currentAccount).openChatOrProfileWith(user, null, fragment, 0, false);
+                    } else {
+                        copyOwnerId(ownerId);
+                    }
+                });
+                return;
             }
-            try {
-                AndroidUtilities.addToClipboard("" + userId);
-                BulletinFactory.of((FrameLayout) containerView, resourcesProvider).createCopyLinkBulletin().show();
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
+            copyOwnerId(ownerId);
+        }
+    }
+
+    private void copyOwnerId(long ownerId) {
+        try {
+            AndroidUtilities.addToClipboard("" + ownerId);
+            BulletinFactory.of((FrameLayout) containerView, resourcesProvider).createCopyLinkBulletin().show();
+        } catch (Exception e) {
+            FileLog.e(e);
         }
     }
 
