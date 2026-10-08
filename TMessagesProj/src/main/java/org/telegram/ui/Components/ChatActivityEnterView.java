@@ -6581,6 +6581,27 @@ public class ChatActivityEnterView extends FrameLayout implements
         if (parentFragment != null && !isEditingBusinessLink() && !isLiveComment) {
             ViewCompat.setOnReceiveContentListener(messageEditText, RECEIVE_CONTENT_MIME_TYPES, (view, payload) -> onReceiveMediaContent(payload));
         }
+        messageEditText.setInlineMath(new app.exteraless.math.InlineMathController(messageEditText, new app.exteraless.math.InlineMathController.Delegate() {
+            @Override
+            public int accentColor() {
+                return getThemedColor(Theme.key_chat_messagePanelCursor);
+            }
+
+            @Override
+            public int account() {
+                return currentAccount;
+            }
+
+            @Override
+            public void runProgrammatic(Runnable action) {
+                innerTextChange = 2;
+                try {
+                    action.run();
+                } finally {
+                    innerTextChange = 0;
+                }
+            }
+        }));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             messageEditText.setFallbackLineSpacing(false);
         }

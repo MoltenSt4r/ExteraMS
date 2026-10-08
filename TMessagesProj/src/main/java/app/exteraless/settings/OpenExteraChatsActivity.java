@@ -160,7 +160,8 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
     private int hideKeyboardOnScrollRow;
     private int disableGlobalSearchRow;
     private int addCommaRow;
-    private int mathResultsRow;
+    private int inlineMathRow;
+    private int inlineMathCurrencyRow;
     private int hideSendAsPeerRow;
     private int tapToSwitchRecordRow;
     private int keepAttachButtonRow;
@@ -388,7 +389,8 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         hideKeyboardOnScrollRow = addRow("hideKeyboardOnScroll");
         disableGlobalSearchRow = addRow("disableGlobalSearch");
         addCommaRow = addRow("addCommaAfterMention");
-        mathResultsRow = addRow("mathResults");
+        inlineMathRow = addRow("inlineMathResult");
+        inlineMathCurrencyRow = ChatsConfig.inlineMathResult.Bool() ? addRow("inlineMathCurrency") : -1;
         hideSendAsPeerRow = addRow("hideSendAsPeer");
         tapToSwitchRecordRow = addRow("tapToSwitchRecord", "UseChatAttachEnterMenu");
         keepAttachButtonRow = addRow("keepAttachButton");
@@ -1495,7 +1497,17 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         if (view instanceof TextCheckCell) {
             ((TextCheckCell) view).setChecked(value);
         }
-        if (position == hideTimeOnStickersRow && stickerSizeCell != null) {
+        if (position == inlineMathRow) {
+            int wasCurrencyRow = inlineMathCurrencyRow;
+            updateRows();
+            if (listAdapter != null) {
+                if (wasCurrencyRow != -1 && inlineMathCurrencyRow == -1) {
+                    listAdapter.notifyItemRemoved(wasCurrencyRow);
+                } else if (wasCurrencyRow == -1 && inlineMathCurrencyRow != -1) {
+                    listAdapter.notifyItemInserted(inlineMathCurrencyRow);
+                }
+            }
+        } else if (position == hideTimeOnStickersRow && stickerSizeCell != null) {
             stickerSizeCell.invalidate();
         } else if (position == removeMessageTailRow) {
             // Пузырь рисуется закешированным drawable — без сброса эффекта не видно.
@@ -1660,7 +1672,8 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
         if (position == hideKeyboardOnScrollRow) return NekoConfig.hideKeyboardOnChatScroll;
         if (position == disableGlobalSearchRow) return NaConfig.INSTANCE.getDisableGlobalSearch();
         if (position == addCommaRow) return OpenExteraConfig.addCommaAfterMention;
-        if (position == mathResultsRow) return ChatsConfig.mathResults;
+        if (position == inlineMathRow) return ChatsConfig.inlineMathResult;
+        if (position == inlineMathCurrencyRow) return ChatsConfig.inlineMathCurrency;
         if (position == hideSendAsPeerRow) return NekoConfig.hideSendAsChannel;
         if (position == keepAttachButtonRow) return ChatsConfig.keepAttachButton;
         if (position == removeMessageTailRow) return ChatsConfig.removeMessageTail;
@@ -2299,10 +2312,14 @@ public class OpenExteraChatsActivity extends BaseNekoSettingsActivity {
                 cell.setTextAndCheck(getString(R.string.OEChatsDisableGlobalSearch), NaConfig.INSTANCE.getDisableGlobalSearch().Bool(), true);
             } else if (position == addCommaRow) {
                 cell.setTextAndCheck(getString(R.string.AddCommaAfterMention), OpenExteraConfig.addCommaAfterMention.Bool(), true);
-            } else if (position == mathResultsRow) {
-                cell.setTextAndValueAndCheck(TextCell.applyNewSpan(getString(R.string.OEChatsMathResults)),
-                        getString(R.string.OEChatsMathResultsInfo),
-                        ChatsConfig.mathResults.Bool(), true, true);
+            } else if (position == inlineMathRow) {
+                cell.setTextAndValueAndCheck(getString(R.string.OEChatsInlineMath),
+                        getString(R.string.OEChatsInlineMathInfo),
+                        ChatsConfig.inlineMathResult.Bool(), true, true);
+            } else if (position == inlineMathCurrencyRow) {
+                cell.setTextAndValueAndCheck(getString(R.string.OEChatsInlineMathCurrency),
+                        getString(R.string.OEChatsInlineMathCurrencyInfo),
+                        ChatsConfig.inlineMathCurrency.Bool(), true, true);
             } else if (position == hideSendAsPeerRow) {
                 cell.setTextAndCheck(getString(R.string.OEChatsHideSendAsPeer), NekoConfig.hideSendAsChannel.Bool(), true);
             } else if (position == tapToSwitchRecordRow) {

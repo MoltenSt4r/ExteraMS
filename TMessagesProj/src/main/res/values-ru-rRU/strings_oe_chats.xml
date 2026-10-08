@@ -184,4 +184,12 @@
     <string name="OEChatsTextAnimationAnimateAllLines">Анимировать все строки</string>
     <string name="OEChatsTextAnimationReset">Сбросить настройки анимаций</string>
     <string name="OEChatsTextAnimationResetConfirm">Сбросить все настройки анимаций текста к значениям по умолчанию?</string>
+
+    <string name="OEChatsTranslateInSheet">Перевод в окне Telegram</string>
+    <string name="OEChatsTranslateInSheetInfo">Кнопка «Перевести» открывает окно из официального клиента с выбором переводчика</string>
+    <string name="OEChatsInlineMath">Калькулятор в поле ввода</string>
+    <string name="OEChatsInlineMathInfo">Наберите выражение и «=», чтобы увидеть результат, пробел вставит его.</string>
+    <string name="OEChatsInlineMathCurrency">Валюты через @calcmulabot</string>
+    <string name="OEChatsInlineMathCurrencyInfo">Выражения с валютами, например «10 usd to rub =», отправляются боту @calcmulabot за курсом.</string>
+    <string name="OEChatsInlineMathAnnouncement">Результат: %1$s</string>
 </resources>

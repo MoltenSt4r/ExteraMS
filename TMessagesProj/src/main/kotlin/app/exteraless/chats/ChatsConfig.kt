@@ -183,6 +183,12 @@ object ChatsConfig {
     @JvmField
     val hideCameraTile = addConfig("OEChatsHideCameraTile", ConfigItem.configTypeBool, false)
 
+    @JvmField
+    val inlineMathResult = addConfig("OEChatsInlineMathResult", ConfigItem.configTypeBool, true)
+
+    @JvmField
+    val inlineMathCurrency = addConfig("OEChatsInlineMathCurrency", ConfigItem.configTypeBool, true)
+
     /**
      * Отправлять фото в высоком качестве по умолчанию. Дефолт true, как в exteraGram.
      * При включённом бейдж на превью инвертируется: помечается не «HD», а «SD» —

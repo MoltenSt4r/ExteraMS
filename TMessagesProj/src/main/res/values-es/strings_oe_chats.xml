@@ -121,7 +121,6 @@
     <string name="OEChatsAskWhenBotCommands">Enviar comandos de bots</string>
     <string name="OEChatsHdrPhotos">Fotos HDR</string>
     <string name="OEChatsHdrPhotosInfo">Muestra las fotos HDR con brillo completo. Desactívalo si las fotos se ven oscuras.</string>
-
     <!-- Text typing animations -->
     <string name="OEChatsTextAnimation">Animaciones de escritura</string>
     <string name="OEChatsTextAnimationInfo">Aparición suave, deslizamiento, partículas al borrar y cursor líquido fluido.</string>
@@ -160,4 +159,12 @@
     <string name="OEChatsTextAnimationAnimateAllLines">Animar todas las líneas</string>
     <string name="OEChatsTextAnimationReset">Restablecer ajustes de animación</string>
     <string name="OEChatsTextAnimationResetConfirm">¿Restablecer todos los ajustes de animación de texto por defecto?</string>
+
+    <string name="OEChatsTranslateInSheet">Ventana de traducción de Telegram</string>
+    <string name="OEChatsTranslateInSheetInfo">Traducir abre la ventana de la app oficial con selector de proveedor</string>
+    <string name="OEChatsInlineMath">Resultados de cálculo en línea</string>
+    <string name="OEChatsInlineMathInfo">Escribe una expresión y «=» para ver el resultado; pulsa Espacio para insertarlo.</string>
+    <string name="OEChatsInlineMathCurrency">Divisas mediante @calcmulabot</string>
+    <string name="OEChatsInlineMathCurrencyInfo">Las expresiones con divisas, como «10 usd to rub =», se envían a @calcmulabot para obtener el tipo de cambio.</string>
+    <string name="OEChatsInlineMathAnnouncement">Resultado: %1$s</string>
 </resources>

@@ -186,4 +186,13 @@
     <string name="OEChatsTextAnimationAnimateAllLines">Animate All Lines</string>
     <string name="OEChatsTextAnimationReset">Reset Animation Settings</string>
     <string name="OEChatsTextAnimationResetConfirm">Reset all text animation settings to default?</string>
+
+    <string name="PhotoEditorTypefaceOswald" translatable="false">Oswald</string>
+    <string name="OEChatsTranslateInSheet">Telegram Translation Window</string>
+    <string name="OEChatsTranslateInSheetInfo">Translate opens the sheet from the official app with a provider switch</string>
+    <string name="OEChatsInlineMath">Inline math results</string>
+    <string name="OEChatsInlineMathInfo">Type an expression and “=” to see the result, press Space to insert it.</string>
+    <string name="OEChatsInlineMathCurrency">Currencies via @calcmulabot</string>
+    <string name="OEChatsInlineMathCurrencyInfo">Expressions with currencies like “10 usd to rub =” are sent to @calcmulabot to get the rate.</string>
+    <string name="OEChatsInlineMathAnnouncement">Result: %1$s</string>
 </resources>

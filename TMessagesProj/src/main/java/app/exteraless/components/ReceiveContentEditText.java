@@ -6,11 +6,14 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.text.Editable;
 import android.text.Selection;
 import android.view.DragEvent;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
@@ -21,6 +24,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.widget.TextViewOnReceiveContentListener;
+
+import app.exteraless.math.InlineMathController;
 
 /**
  *
@@ -34,6 +39,7 @@ import androidx.core.widget.TextViewOnReceiveContentListener;
 public abstract class ReceiveContentEditText extends EditText implements OnReceiveContentViewBehavior {
 
     private final TextViewOnReceiveContentListener defaultOnReceiveContentListener;
+    private InlineMathController inlineMath;
 
     public ReceiveContentEditText(Context context) {
         super(context);
@@ -111,8 +117,22 @@ public abstract class ReceiveContentEditText extends EditText implements OnRecei
         return super.getEditableText();
     }
 
+    public void setInlineMath(InlineMathController controller) {
+        inlineMath = controller;
+        requestLayout();
+    }
+
+    public InlineMathController getInlineMath() {
+        return inlineMath;
+    }
+
     @Override
     public InputConnection onCreateInputConnection(EditorInfo editorInfo) {
+        final InputConnection ic = createReceivingInputConnection(editorInfo);
+        return ic == null || inlineMath == null ? ic : inlineMath.wrap(ic);
+    }
+
+    private InputConnection createReceivingInputConnection(EditorInfo editorInfo) {
         final InputConnection ic = super.onCreateInputConnection(editorInfo);
         if (ic == null) {
             return null;
@@ -126,6 +146,75 @@ public abstract class ReceiveContentEditText extends EditText implements OnRecei
             return ic;
         }
         return InputConnectionCompat.createWrapper(this, ic, editorInfo);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (inlineMath != null && inlineMath.onKeyEvent(event)) {
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public int getCompoundPaddingBottom() {
+        return super.getCompoundPaddingBottom() + (inlineMath != null ? inlineMath.getExtraBottom() : 0);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (inlineMath != null && inlineMath.updateOnMeasure()) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
+    }
+
+    @Override
+    protected void onSelectionChanged(int selStart, int selEnd) {
+        super.onSelectionChanged(selStart, selEnd);
+        if (inlineMath != null) {
+            inlineMath.invalidateState();
+        }
+    }
+
+    @Override
+    protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
+        super.onTextChanged(text, start, lengthBefore, lengthAfter);
+        if (inlineMath != null) {
+            inlineMath.onTextChanged();
+        }
+    }
+
+    @Override
+    protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
+        super.onFocusChanged(focused, direction, previouslyFocusedRect);
+        if (inlineMath != null) {
+            inlineMath.onFocusChanged(focused);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (inlineMath != null && event.getAction() == MotionEvent.ACTION_DOWN) {
+            inlineMath.onTouchDown();
+        }
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (inlineMath != null) {
+            inlineMath.cancel();
+        }
+    }
+
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, type);
+        if (inlineMath != null) {
+            inlineMath.cancel();
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@
 
 package org.telegram.ui.Components;
 
+import app.exteraless.math.InlineMathController;
 import static org.telegram.messenger.AndroidUtilities.dp;
 
 import android.animation.AnimatorSet;
@@ -872,6 +873,11 @@ public class EditTextBoldCursor extends EditTextEffects {
         }
 
         int topPadding = getExtendedPaddingTop();
+        InlineMathController inlineMath = getInlineMath();
+        int mathLeft = inlineMath == null ? 0 : getTotalPaddingLeft();
+        int mathTop = inlineMath == null ? 0 : getTotalPaddingTop();
+        float cursorShiftX = inlineMath == null ? 0 : inlineMath.getCursorShiftX();
+        float cursorShiftY = inlineMath == null ? 0 : inlineMath.getCursorShiftY();
         scrollY = Integer.MAX_VALUE;
         try {
             if (mScrollYField != null) {
@@ -888,6 +894,9 @@ public class EditTextBoldCursor extends EditTextEffects {
         ignoreTopCount = 1;
         ignoreBottomCount = 1;
         canvas.save();
+        if (inlineMath != null) {
+            inlineMath.clipReplacedParagraph(canvas, mathTop);
+        }
         canvas.translate(0, topPadding);
         try {
             drawInMaim = true;
@@ -930,7 +939,7 @@ public class EditTextBoldCursor extends EditTextEffects {
                             voffsetCursor = getTotalPaddingTop() - getExtendedPaddingTop();
                         }
                     }
-                    canvas.translate(getPaddingLeft(), getExtendedPaddingTop() + voffsetCursor);
+                    canvas.translate(getPaddingLeft() + cursorShiftX, getExtendedPaddingTop() + voffsetCursor + cursorShiftY);
                     Layout layout = getLayout();
                     int line = layout.getLineForOffset(getSelectionStart());
                     int lineCount = layout.getLineCount();
@@ -968,7 +977,7 @@ public class EditTextBoldCursor extends EditTextEffects {
                             voffsetCursor = getTotalPaddingTop() - getExtendedPaddingTop();
                         }
                     }
-                    canvas.translate(getPaddingLeft(), getExtendedPaddingTop() + voffsetCursor);
+                    canvas.translate(getPaddingLeft() + cursorShiftX, getExtendedPaddingTop() + voffsetCursor + cursorShiftY);
                     Layout layout = getLayout();
                     int line = layout.getLineForOffset(getSelectionStart());
                     int lineCount = layout.getLineCount();
@@ -993,6 +1002,9 @@ public class EditTextBoldCursor extends EditTextEffects {
                     }
                 }
             }
+        }
+        if (inlineMath != null) {
+            inlineMath.draw(canvas, mathLeft, mathTop, getScrollY(), getScrollY() + getMeasuredHeight());
         }
         if (lineVisible && lineColor != 0) {
             int lineWidth = dp(1);
@@ -1084,7 +1096,7 @@ public class EditTextBoldCursor extends EditTextEffects {
 
     private Rect mTempRect;
 
-    private int clampHorizontalPosition(final Drawable drawable, float horizontal) {
+    private int clampHorizontalPosition(final Drawable drawable, float horizontal, boolean clamp) {
         horizontal = Math.max(0.5f, horizontal - 0.5f);
         if (mTempRect == null) {
             mTempRect = new Rect();
@@ -1100,9 +1112,9 @@ public class EditTextBoldCursor extends EditTextEffects {
         float horizontalDiff = horizontal - scrollX;
         int viewClippedWidth = getWidth() - getCompoundPaddingLeft() - getCompoundPaddingRight();
         final int left;
-        if (horizontalDiff >= (viewClippedWidth - 1f)) {
+        if (clamp && horizontalDiff >= (viewClippedWidth - 1f)) {
             left = viewClippedWidth + scrollX - (drawableWidth - mTempRect.right);
-        } else if (Math.abs(horizontalDiff) <= 1f || (TextUtils.isEmpty(getText()) && (1024 * 1024 - scrollX) <= (viewClippedWidth + 1f) && horizontal <= 1f)) {
+        } else if (clamp && (Math.abs(horizontalDiff) <= 1f || (TextUtils.isEmpty(getText()) && (1024 * 1024 - scrollX) <= (viewClippedWidth + 1f) && horizontal <= 1f))) {
             left = scrollX - mTempRect.left;
         } else {
             left = (int) horizontal - mTempRect.left;
@@ -1111,7 +1123,8 @@ public class EditTextBoldCursor extends EditTextEffects {
     }
 
     private void updateCursorPosition(int top, int bottom, float horizontal) {
-        final int left = clampHorizontalPosition(gradientDrawable, horizontal);
+        InlineMathController inlineMath = getInlineMath();
+        final int left = clampHorizontalPosition(gradientDrawable, horizontal, inlineMath == null || !inlineMath.hasCursorShift());
         final int width = dp(cursorWidth);
         gradientDrawable.setBounds(left, top - mTempRect.top, left + width, bottom + mTempRect.bottom);
     }
