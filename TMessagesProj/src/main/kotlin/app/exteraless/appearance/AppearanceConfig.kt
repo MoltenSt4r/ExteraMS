@@ -633,6 +633,7 @@ object AppearanceConfig {
         } else if (!legacyHidden && dividerStyle.Int() == DIVIDER_HIDDEN) {
             NaConfig.hideDividers.setConfigBool(true)
         }
+        migrateLegacyTitleName()
         migrateCustomTitle()
         migrateCenterTitle()
         migrateModernStyles()
@@ -668,6 +669,16 @@ object AppearanceConfig {
         }
         if (chat != snow) {
             NaConfig.chatDecoration.setConfigInt(snow)
+        }
+    }
+
+    private const val LEGACY_DEFAULT_TITLE = "Nagram X"
+
+    private fun migrateLegacyTitleName() {
+        if (NaConfig.customTitle.String() != LEGACY_DEFAULT_TITLE) return
+        NaConfig.customTitle.setConfigString(NaConfig.customTitle.defaultValue as String)
+        if (titleText.Int() == TITLE_TEXT_CUSTOM) {
+            titleText.setConfigInt(0)
         }
     }
 

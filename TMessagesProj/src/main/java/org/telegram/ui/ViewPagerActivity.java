@@ -497,6 +497,14 @@ public abstract class ViewPagerActivity extends BaseFragment {
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
             super.onLayout(changed, left, top, right, bottom);
         }
+
+        @Override
+        public void onViewRemoved(View child) {
+            super.onViewRemoved(child);
+            if (child instanceof ViewPagerFragmentRootLayout && !child.isAttachedToWindow()) {
+                ((ViewPagerFragmentRootLayout) child).removeAllViews();
+            }
+        }
     }
 
     private static class ViewPagerFragmentRootLayout extends FrameLayout {

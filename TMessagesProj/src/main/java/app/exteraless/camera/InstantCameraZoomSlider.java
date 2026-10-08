@@ -548,6 +548,16 @@ public class InstantCameraZoomSlider extends CameraZoomSliderView {
         hideImmediately();
     }
 
+    private String activeCameraId() {
+        if (backend == Backend.CAMERA_X && cameraXSession != null) {
+            return cameraXSession.getActiveCameraId();
+        }
+        if (backend == Backend.CAMERA_2 && camera2Session != null) {
+            return camera2Session.cameraId;
+        }
+        return null;
+    }
+
     private void tryBind() {
         float minRatio;
         float maxRatio;
@@ -613,8 +623,10 @@ public class InstantCameraZoomSlider extends CameraZoomSliderView {
         wideZoom = minRatio;
         setDisplayNormalizationFactor(displayOneZoom);
 
-        final float[] toggles = buildToggleStops(frontFace, minRatio, maxRatio, displayOneZoom);
-        final float[] ruler = buildRulerStops(minRatio, maxRatio, displayOneZoom);
+        final float[] opticalToggles = frontFace ? null : CameraLensStops.buildToggleStops(minRatio, maxRatio,
+            CameraLensStops.opticalZoomRatios(getContext(), activeCameraId(), minRatio));
+        final float[] toggles = opticalToggles != null ? opticalToggles : buildToggleStops(frontFace, minRatio, maxRatio, displayOneZoom);
+        final float[] ruler = opticalToggles != null ? CameraLensStops.buildRulerStops(minRatio, maxRatio, opticalToggles) : buildRulerStops(minRatio, maxRatio, displayOneZoom);
         final float current = clamp(
             backend == Backend.CAMERA_X ? getCameraXResetZoom()
                 : backend == Backend.CAMERA_2 ? camera2Session.getZoom()
