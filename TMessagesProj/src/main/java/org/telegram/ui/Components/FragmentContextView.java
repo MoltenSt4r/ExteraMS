@@ -740,6 +740,9 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                     button.setTextColor(getThemedColor(Theme.key_text_RedBold));
                 }
             } else {
+                if (app.exteraless.player.Md3Player.miniEnabled()) {
+                    MediaController.getInstance().clearMusicPlaylistState();
+                }
                 MediaController.getInstance().cleanupPlayer(true, true);
             }
         });
