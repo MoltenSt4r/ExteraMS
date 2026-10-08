@@ -1617,8 +1617,27 @@ public class ContactsActivity extends BaseFragment implements FactorAnimator.Tar
             0,
             dp(ADDITIONAL_LIST_HEIGHT_DP + 44) + actionBar.getMeasuredHeight(),
             0,
-            dp(ADDITIONAL_LIST_HEIGHT_DP) + navigationBarHeight + additionNavigationBarHeight
+            dp(ADDITIONAL_LIST_HEIGHT_DP) + navigationBarHeight + additionNavigationBarHeight + miniPlayerPadding
         );
+    }
+
+    private float miniPlayerInset;
+    private int miniPlayerPadding;
+
+    @Override
+    public void setMiniPlayerInset(float inset, int padding) {
+        if (miniPlayerInset != inset) {
+            miniPlayerInset = inset;
+            if (floatingButton != null) {
+                checkUi_floatingButtonPosition();
+            }
+        }
+        if (miniPlayerPadding != padding) {
+            miniPlayerPadding = padding;
+            if (listView != null && actionBar != null) {
+                checkUi_listViewPadding();
+            }
+        }
     }
 
     private boolean lastIsEmpty;
@@ -1668,7 +1687,7 @@ public class ContactsActivity extends BaseFragment implements FactorAnimator.Tar
 
     private void checkUi_floatingButtonPosition() {
         if (floatingButton != null) {
-            floatingButton.setTranslationY(-navigationBarHeight - additionFloatingButtonOffset - additionalFloatingTranslation);
+            floatingButton.setTranslationY(-navigationBarHeight - additionFloatingButtonOffset - Math.max(additionalFloatingTranslation, miniPlayerInset));
         }
     }
 

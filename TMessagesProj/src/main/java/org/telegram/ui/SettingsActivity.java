@@ -402,7 +402,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         listView = new UniversalRecyclerView(this, this::fillItems, this::onClick, this::onLongClick);
         listView.adapter.setApplyBackground(false);
         listView.setSections();
-        listView.setPadding(0, AndroidUtilities.statusBarHeight + dp(12), 0, AndroidUtilities.navigationBarHeight + additionNavigationBarHeight);
+        listView.setPadding(0, AndroidUtilities.statusBarHeight + dp(12), 0, AndroidUtilities.navigationBarHeight + additionNavigationBarHeight + miniPlayerPadding);
         listView.setClipToPadding(false);
         listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -1072,8 +1072,21 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         final Insets systemInsets = AndroidUtilities.getDefaultWindowInsets(insets, false);
         navigationBarHeight = systemInsets.bottom;
         final int statusBarHeight = systemInsets.top;
-        listView.setPadding(0, statusBarHeight + dp(12), 0, navigationBarHeight + additionNavigationBarHeight);
+        listView.setPadding(0, statusBarHeight + dp(12), 0, navigationBarHeight + additionNavigationBarHeight + miniPlayerPadding);
         return WindowInsetsCompat.CONSUMED;
+    }
+
+    private int miniPlayerPadding;
+
+    @Override
+    public void setMiniPlayerInset(float inset, int padding) {
+        if (miniPlayerPadding == padding) {
+            return;
+        }
+        miniPlayerPadding = padding;
+        if (listView != null) {
+            listView.setPadding(0, listView.getPaddingTop(), 0, navigationBarHeight + additionNavigationBarHeight + miniPlayerPadding);
+        }
     }
 
     public static class AccountCell extends LinearLayout implements Theme.Colorable {
