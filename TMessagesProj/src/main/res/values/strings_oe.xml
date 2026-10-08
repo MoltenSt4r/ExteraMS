@@ -29,6 +29,7 @@
     <string name="AppIconsExteraMS" translatable="false">MoltenGram Icons</string>
     <string name="AppIconsTelegram" translatable="false">Telegram Icons</string>
     <string name="AppIconMoltenGramDefault">Material You</string>
+    <string name="AppIconMoltenGramClassic">Classic</string>
     <string name="AppIconMoltenGramProton">Proton</string>
     <string name="AppIconMoltenGramSad">Sad</string>
     <string name="AppIconMoltenGramSchizophrenia">Schizophrenia</string>

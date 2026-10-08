@@ -22,9 +22,28 @@ idea {
     }
 }
 
-def buildTimestamp = System.getenv('BUILD_TIMESTAMP') ?: '0'
-def commitId = System.getenv('COMMIT_ID')
+def getGitCommit() {
+    try {
+        return ['git', 'rev-parse', 'HEAD'].execute(null, project.rootDir).text.trim()
+    } catch (Exception ignored) {
+        return ''
+    }
+}
+
+def getGitCommitTimestamp() {
+    try {
+        String t = ['git', 'log', '-1', '--format=%ct'].execute(null, project.rootDir).text.trim()
+        if (!t.isEmpty()) {
+            return String.valueOf(Long.parseLong(t))
+        }
+    } catch (Exception ignored) {}
+    return String.valueOf((long)(System.currentTimeMillis() / 1000L))
+}
+
+def commitId = System.getenv('COMMIT_ID') ?: getGitCommit()
 def shortCommit = commitId?.take(7) ?: ''
+def rawTimestamp = System.getenv('BUILD_TIMESTAMP') ?: getGitCommitTimestamp()
+def buildTimestamp = String.valueOf(Long.parseLong(rawTimestamp.toString().split('\\.')[0]))
 def verName = "${APP_VERSION_NAME}${shortCommit ? "-${shortCommit}" : ''}"
 def verCode = 1261
 

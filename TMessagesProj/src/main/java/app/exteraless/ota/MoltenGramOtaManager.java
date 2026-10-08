@@ -58,6 +58,7 @@ public class MoltenGramOtaManager {
         public long fileSize = 0;
         public boolean isCanary = false;
         public long publishedAt = 0;
+        public String commitId = "";
 
         public boolean isDownloaded() {
             File f = getFile();
@@ -112,6 +113,7 @@ public class MoltenGramOtaManager {
             update.fileSize = prefs.getLong("pending_file_size", 0);
             update.isCanary = prefs.getBoolean("pending_is_canary", false);
             update.publishedAt = prefs.getLong("pending_published_at", 0);
+            update.commitId = prefs.getString("pending_commit_id", "");
             pendingUpdate = update;
         }
     }
@@ -127,6 +129,7 @@ public class MoltenGramOtaManager {
             editor.putLong("pending_file_size", update.fileSize);
             editor.putBoolean("pending_is_canary", update.isCanary);
             editor.putLong("pending_published_at", update.publishedAt);
+            editor.putString("pending_commit_id", update.commitId);
         } else {
             editor.remove("pending_version");
             editor.remove("pending_title");
@@ -136,13 +139,14 @@ public class MoltenGramOtaManager {
             editor.remove("pending_file_size");
             editor.remove("pending_is_canary");
             editor.remove("pending_published_at");
+            editor.remove("pending_commit_id");
         }
         editor.apply();
     }
 
     private void cleanupOldIfUpdated() {
         if (pendingUpdate != null) {
-            if (!isNewerVersion(pendingUpdate.version, pendingUpdate.publishedAt, "")) {
+            if (!isNewerVersion(pendingUpdate.version, pendingUpdate.publishedAt, pendingUpdate.commitId)) {
                 // Already updated to or past this version
                 clearPendingUpdate();
             }
@@ -200,7 +204,7 @@ public class MoltenGramOtaManager {
     // --- State Accessors ---
 
     public boolean isUpdateAvailable() {
-        return pendingUpdate != null && isNewerVersion(pendingUpdate.version, pendingUpdate.publishedAt, "");
+        return pendingUpdate != null && isNewerVersion(pendingUpdate.version, pendingUpdate.publishedAt, pendingUpdate.commitId);
     }
 
     public OtaUpdate getPendingUpdate() {
@@ -277,14 +281,18 @@ public class MoltenGramOtaManager {
                         continue;
                     }
 
-                    // Look for apk asset
+                    // Look for best apk asset
                     JSONObject apkAsset = null;
+                    long bestAssetTime = 0;
                     for (int j = 0; j < assets.length(); j++) {
                         JSONObject ast = assets.getJSONObject(j);
                         String name = ast.optString("name", "");
                         if (name.endsWith(".apk")) {
-                            apkAsset = ast;
-                            break;
+                            long assetTime = parseIsoTime(ast.optString("updated_at", ast.optString("created_at", "")));
+                            if (apkAsset == null || assetTime > bestAssetTime) {
+                                apkAsset = ast;
+                                bestAssetTime = assetTime;
+                            }
                         }
                     }
 
@@ -292,19 +300,17 @@ public class MoltenGramOtaManager {
                         continue;
                     }
 
+                    String apkName = apkAsset.optString("name", "");
                     String verStr = tagName.startsWith("v") ? tagName.substring(1) : tagName;
-                    long publishedTime = 0;
-                    String pubDateStr = rel.optString("published_at", "");
-                    // Fallback to checking version
-                    boolean isNewer = isNewerVersion(verStr, publishedTime, "");
+                    long publishedTime = bestAssetTime > 0 ? bestAssetTime : parseIsoTime(rel.optString("published_at", ""));
 
-                    // If canary release, check if user is on canary and asset is newer
-                    if (prerelease && !isNewer) {
-                        // If it's canary, check commit or date if current build timestamp is older
-                        if (BuildConfig.BUILD_TIMESTAMP > 0 && publishedTime > BuildConfig.BUILD_TIMESTAMP) {
-                            isNewer = true;
-                        }
+                    String remoteCommit = "";
+                    java.util.regex.Matcher m = java.util.regex.Pattern.compile("-([0-9a-fA-F]{7,40})(?:\\.|$)").matcher(apkName);
+                    if (m.find()) {
+                        remoteCommit = m.group(1);
                     }
+
+                    boolean isNewer = isNewerVersion(verStr, publishedTime, remoteCommit);
 
                     if (isNewer) {
                         OtaUpdate update = new OtaUpdate();
@@ -312,10 +318,11 @@ public class MoltenGramOtaManager {
                         update.title = rel.optString("name", "MoltenGram " + tagName);
                         update.changelog = rel.optString("body", "");
                         update.downloadUrl = apkAsset.optString("browser_download_url", "");
-                        update.fileName = apkAsset.optString("name", "MoltenGram-" + tagName + ".apk");
+                        update.fileName = !TextUtils.isEmpty(apkName) ? apkName : ("MoltenGram-" + tagName + ".apk");
                         update.fileSize = apkAsset.optLong("size", 0);
                         update.isCanary = prerelease;
                         update.publishedAt = publishedTime;
+                        update.commitId = remoteCommit;
 
                         bestUpdate = update;
                         break; // Since GitHub releases are sorted newest first
@@ -361,6 +368,23 @@ public class MoltenGramOtaManager {
         });
     }
 
+    public static long parseIsoTime(String dateStr) {
+        if (TextUtils.isEmpty(dateStr)) {
+            return 0;
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                return java.time.Instant.parse(dateStr).getEpochSecond();
+            } else {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US);
+                sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                return sdf.parse(dateStr).getTime() / 1000L;
+            }
+        } catch (Exception ignored) {
+            return 0;
+        }
+    }
+
     // --- Version Comparison ---
 
     public static boolean isNewerVersion(String remoteVer, long remoteTimestamp, String remoteCommit) {
@@ -397,10 +421,30 @@ public class MoltenGramOtaManager {
             if (r < c) return false;
         }
 
-        // Versions are equal numerically
-        if (remoteVer.contains("canary") && currentVer.contains("canary")) {
-            if (remoteTimestamp > 0 && BuildConfig.BUILD_TIMESTAMP > 0) {
-                return remoteTimestamp > BuildConfig.BUILD_TIMESTAMP;
+        // Numerical versions are equal (e.g. 12.10.5 == 12.10.5 or canary == canary)
+        String currentCommit = BuildConfig.BUILD_COMMIT_ID != null ? BuildConfig.BUILD_COMMIT_ID.trim() : "";
+        if (!TextUtils.isEmpty(remoteCommit) && !TextUtils.isEmpty(currentCommit)) {
+            if (remoteCommit.equalsIgnoreCase(currentCommit)) {
+                return false;
+            }
+        }
+
+        long currentSec = BuildConfig.BUILD_TIMESTAMP;
+        if (currentSec > 100000000000L) {
+            currentSec /= 1000L;
+        }
+        long remoteSec = remoteTimestamp;
+        if (remoteSec > 100000000000L) {
+            remoteSec /= 1000L;
+        }
+
+        if (remoteSec > 0 && currentSec > 0) {
+            if (remoteSec > currentSec) {
+                return true;
+            }
+        } else if (!TextUtils.isEmpty(remoteCommit) && !TextUtils.isEmpty(currentCommit)) {
+            if (!remoteCommit.equalsIgnoreCase(currentCommit)) {
+                return true;
             }
         }
 
