@@ -42,6 +42,7 @@ public class SettingsHelper {
     private static final String HOST_NAGRAM = "nasettings";
     private static final String HOST_EXTERALESS = "exteraless";
     private static final String HOST_EXTERAMS = "exterams";
+    private static final String HOST_MOLTENGRAM = "moltengram";
 
     private static final Map<String, String> SEARCH_TITLE_ALIASES = new HashMap<>();
     private static final Map<String, String> TRANSLATOR_ROWS = new HashMap<>();
@@ -86,6 +87,9 @@ public class SettingsHelper {
         if (path.startsWith(HOST_NAGRAM + "/")) {
             return true;
         }
+        if (path.startsWith(HOST_MOLTENGRAM + "/")) {
+            return EXTERALESS_SCREENS.contains(path.substring(HOST_MOLTENGRAM.length() + 1));
+        }
         if (path.startsWith(HOST_EXTERAMS + "/")) {
             return EXTERALESS_SCREENS.contains(path.substring(HOST_EXTERAMS.length() + 1));
         }
@@ -100,26 +104,32 @@ public class SettingsHelper {
             return null;
         }
         switch (key) {
+            case "moltengram":
             case "exteraless":
             case "exterams":
-                return HOST_EXTERAMS + "/settings";
+                return HOST_MOLTENGRAM + "/settings";
+            case "moltengram_general":
             case "exteraless_general":
             case "exterams_general":
-                return HOST_EXTERAMS + "/general";
+                return HOST_MOLTENGRAM + "/general";
+            case "moltengram_appearance":
             case "exteraless_appearance":
             case "exterams_appearance":
-                return HOST_EXTERAMS + "/appearance";
+                return HOST_MOLTENGRAM + "/appearance";
+            case "moltengram_chats":
             case "exteraless_chats":
             case "exterams_chats":
-                return HOST_EXTERAMS + "/chats";
+                return HOST_MOLTENGRAM + "/chats";
+            case "moltengram_other":
             case "exteraless_other":
             case "exterams_other":
-                return HOST_EXTERAMS + "/other";
+                return HOST_MOLTENGRAM + "/other";
+            case "moltengram_ayumoments":
             case "exteraless_ayumoments":
             case "exterams_ayumoments":
-                return HOST_EXTERAMS + "/ayumoments";
+                return HOST_MOLTENGRAM + "/ayumoments";
             case "pillstack":
-                return HOST_EXTERAMS + "/pillstack";
+                return HOST_MOLTENGRAM + "/pillstack";
             default:
                 return HOST_NAGRAM + "/" + key;
         }
@@ -135,7 +145,7 @@ public class SettingsHelper {
             unknown.run();
             return;
         }
-        final boolean exteraless = HOST_EXTERAMS.equals(segments.get(0)) || HOST_EXTERALESS.equals(segments.get(0));
+        final boolean exteraless = HOST_MOLTENGRAM.equals(segments.get(0)) || HOST_EXTERAMS.equals(segments.get(0)) || HOST_EXTERALESS.equals(segments.get(0));
         if (!exteraless && !HOST_NAGRAM.equals(segments.get(0))) {
             unknown.run();
             return;

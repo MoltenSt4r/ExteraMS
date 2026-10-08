@@ -18,7 +18,7 @@
     <string name="QrWifiPasswordCopied">Contraseña copiada</string>
     <string name="QrWifiUnknownNetwork">El código no incluye el nombre de la red</string>
     <string name="QrLoginHint">Este código inicia sesión en una cuenta. Usa Ajustes → Dispositivos → Vincular dispositivo de escritorio: esa pantalla comprueba el código y protege tu cuenta.</string>
-    <string name="OpenExteraPreferences">Ajustes de ExteraMS</string>
+    <string name="OpenExteraPreferences">Ajustes de MoltenGram</string>
     <string name="OpenExteraDesignSection">Diseño</string>
     <string name="OpenExteraDesigner">Iconos y diseño</string>
     <string name="OpenExteraDesignStudio">Estudio de diseño</string>

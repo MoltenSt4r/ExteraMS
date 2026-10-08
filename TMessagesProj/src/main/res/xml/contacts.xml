@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ContactsAccountType xmlns:android="http://schemas.android.com/apk/res/android">
-    <ContactsDataKind android:icon="@mipmap/ic_launcher_exterams_md3"
-        android:mimeType="vnd.android.cursor.item/vnd.com.exterams.app.android.profile"
+    <ContactsDataKind android:icon="@mipmap/ic_launcher_moltengram"
+        android:mimeType="vnd.android.cursor.item/vnd.com.moltengram.app.android.profile"
         android:summaryColumn="data2"
         android:detailColumn="data3"
         android:detailSocialSummary="true"/>
-    <ContactsDataKind android:icon="@mipmap/ic_launcher_exterams_md3"
-        android:mimeType="vnd.android.cursor.item/vnd.com.exterams.app.android.call"
+    <ContactsDataKind android:icon="@mipmap/ic_launcher_moltengram"
+        android:mimeType="vnd.android.cursor.item/vnd.com.moltengram.app.android.call"
         android:summaryColumn="data2"
         android:detailColumn="data3"
         android:detailSocialSummary="true"/>
-    <ContactsDataKind android:icon="@mipmap/ic_launcher_exterams_md3"
-        android:mimeType="vnd.android.cursor.item/vnd.com.exterams.app.android.call.video"
+    <ContactsDataKind android:icon="@mipmap/ic_launcher_moltengram"
+        android:mimeType="vnd.android.cursor.item/vnd.com.moltengram.app.android.call.video"
         android:summaryColumn="data2"
         android:detailColumn="data3"
         android:detailSocialSummary="true"/>

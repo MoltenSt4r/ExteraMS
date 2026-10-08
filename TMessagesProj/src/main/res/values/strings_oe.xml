@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Строки фич, перенесённых из exteraGram. -->
 <resources>
-    <string name="OpenExtera" translatable="false">ExteraMS</string>
+    <string name="OpenExtera" translatable="false">MoltenGram</string>
     <string name="OpenExteraInfo">Features ported from exteraGram</string>
 
 
@@ -25,15 +25,26 @@
     <string name="QrWifiPasswordCopied">Password copied</string>
     <string name="QrWifiUnknownNetwork">Network name is missing from the code</string>
     <string name="QrLoginHint">This code logs into an account. Use Settings → Devices → Link Desktop Device — that screen checks the code and protects your account.</string>
-    <string name="AppIconsExteraMS" translatable="false">ExteraMS Icons</string>
+    <string name="AppIconsMoltenGram" translatable="false">MoltenGram Icons</string>
+    <string name="AppIconsExteraMS" translatable="false">MoltenGram Icons</string>
     <string name="AppIconsTelegram" translatable="false">Telegram Icons</string>
+    <string name="AppIconMoltenGramDefault">Default</string>
+    <string name="AppIconMoltenGramDotted">Dotted</string>
+    <string name="AppIconMoltenGramNeon">Neon</string>
+    <string name="AppIconMoltenGramLava">Lava</string>
+    <string name="AppIconMoltenGramAero">Aero</string>
+    <string name="AppIconMoltenGramPixel">Pixel</string>
+    <string name="AppIconMoltenGramMint">Mint</string>
+    <string name="AppIconMoltenGramMocha">Mocha</string>
+    <string name="AppIconMoltenGramSunset">Sunset</string>
+    <string name="AppIconMoltenGramAzure">Azure</string>
     <string name="AppIconExteraMSMD3">Default</string>
-    <string name="AppIconExteraMSDotted" translatable="false">ExteraMS Dotted</string>
-    <string name="AppIconExteraMSGoogle" translatable="false">ExteraMS Google</string>
+    <string name="AppIconExteraMSDotted" translatable="false">MoltenGram Dotted</string>
+    <string name="AppIconExteraMSGoogle" translatable="false">MoltenGram Google</string>
     <string name="AppIconMoltenStar" translatable="false">MoltenStar</string>
     <string name="AppIconMoltenStarDotted" translatable="false">MoltenStar Dotted</string>
     <string name="AppIconMoltenStarGoogle" translatable="false">MoltenStar Google</string>
-    <string name="OpenExteraPreferences">ExteraMS Preferences</string>
+    <string name="OpenExteraPreferences">MoltenGram Preferences</string>
     <string name="OpenExteraCreditsSection">Credits</string>
     <string name="OpenExteraCreditsExteraless" translatable="false">@exteraless</string>
     <string name="OpenExteraCreditsNagramX" translatable="false">@NagramX</string>

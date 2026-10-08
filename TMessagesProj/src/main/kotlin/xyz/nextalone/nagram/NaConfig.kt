@@ -181,7 +181,7 @@ object NaConfig {
         addConfig(
             "CustomTitle",
             ConfigItem.configTypeString,
-            "ExteraMS"
+            "MoltenGram"
         )
     val dateOfForwardedMsg =
         addConfig(
@@ -1624,13 +1624,13 @@ object NaConfig {
         }
 
         val currentTitle = customTitle.String()
-        if (currentTitle.equals("exteraless", ignoreCase = true) || currentTitle.equals("exteraGram", ignoreCase = true)) {
-            customTitle.setConfigString("ExteraMS")
+        if (currentTitle.equals("exteraless", ignoreCase = true) || currentTitle.equals("exteraGram", ignoreCase = true) || currentTitle.equals("ExteraMS", ignoreCase = true)) {
+            customTitle.setConfigString("MoltenGram")
         }
 
         val currentSavePath = NekoConfig.customSavePath.String()
-        if (currentSavePath.equals("exteraless", ignoreCase = true) || currentSavePath.equals("exteraGram", ignoreCase = true)) {
-            NekoConfig.customSavePath.setConfigString("ExteraMS")
+        if (currentSavePath.equals("exteraless", ignoreCase = true) || currentSavePath.equals("exteraGram", ignoreCase = true) || currentSavePath.equals("ExteraMS", ignoreCase = true)) {
+            NekoConfig.customSavePath.setConfigString("MoltenGram")
         }
     }
 

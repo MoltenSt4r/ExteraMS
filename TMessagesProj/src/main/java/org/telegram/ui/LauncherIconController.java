@@ -15,7 +15,7 @@ public class LauncherIconController {
             }
         }
 
-        setIcon(LauncherIcon.EXTERAMS_MD3);
+        setIcon(LauncherIcon.MOLTENGRAM);
     }
 
     public static boolean isEnabled(LauncherIcon icon) {
@@ -25,7 +25,7 @@ public class LauncherIconController {
         // именно она стоит у <application> в манифесте, и переключатель должен
         // показывать выбранным то, что человек видит на рабочем столе.
         return i == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                || i == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && icon == LauncherIcon.EXTERAMS_MD3;
+                || i == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && icon == LauncherIcon.MOLTENGRAM;
     }
 
     public static void setIcon(LauncherIcon icon) {
@@ -43,7 +43,7 @@ public class LauncherIconController {
                 return icon;
             }
         }
-        return LauncherIcon.EXTERAMS_MD3;
+        return LauncherIcon.MOLTENGRAM;
     }
 
     public static android.graphics.drawable.Drawable createIconPreviewDrawable(Context context, LauncherIcon icon, int sizeDp) {
@@ -71,24 +71,32 @@ public class LauncherIconController {
     }
 
     public enum IconGroup {
-        EXTERAMS,
+        MOLTENGRAM,
         TELEGRAM
     }
 
     public enum LauncherIcon {
-        // ExteraMS
-        EXTERAMS_MD3("ExteraMSMD3Icon", R.drawable.exterams_md3_icon_background,
-                R.drawable.exterams_md3_icon_foreground, R.string.AppIconExteraMSMD3, IconGroup.EXTERAMS, "@moltenst4r", "It just works", 0xFF601816),
-        EXTERAMS_DOTTED("ExteraMSDottedIcon", R.drawable.exterams_dotted_icon_background,
-                R.drawable.exterams_dotted_icon_foreground, R.string.AppIconExteraMSDotted, IconGroup.EXTERAMS, "@exteraGram", "Dotted style", 0xFF381826),
-        EXTERAMS_GOOGLE("ExteraMSGoogleIcon", R.drawable.exterams_google_icon_background,
-                R.drawable.exterams_google_icon_foreground, R.string.AppIconExteraMSGoogle, IconGroup.EXTERAMS, "@moltenst4r", "Material 3 Expressive", 0xFF183048),
-        MOLTENSTAR("MoltenStarIcon", R.drawable.moltenstar_icon_background,
-                R.drawable.moltenstar_icon_foreground, R.string.AppIconMoltenStar, IconGroup.EXTERAMS, "@moltenst4r", "Signature star", 0xFF541814),
-        MOLTENSTAR_DOTTED("MoltenStarDottedIcon", R.drawable.moltenstar_dotted_icon_background,
-                R.drawable.moltenstar_dotted_icon_foreground, R.string.AppIconMoltenStarDotted, IconGroup.EXTERAMS, "@moltenst4r", "Dotted star", 0xFF381820),
-        MOLTENSTAR_GOOGLE("MoltenStarGoogleIcon", R.drawable.moltenstar_google_icon_background,
-                R.drawable.moltenstar_google_icon_foreground, R.string.AppIconMoltenStarGoogle, IconGroup.EXTERAMS, "@moltenst4r", "Google Pixel star", 0xFF1A3246),
+        // MoltenGram
+        MOLTENGRAM("MoltenGramIcon", R.drawable.moltengram_icon_background,
+                R.drawable.moltengram_icon_foreground, R.string.AppIconMoltenGramDefault, IconGroup.MOLTENGRAM, "@moltenst4r", "Signature obsidian silhouette", 0xFF601816),
+        MOLTENGRAM_DOTTED("MoltenGramDottedIcon", R.drawable.moltengram_dotted_icon_background,
+                0, R.string.AppIconMoltenGramDotted, IconGroup.MOLTENGRAM, "@moltenst4r", "Nothing Glyph dot-matrix", 0xFF381826),
+        MOLTENGRAM_NEON("MoltenGramNeonIcon", R.drawable.moltengram_neon_icon_background,
+                0, R.string.AppIconMoltenGramNeon, IconGroup.MOLTENGRAM, "@moltenst4r", "Layered translucent neon glass", 0xFF5D0597),
+        MOLTENGRAM_LAVA("MoltenGramLavaIcon", R.drawable.moltengram_lava_icon_background,
+                0, R.string.AppIconMoltenGramLava, IconGroup.MOLTENGRAM, "@moltenst4r", "Glowing molten magma core", 0xFF8A3C14),
+        MOLTENGRAM_AERO("MoltenGramAeroIcon", R.drawable.moltengram_aero_icon_background,
+                0, R.string.AppIconMoltenGramAero, IconGroup.MOLTENGRAM, "@moltenst4r", "Frutiger Aero 3D glass aesthetic", 0xFF1B6A56),
+        MOLTENGRAM_PIXEL("MoltenGramPixelIcon", R.drawable.moltengram_pixel_icon_background,
+                0, R.string.AppIconMoltenGramPixel, IconGroup.MOLTENGRAM, "@moltenst4r", "Retro 8-bit cyber art", 0xFF20465E),
+        MOLTENGRAM_MINT("MoltenGramMintIcon", R.drawable.moltengram_mint_icon_background,
+                0, R.string.AppIconMoltenGramMint, IconGroup.MOLTENGRAM, "@moltenst4r", "Organic pastel waves", 0xFF2E6B4A),
+        MOLTENGRAM_MOCHA("MoltenGramMochaIcon", R.drawable.moltengram_mocha_icon_background,
+                0, R.string.AppIconMoltenGramMocha, IconGroup.MOLTENGRAM, "@moltenst4r", "Warm marble mocha coffee", 0xFF4A3428),
+        MOLTENGRAM_SUNSET("MoltenGramSunsetIcon", R.drawable.moltengram_sunset_icon_background,
+                0, R.string.AppIconMoltenGramSunset, IconGroup.MOLTENGRAM, "@moltenst4r", "Soft twilight sunset glow", 0xFF6D2F3C),
+        MOLTENGRAM_AZURE("MoltenGramAzureIcon", R.drawable.moltengram_azure_icon_background,
+                0, R.string.AppIconMoltenGramAzure, IconGroup.MOLTENGRAM, "@moltenst4r", "Vibrant electric cyan-blue gradient", 0xFF007A9E),
 
         // Telegram
         TELEGRAM("TelegramIcon", R.drawable.icon_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconTelegramOriginal, IconGroup.TELEGRAM, "@telegram", "The classic paper plane", 0xFF143854),

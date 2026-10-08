@@ -6,8 +6,7 @@ import os
 from pyrogram import Client
 
 APK_GLOB = os.environ.get("APK_GLOB") or "TMessagesProj/build/outputs/apk/release/*.apk"
-CAPTION_LIMIT = 1024
-TITLE = "ExteraMS v12.10.3"
+TITLE = os.environ.get("RELEASE_TITLE") or "MoltenGram Canary"
 
 
 def commits():

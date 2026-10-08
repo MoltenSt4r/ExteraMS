@@ -112,14 +112,14 @@
         android:restoreAnyVersion="true"
         android:backupAgent=".BackupAgent"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher_exterams_md3"
+        android:icon="@mipmap/ic_launcher_moltengram"
         android:extractNativeLibs="true"
         android:label="@string/NagramX"
         android:largeHeap="true"
         android:theme="@style/Theme.TMessages.Start"
         android:manageSpaceActivity="org.telegram.ui.ExternalActionActivity"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:roundIcon="@mipmap/ic_launcher_exterams_md3_round"
+        android:roundIcon="@mipmap/ic_launcher_moltengram_round"
         android:supportsRtl="false"
         android:requestLegacyExternalStorage="true"
         android:hasFragileUserData="true"
@@ -131,16 +131,174 @@
     >
         <!-- usesCleartextTraffic for browser supporting opening http:// links -->
 
-        <!-- Единственный включённый alias: именно он даёт запись в лаунчере.
-             У NagramX эту роль играл BlueIcon, из-за чего на свежей установке
-             на рабочем столе появлялась синяя иконка апстрима. -->
-
+        <!-- Единственный включённый по умолчанию alias: MoltenGramIcon -->
         <activity-alias
             android:enabled="true"
+            android:name="org.telegram.messenger.MoltenGramIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramDottedIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_dotted"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_dotted_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramNeonIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_neon"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_neon_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramLavaIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_lava"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_lava_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramAeroIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_aero"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_aero_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramPixelIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_pixel"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_pixel_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramMintIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_mint"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_mint_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramMochaIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_mocha"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_mocha_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramSunsetIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_sunset"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_sunset_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <activity-alias
+            android:enabled="false"
+            android:name="org.telegram.messenger.MoltenGramAzureIcon"
+            android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/ic_launcher_moltengram_azure"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_azure_round"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <!-- Legacy aliases kept disabled for compatibility -->
+        <activity-alias
+            android:enabled="false"
             android:name="org.telegram.messenger.ExteraMSMD3Icon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_exterams_md3"
-            android:roundIcon="@mipmap/ic_launcher_exterams_md3_round"
+            android:icon="@mipmap/ic_launcher_moltengram"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_round"
             android:exported="true">
 
             <intent-filter>
@@ -372,7 +530,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="vnd.android.cursor.item/vnd.com.exterams.app.android.profile"/>
+                <data android:mimeType="vnd.android.cursor.item/vnd.com.moltengram.app.android.profile"/>
             </intent-filter>
             <!-- exteraless plugins: файл плагина, открытый из чата, файлового
                  менеджера или «Поделиться». Без этого фильтра система показывает
@@ -435,8 +593,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="vnd.android.cursor.item/vnd.com.exterams.app.android.call"/>
-                <data android:mimeType="vnd.android.cursor.item/vnd.com.exterams.app.android.call.video"/>
+                <data android:mimeType="vnd.android.cursor.item/vnd.com.moltengram.app.android.call"/>
+                <data android:mimeType="vnd.android.cursor.item/vnd.com.moltengram.app.android.call.video"/>
             </intent-filter>
         </activity-alias>
         <activity

@@ -8,7 +8,7 @@
         android:shortcutLongLabel="@string/GhostMode">
         <intent
             android:action="app.exteraless.action.TOGGLE_GHOST_MODE"
-            android:targetPackage="com.exterams.app"
+            android:targetPackage="com.moltengram.app"
             android:targetClass="app.exteraless.shortcuts.QuickToggleActivity" />
     </shortcut>
 
@@ -20,7 +20,7 @@
         android:shortcutLongLabel="@string/PluginsSafeMode">
         <intent
             android:action="app.exteraless.action.TOGGLE_SAFE_MODE"
-            android:targetPackage="com.exterams.app"
+            android:targetPackage="com.moltengram.app"
             android:targetClass="app.exteraless.shortcuts.QuickToggleActivity" />
     </shortcut>
 

@@ -65,7 +65,7 @@
     <string name="OEGeneralImportEtgDone">Импортировано настроек: %1$d</string>
     <string name="OEGeneralResetSettings">Сброс настроек</string>
     <string name="OEGeneralResetSettingsInfo">Все настройки вернутся к значениям по умолчанию, приложение перезапустится.</string>
-    <string name="OEGeneralResetSettingsDone">Настройки ExteraMS сброшены.</string>
+    <string name="OEGeneralResetSettingsDone">Настройки MoltenGram сброшены.</string>
     <string name="OEGeneralDeleteAccount">Удалить аккаунт</string>
     <string name="DeepLFormalityDefault">Тон: как есть</string>
     <string name="DeepLFormalityInformal">Тон: неформальный</string>
@@ -107,7 +107,7 @@
     <string name="OEGeneralMapProvider">Провайдер карт</string>
     <string name="OEGeneralMapPreview">Превью локаций</string>
     <string name="OEGeneralMapDriftingFix">Исправлять смещение карты</string>
-    <string name="OECrashTitle">ExteraMS аварийно завершился</string>
+    <string name="OECrashTitle">MoltenGram аварийно завершился</string>
     <string name="OEGeneralNetworkHeader">Сеть</string>
     <string name="OEPrivacyFalseBottom">Двойное дно</string>
     <string name="OEPrivacyFalseBottomShowIn">Показывать в разделе «%1$s»</string>
@@ -122,7 +122,7 @@
     <string name="CloudConfigIncludeApiKeysDesc">Ключи API сервисов ИИ и перевода тоже попадут в облако.</string>
     <string name="OECloudTitle">Облако</string>
     <string name="OECloudHeroTitle">Настройки в облаке</string>
-    <string name="OECloudHeroText">Храните настройки ExteraMS в Telegram и восстанавливайте их на любом устройстве с этим аккаунтом.</string>
+    <string name="OECloudHeroText">Храните настройки MoltenGram в Telegram и восстанавливайте их на любом устройстве с этим аккаунтом.</string>
     <string name="OECloudStatus">Состояние</string>
     <string name="OECloudLocal">Это устройство</string>
     <string name="OECloudRemote">Облако</string>

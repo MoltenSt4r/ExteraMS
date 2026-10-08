@@ -2528,7 +2528,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                     view = new RadioButtonCell(mContext);
                     break;
                 case TYPE_APP_ICON:
-                    view = new AppIconsSelectorCell(mContext, ThemeActivity.this, currentAccount, LauncherIconController.IconGroup.EXTERAMS);
+                    view = new AppIconsSelectorCell(mContext, ThemeActivity.this, currentAccount, LauncherIconController.IconGroup.MOLTENGRAM);
                     break;
                 case TYPE_APP_ICON_TELEGRAM:
                     view = new AppIconsSelectorCell(mContext, ThemeActivity.this, currentAccount, LauncherIconController.IconGroup.TELEGRAM);
@@ -2658,7 +2658,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                     } else if (position == selectThemeHeaderRow) {
                         headerCell.setText(getString("SelectTheme", R.string.SelectTheme));
                     } else if (position == exteramsIconHeaderRow) {
-                        headerCell.setText(getString(R.string.AppIconsExteraMS));
+                        headerCell.setText(getString(R.string.AppIconsMoltenGram));
                     } else if (position == telegramIconHeaderRow) {
                         headerCell.setText(getString(R.string.AppIconsTelegram));
                     } else if (position == otherHeaderRow) {

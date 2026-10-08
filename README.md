@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/logo.png" width="128" alt="ExteraMS">
+<img src="assets/logo.png" width="128" alt="MoltenGram">
 
-# ExteraMS
+# MoltenGram
 
 Экспериментальный форк exteraless — новые фишки раньше всех
 
@@ -15,20 +15,21 @@
 
 ## Что это
 
-**ExteraMS** — экспериментальный форк [exteraless](https://github.com/exteraless/exteraless) (идейного наследника [exteraGram](https://github.com/exteraSquad/exteraGram) и [NagramX](https://github.com/risin42/NagramX)).
+**MoltenGram** — экспериментальный форк [exteraless](https://github.com/exteraless/exteraless) (идейного наследника [exteraGram](https://github.com/exteraSquad/exteraGram) и [NagramX](https://github.com/risin42/NagramX)).
 
 **Суть и концепция проекта:**
 - **Ранний доступ к новым возможностям:** внедрение и тестирование свежих функций, интерфейсных улучшений и оптимизаций раньше, чем они попадут в основной репозиторий exteraless.
-- **Bleeding-edge:** сборки носят статус экспериментальных и могут быть нестабильными.
+- **Bleeding-edge:** сборки носят статус экспериментальных и созданы для активного тестирования.
 - **Дружественность к апстриму:** проект **не является конкурентом** exteraless или другим клиентам Telegram. Это площадка для обкатки идей, лучшие из которых могут быть предложены в upstream.
 - **Безопасность плагинов:** сохраняется изоляция и строгая модель разрешений для плагинов из exteraless.
+- **Фирменный дизайн и иконки:** эксклюзивные иконки лаунчера (Obsidian, Dotted, Neon, Lava, Aero, Pixel, Mint, Mocha, Sunset, Azure), атмосферный экран выбора в стиле Nothing OS.
 
-* **Имя пакета:** `com.exterams.app` (позволяет устанавливать приложение параллельно с exteraless)
-* **Что под капотом:** модули оформления и параметров чатов, иконпаки, полоса пилюль (Pill Stack), расширенное боковое меню, движок Python-плагинов и экспериментальные доработки ExteraMS.
+* **Имя пакета:** `com.moltengram.app` (позволяет устанавливать приложение параллельно с exteraless и официальным Telegram)
+* **Что под капотом:** модули оформления и параметров чатов, иконпаки, полоса пилюль (Pill Stack), расширенное боковое меню, движок Python-плагинов и экспериментальные доработки MoltenGram.
 
 ### Ссылки
 
-* Исходный код ExteraMS: [github.com/MoltenSt4r/ExteraMS](https://github.com/MoltenSt4r/ExteraMS)
+* Исходный код MoltenGram: [github.com/MoltenSt4r/ExteraMS](https://github.com/MoltenSt4r/ExteraMS)
 * Исходный код апстрима (exteraless): [github.com/exteraless/exteraless](https://github.com/exteraless/exteraless)
 * Канал апстрима: [@exteraless](https://t.me/exteraless)
 
@@ -37,7 +38,7 @@
 1. Склонировать репозиторий вместе с подмодулями:
 
     ```bash
-    git clone --recursive --shallow-submodules git@github.com:MoltenSt4r/ExteraMS.git ExteraMS
+    git clone --recursive --shallow-submodules git@github.com:MoltenSt4r/ExteraMS.git MoltenGram
     ```
 
     Если репозиторий уже склонирован без подмодулей:
@@ -66,7 +67,7 @@
    отладочным ключом Android.
 
 4. Для push-уведомлений положить свой `TMessagesProj/google-services.json`
-   (Firebase, имя пакета `com.exterams.app`).
+   (Firebase, имя пакета `com.moltengram.app`).
 
 5. Заменить метаданные проекта:
 
@@ -96,10 +97,11 @@ Python 3.12 лишь под них, и на `armeabi-v7a` конфигураци
   base64 -w0 TMessagesProj/release.keystore
   ```
 
-Дальше запустить workflow **Release Build**. Готовый APK лежит в артефактах прогона.
+Дальше запустить workflow **Release Build** или **Canary Build**. Готовый APK лежит в артефактах и релизах.
 
 ### Авторы дизайна и благодарности
 
+- Иконки и айдентика MoltenGram: [@moltenst4r](https://github.com/MoltenSt4r)
 - Дизайн и иконки exteraGram: [@the8055u](https://t.me/the8055u) и студия [@BlueprintDsgn](https://t.me/BlueprintDsgn).
 - [exteraless](https://github.com/exteraless/exteraless)
 - [AyuGram](https://github.com/AyuGram/AyuGram4A)
@@ -117,19 +119,20 @@ Python 3.12 лишь под них, и на `armeabi-v7a` конфигураци
 
 ### What this is
 
-**ExteraMS** is an experimental fork of [exteraless](https://github.com/exteraless/exteraless) (and spiritual successor to [exteraGram](https://github.com/exteraSquad/exteraGram) & [NagramX](https://github.com/risin42/NagramX)).
+**MoltenGram** is an experimental fork of [exteraless](https://github.com/exteraless/exteraless) (and spiritual successor to [exteraGram](https://github.com/exteraSquad/exteraGram) & [NagramX](https://github.com/risin42/NagramX)).
 
 **Core concept:**
 - **Early access to new features:** Bringing and testing new features, UI tweaks, and optimizations before they land in upstream exteraless.
-- **Bleeding-edge:** Builds are experimental and generally unstable.
-- **Not a competitor:** ExteraMS is **not** a competitor to exteraless or any other client. It serves as a testing ground for experimental ideas that can later be upstreamed.
+- **Bleeding-edge:** Builds are experimental and crafted for rapid innovation.
+- **Not a competitor:** MoltenGram is **not** a competitor to exteraless or any other client. It serves as a testing ground for experimental ideas that can later be upstreamed.
 - **Plugin isolation:** Retains exteraless's secure plugin permission model.
+- **Distinctive identity & icons:** Obsidian, Dotted, Neon, Lava, Aero, Pixel, Mint, Mocha, Sunset, Azure launcher styles with atmospheric Nothing OS-inspired picker.
 
-* **Package name:** `com.exterams.app` (allows co-existence alongside exteraless on the same device)
+* **Package name:** `com.moltengram.app` (allows co-existence alongside exteraless and official Telegram on the same device)
 
 ### Links
 
-* ExteraMS repository: [github.com/MoltenSt4r/ExteraMS](https://github.com/MoltenSt4r/ExteraMS)
+* MoltenGram repository: [github.com/MoltenSt4r/ExteraMS](https://github.com/MoltenSt4r/ExteraMS)
 * Upstream repository: [github.com/exteraless/exteraless](https://github.com/exteraless/exteraless)
 * Upstream channel: [@exteraless](https://t.me/exteraless)
 
@@ -138,7 +141,7 @@ Python 3.12 лишь под них, и на `armeabi-v7a` конфигураци
 1. Clone with submodules:
 
     ```bash
-    git clone --recursive --shallow-submodules git@github.com:MoltenSt4r/ExteraMS.git ExteraMS
+    git clone --recursive --shallow-submodules git@github.com:MoltenSt4r/ExteraMS.git MoltenGram
     ```
 
 2. Get `TELEGRAM_APP_ID` and `TELEGRAM_APP_HASH` from [my.telegram.org](https://my.telegram.org/auth)
@@ -149,7 +152,7 @@ Python 3.12 лишь под них, и на `armeabi-v7a` конфигураци
    shipped with the repository; without one the build is signed with the Android debug key.
 
 4. For push notifications, replace `TMessagesProj/google-services.json` with your own
-   Firebase config for `com.exterams.app`.
+   Firebase config for `com.moltengram.app`.
 
 5. Build with `./gradlew :TMessagesProj:assembleDebug` or from Android Studio.
 
@@ -158,5 +161,4 @@ only, and `armeabi-v7a` fails at configuration time. `NATIVE_TARGET` selects the
 `arm64-v8a`, `universal` (both) or `SKIP` (no native part).
 
 For CI, set two repository secrets — `LOCAL_PROPERTIES` and `RELEASE_KEYSTORE`, both
-base64-encoded — and run the **Release Build** workflow. The APK ends up in the run
-artifacts.
+base64-encoded — and run the **Release Build** or **Canary Build** workflow.

@@ -110,23 +110,22 @@ jobs:
         if: ${{ success() }}
         with:
           tag_name: canary
-          name: ExteraMS Canary (Unstable)
+          name: MoltenGram Canary (Unstable)
           prerelease: true
           make_latest: false
           body: |
-            ### ⚠️ ExteraMS Canary Build (Unstable / Test)
+            ### 🔥 MoltenGram Canary Build (Unstable / Test)
 
-            **Новый функционал:**
-            - **Экран выбора иконки приложения** (в стиле Nothing / Google) с авторскими плашками, сеткой 4 столбца и кнопкой выбора
-            - **Карточка настроек под папками чатов (4 пункта)**:
-              1. «Навигация в приложении»
-              2. «Иконка приложения» (с круглой иконкой текущего стиля)
-              3. «Наборы иконок»
-              4. «Pill Stack»
-            - **Шапка чата**: разделены аватарка и меню «три точки» (клик по аватарке плавно открывает профиль)
-            - **MD3 переключатели**: аккуратная обводка 1.5dp в выключенном состоянии
-            - **Инлайн-калькулятор**: моментальный подсчёт выражений после знака `=` в чате
-            - Исправлен дубликат Ghost mode в меню диалогов
+            **Полный ребрендинг проекта в MoltenGram!**
+
+            **Новый функционал и изменения:**
+            - Полный ребрендинг: **MoltenGram** (`com.moltengram.app`)
+            - 10 уникальных дизайнерских стилей иконки приложения (Default, Dotted, Neon, Lava, Aero, Pixel, Mint, Mocha, Sunset, Azure)
+            - Полноэкранный выбор иконки с живым атмосферным свечением под цвет темы и плашками авторов
+            - Карточка настроек оформления под вкладками папок чатов
+            - Разделенные аватарка и меню «три точки» в шапке диалога
+            - MD3 переключатели с тонкой обводкой в выключенном состоянии
+            - Встроенный быстрый калькулятор после знака «=»
           files: |
             TMessagesProj/build/outputs/apk/staging/*.apk
 
@@ -138,6 +137,7 @@ jobs:
           TG_API_ID: ${{ secrets.TG_API_ID || '39205442' }}
           TG_API_HASH: ${{ secrets.TG_API_HASH || '1090b570704d1d97975994ee9c177dba' }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          RELEASE_TITLE: "MoltenGram Canary"
           COMMIT_SHA: ${{ github.sha }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           COMMITS_JSON: ${{ toJSON(github.event.commits) }}

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="com.exterams.app"
-    android:icon="@mipmap/ic_launcher_exterams_md3_round"
-    android:smallIcon="@mipmap/ic_launcher_exterams_md3_round"
+    android:accountType="com.moltengram.app"
+    android:icon="@mipmap/ic_launcher_moltengram_round"
+    android:smallIcon="@mipmap/ic_launcher_moltengram_round"
     android:label="@string/AppName"
     android:accountPreferences="@xml/auth_menu"/>

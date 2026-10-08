@@ -146,7 +146,7 @@
     <string name="SendLockedCustomEmojiAsSticker">Premium Emoji as Stickers</string>
     <string name="SendLockedCustomEmojiAsStickerInfo">Without Premium, premium emoji are sent as regular stickers. Only WebP and WebM emoji are supported.</string>
     <string name="SendCustomEmojiWithoutPremium">Custom emoji without Premium</string>
-    <string name="SendCustomEmojiWithoutPremiumInfo">Send premium emoji via deep links (tg://emoji?id=...). Rendered as animated emoji by ExteraMS and exteragram clients.</string>
+    <string name="SendCustomEmojiWithoutPremiumInfo">Send premium emoji via deep links (tg://emoji?id=...). Rendered as animated emoji by MoltenGram and exteragram clients.</string>
 
     <!-- Text typing animations -->
     <string name="OEChatsTextAnimation">Text Typing Animations</string>

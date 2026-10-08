@@ -71,7 +71,7 @@ jobs:
           if release_id:
               patch_data = json.dumps({
                   "tag_name": "v12.10.3",
-                  "name": "ExteraMS v12.10.3",
+                  "name": "MoltenGram v12.10.3",
                   "make_latest": "true",
               }).encode("utf-8")
               patch_req = urllib.request.Request(
@@ -128,7 +128,7 @@ jobs:
           # Create fdroid workspace
           mkdir -p fdroid_ws/repo fdroid_ws/metadata
 
-          # Copy ExteraMS release keystore (PKCS12)
+          # Copy MoltenGram release keystore (PKCS12)
           cp TMessagesProj/release.keystore fdroid_ws/keystore.p12
 
           # Copy complete metadata tree (including localized icons)
@@ -138,15 +138,15 @@ jobs:
 
           # Write config.yml manually (no fdroid init)
           cat > fdroid_ws/config.yml << 'CFGEOF'
-          repo_url: "https://moltenst4r.github.io/ExteraMS/fdroid/repo"
-          repo_name: "ExteraMS F-Droid Repository"
-          repo_description: "Official F-Droid repository for ExteraMS"
+          repo_url: "https://moltenst4r.github.io/MoltenGram/fdroid/repo"
+          repo_name: "MoltenGram F-Droid Repository"
+          repo_description: "Official F-Droid repository for MoltenGram"
           archive_older: 0
           keystore: keystore.p12
           keystorepass: android
-          repo_keyalias: exterams
+          repo_keyalias: moltengram
           keypass: android
-          keydname: "CN=ExteraMS, OU=MoltenStar, O=MoltenStar, L=Unknown, ST=Unknown, C=RU"
+          keydname: "CN=MoltenGram, OU=MoltenStar, O=MoltenStar, L=Unknown, ST=Unknown, C=RU"
           CFGEOF
           chmod 0600 fdroid_ws/config.yml
 
@@ -203,11 +203,11 @@ jobs:
           touch deploy/.nojekyll deploy/fdroid/.nojekyll
 
           cat > deploy/index.html << 'EOF'
-          <!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=https://moltenstar.space/#exterams"><title>ExteraMS</title></head><body></body></html>
+          <!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=https://moltenstar.space/#moltengram"><title>MoltenGram</title></head><body></body></html>
           EOF
 
           cat > deploy/fdroid/index.html << 'EOF'
-          <!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=https://moltenstar.space/#exterams"><title>ExteraMS F-Droid</title></head><body></body></html>
+          <!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=https://moltenstar.space/#moltengram"><title>MoltenGram F-Droid</title></head><body></body></html>
           EOF
 
       - name: Push to gh-pages
