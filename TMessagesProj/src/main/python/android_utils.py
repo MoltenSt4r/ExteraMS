@@ -127,10 +127,23 @@ def safe_call(fn, *args, **kwargs):
         # объясняет всё, а сам отказ уже записан на Java-стороне.
         log(f"permission denied: {e}")
         return None
-    except Exception:
+    except Exception as e:
         import traceback
         log("callback failed:\n" + traceback.format_exc())
+        _note_overlay_denied(fn, e)
         return None
+
+
+def _note_overlay_denied(fn, error):
+    try:
+        if "permission denied for window type" not in str(error):
+            return
+        owner = _internal("plugin_loader").owner_of_function(fn)
+        bridge = _bridge()
+        if owner is not None and bridge is not None:
+            bridge.noteOverlayDenied(owner)
+    except Exception:
+        pass
 
 
 _listener_classes = {}

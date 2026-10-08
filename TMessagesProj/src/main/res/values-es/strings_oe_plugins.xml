@@ -190,4 +190,11 @@ Código:
     <string name="PluginGrantTrustedConfirm">%1$s recibirá el nivel de acceso «De confianza»: con él, el plugin puede cambiar el código de la app. ¿Conceder?</string>
     <string name="PluginsAiReviewToolsPrompt">Revisa este plugin de un cliente de Telegram en busca de cualquier cosa que pueda dañar al usuario: recopilación oculta de datos, envío de mensajes o archivos a terceros, robo de credenciales, código descargado en tiempo de ejecución.\n\nEscribe la respuesta en %2$s.\n\nPlugin: %1$s\n\nEl código fuente no se incluye aquí: léelo con las herramientas. Archivos: %3$s.\nDatos incrustados (cadenas base64 y archivos binarios): %4$s\n\nLee cada archivo hasta el final con read_source, por rangos, y decodifica cada bloque incrustado con decode_base64 para ver qué contiene realmente: código, DEX, bibliotecas nativas, URL, claves. Basa el veredicto solo en lo que realmente leíste y di qué partes no pudiste revisar.</string>
     <string name="PluginsSourceTrusted">Fuente de confianza</string>
+    <string name="PluginUnconsentedTitle">Plugin añadido sin permisos</string>
+    <string name="PluginsUnconsentedTitle">Plugins añadidos sin permisos</string>
+    <string name="PluginsUnconsentedMore">%1$s y %2$d más</string>
+    <string name="PluginsUnconsentedAction">Revisar</string>
+    <string name="PluginOverlayTitle">Mostrar sobre otras apps</string>
+    <string name="PluginOverlayText">%1$s quiere mostrar una ventana sobre otras apps. Permítelo en los ajustes del sistema e inténtalo de nuevo.</string>
+    <string name="PluginOverlayOpen">Abrir ajustes</string>
 </resources>

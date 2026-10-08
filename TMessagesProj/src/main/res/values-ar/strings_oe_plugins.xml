@@ -176,4 +176,11 @@
     <string name="PluginGrantTrustedConfirm">ستحصل %1$s على مستوى الوصول «موثوق»: وبه تستطيع الإضافة تغيير شيفرة التطبيق. منح؟</string>
     <string name="PluginsAiReviewToolsPrompt">راجع إضافة عميل Telegram هذه بحثًا عن أي شيء قد يضر المستخدم: جمع بيانات خفي، أو إرسال رسائل أو ملفات إلى أطراف ثالثة، أو سرقة بيانات الاعتماد، أو شيفرة تُنزَّل أثناء التشغيل.\n\nاكتب الإجابة باللغة %2$s.\n\nالإضافة: %1$s\n\nالمصدر غير مضمّن هنا، اقرأه بالأدوات. الملفات: %3$s.\nالبيانات المضمّنة (نصوص base64 وملفات ثنائية): %4$s\n\nاقرأ كل ملف حتى نهايته باستخدام read_source، نطاقًا تلو الآخر، وفك كل كتلة مضمّنة باستخدام decode_base64 لترى ما تحتويه فعلًا: شيفرة، DEX، مكتبات أصلية، روابط URL، مفاتيح. ابنِ الحكم فقط على ما قرأته فعلًا، واذكر الأجزاء التي لم تتمكن من فحصها.</string>
     <string name="PluginsSourceTrusted">مصدر موثوق</string>
+    <string name="PluginUnconsentedTitle">أُضيفت إضافة بلا أذونات</string>
+    <string name="PluginsUnconsentedTitle">أُضيفت إضافات بلا أذونات</string>
+    <string name="PluginsUnconsentedMore">%1$s و%2$d أخرى</string>
+    <string name="PluginsUnconsentedAction">مراجعة</string>
+    <string name="PluginOverlayTitle">الظهور فوق التطبيقات الأخرى</string>
+    <string name="PluginOverlayText">تريد %1$s عرض نافذة فوق التطبيقات الأخرى. اسمح بذلك في إعدادات النظام ثم حاول مرة أخرى.</string>
+    <string name="PluginOverlayOpen">فتح الإعدادات</string>
 </resources>

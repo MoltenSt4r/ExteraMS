@@ -190,4 +190,11 @@
     <string name="PluginGrantTrustedConfirm">%1$s 将获得「受信任」访问级别：插件因此可以修改应用代码。是否授予？</string>
     <string name="PluginsAiReviewToolsPrompt">检查这个 Telegram 客户端插件是否有任何可能伤害用户的行为：隐藏的数据收集、向第三方发送消息或文件、窃取凭据、运行时下载代码。\n\n用%2$s回答。\n\n插件：%1$s\n\n这里没有附上源代码——请用工具读取。文件：%3$s。\n内嵌数据（base64 字符串和二进制文件）：%4$s\n\n用 read_source 按范围把每个文件读到结尾，并用 decode_base64 解码每个内嵌数据块，查看其真实内容：代码、DEX、原生库、URL、密钥。只根据实际读到的内容给出结论，并说明哪些部分无法检查。</string>
     <string name="PluginsSourceTrusted">可信来源</string>
+    <string name="PluginUnconsentedTitle">已添加未授权的插件</string>
+    <string name="PluginsUnconsentedTitle">已添加未授权的插件</string>
+    <string name="PluginsUnconsentedMore">%1$s 及另外 %2$d 个</string>
+    <string name="PluginsUnconsentedAction">查看</string>
+    <string name="PluginOverlayTitle">在其他应用上层显示</string>
+    <string name="PluginOverlayText">%1$s 想在其他应用上层显示窗口。请在系统设置中允许后重试。</string>
+    <string name="PluginOverlayOpen">打开设置</string>
 </resources>

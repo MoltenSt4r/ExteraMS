@@ -200,4 +200,15 @@ Source:
     <string name="PluginGrantTrustedConfirm">%1$s will get the Trusted access level: with it, the plugin can change the app\'s code. Grant?</string>
     <string name="PluginsAiReviewToolsPrompt">Review this Telegram client plugin for anything that could harm the user: hidden data collection, sending messages or files to third parties, credential theft, code downloaded at runtime.\n\nWrite the answer in %2$s.\n\nPlugin: %1$s\n\nThe source is not included here — read it with the tools. Files: %3$s.\nEmbedded data (base64 strings and binary files): %4$s\n\nRead every file to the end with read_source, a range at a time, and decode every embedded blob with decode_base64 to see what it really contains: code, DEX, native libraries, URLs, keys. Base the verdict only on what you actually read, and say which parts you could not inspect.</string>
     <string name="PluginsSourceTrusted">Trusted source</string>
+    <string name="PluginUnconsentedTitle">Plugin added without permissions</string>
+    <string name="PluginsUnconsentedTitle">Plugins added without permissions</string>
+    <string name="PluginsUnconsentedMore">%1$s and %2$d more</string>
+    <string name="PluginsUnconsentedAction">Review</string>
+    <string name="PluginsDexTitle">Embedded Java code (DEX)</string>
+    <string name="PluginsDexLoaded">%1$s. The plugin loads and runs it; what it calls is counted in the permissions below and marked “DEX”.</string>
+    <string name="PluginsDexUnused">%1$s, but nothing in the plugin loads it — this code never runs.</string>
+    <string name="PluginsDexClasses">Classes: %1$s</string>
+    <string name="PluginOverlayTitle">Display over other apps</string>
+    <string name="PluginOverlayText">%1$s wants to show a window over other apps. Allow it in system settings and try again.</string>
+    <string name="PluginOverlayOpen">Open settings</string>
 </resources>
