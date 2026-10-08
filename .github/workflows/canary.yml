@@ -61,10 +61,11 @@ jobs:
         with:
           packages: "build-tools;36.0.0 ndk;27.2.12479018 platforms;android-37.0 cmake;3.31.6"
       - name: Install Native Build Dependencies
-        timeout-minutes: 5
         run: |
-          sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=15 || true
-          sudo apt-get install --no-install-recommends --yes nasm || sudo apt-get install --no-install-recommends --yes nasm
+          which nasm || {
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends --yes nasm
+          }
       - name: Configure Android SDK Path
         run: |
           echo "sdk.dir=${ANDROID_HOME}" >> local.properties
