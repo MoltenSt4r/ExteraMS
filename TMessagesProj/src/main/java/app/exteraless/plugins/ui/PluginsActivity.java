@@ -64,6 +64,9 @@ public class PluginsActivity extends BaseFragment {
 
     private static final int MENU_SEARCH = 0;
     private static final int MENU_INFO = 1;
+    private static final int MENU_OTHER = 10;
+    private static final int MENU_EXPORT_LOGS = 3;
+    private static final int MENU_CLEAR_LOGS = 4;
 
     private static final int ID_ENGINE_TOGGLE = -1;
 

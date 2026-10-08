@@ -181,14 +181,36 @@ public final class XposedHooks {
         }
         try {
             XC_MethodHook hook = createHook(pluginId, handler, priority, filtersJson);
-            HookGate.prewarmAllMethods((Class<?>) clazz, methodName);
+            Class<?> target = declaringShimParent((Class<?>) clazz, methodName);
+            HookGate.prewarmAllMethods(target, methodName);
             Set<XC_MethodHook.Unhook> unhooks =
-                    XposedBridge.hookAllMethods((Class<?>) clazz, methodName, hook);
+                    XposedBridge.hookAllMethods(target, methodName, hook);
             return registerAll(pluginId, unhooks);
         } catch (Throwable t) {
             FileLog.e("XposedHooks.hookAllMethods failed for plugin " + pluginId, t);
             return "[]";
         }
+    }
+
+    private static boolean declares(Class<?> clazz, String methodName) {
+        for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
+            if (method.getName().equals(methodName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Class<?> declaringShimParent(Class<?> clazz, String methodName) {
+        Class<?> current = clazz;
+        while (current.getName().startsWith("com.exteragram.") && !declares(current, methodName)) {
+            Class<?> parent = current.getSuperclass();
+            if (parent == null || !parent.getName().startsWith("app.exteraless.") && !parent.getName().startsWith("com.exteragram.")) {
+                return clazz;
+            }
+            current = parent;
+        }
+        return declares(current, methodName) ? current : clazz;
     }
 
     public static String hookAllConstructors(String pluginId, Object clazz, PyObject handler,

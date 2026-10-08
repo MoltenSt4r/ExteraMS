@@ -1,16 +1,22 @@
 package com.exteragram.messenger.plugins.ui.components;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.UserConfig;
+import org.telegram.ui.ActionBar.BottomSheet;
 
 import java.io.File;
 
-public final class InstallPluginBottomSheet {
+public abstract class InstallPluginBottomSheet extends BottomSheet {
 
-    private InstallPluginBottomSheet() {
+    protected InstallPluginBottomSheet(Context context, boolean needFocus) {
+        super(context, needFocus);
+    }
+
+    public void applyButtonState() {
     }
 
     public static final class PluginInstallParams {

@@ -104,6 +104,7 @@ class AlertDialogBuilder:
         if context is None:
             context = _default_context()
         self._alert_type = alert_type
+        self._context = context
         self._dialog = None
         self._cancelable = None
         self._canceled_on_touch_outside = None
@@ -246,6 +247,39 @@ class AlertDialogBuilder:
                                           jint(int(background_color), truncate=True))
         _post(_apply)
         return self
+
+    def set_top_animation_is_new(self, is_new):
+        _post(lambda: self._builder.setTopAnimationIsNew(bool(is_new)))
+        return self
+
+    def set_top_image(self, res_id, background_color):
+        def _apply():
+            from java import jint
+            self._builder.setTopImage(int(res_id), jint(int(background_color), truncate=True))
+        _post(_apply)
+        return self
+
+    def set_top_drawable(self, drawable, background_color):
+        def _apply():
+            from java import jint
+            self._builder.setTopImage(drawable, jint(int(background_color), truncate=True))
+        _post(_apply)
+        return self
+
+    def set_dialog_button_color_key(self, theme_key):
+        _post(lambda: self._builder.setDialogButtonColorKey(int(theme_key)))
+        return self
+
+    def set_message_text_view_clickable(self, clickable):
+        _post(lambda: self._builder.setMessageTextViewClickable(bool(clickable)))
+        return self
+
+    def set_blurred_background(self, blur, blur_behind_if_possible=True):
+        _post(lambda: self._builder.setBlurredBackground(bool(blur)))
+        return self
+
+    def get_context(self):
+        return self._context
 
     def set_dim_enabled(self, enabled):
         _post(lambda: self._builder.setDimEnabled(bool(enabled)))

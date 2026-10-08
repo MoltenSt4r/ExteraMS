@@ -1899,8 +1899,52 @@ def _preload_neighbour_plugins(path: str, plugin_id: str, visiting: Optional[set
             _log(f"cannot preload {root} for {plugin_id}: {type(e).__name__}: {e}")
 
 
+_TL_CONTAINERS = (
+    "update", "stories", "account", "chatlists", "stars", "bots", "phone", "payments",
+    "stats", "forum", "fragment", "iv", "aicompose", "communities", "ephemeral", "keyboard",
+)
+_TL_REFERENCE = re.compile(r"TLRPC\.(TL_\w+)")
+_TL_MISSING = set()
+
+
+def _attach_moved_tl_classes(path: str) -> None:
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as source:
+            names = set(_TL_REFERENCE.findall(source.read()))
+    except Exception:
+        return
+    if not names:
+        return
+    try:
+        from java import jclass
+        tlrpc = jclass("org.telegram.tgnet.TLRPC")
+    except Exception:
+        return
+    for name in names:
+        if name in _TL_MISSING:
+            continue
+        try:
+            getattr(tlrpc, name)
+            continue
+        except Exception:
+            pass
+        for container in _TL_CONTAINERS:
+            try:
+                moved = jclass(f"org.telegram.tgnet.tl.TL_{container}${name}")
+            except Exception:
+                continue
+            try:
+                _set_class_attr(tlrpc, name, moved)
+            except Exception:
+                pass
+            break
+        else:
+            _TL_MISSING.add(name)
+
+
 def _import_module(path: str, plugin_id: str):
     _ensure_plugins_dir_on_path()
+    _attach_moved_tl_classes(path)
     module_name = _module_name_for(plugin_id)
     existing = sys.modules.get(module_name)
     if existing is not None and _same_file(getattr(existing, "__file__", None), path):

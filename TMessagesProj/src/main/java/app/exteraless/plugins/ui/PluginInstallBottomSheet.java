@@ -21,7 +21,6 @@ import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.BaseFragment;
-import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.Components.CheckBox2;
@@ -57,7 +56,7 @@ import app.exteraless.plugins.ui.components.PluginFileViewer;
  * именами из исходника. exteraGram вместо этого показывает бейдж «источник
  * неизвестен»; бейдж говорит о канале, а не о плагине, и ничего не решает.
  */
-public class PluginInstallBottomSheet extends BottomSheet {
+public class PluginInstallBottomSheet extends com.exteragram.messenger.plugins.ui.components.InstallPluginBottomSheet {
 
     public interface Delegate {
         /**
@@ -69,14 +68,20 @@ public class PluginInstallBottomSheet extends BottomSheet {
 
     private final List<PluginPermissionCell> cells = new ArrayList<>();
     private boolean enableAfterInstall = true;
-    private final com.exteragram.messenger.plugins.ui.components.InstallPluginBottomSheet.PluginInstallParams installParams;
+    private final com.exteragram.messenger.plugins.ui.components.InstallPluginBottomSheet.PluginInstallParams params;
+    private final Plugin plugin;
+    private final ButtonWithCounterView button;
+    private final LinearLayout headerView;
+    private final LinearLayout bottomContainer;
+    private ImageView openIn;
 
     public PluginInstallBottomSheet(Activity activity, File file,
                                     com.exteragram.messenger.plugins.ui.components.InstallPluginBottomSheet.PluginInstallParams params,
                                     Plugin plugin,
                                     Map<String, List<String>> capabilities, Delegate delegate) {
         super(activity, false);
-        installParams = params;
+        this.params = params;
+        this.plugin = plugin;
         setApplyBottomPadding(false);
         setApplyTopPadding(false);
 
@@ -87,7 +92,11 @@ public class PluginInstallBottomSheet extends BottomSheet {
         LinearLayout content = new LinearLayout(context);
         content.setOrientation(LinearLayout.VERTICAL);
 
-        content.addView(createIcon(context, plugin),
+        headerView = new LinearLayout(context);
+        headerView.setOrientation(LinearLayout.VERTICAL);
+        content.addView(headerView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+
+        headerView.addView(createIcon(context, plugin),
                 LayoutHelper.createLinear(72, 72, Gravity.CENTER_HORIZONTAL, 0, 22, 0, 0));
 
         TextView name = new TextView(context);
@@ -96,7 +105,7 @@ public class PluginInstallBottomSheet extends BottomSheet {
         name.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
         name.setGravity(Gravity.CENTER);
         name.setText(plugin != null ? plugin.getDisplayName() : file.getName());
-        content.addView(name, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT,
+        headerView.addView(name, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT,
                 LayoutHelper.WRAP_CONTENT, 40, 14, 40, 0));
 
         LinkSpanDrawable.LinksTextView subtitle = new LinkSpanDrawable.LinksTextView(context);
@@ -106,8 +115,13 @@ public class PluginInstallBottomSheet extends BottomSheet {
         subtitle.setGravity(Gravity.CENTER);
         subtitle.setText(com.exteragram.messenger.utils.text.LocaleUtils.formatWithUsernames(buildSubtitle(plugin),
                 org.telegram.ui.LaunchActivity.getSafeLastFragment(), this::dismiss));
-        content.addView(subtitle, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT,
+        headerView.addView(subtitle, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT,
                 LayoutHelper.WRAP_CONTENT, 21, 4, 21, 0));
+
+        if (params != null && params.getTrusted()) {
+            headerView.addView(createTrustedBadge(context), LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT,
+                    LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL, 0, 12, 0, 0));
+        }
 
         if (plugin != null && !TextUtils.isEmpty(plugin.description)) {
             LinkSpanDrawable.LinksTextView description =
@@ -157,7 +171,7 @@ public class PluginInstallBottomSheet extends BottomSheet {
                     LayoutHelper.WRAP_CONTENT));
         }
 
-        ButtonWithCounterView button = new ButtonWithCounterView(context, true, null);
+        button = new ButtonWithCounterView(context, true, null);
         final boolean update = plugin != null && !TextUtils.isEmpty(plugin.id)
                 && app.exteraless.plugins.PluginsController.getInstance().getPlugin(plugin.id) != null;
         button.setText(getString(update ? R.string.PluginsUpdateAction : R.string.PluginsInstallAction), false);
@@ -167,15 +181,19 @@ public class PluginInstallBottomSheet extends BottomSheet {
                 delegate.onInstall(checkedPermissions(), enableAfterInstall);
             }
         });
-        content.addView(button, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 48,
+        bottomContainer = new LinearLayout(context);
+        bottomContainer.setOrientation(LinearLayout.VERTICAL);
+        content.addView(bottomContainer, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+
+        bottomContainer.addView(button, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 48,
                 16, permissions.isEmpty() ? 20 : 14, 16, 10));
 
-        content.addView(createEnableAfterInstall(context),
+        bottomContainer.addView(createEnableAfterInstall(context),
                 LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT,
                         Gravity.CENTER_HORIZONTAL, 0, 0, 0, 16));
 
         if (PluginAiReview.canReview(file)) {
-            content.addView(createAiReview(context, file, plugin, capabilities),
+            bottomContainer.addView(createAiReview(context, file, plugin, capabilities),
                     LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT,
                             LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL, 0, 0, 0, 16));
         }
@@ -187,10 +205,11 @@ public class PluginInstallBottomSheet extends BottomSheet {
         root.addView(scroll, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT,
                 LayoutHelper.WRAP_CONTENT));
         if (PluginFileViewer.canOpen(file)) {
-            root.addView(createSourceButton(context, file, plugin),
-                    LayoutHelper.createFrame(40, 40, Gravity.RIGHT | Gravity.TOP, 0, 10, 10, 0));
+            openIn = createSourceButton(context, file, plugin);
+            root.addView(openIn, LayoutHelper.createFrame(40, 40, Gravity.RIGHT | Gravity.TOP, 0, 10, 10, 0));
         }
         setCustomView(root);
+        applyButtonState();
     }
 
     private android.view.View createAiReview(Context context, File file, Plugin plugin,
@@ -225,7 +244,28 @@ public class PluginInstallBottomSheet extends BottomSheet {
         }
     }
 
-    private android.view.View createSourceButton(Context context, File file, Plugin plugin) {
+    private android.view.View createTrustedBadge(Context context) {
+        final int color = Theme.getColor(Theme.key_windowBackgroundWhiteGreenText);
+        LinearLayout badge = new LinearLayout(context);
+        badge.setOrientation(LinearLayout.HORIZONTAL);
+        badge.setGravity(Gravity.CENTER);
+        badge.setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(20), AndroidUtilities.dp(20),
+                androidx.core.graphics.ColorUtils.compositeColors(AndroidUtilities.multiplyAlphaComponent(color, 0.1f),
+                        Theme.getColor(Theme.key_windowBackgroundWhite))));
+        badge.setPadding(AndroidUtilities.dp(12), AndroidUtilities.dp(6), AndroidUtilities.dp(16), AndroidUtilities.dp(6));
+        ImageView icon = new ImageView(context);
+        icon.setImageResource(R.drawable.trusted_mini);
+        icon.setColorFilter(new android.graphics.PorterDuffColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN));
+        badge.addView(icon, LayoutHelper.createLinear(14, 14, Gravity.CENTER_VERTICAL, 0, 0, 6, 0));
+        TextView text = new TextView(context);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        text.setTextColor(color);
+        text.setText(getString(R.string.PluginsSourceTrusted));
+        badge.addView(text);
+        return badge;
+    }
+
+    private ImageView createSourceButton(Context context, File file, Plugin plugin) {
         ImageView button = new ImageView(context);
         button.setScaleType(ImageView.ScaleType.CENTER);
         button.setImageResource(R.drawable.msg_view_file);
