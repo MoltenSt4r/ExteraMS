@@ -491,7 +491,7 @@ dialogTopBackground=secondary_container_dark
 dialog_inlineProgress=on_primary_container_dark
 dialog_inlineProgressBackground=surface_dark
 dialog_liveLocationProgress=on_primary_container_dark
-divider=transparent
+divider=outline_variant_dark(a=50)
 emptyListPlaceholder=on_surface_dark
 fastScrollActive=primary_light
 fastScrollInactive=primary_dark

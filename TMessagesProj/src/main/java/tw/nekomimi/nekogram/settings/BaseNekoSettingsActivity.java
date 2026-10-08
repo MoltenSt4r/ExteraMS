@@ -121,6 +121,7 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
         itemAnimator.setChangeDuration(350);
         itemAnimator.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);
         itemAnimator.setDelayAnimations(false);
+        itemAnimator.setSupportsChangeAnimations(false);
         listView.setItemAnimator(itemAnimator);
         frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 

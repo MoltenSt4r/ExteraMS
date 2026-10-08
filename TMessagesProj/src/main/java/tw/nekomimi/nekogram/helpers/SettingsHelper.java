@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import app.exteraless.ai.ui.AiSettingsActivity;
 import app.exteraless.pillstack.PillStackSettingsActivity;
 import app.exteraless.plugins.ui.PluginsActivity;
 import app.exteraless.settings.OpenExteraAppNavigationActivity;
@@ -58,6 +59,51 @@ public class SettingsHelper {
         SEARCH_TITLE_ALIASES.put("OEChats:disableGreeting", "OEChatsDisableGreetingSticker");
         SEARCH_TITLE_ALIASES.put("OEChats:hideKeyboardOnScroll", "HideKeyboardOnChatScroll");
         SEARCH_TITLE_ALIASES.put("OEChats:transcribeProvider", "PremiumPreviewVoiceToText");
+        SEARCH_TITLE_ALIASES.put("OEGeneral:translator", "TranslatorSettings");
+        SEARCH_TITLE_ALIASES.put("OEGeneral:translateInSheet", "OEChatsTranslateInSheet");
+        SEARCH_TITLE_ALIASES.put("OEGeneral:glyph", "OEGlyphTitle");
+        SEARCH_TITLE_ALIASES.put("OpenExtera:channel", "ProfileChannel");
+        SEARCH_TITLE_ALIASES.put("OEGeneral:downloadSpeed", "OEGeneralSpeedHeader");
+        SEARCH_TITLE_ALIASES.put("OEAppearance:md3Styles", "OEAppearanceMaterialDesign3");
+        SEARCH_TITLE_ALIASES.put("OEAppearance:md3Loading", "OEAppearanceNewLoadingStyle");
+        SEARCH_TITLE_ALIASES.put("OEAppearance:md3Slider", "OEAppearanceSliderStyle");
+        SEARCH_TITLE_ALIASES.put("OEAppearance:md3Switch", "OEAppearanceSwitchStyle");
+        SEARCH_TITLE_ALIASES.put("OEAppearance:md3NavBar", "OEAppearanceNewNavigationBarStyle");
+        SEARCH_TITLE_ALIASES.put("OEAppearance:md3ListItems", "OEAppearanceM3ListItems");
+        SEARCH_TITLE_ALIASES.put("OEAppearance:iosStyles", "OEAppearanceIosDesign");
+        SEARCH_TITLE_ALIASES.put("OEAppearance:iosNavBar", "OEAppearanceIosNavigationBarStyle");
+        SEARCH_TITLE_ALIASES.put("OEChats:doubleTapReaction", "DoubleTapSetting");
+        SEARCH_TITLE_ALIASES.put("OEChats:quickTransition", "OEChatsQuickTransitions");
+        SEARCH_TITLE_ALIASES.put("OEChats:inlineMathResult", "OEChatsInlineMath");
+        SEARCH_TITLE_ALIASES.put("OEChats:searchHashtagChat", "SearchHashtagDefaultPageChat");
+        SEARCH_TITLE_ALIASES.put("OEChats:searchHashtagChannel", "SearchHashtagDefaultPageChannel");
+        SEARCH_TITLE_ALIASES.put("OEChats:replaceEdited", "OEChatsReplaceEditedWithIcon");
+        SEARCH_TITLE_ALIASES.put("OEChats:videoMessagesCamera", "CameraInVideoMessages");
+        SEARCH_TITLE_ALIASES.put("OEChats:voskModels", "VoskModelsShort");
+        MOVED_ROWS.put("chats:translateInSheet", "general");
+        MOVED_ROWS.put("other:unlimitedPinnedDialogs", "general");
+        MOVED_ROWS.put("other:glyph", "general");
+        moveRows("chats", "menus", "bottomButton", "adminShortcuts", "chatMenu", "messageMenu",
+                "groupedMessageMenu", "textStyle", "TextStyle", "mediaViewerMenu", "actionBarButtons",
+                "defaultDeleteMenu", "DefaultDeleteMenu");
+        moveRows("chats", "media", "cameraType", "extendedSettings", "videoMessagesCamera",
+                "rememberLastUsedCamera", "zoomSlider", "staticZoom", "alwaysSendInHD", "hdrPhotos",
+                "disableInstantCamera", "DisableInstantCamera", "doubleTapSeekDuration", "preferOriginalQuality",
+                "videoPlayerDecoder", "VideoPlayerDecoder", "swipeToPip", "unmuteWithVolumeButtons",
+                "showSmallGIF", "ShowSmallGIF", "dontAutoPlayNextVoice", "DontAutoPlayNextVoice",
+                "disableProximityEvents", "DisableProximityEvents", "pauseOnMinimize", "transcribeProvider",
+                "TranscribeProviderShort", "cloudflareCredentials", "CloudflareCredentials", "llmProviderGeminiKey",
+                "LlmProviderGeminiKey", "transcribeProviderOpenAI", "TranscribeProviderOpenAI", "voskModels",
+                "VoskModelsShort");
+        moveRows("chats", "hiding", "disableTrending", "DisableTrending", "hideGroupSticker", "hideReactions",
+                "disableGreeting", "hideSendAsPeer", "hideShareButton", "hideGiftButton", "hideSearchButton",
+                "hideCameraTile", "premiumElements", "PremiumElements");
+        moveRows("other", "media", "noiseSuppressAndVoiceEnhance", "NoiseSuppressAndVoiceEnhance",
+                "enhancedVideoBitrate", "EnhancedVideoBitrate");
+        moveRows("appearance", "hiding", "hideActionBarStatus", "hideStories", "HideStoriesFromHeader",
+                "DisableStories", "hideFloatingButton", "hideSearchBar", "hideAllChats", "hideAi", "hideAiEditor",
+                "hideAiSummary", "hideAiIv", "hideSettingsSections", "hidePremiumSection", "HidePremiumSection",
+                "hideHelpSection", "HideHelpSection");
         TRANSLATOR_ROWS.put("translateButton", "showTranslate");
         TRANSLATOR_ROWS.put("translateChatButton", "TelegramUIAutoTranslate");
         TRANSLATOR_ROWS.put("translationProvider", "translationProvider");
@@ -354,6 +400,7 @@ public class SettingsHelper {
         exteralessFragments.add(new OpenExteraOtherActivity());
         exteralessFragments.add(new OpenExteraAyuMomentsActivity());
         exteralessFragments.add(new PillStackSettingsActivity());
+        exteralessFragments.add(new AiSettingsActivity());
 
         String e_title = getString(R.string.OpenExtera);
         for (BaseNekoSettingsActivity fragment : exteralessFragments) {

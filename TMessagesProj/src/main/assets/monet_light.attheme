@@ -491,7 +491,7 @@ dialogTopBackground=secondary_light
 dialog_inlineProgress=primary_light
 dialog_inlineProgressBackground=neutral_95
 dialog_liveLocationProgress=primary_light
-divider=transparent
+divider=outline_variant_light(a=50)
 emptyListPlaceholder=neutral_20
 fastScrollActive=primary_dark
 fastScrollInactive=primary_light
