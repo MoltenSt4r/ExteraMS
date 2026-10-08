@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="DownloadingModel">جارٍ تنزيل النموذج…</string>
+    <string name="DownloadingModelInfo">يرجى إبقاء هذه النافذة مفتوحة أثناء تنزيل نموذج اللغة.</string>
+    <string name="ModelUnzipping">جارٍ فك الضغط…</string>
+    <string name="VoskTitle">التعرّف دون اتصال</string>
+    <string name="VoskLanguages">نماذج اللغات</string>
+    <string name="VoskLanguagesInfo">اضغط على لغة لتنزيل نموذجها، واضغط مرة أخرى لجعله نشطًا. اضغط مطولًا على نموذج منزّل لحذفه. يتم التعرّف على الجهاز، ولا تُرسل الرسالة الصوتية إلى أي مكان.</string>
+    <string name="VoskModelSelected">نشط</string>
+    <string name="VoskModelNotInstalled">نزّل نموذج لغة أولًا</string>
+    <string name="VoskDownloadBusy">يتم تنزيل نموذج آخر</string>
+    <string name="VoskDownloadFailed">تعذّر تنزيل النموذج</string>
+    <string name="VoskDeleteModelConfirm">حذف نموذج اللغة هذا؟</string>
+    <string name="VoskModelsShort">نماذج التعرّف دون اتصال</string>
+    <string name="TranscribeProviderVosk">Vosk (دون اتصال)</string>
+    <string name="VoskNothingRecognized">لم يتم التعرّف على أي كلام</string>
+    <string name="TranscribeSetupAction">إعداد</string>
+    <string name="TranscribeSetupCredentials">لم يتم إعداد بيانات اعتماد STT</string>
+    <string name="TranscribeSetupVosk">لم يتم تنزيل أي نموذج دون اتصال</string>
+</resources>
