@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.AppGlobalConfig;
 import org.telegram.messenger.ContactsController;
+import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.MessagesController;
@@ -50,6 +51,7 @@ public class MessagePrivateSeenView extends FrameLayout {
     public static final int TYPE_SEEN = 0;
     public static final int TYPE_EDIT = 1;
     public static final int TYPE_FORWARD = 2;
+    public static final int TYPE_PLAYED = 3;
 
     private final int currentAccount;
     private final int type;
@@ -65,6 +67,9 @@ public class MessagePrivateSeenView extends FrameLayout {
     private final int sent_date;
     private final int edit_date;
     private final int fwd_date;
+    private final int localReadDate;
+    private final int localPlayedDate;
+    private final boolean serverReadDateAvailable;
     private final Runnable dismiss;
 
     private final int messageDiff;
@@ -83,6 +88,10 @@ public class MessagePrivateSeenView extends FrameLayout {
         sent_date = messageObject.messageOwner == null ? 0 : messageObject.messageOwner.date;
         edit_date = messageObject.messageOwner == null ? 0 : messageObject.messageOwner.edit_date;
         fwd_date = messageObject.messageOwner == null || messageObject.messageOwner.fwd_from == null ? 0 : messageObject.messageOwner.fwd_from.date;
+        localReadDate = type == TYPE_SEEN ? com.radolyn.ayugram.messages.AyuSpyController.getReadDate(messageObject) : 0;
+        localPlayedDate = type == TYPE_PLAYED ? com.radolyn.ayugram.messages.AyuSpyController.getContentsReadDate(messageObject) : 0;
+        final TLRPC.UserFull userFull = DialogObject.isUserDialog(dialogId) ? MessagesController.getInstance(currentAccount).getUserFull(dialogId) : null;
+        serverReadDateAvailable = DialogObject.isUserDialog(dialogId) && messageDiff < MessagesController.getInstance(currentAccount).pmReadDateExpirePeriod && (userFull == null || !userFull.read_dates_private);
 
         ImageView iconView = new ImageView(context);
         addView(iconView, LayoutHelper.createFrame(24, 24, Gravity.LEFT | Gravity.CENTER_VERTICAL, 11, 0, 0, 0));
@@ -93,7 +102,7 @@ public class MessagePrivateSeenView extends FrameLayout {
                 R.drawable.menu_edited_stamp;
         } else if (type == TYPE_FORWARD) {
             icon = R.drawable.menu_forward_stamp;
-        } else if (messageObject.isVoice()) {
+        } else if (type == TYPE_PLAYED || messageObject.isVoice()) {
             icon = R.drawable.msg_played;
         } else {
             icon = R.drawable.msg_seen;
@@ -145,6 +154,14 @@ public class MessagePrivateSeenView extends FrameLayout {
             premiumTextView.setVisibility(View.GONE);
             valueTextView.setText(LocaleController.formatPmFwdDate(fwd_date));
             return;
+        } else if (type == TYPE_PLAYED || type == TYPE_SEEN && localReadDate > 0 && !serverReadDateAvailable) {
+            valueLayout.setAlpha(1f);
+            loadingView.setAlpha(0f);
+            premiumTextView.setVisibility(View.GONE);
+            valueTextView.setText(type == TYPE_PLAYED
+                ? com.radolyn.ayugram.messages.AyuSpyController.formatPlayedDate(localPlayedDate)
+                : LocaleController.formatPmSeenDate(localReadDate));
+            return;
         }
         setOnClickListener(null);
         valueLayout.setAlpha(0f);
@@ -155,7 +172,10 @@ public class MessagePrivateSeenView extends FrameLayout {
         req.peer = MessagesController.getInstance(currentAccount).getInputPeer(dialogId);
         req.msg_id = messageId;
         ConnectionsManager.getInstance(currentAccount).sendRequest(req, (res, err) -> AndroidUtilities.runOnUIThread(() -> {
-            if (err != null) {
+            if (err != null && localReadDate > 0) {
+                valueTextView.setText(LocaleController.formatPmSeenDate(localReadDate));
+                premiumTextView.setVisibility(View.GONE);
+            } else if (err != null) {
                 if ("USER_PRIVACY_RESTRICTED".equals(err.text)) {
                     valueTextView.setText(LocaleController.getString(R.string.PmReadUnknown));
                     premiumTextView.setVisibility(View.GONE);

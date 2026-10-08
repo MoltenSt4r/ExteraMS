@@ -1166,6 +1166,7 @@ public class AnimatedTextView extends View {
                 toSetMoveDown = false;
             }
         });
+        setTypeface(AndroidUtilities.regular());
     }
 
     public void setMaxWidth(int width) {

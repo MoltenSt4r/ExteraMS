@@ -94,4 +94,9 @@
     <string name="OEGeneralNetworkHeader">网络</string>
     <string name="OEPrivacyFalseBottom">私密空间</string>
     <string name="OEPrivacyFalseBottomShowIn">在“%1$s”中显示</string>
+    <string name="OEAyuSaveReadDate">保存已读时间</string>
+    <string name="OEAyuSaveReadDateInfo">记录你的消息何时被阅读和收听。Telegram 不提供时间时，会显示在消息菜单中。</string>
+    <string name="OEAyuPlayedTodayAt">%s 已收听</string>
+    <string name="OEAyuPlayedYesterdayAt">昨天 %s 已收听</string>
+    <string name="OEAyuPlayedDateTimeAt">%1$s %2$s 已收听</string>
 </resources>

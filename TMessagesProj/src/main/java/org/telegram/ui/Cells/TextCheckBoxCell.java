@@ -42,6 +42,7 @@ public class TextCheckBoxCell extends FrameLayout {
         }
 
         textView = new TextView(context);
+        textView.setTypeface(AndroidUtilities.regular());
         textView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         textView.setLines(1);

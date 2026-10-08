@@ -1,5 +1,6 @@
 package org.telegram.ui.ActionBar;
 
+import org.telegram.messenger.AndroidUtilities;
 import static org.telegram.messenger.AndroidUtilities.dp;
 
 import android.animation.Animator;
@@ -89,6 +90,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
         addView(imageView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, 40, Gravity.CENTER_VERTICAL | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT)));
 
         textView = new AnimatedEmojiSpan.TextViewEmojis(context);
+        textView.setTypeface(AndroidUtilities.regular());
         textView.setLines(1);
         textView.setSingleLine(true);
         textView.setGravity(Gravity.LEFT);

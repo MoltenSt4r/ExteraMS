@@ -75,6 +75,7 @@ public class NotificationsCheckCell extends FrameLayout {
         }
 
         textView = new TextView(context);
+        textView.setTypeface(AndroidUtilities.regular());
         textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         textView.setLines(1);

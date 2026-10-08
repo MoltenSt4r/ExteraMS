@@ -153,4 +153,12 @@
     <string name="OEGeneralLastFmStagePrepare">Добавляю метку…</string>
     <string name="OEGeneralLastFmStageUpload">Загружаю трек…</string>
     <string name="OEGeneralLastFmStageSave">Сохраняю в профиль…</string>
+    <string name="OEAyuSaveReadDate">Сохранять дату прочтения</string>
+    <string name="OEAyuSaveReadDateInfo">Запоминает, когда ваши сообщения прочитали и прослушали. Время видно в меню сообщения, если Telegram его не показывает.</string>
+    <string name="OEAyuPlayedTodayAt">прослушано в %s</string>
+    <string name="OEAyuPlayedYesterdayAt">прослушано вчера в %s</string>
+    <string name="OEAyuPlayedDateTimeAt">прослушано %1$s в %2$s</string>
+    <string name="OEAyuForwardLoadingMedia">Загрузка медиа</string>
+    <string name="OEAyuForwardLoadingCount">Файлов: %1$d из %2$d</string>
+    <string name="OEAyuForwardLoadFailed">Не удалось загрузить медиа для пересылки</string>
 </resources>

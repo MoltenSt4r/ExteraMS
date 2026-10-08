@@ -57,6 +57,7 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
     private static final ConfigItem[] AYU_FEATURE_CONFIGS = {
             NaConfig.INSTANCE.getRegexFiltersEnabled(),
             NaConfig.INSTANCE.getSaveLocalLastSeen(),
+            NaConfig.INSTANCE.getSaveReadDate(),
             NaConfig.INSTANCE.getEnableSaveDeletedMessages(),
             NaConfig.INSTANCE.getEnableSaveEditsHistory(),
             NaConfig.INSTANCE.getMessageSavingSaveMedia(),
@@ -73,6 +74,7 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
     private int askStoryRow;
     private int regexRow;
     private int saveLastSeenRow;
+    private int saveReadDateRow;
     private int saveDeletedRow;
     private int saveEditsRow;
     private int saveMediaRow;
@@ -115,6 +117,7 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
         askStoryRow = addRow(NaConfig.INSTANCE.getAskBeforeOpeningStory().getKey());
         regexRow = addRow(NaConfig.INSTANCE.getRegexFiltersEnabled().getKey());
         saveLastSeenRow = addRow(NaConfig.INSTANCE.getSaveLocalLastSeen().getKey());
+        saveReadDateRow = addRow(NaConfig.INSTANCE.getSaveReadDate().getKey());
         saveDeletedRow = addRow(NaConfig.INSTANCE.getEnableSaveDeletedMessages().getKey());
         saveEditsRow = addRow(NaConfig.INSTANCE.getEnableSaveEditsHistory().getKey());
         saveMediaRow = botUserRow = botChatRow = translucentRow = -1;
@@ -201,6 +204,8 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
             }
         } else if (position == saveLastSeenRow) {
             toggleAyuConfig(view, NaConfig.INSTANCE.getSaveLocalLastSeen(), false);
+        } else if (position == saveReadDateRow) {
+            toggleAyuConfig(view, NaConfig.INSTANCE.getSaveReadDate(), false);
         } else if (position == saveDeletedRow) {
             toggleAyuConfig(view, NaConfig.INSTANCE.getEnableSaveDeletedMessages(), true);
         } else if (position == saveEditsRow) {
@@ -550,6 +555,11 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
                                 NaConfig.INSTANCE.getRegexFiltersEnabled().Bool(), true, true);
                     } else if (position == saveLastSeenRow) {
                         bindAyuCheck(cell, NaConfig.INSTANCE.getSaveLocalLastSeen(), true);
+                    } else if (position == saveReadDateRow) {
+                        cell.setTextAndValueAndCheck(
+                                getString(R.string.OEAyuSaveReadDate),
+                                getString(R.string.OEAyuSaveReadDateInfo),
+                                NaConfig.INSTANCE.getSaveReadDate().Bool(), true, true);
                     } else if (position == saveDeletedRow) {
                         bindAyuCheck(cell, NaConfig.INSTANCE.getEnableSaveDeletedMessages(), true);
                     } else if (position == saveEditsRow) {

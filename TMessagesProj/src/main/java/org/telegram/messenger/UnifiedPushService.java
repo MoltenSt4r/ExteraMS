@@ -143,10 +143,14 @@ public class UnifiedPushService extends PushService {
     public void onRegistrationFailed(FailedReason reason, String instance) {
         if (isUnifiedPushDisabled()) return;
         FileLog.e("Failed to get endpoint: " + reason);
-        SharedConfig.pushStringStatus = UP_FAILED;
-        Utilities.globalQueue.postRunnable(() -> {
-            SharedConfig.pushStringGetTimeEnd = SystemClock.elapsedRealtime();
-            PushListenerController.sendRegistrationToServer(PushListenerController.PUSH_TYPE_WEB, null);
+        AndroidUtilities.runOnUIThread(() -> {
+            ApplicationLoader.postInitApplication();
+            SharedConfig.pushStringStatus = UP_FAILED;
+            Utilities.globalQueue.postRunnable(() -> {
+                SharedConfig.pushStringGetTimeEnd = SystemClock.elapsedRealtime();
+                PushListenerController.sendRegistrationToServer(PushListenerController.PUSH_TYPE_WEB, null);
+                ApplicationLoader.startPushService();
+            });
         });
     }
 
@@ -161,6 +165,7 @@ public class UnifiedPushService extends PushService {
                 PushListenerController.unregisterWebPush();
                 PushListenerController.sendRegistrationToServer(PushListenerController.PUSH_TYPE_WEB, null);
                 PushListenerController.unregisterSimplePush();
+                ApplicationLoader.startPushService();
             });
         });
     }

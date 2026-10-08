@@ -160,6 +160,7 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
             textView = new TextView(context);
             textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+            textView.setTypeface(AndroidUtilities.regular());
             textView.setLines(1);
             textView.setMaxLines(1);
             textView.setSingleLine(true);
@@ -170,6 +171,7 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
             valueTextView = new TextView(context);
             valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2));
             valueTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+            valueTextView.setTypeface(AndroidUtilities.regular());
             valueTextView.setLines(1);
             valueTextView.setMaxLines(1);
             valueTextView.setSingleLine(true);
@@ -249,6 +251,7 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
             });
 
             messageTextView = new TextView(context);
+            messageTextView.setTypeface(AndroidUtilities.regular());
             messageTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText4));
             messageTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
             messageTextView.setGravity(Gravity.CENTER);
@@ -309,6 +312,7 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
             valueTextView = new TextView(context);
             valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2));
             valueTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+            valueTextView.setTypeface(AndroidUtilities.regular());
             valueTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
             valueTextView.setLines(1);
             valueTextView.setMaxLines(1);

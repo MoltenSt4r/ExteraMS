@@ -435,8 +435,11 @@ public class ApplicationLoader extends Application implements CameraXConfig.Prov
     private static void startPushServiceInternal() {
         SharedPreferences preferences = MessagesController.getNotificationsSettings(UserConfig.selectedAccount);
         final int pushServiceType = NaConfig.INSTANCE.getPushServiceType().Int();
-        final boolean remotePush = pushServiceType != 0
-                && (pushServiceType == 2 || PushListenerController.getProvider().hasServices());
+        final boolean remoteFailed = TextUtils.isEmpty(SharedConfig.pushString)
+                && ("__FIREBASE_FAILED__".equals(SharedConfig.pushStringStatus)
+                || UnifiedPushService.UP_FAILED.equals(SharedConfig.pushStringStatus));
+        final boolean remotePush = pushServiceType != 0 && !remoteFailed
+                && PushListenerController.getProvider().hasServices();
         boolean enabled;
         if (remotePush) {
             enabled = false;
@@ -500,6 +503,7 @@ public class ApplicationLoader extends Application implements CameraXConfig.Prov
         AndroidUtilities.runOnUIThread(() -> {
             if (getPushProvider().hasServices()) {
                 getPushProvider().onRequestPushToken();
+                AndroidUtilities.runOnUIThread(ApplicationLoader::checkPushTokenTimeout, PUSH_TOKEN_TIMEOUT_MS);
             } else {
                 if (BuildVars.LOGS_ENABLED) {
                     FileLog.d("No valid " + getPushProvider().getLogTitle() + " APK found.");
@@ -509,6 +513,25 @@ public class ApplicationLoader extends Application implements CameraXConfig.Prov
                 startPushService();
             }
         }, 1000);
+    }
+
+    private static final long PUSH_TOKEN_TIMEOUT_MS = 60_000;
+
+    private static void checkPushTokenTimeout() {
+        final String status = SharedConfig.pushStringStatus;
+        if (!TextUtils.isEmpty(SharedConfig.pushString) || status == null || !status.contains("_GENERATING_SINCE_")) {
+            return;
+        }
+        final int pushType = getPushProvider().getPushType();
+        FileLog.d(getPushProvider().getLogTitle() + " token request timed out");
+        if (pushType == PushListenerController.PUSH_TYPE_WEB) {
+            SharedConfig.pushStringStatus = UnifiedPushService.UP_FAILED;
+        } else {
+            GooglePushListenerServiceProvider.lastError = "no token after " + PUSH_TOKEN_TIMEOUT_MS / 1000 + " s";
+            SharedConfig.pushStringStatus = "__FIREBASE_FAILED__";
+        }
+        PushListenerController.sendRegistrationToServer(pushType, null);
+        startPushService();
     }
 
     /*private boolean checkPlayServices() {

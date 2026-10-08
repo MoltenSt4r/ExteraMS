@@ -573,6 +573,12 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
+    val saveReadDate =
+        addConfig(
+            "OEAyuSaveReadDate",
+            ConfigItem.configTypeBool,
+            false
+        )
     val messageSavingSaveMedia =
         addConfig(
             "MessageSavingSaveMedia",

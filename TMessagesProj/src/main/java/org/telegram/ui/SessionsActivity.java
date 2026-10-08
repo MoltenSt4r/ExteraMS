@@ -1084,6 +1084,7 @@ public class SessionsActivity extends BaseFragment implements NotificationCenter
             colors[7] = Theme.getColor(Theme.key_windowBackgroundWhite);
 
             textView = new LinkSpanDrawable.LinksTextView(context);
+            textView.setTypeface(AndroidUtilities.regular());
             addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 36, 152, 36, 0));
             textView.setGravity(Gravity.CENTER_HORIZONTAL);
             textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));

@@ -16,9 +16,7 @@ public class TextHelper {
         final TextView textView = new TextView(context);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textSizeDp);
         textView.setTextColor(Theme.getColor(colorKey, resourcesProvider));
-        if (bold) {
-            textView.setTypeface(AndroidUtilities.bold());
-        }
+        textView.setTypeface(bold ? AndroidUtilities.bold() : AndroidUtilities.regular());
         return textView;
     }
 

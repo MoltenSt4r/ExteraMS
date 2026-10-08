@@ -6,6 +6,7 @@ import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 
 import org.json.JSONArray;
+import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 
 import java.lang.reflect.Member;
@@ -75,17 +76,33 @@ public final class XposedHooks {
             initAttempted = true;
             SharedPreferences preferences = PluginsController.getInstance().getPreferences();
             if (preferences != null) {
+                final long installStamp = installStamp();
                 if (preferences.getBoolean(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN, false)) {
-                    FileLog.w("XposedHooks: native hooks disabled after an earlier process death");
-                    return false;
+                    if (preferences.getLong(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN_STAMP, 0) == installStamp) {
+                        FileLog.w("XposedHooks: native hooks disabled after an earlier process death");
+                        return false;
+                    }
+                    preferences.edit()
+                            .remove(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN)
+                            .remove(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN_STAMP)
+                            .remove(PluginsConstants.KEY_NATIVE_HOOKS_STRIKES)
+                            .commit();
+                    FileLog.w("XposedHooks: app was reinstalled, retrying native hooks");
                 }
                 if (preferences.getBoolean(PluginsConstants.KEY_NATIVE_HOOKS_PENDING, false)) {
-                    preferences.edit()
-                            .remove(PluginsConstants.KEY_NATIVE_HOOKS_PENDING)
-                            .putBoolean(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN, true)
-                            .commit();
-                    FileLog.e("XposedHooks: Aliuhook killed the process last time, hooks are off");
-                    return false;
+                    final int strikes = preferences.getInt(PluginsConstants.KEY_NATIVE_HOOKS_STRIKES, 0) + 1;
+                    if (strikes >= 2) {
+                        preferences.edit()
+                                .remove(PluginsConstants.KEY_NATIVE_HOOKS_PENDING)
+                                .remove(PluginsConstants.KEY_NATIVE_HOOKS_STRIKES)
+                                .putBoolean(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN, true)
+                                .putLong(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN_STAMP, installStamp)
+                                .commit();
+                        FileLog.e("XposedHooks: Aliuhook killed the process twice in a row, hooks are off");
+                        return false;
+                    }
+                    preferences.edit().putInt(PluginsConstants.KEY_NATIVE_HOOKS_STRIKES, strikes).commit();
+                    FileLog.w("XposedHooks: process died during hook init last time, retrying");
                 }
                 preferences.edit()
                         .putBoolean(PluginsConstants.KEY_NATIVE_HOOKS_PENDING, true)
@@ -109,9 +126,22 @@ public final class XposedHooks {
                 FileLog.e("XposedHooks: Aliuhook init failed, method hooks disabled", t);
             }
             if (preferences != null) {
-                preferences.edit().remove(PluginsConstants.KEY_NATIVE_HOOKS_PENDING).commit();
+                final SharedPreferences.Editor editor = preferences.edit().remove(PluginsConstants.KEY_NATIVE_HOOKS_PENDING);
+                if (initOk) {
+                    editor.remove(PluginsConstants.KEY_NATIVE_HOOKS_STRIKES);
+                }
+                editor.commit();
             }
             return initOk;
+        }
+    }
+
+    private static long installStamp() {
+        try {
+            final android.content.Context context = ApplicationLoader.applicationContext;
+            return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).lastUpdateTime;
+        } catch (Throwable t) {
+            return 0;
         }
     }
 

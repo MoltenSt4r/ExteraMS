@@ -210,6 +210,7 @@ public class ReactionsDoubleTapManageActivity extends BaseFragment implements No
             super(context);
 
             textView = new TextView(context);
+            textView.setTypeface(AndroidUtilities.regular());
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
             textView.setTextColor(getThemedColor(Theme.key_windowBackgroundWhiteBlackText));
             textView.setText(getString(R.string.DoubleTapSetting));

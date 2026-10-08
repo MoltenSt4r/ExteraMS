@@ -1356,6 +1356,7 @@ public class Bulletin {
             textView = new LinkSpanDrawable.LinksTextView(context);
             textView.setDisablePaddingsOffsetY(true);
             textView.setSingleLine();
+            textView.setTypeface(AndroidUtilities.regular());
             textView.setTextColor(undoInfoColor);
             textView.setTypeface(Typeface.SANS_SERIF);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
@@ -1432,6 +1433,7 @@ public class Bulletin {
             subtitleTextView.setMaxLines(2);
             subtitleTextView.setTextColor(undoInfoColor);
             subtitleTextView.setLinkTextColor(getThemedColor(Theme.key_undo_cancelColor));
+            subtitleTextView.setTypeface(AndroidUtilities.regular());
             subtitleTextView.setTypeface(Typeface.SANS_SERIF);
             subtitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
             linearLayout.addView(subtitleTextView);
@@ -1488,6 +1490,7 @@ public class Bulletin {
             subtitleTextView.setPadding(dp(4), 0, dp(4), 0);
             subtitleTextView.setTextColor(undoInfoColor);
             subtitleTextView.setLinkTextColor(undoLinkColor);
+            subtitleTextView.setTypeface(AndroidUtilities.regular());
             subtitleTextView.setTypeface(Typeface.SANS_SERIF);
             subtitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
             linearLayout.addView(subtitleTextView);
@@ -1564,6 +1567,7 @@ public class Bulletin {
             subtitleTextView.setPadding(dp(4), 0, dp(4), 0);
             subtitleTextView.setTextColor(undoInfoColor);
             subtitleTextView.setLinkTextColor(undoLinkColor);
+            subtitleTextView.setTypeface(AndroidUtilities.regular());
             subtitleTextView.setTypeface(Typeface.SANS_SERIF);
             subtitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
             linearLayout.addView(subtitleTextView);
@@ -1640,6 +1644,7 @@ public class Bulletin {
             subtitleTextView.setPadding(dp(4), 0, dp(4), 0);
             subtitleTextView.setTextColor(undoInfoColor);
             subtitleTextView.setLinkTextColor(undoLinkColor);
+            subtitleTextView.setTypeface(AndroidUtilities.regular());
             subtitleTextView.setTypeface(Typeface.SANS_SERIF);
             subtitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
             linearLayout.addView(subtitleTextView);
@@ -2015,7 +2020,7 @@ public class Bulletin {
             };
             NotificationCenter.listenEmojiLoading(textView);
             textView.setSingleLine();
-            textView.setTypeface(Typeface.SANS_SERIF);
+            textView.setTypeface(AndroidUtilities.regular());
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
             textView.setEllipsize(TextUtils.TruncateAt.END);
             textView.setPadding(0, dp(8), 0, dp(8));

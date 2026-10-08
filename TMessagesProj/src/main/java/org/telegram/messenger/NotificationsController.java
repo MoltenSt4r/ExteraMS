@@ -5369,7 +5369,7 @@ public class NotificationsController extends BaseController implements Notificat
                         personName = senderName[0];
                     }
 
-                    if (person == null || !TextUtils.equals(person.getName(), personName)) {
+                    if (person == null || !TextUtils.equals(person.getName(), personName) || person.getIcon() == null) {
                         Person.Builder personBuilder = new Person.Builder().setName(personName);
                         if (preview[0] && !DialogObject.isEncryptedDialog(dialogId) && Build.VERSION.SDK_INT >= 28) {
                             File avatar = null;

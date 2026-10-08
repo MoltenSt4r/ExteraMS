@@ -47,6 +47,8 @@ public final class PluginsConstants {
     public static final String KEY_NATIVE_HOOKS_PENDING = "native_hooks_init_pending";
 
     public static final String KEY_NATIVE_HOOKS_BROKEN = "native_hooks_unsupported";
+    public static final String KEY_NATIVE_HOOKS_BROKEN_STAMP = "native_hooks_unsupported_stamp";
+    public static final String KEY_NATIVE_HOOKS_STRIKES = "native_hooks_init_strikes";
     /** Сколько раз процесс уже умирал на этом плагине. */
     public static final String KEY_WATCHDOG_STRIKES_PREFIX = "watchdog_strikes_";
 

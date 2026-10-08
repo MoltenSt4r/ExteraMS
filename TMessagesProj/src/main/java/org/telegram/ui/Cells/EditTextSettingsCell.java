@@ -35,6 +35,7 @@ public class EditTextSettingsCell extends FrameLayout {
         super(context);
 
         textView = new EditTextBoldCursor(context);
+        textView.setTypeface(AndroidUtilities.regular());
         textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
         textView.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);

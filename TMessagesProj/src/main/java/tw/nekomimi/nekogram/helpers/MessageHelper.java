@@ -1296,11 +1296,12 @@ public class MessageHelper extends BaseController {
         if (caption == null && (messageObject.type == 0 || messageObject.isAnimatedEmoji())) {
             caption = ChatActivity.getMessageContent(messageObject, 0, false);
         }
-        if ((messageObject.isSticker() || messageObject.isAnimatedSticker()) && messageObject.getDocument() != null) {
+        final boolean webPage = isWebPageMessage(messageObject);
+        if (!webPage && (messageObject.isSticker() || messageObject.isAnimatedSticker()) && messageObject.getDocument() != null) {
             SendMessagesHelper.getInstance(currentAccount).sendSticker(messageObject.getDocument(), null, targetDialogId, null, null, replyTo, replyToTopMsg, null, quote, null, notify, scheduleDate, 0, false, null, sendMessageChatArguments, payStars, monoForumPeerId, suggestionParams);
             return true;
         }
-        String path = getPathToMessage(messageObject, currentAccount);
+        String path = webPage ? null : getPathToMessage(messageObject, currentAccount);
         if (!TextUtils.isEmpty(path)) {
             ArrayList<TLRPC.MessageEntity> entities = caption != null ? messageObject.messageOwner.entities : null;
             if (messageObject.isRoundVideo()) {
@@ -1327,10 +1328,20 @@ public class MessageHelper extends BaseController {
             params.payStars = payStars;
             params.monoForumPeer = monoForumPeerId;
             params.suggestionParams = suggestionParams;
+            if (webPage) {
+                TLRPC.TL_messageMediaWebPage media = (TLRPC.TL_messageMediaWebPage) MessageObject.getMedia(messageObject.messageOwner);
+                if (media.webpage != null && !TextUtils.isEmpty(media.webpage.url)) {
+                    params.mediaWebPage = media;
+                }
+            }
             SendMessagesHelper.getInstance(currentAccount).sendMessage(params);
             return true;
         }
         return false;
+    }
+
+    public static boolean isWebPageMessage(MessageObject messageObject) {
+        return messageObject != null && messageObject.messageOwner != null && MessageObject.getMedia(messageObject.messageOwner) instanceof TLRPC.TL_messageMediaWebPage;
     }
 
 
@@ -1343,7 +1354,7 @@ public class MessageHelper extends BaseController {
         }
         for (int i = 0; i < messages.size(); i++) {
             MessageObject messageObject = messages.get(i);
-            boolean needsFile = messageObject != null && messageObject.messageOwner != null && !messageObject.isSticker() && !messageObject.isAnimatedSticker() && !messageObject.isAnimatedEmoji() &&
+            boolean needsFile = messageObject != null && messageObject.messageOwner != null && !isWebPageMessage(messageObject) && !messageObject.isSticker() && !messageObject.isAnimatedSticker() && !messageObject.isAnimatedEmoji() &&
                     (messageObject.isPhoto() || messageObject.isVideo() || messageObject.isRoundVideo() || messageObject.getDocument() != null);
             if (needsFile && TextUtils.isEmpty(getPathToMessage(messageObject, currentAccount))) {
                 return false;
@@ -1356,7 +1367,7 @@ public class MessageHelper extends BaseController {
 
         for (int i = 0; i < messages.size(); i++) {
             MessageObject messageObject = messages.get(i);
-            boolean batchMedia = messageObject != null && messageObject.messageOwner != null && !messageObject.isRoundVideo() && (messageObject.isPhoto() || messageObject.isVideo());
+            boolean batchMedia = messageObject != null && messageObject.messageOwner != null && !isWebPageMessage(messageObject) && !messageObject.isRoundVideo() && (messageObject.isPhoto() || messageObject.isVideo());
             if (batchMedia) {
                 String path = getPathToMessage(messageObject, currentAccount);
                 long groupId = messageObject.getGroupIdForUse();

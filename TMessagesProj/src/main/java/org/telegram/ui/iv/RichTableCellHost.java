@@ -1,5 +1,6 @@
 package org.telegram.ui.iv;
 
+import org.telegram.messenger.AndroidUtilities;
 import static org.telegram.messenger.AndroidUtilities.dp;
 
 import android.content.Context;
@@ -24,6 +25,7 @@ public class RichTableCellHost extends FrameLayout {
         super(context);
 
         editText = new RichEditText(context, resourcesProvider);
+        editText.setTypeface(AndroidUtilities.regular());
         editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, Math.max(8, SharedConfig.fontSize - 2));
         editText.setAllowNewlines(true);
         setCompact(false);

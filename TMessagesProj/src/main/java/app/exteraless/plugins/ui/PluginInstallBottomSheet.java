@@ -99,11 +99,13 @@ public class PluginInstallBottomSheet extends BottomSheet {
         content.addView(name, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT,
                 LayoutHelper.WRAP_CONTENT, 40, 14, 40, 0));
 
-        TextView subtitle = new TextView(context);
+        LinkSpanDrawable.LinksTextView subtitle = new LinkSpanDrawable.LinksTextView(context);
         subtitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
         subtitle.setTextColor(Theme.getColor(Theme.key_dialogTextGray2));
+        subtitle.setLinkTextColor(Theme.getColor(Theme.key_dialogTextLink));
         subtitle.setGravity(Gravity.CENTER);
-        subtitle.setText(buildSubtitle(plugin));
+        subtitle.setText(com.exteragram.messenger.utils.text.LocaleUtils.formatWithUsernames(buildSubtitle(plugin),
+                org.telegram.ui.LaunchActivity.getSafeLastFragment(), this::dismiss));
         content.addView(subtitle, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT,
                 LayoutHelper.WRAP_CONTENT, 21, 4, 21, 0));
 

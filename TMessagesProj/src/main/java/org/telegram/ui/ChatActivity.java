@@ -443,6 +443,8 @@ public class ChatActivity extends BaseFragment implements
         FactorAnimator.Target
 {
 
+    private static final int MAX_SELECTED_MESSAGES = 1000;
+
     private MessageMenuStatus lastMessageMenuStatus = new MessageMenuStatus(false, false, false, false, false, false, false, false, false);
     private final static boolean PULL_DOWN_BACK_FRAGMENT = false;
     private final static boolean DISABLE_PROGRESS_VIEW = true;
@@ -1946,7 +1948,7 @@ public class ChatActivity extends BaseFragment implements
                         return;
                     }
                     if (messageObject.contentType == 0) {
-                        if (selected && selectedMessagesIds[0].size() + selectedMessagesIds[1].size() >= 100) {
+                        if (selected && selectedMessagesIds[0].size() + selectedMessagesIds[1].size() >= MAX_SELECTED_MESSAGES) {
                             limitReached = true;
                         } else {
                             limitReached = false;
@@ -10363,7 +10365,7 @@ public class ChatActivity extends BaseFragment implements
             if (!isSelectableBetweenMessage(message, begin, end)) {
                 continue;
             }
-            if (selectedMessagesIds[0].size() + selectedMessagesIds[1].size() >= 100) {
+            if (selectedMessagesIds[0].size() + selectedMessagesIds[1].size() >= MAX_SELECTED_MESSAGES) {
                 if (chatMode == MODE_SCHEDULED) {
                     MessageObject endMessage = messages.get(end);
                     addToSelectedMessages(endMessage, false, false);
@@ -13258,12 +13260,25 @@ public class ChatActivity extends BaseFragment implements
         }
         final long target = did == 0 ? dialog_id : did;
         final boolean sameDialog = target == dialog_id;
-        return getMessageHelper().sendMessagesAsCopy(arrayList, target, null,
-                sameDialog ? getThreadMessage() : null, null, notify, scheduleDate,
-                sameDialog ? chatMode : 0, sameDialog ? quickReplyShortcut : null,
-                sameDialog ? getQuickReplyId() : 0, payStars,
-                sameDialog ? getSendMonoForumPeerId() : 0,
-                sameDialog ? getSendMessageSuggestionParams() : null);
+        final MessageObject threadMessage = sameDialog ? getThreadMessage() : null;
+        final int mode = sameDialog ? chatMode : 0;
+        final String shortcut = sameDialog ? quickReplyShortcut : null;
+        final int shortcutId = sameDialog ? getQuickReplyId() : 0;
+        final long monoForumPeerId = sameDialog ? getSendMonoForumPeerId() : 0;
+        final MessageSuggestionParams suggestionParams = sameDialog ? getSendMessageSuggestionParams() : null;
+        final ArrayList<MessageObject> missing = com.radolyn.ayugram.messages.AyuForwardLoader.getMissingMedia(currentAccount, arrayList);
+        if (!missing.isEmpty()) {
+            final ArrayList<MessageObject> messages = new ArrayList<>(arrayList);
+            com.radolyn.ayugram.messages.AyuForwardLoader.load(this, missing, () -> {
+                if (!getMessageHelper().sendMessagesAsCopy(messages, target, null, threadMessage, null, notify, scheduleDate,
+                        mode, shortcut, shortcutId, payStars, monoForumPeerId, suggestionParams)) {
+                    BulletinFactory.of(this).createErrorBulletin(getString(R.string.OEAyuForwardLoadFailed)).show();
+                }
+            });
+            return true;
+        }
+        return getMessageHelper().sendMessagesAsCopy(arrayList, target, null, threadMessage, null, notify, scheduleDate,
+                mode, shortcut, shortcutId, payStars, monoForumPeerId, suggestionParams);
     }
 
     private boolean hasNoforwardsMessage(ArrayList<MessageObject> messages) {
@@ -20314,7 +20329,7 @@ public class ChatActivity extends BaseFragment implements
                     }
                 }
             } else {
-                if (selectedMessagesIds[0].size() + selectedMessagesIds[1].size() >= 100) {
+                if (selectedMessagesIds[0].size() + selectedMessagesIds[1].size() >= MAX_SELECTED_MESSAGES) {
                     AndroidUtilities.shakeView(selectedMessagesCountTextView);
                     Vibrator vibrator = (Vibrator) ApplicationLoader.applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
                     if (vibrator != null) {
@@ -32871,7 +32886,9 @@ public class ChatActivity extends BaseFragment implements
             }
             final boolean showMessageSeen = !suggestEdit && !isEphemeral && !isReactionsViewAvailable && !isInScheduleMode() && currentChat != null && message.isOutOwner() && message.isSent() && !message.isEditing() && !message.isSending() && !message.isSendError() && !message.isContentUnread() && !message.isUnread() && (ConnectionsManager.getInstance(currentAccount).getCurrentTime() - message.messageOwner.date < getMessagesController().chatReadMarkExpirePeriod) && (ChatObject.isMegagroup(currentChat) || !ChatObject.isChannel(currentChat)) && chatInfo != null && chatInfo.participants_count <= getMessagesController().chatReadMarkSizeThreshold && !(message.messageOwner.action instanceof TLRPC.TL_messageActionChatJoinedByRequest) && chatMode != MODE_SAVED && message.canSetReaction() && !ChatObject.isMonoForum(currentChat);
             final boolean showMessageAuthor = !suggestEdit && !isEphemeral && currentChat != null && !message.isOut() && ChatObject.isMonoForum(currentChat) && ChatObject.canManageMonoForum(currentAccount, currentChat) && -currentChat.linked_monoforum_id == message.getFromChatId();
-            final boolean showPrivateMessageSeen = !suggestEdit && !isEphemeral && !isReactionsViewAvailable && currentChat == null && currentEncryptedChat == null && (currentUser != null && !UserObject.isUserSelf(currentUser) && !UserObject.isReplyUser(currentUser) && !UserObject.isAnonymous(currentUser) && !currentUser.bot && !UserObject.isService(currentUser.id)) && (userInfo == null || !userInfo.read_dates_private) && !isInScheduleMode() && message.isOutOwner() && message.isSent() && !message.isEditing() && !message.isSending() && !message.isSendError() && !message.isContentUnread() && !message.isUnread() && (ConnectionsManager.getInstance(currentAccount).getCurrentTime() - message.messageOwner.date < getMessagesController().pmReadDateExpirePeriod) && !(message.messageOwner.action instanceof TLRPC.TL_messageActionChatJoinedByRequest) && !isAyuDeleted;
+            final boolean showPrivateMessageSeen = !suggestEdit && !isEphemeral && !isReactionsViewAvailable && currentChat == null && currentEncryptedChat == null && (currentUser != null && !UserObject.isUserSelf(currentUser) && !UserObject.isReplyUser(currentUser) && !UserObject.isAnonymous(currentUser) && !currentUser.bot && !UserObject.isService(currentUser.id)) && (userInfo == null || !userInfo.read_dates_private) && !isInScheduleMode() && message.isOutOwner() && message.isSent() && !message.isEditing() && !message.isSending() && !message.isSendError() && !message.isContentUnread() && !message.isUnread() && (ConnectionsManager.getInstance(currentAccount).getCurrentTime() - message.messageOwner.date < getMessagesController().pmReadDateExpirePeriod) && !(message.messageOwner.action instanceof TLRPC.TL_messageActionChatJoinedByRequest) && !isAyuDeleted
+                || !suggestEdit && !isEphemeral && !isReactionsViewAvailable && currentChat == null && (currentUser != null && !UserObject.isUserSelf(currentUser) && !currentUser.bot) && !isInScheduleMode() && message.isOutOwner() && message.isSent() && !message.isUnread() && !isAyuDeleted && com.radolyn.ayugram.messages.AyuSpyController.getReadDate(message) > 0;
+            final boolean showPrivateMessagePlayed = !suggestEdit && !isEphemeral && currentChat == null && currentUser != null && !isInScheduleMode() && message.isOutOwner() && message.isSent() && (message.isVoice() || message.isRoundVideo()) && !isAyuDeleted && com.radolyn.ayugram.messages.AyuSpyController.getContentsReadDate(message) > 0;
             final boolean showPrivateMessageEdit = !suggestEdit && !isEphemeral && (currentUser == null || !UserObject.isReplyUser(currentUser) && !UserObject.isAnonymous(currentUser)) && !isInScheduleMode() && message.isEdited() && !(message.messageOwner.action instanceof TLRPC.TL_messageActionChatJoinedByRequest);
             final boolean showPrivateMessageFwdOriginal = !suggestEdit && !isEphemeral && false && (currentUser == null || !UserObject.isReplyUser(currentUser) && !UserObject.isAnonymous(currentUser)) && !isInScheduleMode() && message.isForwarded() && !(message.messageOwner.action instanceof TLRPC.TL_messageActionChatJoinedByRequest);
             final boolean showSponsorInfo = !suggestEdit && !isEphemeral && selectedObject != null && selectedObject.isSponsored() && (selectedObject.sponsoredInfo != null || selectedObject.sponsoredAdditionalInfo != null || selectedObject.sponsoredUrl != null && !selectedObject.sponsoredUrl.startsWith("https://" + getMessagesController().linkPrefix));
@@ -33333,6 +33350,13 @@ public class ChatActivity extends BaseFragment implements
                     popupLayout.addView(messagePrivateSeenView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 36));
                     addGap = true;
                 }
+                if (showPrivateMessagePlayed) {
+                    MessagePrivateSeenView messagePrivateSeenView = new MessagePrivateSeenView(getContext(), MessagePrivateSeenView.TYPE_PLAYED, message, () -> {
+                        closeMenu(true);
+                    }, themeDelegate);
+                    popupLayout.addView(messagePrivateSeenView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 36));
+                    addGap = true;
+                }
                 if (showPrivateMessageEdit) {
                     MessagePrivateSeenView messagePrivateSeenView = new MessagePrivateSeenView(getContext(), MessagePrivateSeenView.TYPE_EDIT, message, () -> {
                         closeMenu(true);
@@ -33350,7 +33374,7 @@ public class ChatActivity extends BaseFragment implements
                 boolean showRateTranscription = false && selectedObject != null && selectedObject.isVoice() && selectedObject.messageOwner != null && getUserConfig().isPremium() && !TextUtils.isEmpty(selectedObject.messageOwner.voiceTranscription) && selectedObject.messageOwner != null && !selectedObject.messageOwner.voiceTranscriptionRated && selectedObject.messageOwner.voiceTranscriptionId != 0 && selectedObject.messageOwner.voiceTranscriptionOpen;
 
                 if (!showRateTranscription && (message.probablyRingtone() || message.isVoice() && !message.isVoiceOnce()) /* && currentEncryptedChat == null*/) {
-                    ActionBarMenuSubItem saveForNotificationsCell = new ActionBarMenuSubItem(getParentActivity(), !showPrivateMessageSeen && !showPrivateMessageEdit && !showPrivateMessageFwdOriginal, false, themeDelegate);
+                    ActionBarMenuSubItem saveForNotificationsCell = new ActionBarMenuSubItem(getParentActivity(), !showPrivateMessageSeen && !showPrivateMessagePlayed && !showPrivateMessageEdit && !showPrivateMessageFwdOriginal, false, themeDelegate);
                     saveForNotificationsCell.setMinimumWidth(AndroidUtilities.dp(200));
                     saveForNotificationsCell.setTextAndIcon(getString(R.string.SaveForNotifications), R.drawable.msg_tone_add);
                     saveForNotificationsCell.setVisibility(message.probablyRingtone() ? View.VISIBLE : View.GONE);

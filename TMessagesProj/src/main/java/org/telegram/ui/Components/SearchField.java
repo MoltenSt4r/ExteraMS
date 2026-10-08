@@ -101,6 +101,7 @@ public class SearchField extends FrameLayout {
                 return super.onTouchEvent(event);
             }
         };
+        searchEditText.setTypeface(AndroidUtilities.regular());
         searchEditText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         searchEditText.setHintTextColor(getThemedColor(Theme.key_dialogSearchHint));
         searchEditText.setTextColor(getThemedColor(Theme.key_dialogSearchText));

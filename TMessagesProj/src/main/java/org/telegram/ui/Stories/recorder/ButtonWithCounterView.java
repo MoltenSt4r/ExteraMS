@@ -95,7 +95,7 @@ public class ButtonWithCounterView extends FrameLayout implements Loadable {
             text.setTypeface(AndroidUtilities.bold());
         } else {
             setBackground(null);
-            text.setTypeface(null);
+            text.setTypeface(AndroidUtilities.regular());
         }
         updateColors();
     }

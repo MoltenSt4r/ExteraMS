@@ -163,6 +163,8 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
         preferences.edit()
                 .putBoolean(PluginsConstants.KEY_ENGINE_ENABLED, enabled)
                 .remove(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN)
+                .remove(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN_STAMP)
+                .remove(PluginsConstants.KEY_NATIVE_HOOKS_STRIKES)
                 .apply();
         if (enabled && initialized) {
             PythonPluginsEngine.getInstance().ensureStarted(appContext, ok -> {

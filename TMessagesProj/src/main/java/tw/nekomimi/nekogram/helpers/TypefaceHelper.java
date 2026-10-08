@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.fonts.Font;
+import android.graphics.fonts.SystemFonts;
 import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -23,7 +25,9 @@ import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.TypefaceSpan;
 
+import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
 import tw.nekomimi.nekogram.NekoConfig;
 import xyz.nextalone.nagram.NaConfig;
@@ -41,6 +45,11 @@ public class TypefaceHelper {
 
     private static Boolean mediumWeightSupported = null;
     private static Boolean italicSupported = null;
+    private static volatile Boolean usePixelGoogleSans = null;
+    private static Typeface systemGoogleSans;
+    private static boolean systemGoogleSansLoaded;
+    private static Typeface systemGoogleSansMedium;
+    private static boolean systemGoogleSansMediumLoaded;
 
     static {
         var lang = LocaleController.getInstance().getCurrentLocale().getLanguage();
@@ -63,15 +72,22 @@ public class TypefaceHelper {
 
     public static Typeface createTypeface(String assetPath) {
         return switch (assetPath) {
+            case AndroidUtilities.TYPEFACE_ROBOTO_REGULAR -> createTypeface(400, false);
             case AndroidUtilities.TYPEFACE_ROBOTO_MEDIUM -> {
                 if (NekoConfig.forceFontWeightFallback.Bool()) {
                     yield createTypeface(700, false);
+                }
+                if (shouldUsePixelGoogleSans()) {
+                    yield pixelMediumTypeface(false);
                 }
                 yield isMediumWeightSupported() ? Typeface.create("sans-serif-medium", Typeface.NORMAL) : Typeface.create("sans-serif", Typeface.BOLD);
             }
             case AndroidUtilities.TYPEFACE_ROBOTO_MEDIUM_ITALIC -> {
                 if (NekoConfig.forceFontWeightFallback.Bool()) {
                     yield createTypeface(700, true);
+                }
+                if (shouldUsePixelGoogleSans()) {
+                    yield pixelMediumTypeface(true);
                 }
                 yield isMediumWeightSupported() ? Typeface.create("sans-serif-medium", Typeface.ITALIC) : Typeface.create("sans-serif", Typeface.BOLD_ITALIC);
             }
@@ -80,7 +96,7 @@ public class TypefaceHelper {
             case AndroidUtilities.TYPEFACE_ROBOTO_EXTRA_BOLD ->
                     createTypeface(800, false);
             case AndroidUtilities.TYPEFACE_RITALIC ->
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ? Typeface.create(Typeface.SANS_SERIF, 400, true) : Typeface.create("sans-serif", Typeface.ITALIC);
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ? Typeface.create(baseTypeface(), 400, true) : Typeface.create("sans-serif", Typeface.ITALIC);
             case AndroidUtilities.TYPEFACE_ROBOTO_MONO ->
                     Typeface.MONOSPACE;
             default -> createTypefaceFromAsset(assetPath);
@@ -117,6 +133,149 @@ public class TypefaceHelper {
         return italicSupported;
     }
 
+    private static Typeface pixelMediumTypeface(boolean italic) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            final Typeface weighted = createTypeface(500, italic);
+            if (rendersDifferently(weighted, Typeface.create(baseTypeface(), 400, italic))) {
+                return weighted;
+            }
+        }
+        final Typeface medium = getSystemGoogleSansMedium();
+        if (medium != null) {
+            return italic ? Typeface.create(medium, Typeface.ITALIC) : medium;
+        }
+        return Typeface.create(baseTypeface(), italic ? Typeface.BOLD_ITALIC : Typeface.BOLD);
+    }
+
+    private static Typeface baseTypeface() {
+        if (!shouldUsePixelGoogleSans()) {
+            return Typeface.create("sans-serif", Typeface.NORMAL);
+        }
+        if (!systemGoogleSansLoaded) {
+            systemGoogleSansLoaded = true;
+            for (String family : new String[]{"google-sans-text", "google-sans"}) {
+                final Typeface candidate = Typeface.create(family, Typeface.NORMAL);
+                if (rendersDifferently(candidate, Typeface.DEFAULT)) {
+                    systemGoogleSans = candidate;
+                    FileLog.d("system google sans alias = " + family);
+                    break;
+                }
+            }
+            if (systemGoogleSans == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                final File file = findGoogleSansFile();
+                if (file != null) {
+                    try {
+                        systemGoogleSans = Typeface.createFromFile(file);
+                        FileLog.d("system google sans file = " + file.getAbsolutePath());
+                    } catch (Exception e) {
+                        FileLog.e(e);
+                    }
+                }
+            }
+        }
+        return systemGoogleSans != null ? systemGoogleSans : Typeface.create("sans-serif", Typeface.NORMAL);
+    }
+
+    private static Typeface getSystemGoogleSansMedium() {
+        if (!shouldUsePixelGoogleSans()) {
+            return null;
+        }
+        if (!systemGoogleSansMediumLoaded) {
+            systemGoogleSansMediumLoaded = true;
+            for (String family : new String[]{"variable-title-medium-emphasized", "variable-title-medium"}) {
+                final Typeface candidate = Typeface.create(family, Typeface.NORMAL);
+                if (rendersDifferently(candidate, Typeface.DEFAULT)) {
+                    systemGoogleSansMedium = candidate;
+                    FileLog.d("system google sans medium alias = " + family);
+                    break;
+                }
+            }
+        }
+        return systemGoogleSansMedium;
+    }
+
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.Q)
+    private static File findGoogleSansFile() {
+        try {
+            for (Font font : SystemFonts.getAvailableFonts()) {
+                final File file = font.getFile();
+                if (file == null) {
+                    continue;
+                }
+                final String name = file.getName().toLowerCase(Locale.US);
+                if ((name.contains("googlesans") || name.contains("google-sans"))
+                        && !name.contains("medium") && !name.contains("bold") && !name.contains("italic") && !name.contains("condensed")) {
+                    return file;
+                }
+            }
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+        return null;
+    }
+
+    private static boolean isGooglePixelDevice() {
+        return "google".equalsIgnoreCase(Build.MANUFACTURER) && Build.MODEL != null && Build.MODEL.toLowerCase(Locale.US).startsWith("pixel");
+    }
+
+    public static boolean shouldUsePixelGoogleSans() {
+        if (!isGooglePixelDevice()) {
+            return false;
+        }
+        if (usePixelGoogleSans == null) {
+            synchronized (TypefaceHelper.class) {
+                if (usePixelGoogleSans == null) {
+                    boolean use;
+                    try {
+                        use = hasSimilarMetrics(Typeface.create("sans-serif", Typeface.NORMAL), createTypefaceFromAsset(AndroidUtilities.TYPEFACE_ROBOTO_REGULAR));
+                    } catch (Exception e) {
+                        FileLog.e(e);
+                        use = false;
+                    }
+                    usePixelGoogleSans = use;
+                    FileLog.d("usePixelGoogleSans = " + use);
+                }
+            }
+        }
+        return usePixelGoogleSans;
+    }
+
+    private static boolean hasSimilarMetrics(Typeface a, Typeface b) {
+        final String sample = "Hamburgefontsiv0123456789";
+        final Paint paint = new Paint();
+        paint.setTextSize(100);
+        final float[] first = new float[sample.length()];
+        final float[] second = new float[sample.length()];
+        paint.setTypeface(a);
+        paint.getTextWidths(sample, first);
+        paint.setTypeface(b);
+        paint.getTextWidths(sample, second);
+        for (int i = 0; i < sample.length(); i++) {
+            if (second[i] == 0 || Math.abs(first[i] - second[i]) / second[i] > 0.01f) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean rendersDifferently(Typeface a, Typeface b) {
+        final Canvas canvas = new Canvas();
+        final Bitmap first = Bitmap.createBitmap(CANVAS_SIZE * 2, CANVAS_SIZE, Bitmap.Config.ARGB_8888);
+        final Bitmap second = Bitmap.createBitmap(CANVAS_SIZE * 2, CANVAS_SIZE, Bitmap.Config.ARGB_8888);
+        synchronized (PAINT) {
+            canvas.setBitmap(first);
+            PAINT.setTypeface(a);
+            canvas.drawText(TEST_TEXT, 0, CANVAS_SIZE, PAINT);
+            canvas.setBitmap(second);
+            PAINT.setTypeface(b);
+            canvas.drawText(TEST_TEXT, 0, CANVAS_SIZE, PAINT);
+            PAINT.setTypeface(null);
+        }
+        final boolean different = !first.sameAs(second);
+        AndroidUtilities.recycleBitmaps(List.of(first, second));
+        return different;
+    }
+
     private static boolean testTypeface(Typeface typeface) {
         Canvas canvas = new Canvas();
 
@@ -137,7 +296,13 @@ public class TypefaceHelper {
 
     public static Typeface createTypeface(int weight, boolean italic) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return Typeface.create(null, weight, italic);
+            if (weight >= 500 && weight < 700 && shouldUsePixelGoogleSans()) {
+                final Typeface medium = getSystemGoogleSansMedium();
+                if (medium != null) {
+                    return Typeface.create(medium, weight, italic);
+                }
+            }
+            return Typeface.create(baseTypeface(), weight, italic);
         }
         if (weight == 700) {
             return Typeface.create("sans-serif", italic ? Typeface.BOLD_ITALIC : Typeface.BOLD);

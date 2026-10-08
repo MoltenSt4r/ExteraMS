@@ -25,6 +25,8 @@ import com.radolyn.ayugram.AyuConstants;
 import com.radolyn.ayugram.database.dao.DeletedMessageDao;
 import com.radolyn.ayugram.database.dao.EditedMessageDao;
 import com.radolyn.ayugram.database.dao.LastSeenDao;
+import com.radolyn.ayugram.database.dao.SpyDao;
+import com.radolyn.ayugram.database.dao.DeletedDialogDao;
 import com.radolyn.ayugram.messages.AyuMessagesController;
 
 import org.telegram.messenger.AndroidUtilities;
@@ -52,6 +54,8 @@ public class AyuData {
     private static EditedMessageDao editedMessageDao;
     private static DeletedMessageDao deletedMessageDao;
     private static LastSeenDao lastSeenDao;
+    private static SpyDao spyDao;
+    private static DeletedDialogDao deletedDialogDao;
 
     private static final Migration MIGRATION_21_22 = new Migration(21, 22) {
         @Override
@@ -108,6 +112,15 @@ public class AyuData {
         }
     };
 
+    private static final Migration MIGRATION_26_27 = new Migration(26, 27) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `SpyMessageRead` (`userId` INTEGER NOT NULL, `dialogId` INTEGER NOT NULL, `messageId` INTEGER NOT NULL, `date` INTEGER NOT NULL, PRIMARY KEY(`userId`, `dialogId`, `messageId`))");
+            database.execSQL("CREATE TABLE IF NOT EXISTS `SpyMessageContentsRead` (`userId` INTEGER NOT NULL, `dialogId` INTEGER NOT NULL, `messageId` INTEGER NOT NULL, `date` INTEGER NOT NULL, PRIMARY KEY(`userId`, `dialogId`, `messageId`))");
+            database.execSQL("CREATE TABLE IF NOT EXISTS `DeletedDialog` (`userId` INTEGER NOT NULL, `dialogId` INTEGER NOT NULL, `folderId` INTEGER NOT NULL, `topMessage` INTEGER NOT NULL, `lastMessageDate` INTEGER NOT NULL, `entityCreateDate` INTEGER NOT NULL, PRIMARY KEY(`userId`, `dialogId`))");
+        }
+    };
+
     static {
         create();
     }
@@ -118,13 +131,15 @@ public class AyuData {
         editedMessageDao = database.editedMessageDao();
         deletedMessageDao = database.deletedMessageDao();
         lastSeenDao = database.lastSeenDao();
+        spyDao = database.spyDao();
+        deletedDialogDao = database.deletedDialogDao();
     }
 
     private static AyuDatabase createDatabase(String name) {
         return Room.databaseBuilder(ApplicationLoader.applicationContext, AyuDatabase.class, name)
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigrationOnDowngrade()
-                .addMigrations(MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25, MIGRATION_25_26)
+                .addMigrations(MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27)
                 .build();
     }
 
@@ -144,6 +159,14 @@ public class AyuData {
         return lastSeenDao;
     }
 
+    public static SpyDao getSpyDao() {
+        return spyDao;
+    }
+
+    public static DeletedDialogDao getDeletedDialogDao() {
+        return deletedDialogDao;
+    }
+
     public static synchronized void clean() {
         if (database != null) {
             try {
@@ -161,6 +184,8 @@ public class AyuData {
         editedMessageDao = null;
         deletedMessageDao = null;
         lastSeenDao = null;
+        spyDao = null;
+        deletedDialogDao = null;
     }
 
     public static void importAyuDatabase(BaseFragment fragment, File importFile) {

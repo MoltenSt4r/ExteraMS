@@ -156,4 +156,12 @@
     <string name="OEGeneralLastFmStagePrepare">Adding attribution…</string>
     <string name="OEGeneralLastFmStageUpload">Uploading track…</string>
     <string name="OEGeneralLastFmStageSave">Saving to profile…</string>
+    <string name="OEAyuSaveReadDate">Save Read Date</string>
+    <string name="OEAyuSaveReadDateInfo">Remembers when your messages were read and listened to. Shown in the message menu when Telegram doesn\'t provide the time.</string>
+    <string name="OEAyuPlayedTodayAt">listened at %s</string>
+    <string name="OEAyuPlayedYesterdayAt">listened yesterday at %s</string>
+    <string name="OEAyuPlayedDateTimeAt">listened %1$s at %2$s</string>
+    <string name="OEAyuForwardLoadingMedia">Loading media</string>
+    <string name="OEAyuForwardLoadingCount">Files: %1$d of %2$d</string>
+    <string name="OEAyuForwardLoadFailed">Couldn\'t load media for forwarding</string>
 </resources>

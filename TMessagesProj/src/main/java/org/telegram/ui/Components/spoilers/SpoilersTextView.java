@@ -94,6 +94,7 @@ public class SpoilersTextView extends TextView implements TextSelectionHelper.Si
             for (SpoilerEffect ef : spoilers)
                 ef.startRipple(x, y, rad);
         });
+        setTypeface(AndroidUtilities.regular());
     }
 
     private CharacterStyle currentLinkLoading;

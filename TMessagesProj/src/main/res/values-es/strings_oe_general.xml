@@ -94,4 +94,9 @@
     <string name="OEGeneralNetworkHeader">Red</string>
     <string name="OEPrivacyFalseBottom">Doble fondo</string>
     <string name="OEPrivacyFalseBottomShowIn">Mostrar en %1$s</string>
+    <string name="OEAyuSaveReadDate">Guardar fecha de lectura</string>
+    <string name="OEAyuSaveReadDateInfo">Recuerda cuándo se leyeron y escucharon tus mensajes. Se muestra en el menú del mensaje si Telegram no da la hora.</string>
+    <string name="OEAyuPlayedTodayAt">escuchado a las %s</string>
+    <string name="OEAyuPlayedYesterdayAt">escuchado ayer a las %s</string>
+    <string name="OEAyuPlayedDateTimeAt">escuchado el %1$s a las %2$s</string>
 </resources>

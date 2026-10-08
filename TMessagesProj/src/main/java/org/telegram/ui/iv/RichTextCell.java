@@ -902,7 +902,7 @@ public class RichTextCell extends FrameLayout implements Theme.Colorable, TextSe
             editText.setGravity(Gravity.TOP | Gravity.START);
             setPadding(dp(16 + 12), dp(QUOTE_BACKGROUND_OUTER_VPAD_DP + 8), dp(16 + 8), dp(QUOTE_BACKGROUND_OUTER_VPAD_DP + 8));
             editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, Math.max(8, baseSize - 2));
-            editText.setTypeface(null);
+            editText.setTypeface(AndroidUtilities.regular());
             editText.setAccentHint(true);
         } else if (block instanceof TL_iv.pageBlockPullquote) {
             editText.setInputType(
@@ -958,14 +958,14 @@ public class RichTextCell extends FrameLayout implements Theme.Colorable, TextSe
                 editText.setTypeface(AndroidUtilities.getTypeface("fonts/mw_bold.ttf"));
             } else if (block instanceof TL_iv.pageBlockFooter) {
                 editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, baseSize - 2);
-                editText.setTypeface(null);
+                editText.setTypeface(AndroidUtilities.regular());
                 editText.setTextColorKey(Theme.key_chat_inReplyMessageText);
             } else {
                 final boolean paragraphInsideQuote = block instanceof TL_iv.pageBlockParagraph
                     && currentRow != null && !currentRow.quoteIds.isEmpty();
                 editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
                     paragraphInsideQuote ? Math.max(8, baseSize - 2) : baseSize);
-                editText.setTypeface(null);
+                editText.setTypeface(AndroidUtilities.regular());
             }
             editText.setAccentHint(false);
         }
