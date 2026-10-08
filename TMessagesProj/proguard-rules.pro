@@ -211,6 +211,7 @@
 -keepclassmembers class org.telegram.tgnet.** { *; }
 -keepclassmembers class org.telegram.messenger.MessageObject { *; }
 -keepclassmembers class org.telegram.messenger.SendMessagesHelper { *; }
+-keepclassmembers class org.telegram.messenger.BuildVars { *; }
 
 -keep class org.vosk.** { *; }
 -keep class com.sun.jna.** { *; }
