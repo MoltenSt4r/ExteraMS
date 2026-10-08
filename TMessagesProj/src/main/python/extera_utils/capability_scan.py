@@ -109,6 +109,158 @@ _MARKERS = (
 )
 
 KEY_OBFUSCATION = "obfuscation"
+KEY_DEX = "dex"
+
+_DEX_BLOCK = re.compile(r"^[ \t]*#[ \t]*__DEX_BEGIN__[ \t\r]*$(.*?)^[ \t]*#[ \t]*__DEX_END__[ \t\r]*$",
+                        re.M | re.S)
+_DEX_LITERAL = re.compile(r"(\"\"\"|'''|\"|')([A-Za-z0-9+/=\s]{512,})\1")
+_DEX_LITERAL_PREFIXES = ("ZGV4C", "eJ", "eN", "eA", "eF")
+_DEX_LOADERS = ("InMemoryDexClassLoader", "DexClassLoader", "PathClassLoader")
+_MAX_DEX_BYTES = 8 * 1024 * 1024
+_DEX_CLASS_LIMIT = 6
+
+
+def _uleb128(data: bytes, offset: int):
+    result = 0
+    shift = 0
+    while True:
+        byte = data[offset]
+        offset += 1
+        result |= (byte & 0x7F) << shift
+        if byte < 0x80:
+            return result, offset
+        shift += 7
+
+
+def _dex_strings(data: bytes) -> List[str]:
+    count, table = struct.unpack_from("<II", data, 0x38)
+    strings = []
+    for index in range(count):
+        offset, = struct.unpack_from("<I", data, table + index * 4)
+        _, start = _uleb128(data, offset)
+        end = data.index(b"\0", start)
+        strings.append(data[start:end].decode("utf-8", errors="replace"))
+    return strings
+
+
+def _dex_symbols(data: bytes):
+    strings = _dex_strings(data)
+    type_count, type_table = struct.unpack_from("<II", data, 0x40)
+    types = [strings[struct.unpack_from("<I", data, type_table + i * 4)[0]]
+             for i in range(type_count)]
+    method_count, method_table = struct.unpack_from("<II", data, 0x58)
+    methods = []
+    for i in range(method_count):
+        class_index, _, name_index = struct.unpack_from("<HHI", data, method_table + i * 8)
+        methods.append((types[class_index], strings[name_index]))
+    class_count, class_table = struct.unpack_from("<II", data, 0x60)
+    defined = {types[struct.unpack_from("<I", data, class_table + i * 32)[0]]
+               for i in range(class_count)}
+    return defined, types, methods
+
+
+def _dotted(descriptor: str) -> str:
+    if descriptor.startswith("L") and descriptor.endswith(";"):
+        return descriptor[1:-1].replace("/", ".")
+    return descriptor
+
+
+def _decode_dex_block(body: str):
+    text = "".join(line.strip().lstrip("#").strip() for line in body.splitlines())
+    raw = base64.b64decode(text)
+    try:
+        raw = zlib.decompress(raw)
+    except zlib.error:
+        pass
+    if not raw.startswith(b"dex\n") or len(raw) > _MAX_DEX_BYTES:
+        return None
+    return raw
+
+
+def _decode_dex_literal(body: str):
+    text = "".join(body.split())
+    if not text.startswith(_DEX_LITERAL_PREFIXES) or len(text) > _MAX_DEX_BYTES * 2:
+        return None
+    try:
+        raw = base64.b64decode(text)
+    except Exception:
+        return None
+    if not raw.startswith(b"dex\n"):
+        try:
+            if not zlib.decompressobj().decompress(raw, 4).startswith(b"dex\n"):
+                return None
+            raw = zlib.decompressobj().decompress(raw, _MAX_DEX_BYTES + 1)
+        except zlib.error:
+            return None
+    if len(raw) > _MAX_DEX_BYTES:
+        return None
+    return raw
+
+
+def _scan_embedded_dex(source: str) -> Dict[str, List[str]]:
+    payloads = []
+    spans = []
+    for block in _DEX_BLOCK.finditer(source):
+        try:
+            payloads.append(_decode_dex_block(block.group(1)))
+        except Exception:
+            payloads.append(None)
+        spans.append(block.span())
+    for literal in _DEX_LITERAL.finditer(source):
+        raw = _decode_dex_literal(literal.group(2))
+        if raw is not None:
+            payloads.append(raw)
+            spans.append(literal.span(2))
+    if not payloads:
+        return {}
+    parts = []
+    cursor = 0
+    for start, end in sorted(spans):
+        if start >= cursor:
+            parts.append(source[cursor:start])
+            cursor = end
+    parts.append(source[cursor:])
+    outside = "".join(parts)
+    loaded = any(loader in outside for loader in _DEX_LOADERS)
+    summary: List[str] = []
+    found: Dict[str, List[str]] = {}
+    total = 0
+    defined_all: List[str] = []
+    for raw in payloads:
+        if raw is None:
+            _note_opaque(found, "unreadable DEX block")
+            continue
+        total += len(raw)
+        try:
+            defined, types, methods = _dex_symbols(raw)
+        except Exception:
+            _note_opaque(found, "unreadable DEX block")
+            continue
+        defined_all.extend(sorted(_dotted(name) for name in defined))
+        if not loaded:
+            continue
+        external = [_dotted(name) for name in types if name not in defined]
+        calls = [f"{_dotted(owner)}.{name}" for owner, name in methods if owner not in defined]
+        text = "\n".join(external + calls)
+        for marker, permission, evidence in _MARKERS:
+            label = f"DEX: {evidence}"
+            if marker in text and label not in found.setdefault(permission, []):
+                found[permission].append(label)
+        if any(".exec" in call for call in calls if call.startswith("java.lang.Runtime")) \
+                or "java.lang.ProcessBuilder" in external:
+            bucket = found.setdefault(PERM_NATIVE, [])
+            if "DEX: Runtime.exec" not in bucket:
+                bucket.append("DEX: Runtime.exec")
+    if total == 0 and not found:
+        return {}
+    summary.append(f"size:{total}")
+    summary.append("loaded:" + ("yes" if loaded else "no"))
+    for name in defined_all[:_DEX_CLASS_LIMIT]:
+        summary.append(f"class:{name}")
+    if len(defined_all) > _DEX_CLASS_LIMIT:
+        summary.append(f"more:{len(defined_all) - _DEX_CLASS_LIMIT}")
+    found[KEY_DEX] = summary
+    return {perm: names for perm, names in found.items() if names}
 
 #: Упаковщики, которые подписываются сами.
 _OBF_PACKERS = (

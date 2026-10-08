@@ -54,3 +54,83 @@ def test_ui_only_plugin_is_offered_nothing(scanner, tmp_path):
         "    BulletinHelper.show_info('hi')\n"
     ))
     assert found == {}
+
+
+def test_app_files_dir_offers_files(scanner, tmp_path):
+    found = _scan(scanner, tmp_path, (
+        "import os\n"
+        "from file_utils import get_files_dir, ensure_dir_exists\n"
+        "def data_dir():\n"
+        "    return ensure_dir_exists(os.path.join(get_files_dir(), 'cache'))\n"
+    ))
+    assert "files" in found
+
+
+def test_own_plugin_dir_is_offered_nothing(scanner, tmp_path):
+    found = _scan(scanner, tmp_path, (
+        "from file_utils import get_plugin_dir, get_plugin_cache_dir\n"
+        "def dirs():\n"
+        "    return get_plugin_dir(), get_plugin_cache_dir()\n"
+    ))
+    assert found == {}
+
+
+
+_STUB_DEX = """\
+# __DEX_BEGIN__
+# eNpVk89rE0EUx9/sbtKmaht7EQLisujJJJsfuzFJRSxUpBDpIaV4EONkd5Jsu9lds5t0QSx6Vrzo
+# QfAq9CL05smjF/+AHoQKIl68ePAu+CY7gTXhk5l57/vem2S/sVm8UqmbcPJm92Xx4+1mZfzbDE5/
+# nBzmj5XLf749fCsDBAAQ7xnrIF7fJYA1SOJZ5AOCIfiMEOQMUZCf4qzgR4SCq7gGSIy8QF4hr5Fj
+# 5BT5hfxFllFbQK4gGnINuS4lM3jfjJi7hJxDZHGvEUnOGXGWUL0i7nB+fiYiTuDCvG5xTjSLPsti
+# /YKJrxLPkXn+AUnmB3muXJ3XcR6RpKYAOSgQAo9VgDzmM0gOVuPFDAXf2ZuO50S34OLWnfvq2Len
+# LlNdn9rMBrIN8nanA+sd6tkT37H1aeS4escfbkCxY/ljncURm9DAnQ4dL9RD5tm9MHKsAzbp0bDn
+# H3r6Pep4G9hhn86o7lJvqO/095kV/R/rRhPHw645Li/zOOS72K2bNNsMdw49kHc37wLZA2KDwm8I
+# 78jR0VbzidanKPJsra3ZLNaKGt4scFwaOb5Xwm/E5on+dIipEQ1L1ohZB+F0HGrtAXVDVtTGjlei
+# gaO1q0UtHNFSFSsqTYM2W9Vag7KK2WpYZqtVNer2wLxBG6bRMBp0UGvWq3VsOmOTEGdhUatcKxsl
+# m820p/iAuGvI82fKe4nkPknkUo7/7mviWZLUuvCulPKvnPKwkvJxJuXlbMrPRE303NOy2HN/kHyi
+# 4V6UVDGLB9Qkzj2VEXvuLVnoz3gDsef/r3/qWpi1
+# __DEX_END__
+"""
+
+
+def test_unused_embedded_dex_is_reported_without_permissions(scanner, tmp_path):
+    found = _scan(scanner, tmp_path, "print('hi')\r\n" + _STUB_DEX.replace("\n", "\r\n"))
+    assert found["dex"] == ["size:920", "loaded:no",
+                            "class:com.exteraplugins.send_sticker_as_own.Main"]
+    assert set(found) == {"dex"}
+
+
+def test_loaded_embedded_dex_adds_what_it_calls(scanner, tmp_path, monkeypatch):
+    symbols = (
+        {"Lcom/example/Core;"},
+        ["Lcom/example/Core;", "Ljava/net/HttpURLConnection;", "Lde/robv/android/xposed/XposedBridge;"],
+        [("Ljava/net/HttpURLConnection;", "connect"), ("Ljava/lang/Runtime;", "exec")],
+    )
+    monkeypatch.setattr(scanner, "_dex_symbols", lambda data: symbols)
+    found = _scan(scanner, tmp_path,
+                  "from java import jclass\n"
+                  "loader = jclass('dalvik.system.InMemoryDexClassLoader')\n" + _STUB_DEX)
+    assert found["dex"][:3] == ["size:920", "loaded:yes", "class:com.example.Core"]
+    assert "DEX: HttpURLConnection" in found["network"]
+    assert "DEX: Xposed" in found["hooks"]
+    assert "DEX: Runtime.exec" in found["native"]
+
+
+def test_dex_in_base64_literal_adds_what_it_calls(scanner, tmp_path, monkeypatch):
+    symbols = (
+        {"Lcom/example/Core;"},
+        ["Lcom/example/Core;", "Landroid/webkit/WebView;"],
+        [("Landroid/webkit/WebView;", "loadUrl")],
+    )
+    monkeypatch.setattr(scanner, "_dex_symbols", lambda data: symbols)
+    payload = "\n".join(line[2:] for line in _STUB_DEX.splitlines()[1:-1])
+    found = _scan(scanner, tmp_path,
+                  "from dalvik.system import InMemoryDexClassLoader\n"
+                  f'DEX_B64 = """{payload}"""\n')
+    assert found["dex"][:3] == ["size:920", "loaded:yes", "class:com.example.Core"]
+    assert "DEX: WebView" in found["network"]
+
+
+def test_plain_base64_literal_is_not_a_dex(scanner, tmp_path):
+    found = _scan(scanner, tmp_path, f'ICON = "{"QUJD" * 300}"\n')
+    assert "dex" not in found
