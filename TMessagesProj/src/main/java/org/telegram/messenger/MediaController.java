@@ -1065,6 +1065,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
     private boolean playMusicAgain;
     private PlaylistGlobalSearchParams playlistGlobalSearchParams;
     private AudioInfo audioInfo;
+    private int audioInfoRequest;
     private VideoPlayer videoPlayer;
     private boolean playerWasReady;
     private TextureView currentTextureView;
@@ -1879,12 +1880,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                         playMusicAgain = true;
                         playMessage(playingMessageObject);
                     } else if (audioInfo == null) {
-                        try {
-                            File cacheFile = FileLoader.getInstance(UserConfig.selectedAccount).getPathToMessage(playingMessageObject.messageOwner);
-                            audioInfo = AudioInfo.getAudioInfo(cacheFile);
-                        } catch (Exception e) {
-                            FileLog.e(e);
-                        }
+                        loadAudioInfo(playingMessageObject, FileLoader.getInstance(UserConfig.selectedAccount).getPathToMessage(playingMessageObject.messageOwner));
                     }
                 }
             }
@@ -4026,11 +4022,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                         clearPlaylist();
                     }
                 } else {
-                    try {
-                        audioInfo = AudioInfo.getAudioInfo(cacheFile);
-                    } catch (Exception e) {
-                        FileLog.e(e);
-                    }
+                    loadAudioInfo(messageObject, cacheFile);
                     String name = messageObject.getFileName();
                     if (!TextUtils.isEmpty(name) && messageObject.getDuration() >= 10 * 60) {
                         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("media_saved_pos", Activity.MODE_PRIVATE);
@@ -4039,7 +4031,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                             messageObject.audioProgress = seekToProgressPending = pos;
                         }
                         shouldSavePositionForCurrentAudio = name;
-                        if (Math.abs(currentMusicPlaybackSpeed - 1.0f) > 0.001f) {
+                        if ((messageObject.getDuration() >= 10 * 60 || app.exteraless.player.Md3Player.enabled()) && Math.abs(currentMusicPlaybackSpeed - 1.0f) > 0.001f) {
                             audioPlayer.setPlaybackSpeed(Math.round(currentMusicPlaybackSpeed * 10f) / 10f);
                         }
                     }
@@ -4325,6 +4317,31 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         if (playingMessageObject != null) {
             NotificationCenter.getInstance(playingMessageObject.currentAccount).postNotificationName(NotificationCenter.messagePlayingPlayStateChanged, playingMessageObject != null ? playingMessageObject.getId() : 0);
         }
+    }
+
+    private void loadAudioInfo(MessageObject messageObject, File file) {
+        final int request = ++audioInfoRequest;
+        audioInfo = null;
+        if (messageObject == null || file == null) {
+            return;
+        }
+        Utilities.globalQueue.postRunnable(() -> {
+            AudioInfo info = null;
+            try {
+                info = AudioInfo.getAudioInfo(file);
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
+            final AudioInfo loaded = info;
+            AndroidUtilities.runOnUIThread(() -> {
+                if (request != audioInfoRequest || playingMessageObject != messageObject || loaded == null) {
+                    return;
+                }
+                audioInfo = loaded;
+                NotificationCenter.getInstance(messageObject.currentAccount).postNotificationName(NotificationCenter.audioInfoLoaded, messageObject);
+                NotificationCenter.getInstance(messageObject.currentAccount).postNotificationName(NotificationCenter.messagePlayingPlayStateChanged, messageObject.getId());
+            });
+        });
     }
 
     public AudioInfo getAudioInfo() {

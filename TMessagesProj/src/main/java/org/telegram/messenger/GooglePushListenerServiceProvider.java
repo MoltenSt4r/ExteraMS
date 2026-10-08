@@ -10,6 +10,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 public class GooglePushListenerServiceProvider implements PushListenerController.IPushListenerServiceProvider {
 
+    public static volatile String lastError;
+
     private Boolean hasServices;
 
     public GooglePushListenerServiceProvider() {}
@@ -42,11 +44,15 @@ public class GooglePushListenerServiceProvider implements PushListenerController
                         .addOnCompleteListener(task -> {
                             SharedConfig.pushStringGetTimeEnd = SystemClock.elapsedRealtime();
                             if (!task.isSuccessful()) {
-                                FileLog.d("Failed to get regid");
+                                Exception error = task.getException();
+                                lastError = error == null ? "unknown" : error.getClass().getSimpleName() + ": " + error.getMessage();
+                                FileLog.d("Failed to get regid: " + lastError);
                                 SharedConfig.pushStringStatus = "__FIREBASE_FAILED__";
                                 PushListenerController.sendRegistrationToServer(getPushType(), null);
+                                ApplicationLoader.startPushService();
                                 return;
                             }
+                            lastError = null;
                             String token = task.getResult();
                             if (!TextUtils.isEmpty(token)) {
                                 PushListenerController.sendRegistrationToServer(getPushType(), token);

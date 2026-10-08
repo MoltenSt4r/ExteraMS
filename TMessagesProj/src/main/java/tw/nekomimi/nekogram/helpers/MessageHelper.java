@@ -120,7 +120,7 @@ public class MessageHelper extends BaseController {
         return getPathToMessage(messageObject, UserConfig.selectedAccount);
     }
 
-    private static String getPathToMessage(MessageObject messageObject, int accountId) {
+    public static String getPathToMessage(MessageObject messageObject, int accountId) {
         String path = messageObject.messageOwner.attachPath;
         if (!TextUtils.isEmpty(path)) {
             File f = new File(path);

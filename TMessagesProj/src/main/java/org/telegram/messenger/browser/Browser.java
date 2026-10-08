@@ -292,6 +292,7 @@ public class Browser {
     // Все публичные openUrl(...) сходятся сюда; внутренние tg://-ссылки дополнительно
     // пройдут через диспетч LaunchActivity.handleIntent (там from_intent=true).
     public static void openUrl(final Context context, Uri uri, boolean _allowCustom, boolean tryTelegraph, boolean forceNotInternalForApps, Progress inCaseLoading, String browser, boolean allowIntent, boolean allowInAppBrowser, boolean forceRequest) {
+        uri = app.exteraless.links.LinkCleaner.clean(uri);
         if (uri != null && app.exteraless.plugins.PluginsController.getInstance().isEngineEnabled()
                 && app.exteraless.plugins.intents.IntentsDispatcher.hasHandlers()) {
             java.util.Map<String, Object> pluginContext = app.exteraless.plugins.intents.IntentsDispatcher.buildUriContext(uri, UserConfig.selectedAccount, false);

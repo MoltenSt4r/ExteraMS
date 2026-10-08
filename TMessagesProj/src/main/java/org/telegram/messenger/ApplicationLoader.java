@@ -34,6 +34,7 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewGroup;
 
@@ -422,6 +423,7 @@ public class ApplicationLoader extends Application implements CameraXConfig.Prov
 
         LauncherIconController.tryFixLauncherIconIfNeeded();
         ProxyRotationController.init();
+        app.exteraless.links.LinkCleaner.preloadIfEnabled();
         if (app.exteraless.tor.TorController.getInstance().isEnabled()) {
             app.exteraless.tor.TorController.getInstance().start();
         }

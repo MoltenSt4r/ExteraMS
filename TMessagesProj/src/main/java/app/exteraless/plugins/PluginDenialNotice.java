@@ -10,18 +10,24 @@ import android.text.TextUtils;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
+import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
+import org.telegram.messenger.SharedConfig;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
+import org.telegram.ui.Components.Bulletin;
 import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.LaunchActivity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import app.exteraless.plugins.ui.PluginPermissionsActivity;
+import app.exteraless.plugins.ui.PluginsActivity;
 
 /**
  * Сообщить пользователю, что плагину чего-то не хватило.
@@ -40,7 +46,18 @@ public final class PluginDenialNotice {
     private static final Set<String> SHOWN = ConcurrentHashMap.newKeySet();
     private static final Set<String> OVERLAY_SHOWN = ConcurrentHashMap.newKeySet();
     private static final Queue<String> PENDING = new ConcurrentLinkedQueue<>();
+    private static final Set<String> UNCONSENTED = ConcurrentHashMap.newKeySet();
+    private static final Runnable SHOW_UNCONSENTED = PluginDenialNotice::showUnconsented;
+    private static final NotificationCenter.NotificationCenterDelegate AFTER_PASSCODE = new NotificationCenter.NotificationCenterDelegate() {
+        @Override
+        public void didReceivedNotification(int id, int account, Object... args) {
+            NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.passcodeDismissed);
+            scheduleUnconsented();
+        }
+    };
     private static final int FLUSH_DELAY = 700;
+    private static final int UNCONSENTED_DELAY = 3000;
+    private static final int UNCONSENTED_NAMES = 3;
 
     private PluginDenialNotice() {
     }
@@ -94,7 +111,70 @@ public final class PluginDenialNotice {
                 .setNegativeButton(LocaleController.getString(R.string.Cancel), null)
                 .create());
     }
+
+    public static void noteUnconsented(String pluginId) {
+        if (TextUtils.isEmpty(pluginId) || !UNCONSENTED.add(pluginId)) {
+            return;
+        }
+        scheduleUnconsented();
+    }
+
+    private static void scheduleUnconsented() {
+        AndroidUtilities.cancelRunOnUIThread(SHOW_UNCONSENTED);
+        AndroidUtilities.runOnUIThread(SHOW_UNCONSENTED, UNCONSENTED_DELAY);
+    }
+
+    private static void showUnconsented() {
+        if (UNCONSENTED.isEmpty()) {
+            return;
+        }
+        BaseFragment fragment = LaunchActivity.getSafeLastFragment();
+        if (fragment == null || fragment.getParentActivity() == null) {
+            return;
+        }
+        if (SharedConfig.isWaitingForPasscodeEnter) {
+            NotificationCenter.getGlobalInstance().addObserver(AFTER_PASSCODE, NotificationCenter.passcodeDismissed);
+            return;
+        }
+        List<String> ids = new ArrayList<>(UNCONSENTED);
+        UNCONSENTED.removeAll(ids);
+        PluginsController controller = PluginsController.getInstance();
+        List<String> present = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (String id : ids) {
+            Plugin plugin = controller.getPlugin(id);
+            if (plugin == null) {
+                continue;
+            }
+            present.add(id);
+            if (names.size() < UNCONSENTED_NAMES) {
+                names.add(plugin.getDisplayName());
+            }
+        }
+        if (present.isEmpty()) {
+            return;
+        }
+        CharSequence list = TextUtils.join(", ", names);
+        if (present.size() > names.size()) {
+            list = LocaleController.formatString(R.string.PluginsUnconsentedMore, list, present.size() - names.size());
+        }
+        final String single = present.size() == 1 ? present.get(0) : null;
+        BulletinFactory.of(fragment)
+                .createSimpleBulletin(R.raw.info,
+                        LocaleController.getString(single != null ? R.string.PluginUnconsentedTitle : R.string.PluginsUnconsentedTitle),
+                        list,
+                        LocaleController.getString(R.string.PluginsUnconsentedAction),
+                        () -> fragment.presentFragment(single != null
+                                ? new PluginPermissionsActivity(single)
+                                : new PluginsActivity()))
+                .setDuration(Bulletin.DURATION_PROLONG)
+                .show();
+    }
+
     public static void flush() {
+        if (!UNCONSENTED.isEmpty()) {
+            scheduleUnconsented();
+        }
         if (PENDING.isEmpty()) {
             return;
         }

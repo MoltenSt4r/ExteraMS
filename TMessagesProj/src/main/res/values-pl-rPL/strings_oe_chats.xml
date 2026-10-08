@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="OEChatsHideTimeOnStickers">Ukryj godzinę na naklejkach</string>
+    <string name="OEChatsStickerTime">Godzina na naklejkach</string>
+    <string name="OEChatsStickerTimeSide">Z boku</string>
+    <string name="OEChatsStickerTimeHidden">Ukryta</string>
     <string name="OEChatsReplies">Odpowiedzi</string>
     <string name="OEChatsReplyColors">Kolory tła</string>
     <string name="OEChatsReplyEmoji">Emoji</string>
@@ -16,6 +18,7 @@
     <string name="OEChatsCameraTypeCamera2">Camera2</string>
     <string name="OEChatsCameraStabilization">Stabilizacja</string>
     <string name="OEChatsCameraTypeCameraX">CameraX</string>
+    <string name="OEChatsCameraTypeTelegram">Telegram (nowy)</string>
     <string name="OEChatsCameraMirrorMode">Tryb lustrzany</string>
     <string name="OEChatsStartWithWideAngle">Zaczynaj od szerokiego kąta</string>
     <string name="OEChatsExtendedFps">Rozszerzony zakres FPS</string>
@@ -26,7 +29,6 @@
     <string name="OEChatsPhoto">Zdjęcia</string>
     <string name="OEChatsAlwaysSendInHD">Zawsze wysyłaj w HD</string>
     <string name="OEChatsHideCameraTile">Ukryj kafelek aparatu</string>
-    <string name="OEChatsHideCameraTileInfo">Kafelek aparatu w menu załączników zostanie ukryty.</string>
     <string name="OEChatsDoubleTapSeekDuration">Przewijanie podwójnym dotknięciem</string>
     <string name="OEChatsPauseOnMinimize">Automatyczna pauza</string>
     <string name="OEChatsPauseOnMinimizeInfo">Wstrzymuje odtwarzanie, gdy urządzenie zostaje zablokowane lub aplikacja trafia w tło.</string>
@@ -36,7 +38,7 @@
     <string name="OEChatsStickersAndEmoji">Naklejki i emoji</string>
     <string name="OEChatsDoubleTap">Podwójne dotknięcie</string>
     <string name="OEChatsMessages">Wiadomości</string>
-    <string name="OEChatsVideos">Wideo i multimedia</string>
+    <string name="OEChatsVideos">Wideo</string>
     <string name="OEChatsUnlimited">Nieograniczone</string>
     <string name="OEChatsUnlimitedStickers">Naklejki</string>
     <string name="OEChatsUnlimitedGifs">GIF-y</string>
@@ -57,7 +59,6 @@
     <string name="OEChatsHideReactionsChannels">Kanały</string>
     <string name="OEChatsHideReactionsGroups">Grupy</string>
     <string name="OEChatsHideReactionsPrivate">Czaty prywatne</string>
-    <string name="OEChatsHideReactionsInfo">Reakcje zostaną ukryte w interfejsie wybranych typów czatów.</string>
     <string name="OEChatsQuickTransitions">Szybkie przechodzenie przesunięciem</string>
     <string name="OEChatsQuickTransitionChannels">Kanały</string>
     <string name="OEChatsQuickTransitionTopics">Wątki</string>
@@ -119,47 +120,19 @@
     <string name="OEChatsAskWhenCalling">Połączeniem</string>
     <string name="OEChatsAskWhenRepeating">Powtórzeniem wiadomości</string>
     <string name="OEChatsAskWhenBotCommands">Wysłaniem komendy bota</string>
+    <string name="OEChatsStripTracking">Usuwaj śledzenie z linków</string>
+    <string name="OEChatsStripTrackingOnOpen">Przy otwieraniu linków</string>
+    <string name="OEChatsStripTrackingOnPaste">Przy wklejaniu linków</string>
+    <string name="OEChatsStripTrackingInfo">Usuwa z linków parametry śledzące, takie jak utm_source i fbclid, według filtra AdGuard URL Tracking.</string>
+    <string name="OEChatsTrackingFilter">Filtr śledzenia</string>
+    <string name="OEChatsTrackingFilterValue">AdGuard, %1$s</string>
+    <string name="OEChatsTrackingFilterUpdate">Zaktualizuj filtr</string>
+    <string name="OEChatsTrackingFilterRevert">Użyj wbudowanego filtra</string>
+    <string name="OEChatsTrackingFilterUpdated">Filtr zaktualizowany</string>
+    <string name="OEChatsTrackingFilterLatest">Filtr jest aktualny</string>
+    <string name="OEChatsTrackingFilterFailed">Nie udało się zaktualizować filtra</string>
     <string name="OEChatsHdrPhotos">Zdjęcia HDR</string>
     <string name="OEChatsHdrPhotosInfo">Pokazuj zdjęcia HDR w pełnej jasności. Wyłącz, jeśli zdjęcia wyglądają na ciemne.</string>
-    <!-- Text typing animations -->
-    <string name="OEChatsTextAnimation">Animacje pisania tekstu</string>
-    <string name="OEChatsTextAnimationInfo">Płynne pojawianie się, wysuwanie z góry, cząsteczki przy usuwaniu i płynny kursor.</string>
-    <string name="OEChatsTextAnimationEnable">Włącz animacje tekstu</string>
-    <string name="OEChatsTextAnimationDuration">Czas trwania pojawiania się</string>
-    <string name="OEChatsTextAnimationPreviewHint">Wpisz tekst, aby przetestować…</string>
-    <string name="OEChatsTextAnimationBlur">Płynne pojawianie się (Blur)</string>
-    <string name="OEChatsTextAnimationBlurDuration">Czas trwania rozmycia</string>
-    <string name="OEChatsTextAnimationBlurRadius">Promień rozmycia</string>
-    <string name="OEChatsTextAnimationBlurDelay">Opóźnienie tekstu</string>
-    <string name="OEChatsTextAnimationMotion">Ruch i skala</string>
-    <string name="OEChatsTextAnimationSlide">Wysuwanie z góry</string>
-    <string name="OEChatsTextAnimationSlideDist">Odległość wysuwania</string>
-    <string name="OEChatsTextAnimationScale">Skalowanie</string>
-    <string name="OEChatsTextAnimationScaleStart">Skala początkowa</string>
-    <string name="OEChatsTextAnimationRotate">Obrót</string>
-    <string name="OEChatsTextAnimationRotateAngle">Kąt obrotu</string>
-    <string name="OEChatsTextAnimationParticles">Cząsteczki przy usuwaniu</string>
-    <string name="OEChatsTextAnimationParticlesStyle">Styl cząsteczek</string>
-    <string name="OEChatsTextAnimationParticlesDust">Pył</string>
-    <string name="OEChatsTextAnimationParticlesSparks">Iskry</string>
-    <string name="OEChatsTextAnimationParticlesSnow">Płatki śniegu</string>
-    <string name="OEChatsTextAnimationParticlesPetals">Płatki kwiatów</string>
-    <string name="OEChatsTextAnimationParticlesLetters">Litery</string>
-    <string name="OEChatsTextAnimationParticleCount">Liczba cząsteczek</string>
-    <string name="OEChatsTextAnimationParticleSpeed">Prędkość cząsteczek</string>
-    <string name="OEChatsTextAnimationParticleSpread">Rozrzut cząsteczek</string>
-    <string name="OEChatsTextAnimationParticleSize">Rozmiar cząsteczek</string>
-    <string name="OEChatsTextAnimationCursor">Kursor</string>
-    <string name="OEChatsTextAnimationCursorFluid">Płynny kursor</string>
-    <string name="OEChatsTextAnimationCursorSpeed">Prędkość kursora</string>
-    <string name="OEChatsTextAnimationCursorWidth">Grubość kursora</string>
-    <string name="OEChatsTextAnimationLiquidCursor">Płynne rozciąganie kursora</string>
-    <string name="OEChatsTextAnimationLiquidStretch">Siła rozciągania</string>
-    <string name="OEChatsTextAnimationIgnoreSpaces">Ignoruj spacje</string>
-    <string name="OEChatsTextAnimationAnimateAllLines">Animuj wszystkie linie</string>
-    <string name="OEChatsTextAnimationReset">Zresetuj ustawienia animacji</string>
-    <string name="OEChatsTextAnimationResetConfirm">Przywrócić domyślne ustawienia animacji tekstu?</string>
-
     <string name="OEChatsTranslateInSheet">Okno tłumaczenia Telegram</string>
     <string name="OEChatsTranslateInSheetInfo">Tłumaczenie otwiera okno z oficjalnej aplikacji z wyborem dostawcy</string>
     <string name="OEChatsInlineMath">Wyniki obliczeń w polu tekstowym</string>
@@ -169,4 +142,14 @@
     <string name="OEChatsInlineMathAnnouncement">Wynik: %1$s</string>
     <string name="OELocalPremiumInfo">Emoji premium są wysyłane jako linki, które exteraless i inne obsługujące to klienty wyświetlają jako prawdziwe emoji. Pozostałe funkcje Premium działają tylko na tym urządzeniu.</string>
     <string name="OELocalPremiumEmojiHint">Nie masz **Telegram Premium**, więc to emoji zostanie wysłane jako link: zobaczą je tylko użytkownicy **exteraless** i klientów, które to obsługują.</string>
+    <string name="OEChatsSections">Sekcje</string>
+    <string name="OEChatsMenus">Menu i przyciski</string>
+    <string name="OEChatsMenusInfo">Menu czatu, wiadomości i przeglądarki multimediów</string>
+    <string name="OEChatsMedia">Multimedia i aparat</string>
+    <string name="OEChatsMediaInfo">Aparat, zdjęcia, filmy i wiadomości głosowe</string>
+    <string name="OEChatsInputHeader">Pole tekstowe</string>
+    <string name="OEChatsButtonsHeader">Przyciski</string>
+    <string name="OEChatsMenusHeader">Menu</string>
+    <string name="OEChatsPlaybackHeader">Odtwarzanie</string>
+    <string name="OEChatsVoiceHeader">Wiadomości głosowe</string>
 </resources>

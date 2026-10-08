@@ -48,6 +48,7 @@ public class SettingsHelper {
     private static final Map<String, String> SEARCH_TITLE_ALIASES = new HashMap<>();
     private static final Map<String, String> TRANSLATOR_ROWS = new HashMap<>();
     private static final Map<String, String> NAGRAM_ROWS = new HashMap<>();
+    private static final Map<String, String> MOVED_ROWS = new HashMap<>();
 
     static {
         SEARCH_TITLE_ALIASES.put("OEGeneral:lastfm", "OEGeneralLastFm");
@@ -120,6 +121,12 @@ public class SettingsHelper {
         NAGRAM_ROWS.put("DisableSystemAccount", "privacy");
         NAGRAM_ROWS.put("PerformanceClass", "powersaving");
         NAGRAM_ROWS.put("VideoPlayerDecoder", "chats");
+    }
+
+    private static void moveRows(String from, String to, String... rows) {
+        for (String row : rows) {
+            MOVED_ROWS.put(from + ":" + row, to);
+        }
     }
 
     private static final Set<String> EXTERALESS_SCREENS = new HashSet<>(Arrays.asList(

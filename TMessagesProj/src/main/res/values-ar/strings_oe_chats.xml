@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="OEChatsHideTimeOnStickers">إخفاء الوقت على الملصقات</string>
+    <string name="OEChatsStickerTime">الوقت على الملصقات</string>
+    <string name="OEChatsStickerTimeSide">على الجانب</string>
+    <string name="OEChatsStickerTimeHidden">مخفي</string>
     <string name="OEChatsReplies">الردود</string>
     <string name="OEChatsReplyColors">ألوان الخلفية</string>
     <string name="OEChatsReplyEmoji">الإيموجي</string>
@@ -27,7 +29,6 @@
     <string name="OEChatsPhoto">الصور</string>
     <string name="OEChatsAlwaysSendInHD">الإرسال بجودة عالية دائمًا</string>
     <string name="OEChatsHideCameraTile">إخفاء مربع الكاميرا الفورية</string>
-    <string name="OEChatsHideCameraTileInfo">سيتم إخفاء مربع الكاميرا في قائمة المرفقات.</string>
     <string name="OEChatsDoubleTapSeekDuration">مدة التخطي بالنقر المزدوج</string>
     <string name="OEChatsPauseOnMinimize">إيقاف تلقائي مؤقت</string>
     <string name="OEChatsPauseOnMinimizeInfo">يوقف تشغيل الوسائط مؤقتًا عند قفل الجهاز أو تصغير التطبيق.</string>
@@ -37,7 +38,7 @@
     <string name="OEChatsStickersAndEmoji">الملصقات والإيموجي</string>
     <string name="OEChatsDoubleTap">النقر المزدوج</string>
     <string name="OEChatsMessages">الرسائل</string>
-    <string name="OEChatsVideos">الفيديو والوسائط</string>
+    <string name="OEChatsVideos">الفيديو</string>
     <string name="OEChatsUnlimited">بلا حدود</string>
     <string name="OEChatsUnlimitedStickers">الملصقات</string>
     <string name="OEChatsUnlimitedGifs">الصور المتحركة</string>
@@ -60,7 +61,6 @@
     <string name="OEChatsHideReactionsChannels">القنوات</string>
     <string name="OEChatsHideReactionsGroups">المجموعات</string>
     <string name="OEChatsHideReactionsPrivate">المحادثات الخاصة</string>
-    <string name="OEChatsHideReactionsInfo">سيتم إخفاء التفاعلات من الواجهة في أنواع المحادثات المحددة.</string>
     <string name="OEChatsQuickTransitions">انتقال سريع بالسحب</string>
     <string name="OEChatsQuickTransitionChannels">القنوات</string>
     <string name="OEChatsQuickTransitionTopics">المواضيع</string>
@@ -122,6 +122,17 @@
     <string name="OEChatsAskWhenCalling">الاتصال</string>
     <string name="OEChatsAskWhenRepeating">تكرار الرسائل</string>
     <string name="OEChatsAskWhenBotCommands">إرسال أوامر البوت</string>
+    <string name="OEChatsStripTracking">إزالة التتبع من الروابط</string>
+    <string name="OEChatsStripTrackingOnOpen">عند فتح الروابط</string>
+    <string name="OEChatsStripTrackingOnPaste">عند لصق الروابط</string>
+    <string name="OEChatsStripTrackingInfo">يزيل من الروابط معلمات التتبع مثل utm_source و fbclid باستخدام مرشح AdGuard URL Tracking.</string>
+    <string name="OEChatsTrackingFilter">مرشح التتبع</string>
+    <string name="OEChatsTrackingFilterValue">AdGuard، %1$s</string>
+    <string name="OEChatsTrackingFilterUpdate">تحديث المرشح</string>
+    <string name="OEChatsTrackingFilterRevert">استخدام المرشح المدمج</string>
+    <string name="OEChatsTrackingFilterUpdated">تم تحديث المرشح</string>
+    <string name="OEChatsTrackingFilterLatest">المرشح محدَّث بالفعل</string>
+    <string name="OEChatsTrackingFilterFailed">تعذّر تحديث المرشح</string>
     <string name="OEChatsHdrPhotos">صور HDR</string>
     <string name="OEChatsHdrPhotosInfo">عرض صور HDR بكامل السطوع. أوقف هذا الخيار إذا بدت الصور داكنة.</string>
     <string name="SendLockedCustomEmojiAsSticker">إيموجي Premium كملصقات</string>
@@ -135,4 +146,14 @@
     <string name="OEChatsInlineMathAnnouncement">النتيجة: %1$s</string>
     <string name="OELocalPremiumInfo">تُرسل إيموجي Premium كروابط يعرضها exteraless والعملاء الآخرون الداعمون لذلك كإيموجي حقيقية. أما ميزات Premium الأخرى فتعمل على هذا الجهاز فقط.</string>
     <string name="OELocalPremiumEmojiHint">ليس لديك **Telegram Premium**، لذا سيُرسل هذا الإيموجي كرابط: سيراه فقط مستخدمو **exteraless** والعملاء الداعمون لذلك.</string>
+    <string name="OEChatsSections">الأقسام</string>
+    <string name="OEChatsMenus">القوائم والأزرار</string>
+    <string name="OEChatsMenusInfo">قوائم المحادثة والرسائل وعارض الوسائط</string>
+    <string name="OEChatsMedia">الوسائط والكاميرا</string>
+    <string name="OEChatsMediaInfo">الكاميرا والصور والفيديو والرسائل الصوتية</string>
+    <string name="OEChatsInputHeader">حقل الإدخال</string>
+    <string name="OEChatsButtonsHeader">الأزرار</string>
+    <string name="OEChatsMenusHeader">القوائم</string>
+    <string name="OEChatsPlaybackHeader">التشغيل</string>
+    <string name="OEChatsVoiceHeader">الرسائل الصوتية</string>
 </resources>

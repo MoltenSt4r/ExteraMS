@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="OEAppearanceMd3Player">Odtwarzacz muzyki</string>
+    <string name="OEAppearanceMd3MiniPlayer">Miniodtwarzacz</string>
+    <string name="OEPlayerFromChat">Z czatu</string>
+    <string name="OEPlayerFromProfile">Z profilu</string>
+    <string name="OEPlayerFromSearch">Z wyszukiwania</string>
+    <string name="OEPlayerMusic">Muzyka</string>
+    <string name="OEPlayerLyrics">Tekst</string>
+    <string name="OEPlayerQueue">Następne</string>
+    <string name="OEPlayerShuffle">Losowo</string>
+    <string name="OEPlayerSpeed">Prędkość</string>
+    <string name="OEPlayerSeek">Przewijanie</string>
+    <string name="OEPlayerOpen">Otwórz odtwarzacz</string>
+    <string name="OEPlayerClassic">Klasyczny odtwarzacz</string>
+    <string name="OEPlayerNoLyricsTitle">Plik nie zawiera tekstu</string>
+    <string name="OEPlayerNoLyricsText">Możesz wyszukać tekst w LRCLIB i lrcmux. Nazwa utworu zostanie wysłana do internetu.</string>
+    <string name="OEPlayerFindLyrics">Szukaj w sieci</string>
+    <string name="OEPlayerLyricsSearching">Szukanie tekstu…</string>
+    <string name="OEPlayerLyricsNotFound">Nie znaleziono tekstu</string>
+    <string name="OEPlayerLyricsNotFoundText">Żaden z dostawców nie zwrócił tekstu tego utworu.</string>
+    <string name="OEPlayerLyricsError">Nie udało się wczytać tekstu</string>
+    <string name="OEPlayerLyricsErrorText">Sprawdź połączenie i spróbuj ponownie.</string>
+    <string name="OEPlayerRetry">Ponów</string>
+    <string name="OEPlayerInstrumental">Utwór instrumentalny</string>
+    <string name="OEPlayerInstrumentalText">Ten utwór nie ma słów.</string>
+    <string name="OEPlayerSourceSynced">Zsynchronizowany tekst · %1$s</string>
+    <string name="OEPlayerSourcePlain">Tekst · %1$s</string>
+    <string name="OEPlayerSourceSyncedFile">Zsynchronizowany tekst z pliku</string>
+    <string name="OEPlayerSourcePlainFile">Tekst z pliku</string>
+    <string name="OEPlayerTracks_one">%1$d utwór</string>
+    <string name="OEPlayerTracks_two">%1$d utwory</string>
+    <string name="OEPlayerTracks_few">%1$d utwory</string>
+    <string name="OEPlayerTracks_many">%1$d utworów</string>
+    <string name="OEPlayerTracks_other">%1$d utworu</string>
+</resources>

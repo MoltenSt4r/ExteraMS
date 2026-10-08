@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="OEAppearanceMd3Player">مشغل الموسيقى</string>
+    <string name="OEAppearanceMd3MiniPlayer">المشغل المصغّر</string>
+    <string name="OEPlayerFromChat">من الدردشة</string>
+    <string name="OEPlayerFromProfile">من الملف الشخصي</string>
+    <string name="OEPlayerFromSearch">من البحث</string>
+    <string name="OEPlayerMusic">الموسيقى</string>
+    <string name="OEPlayerLyrics">الكلمات</string>
+    <string name="OEPlayerQueue">التالي</string>
+    <string name="OEPlayerShuffle">ترتيب عشوائي</string>
+    <string name="OEPlayerSpeed">سرعة التشغيل</string>
+    <string name="OEPlayerSeek">التقديم</string>
+    <string name="OEPlayerOpen">فتح المشغل</string>
+    <string name="OEPlayerClassic">المشغل الكلاسيكي</string>
+    <string name="OEPlayerNoLyricsTitle">لا توجد كلمات في الملف</string>
+    <string name="OEPlayerNoLyricsText">يمكنك البحث عن الكلمات في LRCLIB وlrcmux. سيُرسل اسم المقطع عبر الإنترنت.</string>
+    <string name="OEPlayerFindLyrics">البحث عبر الإنترنت</string>
+    <string name="OEPlayerLyricsSearching">جارٍ البحث عن الكلمات…</string>
+    <string name="OEPlayerLyricsNotFound">لم يُعثر على الكلمات</string>
+    <string name="OEPlayerLyricsNotFoundText">لم يُرجع أيٌّ من المزوّدين كلمات لهذا المقطع.</string>
+    <string name="OEPlayerLyricsError">تعذّر تحميل الكلمات</string>
+    <string name="OEPlayerLyricsErrorText">تحقق من الاتصال وحاول مرة أخرى.</string>
+    <string name="OEPlayerRetry">إعادة المحاولة</string>
+    <string name="OEPlayerInstrumental">موسيقى بلا كلمات</string>
+    <string name="OEPlayerInstrumentalText">لا يحتوي هذا المقطع على كلمات.</string>
+    <string name="OEPlayerSourceSynced">كلمات متزامنة · %1$s</string>
+    <string name="OEPlayerSourcePlain">كلمات · %1$s</string>
+    <string name="OEPlayerSourceSyncedFile">كلمات متزامنة من الملف</string>
+    <string name="OEPlayerSourcePlainFile">كلمات من الملف</string>
+    <string name="OEPlayerTracks_one">%1$d مقطع</string>
+    <string name="OEPlayerTracks_two">%1$d مقطعان</string>
+    <string name="OEPlayerTracks_few">%1$d مقاطع</string>
+    <string name="OEPlayerTracks_many">%1$d مقطعًا</string>
+    <string name="OEPlayerTracks_other">%1$d مقطع</string>
+</resources>

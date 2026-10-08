@@ -78,6 +78,11 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
      * У exteraGram это поле тоже ConcurrentHashMap.
      */
     public final Map<String, Plugin> plugins = new ConcurrentHashMap<>();
+
+    private final Map<String, String> knownPaths = new ConcurrentHashMap<>();
+
+    private static final java.util.regex.Pattern PLUGIN_ID =
+            java.util.regex.Pattern.compile("^[A-Za-z][A-Za-z0-9_-]{1,31}$");
     /** pluginId -> приоритет. */
     private final Map<String, Integer> sendMessageHooks = new ConcurrentHashMap<>();
     /** requestName -> список pluginId (точное совпадение). */
@@ -112,12 +117,16 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
 
     /** Вызывается из ApplicationLoader.onCreate. Быстрый: тяжёлое уходит в фон. */
     public void init(Context context) {
+        if (PluginSinkGate.refuseFromPlugin("init", true)) {
+            return;
+        }
         if (initialized) {
             return;
         }
         initialized = true;
         appContext = context.getApplicationContext();
         preferences = appContext.getSharedPreferences(PluginsConstants.PREFS_NAME, Context.MODE_PRIVATE);
+        PluginGrantStore.get();
         watchdog = new PluginsWatchdog(preferences);
         getPluginsDir().mkdirs();
 
@@ -132,6 +141,7 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
         watchdog.start();
         PythonPluginsEngine.getInstance().ensureStarted(appContext, ok -> {
             if (ok) {
+                PluginGrantStore.warmUp();
                 rescanAndLoadEnabled();
                 executeOnAppEvent(PluginsConstants.EVENT_APP_START);
             }
@@ -162,6 +172,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void setEngineEnabled(boolean enabled) {
+        if (PluginSinkGate.refuseFromPlugin("setEngineEnabled", false)) {
+            return;
+        }
         preferences.edit()
                 .putBoolean(PluginsConstants.KEY_ENGINE_ENABLED, enabled)
                 .remove(PluginsConstants.KEY_NATIVE_HOOKS_BROKEN)
@@ -184,27 +197,40 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void setSafeMode(boolean safeMode) {
+        if (PluginSinkGate.refuseFromPlugin("setSafeMode", false)) {
+            return;
+        }
         preferences.edit().putBoolean(PluginsConstants.KEY_SAFE_MODE, safeMode).apply();
     }
 
     public boolean isUnsafeMode() {
-        if (unsafeMode == null) {
-            unsafeMode = preferences != null
-                    && preferences.getBoolean(PluginsConstants.KEY_UNSAFE_MODE, false);
+        Boolean cached = unsafeMode;
+        if (cached != null) {
+            return cached;
         }
-        return unsafeMode;
+        SharedPreferences store = PluginGrantStore.get();
+        if (store == null) {
+            return false;
+        }
+        cached = store.getBoolean(PluginsConstants.KEY_UNSAFE_MODE, false);
+        unsafeMode = cached;
+        return cached;
     }
 
     public void setUnsafeMode(boolean value) {
+        if (PluginSinkGate.refuseFromPlugin("setUnsafeMode", false)) {
+            return;
+        }
         unsafeMode = value;
-        if (preferences != null) {
-            preferences.edit().putBoolean(PluginsConstants.KEY_UNSAFE_MODE, value).apply();
+        SharedPreferences store = PluginGrantStore.get();
+        if (store != null) {
+            store.edit().putBoolean(PluginsConstants.KEY_UNSAFE_MODE, value).apply();
         }
         FileLog.w("PluginsController: unsafe mode " + (value ? "ON" : "off"));
         PythonPluginsEngine.getInstance().setUnsafeMode(value);
     }
 
-    private Boolean unsafeMode;
+    private volatile Boolean unsafeMode;
 
     public boolean isDeveloperMode() {
         return preferences != null && preferences.getBoolean(PluginsConstants.KEY_DEVELOPER_MODE, false);
@@ -245,19 +271,20 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
      * Ключ на плагин, а не общий список: плагины удаляются и ставятся заново, и
      * общий список пришлось бы чистить от исчезнувших id вручную.
      */
-    public boolean isPluginPinned(String id) {
-        return id != null && preferences != null
-                && preferences.getBoolean("plugin_pinned_" + id, false);
+    public static boolean isPluginPinned(String id) {
+        SharedPreferences prefs = getInstance().preferences;
+        return id != null && prefs != null && prefs.getBoolean("plugin_pinned_" + id, false);
     }
 
-    public void setPluginPinned(String id, boolean pinned) {
-        if (id == null || preferences == null) {
+    public static void setPluginPinned(String id, boolean pinned) {
+        SharedPreferences prefs = getInstance().preferences;
+        if (id == null || prefs == null) {
             return;
         }
         if (pinned) {
-            preferences.edit().putBoolean("plugin_pinned_" + id, true).apply();
+            prefs.edit().putBoolean("plugin_pinned_" + id, true).apply();
         } else {
-            preferences.edit().remove("plugin_pinned_" + id).apply();
+            prefs.edit().remove("plugin_pinned_" + id).apply();
         }
     }
 
@@ -362,6 +389,34 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
         return renamed;
     }
 
+    private void markUnconsented(String id) {
+        PluginTrustLevel.setLevel(id, PluginTrustLevel.ISOLATED);
+        PluginDenialNotice.noteUnconsented(id);
+    }
+
+    private static final String[] PLUGIN_FILE_EXTS = {
+            PluginsConstants.PLUGIN_EXT_PY, PluginsConstants.PLUGIN_EXT,
+            PluginsConstants.PLUGIN_EXT_ELYX, PluginsConstants.PLUGIN_EXT_EAF};
+
+    private static boolean isCanonicalFile(File file, String id) {
+        String name = file.getName();
+        for (String ext : PLUGIN_FILE_EXTS) {
+            if (name.equals(id + ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasCanonicalFile(String id) {
+        for (String ext : PLUGIN_FILE_EXTS) {
+            if (new File(getPluginsDir(), id + ext).isFile()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public synchronized void rescanPlugins() {
         if (!PythonPluginsEngine.getInstance().isStarted()) {
             return;
@@ -385,7 +440,15 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
             if (fresh == null || fresh.id == null) {
                 continue;
             }
+            if (!isCanonicalFile(f, fresh.id) && hasCanonicalFile(fresh.id)) {
+                FileLog.w("PluginsController: " + f.getName() + " claims the id of an installed plugin "
+                        + fresh.id + ", skipped");
+                continue;
+            }
             seen.add(fresh.id);
+            if (!PluginPermissions.hasRecord(fresh.id)) {
+                markUnconsented(fresh.id);
+            }
             boolean enabled = preferences.getBoolean(
                     PluginsConstants.KEY_PLUGIN_ENABLED_PREFIX + fresh.id, true);
             Plugin existing = plugins.get(fresh.id);
@@ -396,6 +459,7 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
             }
             if (existing != null && existing.loaded) {
                 existing.path = freshPath;
+                knownPaths.put(fresh.id, freshPath);
                 // Тот же файл, плагин исполняется — обновляем метаданные,
                 // рантайм-состояние сохраняем.
                 existing.name = fresh.name;
@@ -414,6 +478,7 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
                 continue;
             }
             fresh.enabled = enabled;
+            knownPaths.put(fresh.id, freshPath);
             plugins.put(fresh.id, fresh);
         }
         // Файлы, которых больше нет: выгрузить и забыть.
@@ -427,6 +492,7 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
                 unregisterPluginHooks(gone.id);
                 PythonPluginsEngine.getInstance().unload(gone);
             }
+            knownPaths.remove(entry.getKey());
             it.remove();
         }
     }
@@ -673,6 +739,16 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     private boolean loadPluginInternal(Plugin p) {
+        String knownPath = p.id == null ? null : knownPaths.get(p.id);
+        if (knownPath == null) {
+            p.loaded = false;
+            p.loadError = "unknown plugin";
+            return false;
+        }
+        if (!knownPath.equals(p.path)) {
+            FileLog.w("PluginsController: path of " + p.id + " was changed outside the engine, restored");
+            p.path = knownPath;
+        }
         String missingDependency = checkRequiredPlugins(p);
         if (missingDependency != null) {
             p.loaded = false;
@@ -729,6 +805,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public boolean setPluginEnabled(String id, boolean enabled) {
+        if (PluginSinkGate.refuseFromPlugin("setPluginEnabled", true)) {
+            return false;
+        }
         Plugin p = getPlugin(id);
         if (p == null) {
             return false;
@@ -791,6 +870,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void reloadPlugin(String id) {
+        if (PluginSinkGate.refuseForeign(id, "reloadPlugin")) {
+            return;
+        }
         Plugin p = getPlugin(id);
         if (p == null || !PythonPluginsEngine.getInstance().isStarted()) {
             return;
@@ -885,6 +967,13 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void installPlugin(File source, boolean enable, InstallCallback callback) {
+        installPlugin(source, enable, false, callback);
+    }
+
+    public void installPlugin(File source, boolean enable, boolean keepEnabledState, InstallCallback callback) {
+        final String installer = PluginSinkGate.callingPlugin();
+        final boolean installerTrusted = installer != null
+                && PluginPermissions.has(installer, PluginPermissions.HOOKS);
         fileExecutor.execute(() -> {
             PythonPluginsEngine engine = PythonPluginsEngine.getInstance();
             if (!awaitEngineStarted()) {
@@ -903,6 +992,10 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
                     return;
                 }
                 String id = root.getJSONObject("meta").optString("id");
+                if (!PLUGIN_ID.matcher(id).matches()) {
+                    deliver(callback, false, "invalid plugin id", null);
+                    return;
+                }
                 // Сохраняем исходное расширение: .elyx/.eaf — ZIP-архивы, их нельзя
                 // переименовывать в .py.
                 String srcName = source.getName().toLowerCase();
@@ -916,6 +1009,11 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
                 copyFile(source, dest);
 
                 Plugin existing = getPlugin(id);
+                if (installer != null && !installerTrusted && !installer.equals(id)) {
+                    PluginPermissions.clear(id);
+                    PluginTrustLevel.clear(id);
+                }
+                final boolean enabled = keepEnabledState && existing != null ? existing.enabled : enable;
                 if (existing != null && existing.loaded) {
                     unregisterPluginHooks(id);
                     engine.unload(existing);
@@ -925,20 +1023,19 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
                     deliver(callback, false, "metadata parse error", null);
                     return;
                 }
-                p.enabled = enable;
-                preferences.edit().putBoolean(PluginsConstants.KEY_PLUGIN_ENABLED_PREFIX + id, enable).apply();
+                p.enabled = enabled;
+                preferences.edit().putBoolean(PluginsConstants.KEY_PLUGIN_ENABLED_PREFIX + id, enabled).apply();
                 // Согласие пользователя записывает диалог установки (PluginPermissions.setGranted).
-                // Если он этого не сделал, запись всё равно должна появиться: без неё
-                // свежепоставленный плагин уедет в режим совместимости, где ему дают всё.
-                // Объявленное считаем выданным, необъявленное — пустым набором.
+                // Если он этого не сделал (установка другим плагином, dev-сервер), плагин
+                // не получает ничего, а пользователю показывается, что он появился.
                 if (!PluginPermissions.hasRecord(id)) {
-                    PluginPermissions.setGranted(id,
-                            p.permissionsDeclared ? p.permissions : new ArrayList<>());
+                    markUnconsented(id);
                 }
                 synchronized (this) {
+                    knownPaths.put(id, dest.getAbsolutePath());
                     plugins.put(id, p);
                 }
-                if (enable && !isSafeMode()) {
+                if (enabled && !isSafeMode()) {
                     loadPluginInternal(p);
                 }
                 if (p.loadError != null) {
@@ -958,6 +1055,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public boolean uninstallPlugin(String id) {
+        if (PluginSinkGate.refuseFromPlugin("uninstallPlugin", true)) {
+            return false;
+        }
         Plugin p = getPlugin(id);
         if (p == null) {
             return false;
@@ -970,6 +1070,7 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
         PythonPluginsEngine.getInstance().uninstallPlugin(id);
         synchronized (this) {
             plugins.remove(id);
+            knownPaths.remove(id);
         }
         preferences.edit().remove(PluginsConstants.KEY_PLUGIN_ENABLED_PREFIX + id).apply();
         // Иначе переустановка того же id молча унаследует старое согласие.
@@ -1011,9 +1112,19 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     // ---------- настройки плагинов (хранилище, зовётся из PythonBridge) ----------
 
     private SharedPreferences pluginPrefs(String pluginId) {
+        String caller = PluginSinkGate.callingPlugin();
+        if (caller != null && !caller.equals(pluginId)
+                && !PluginPermissions.has(caller, PluginPermissions.HOOKS)) {
+            FileLog.w("PluginsController: plugin " + caller + " asked for the settings of " + pluginId);
+            SharedPreferences foreign = appContext.getSharedPreferences(FOREIGN_SETTINGS_PREFS, Context.MODE_PRIVATE);
+            foreign.edit().clear().commit();
+            return foreign;
+        }
         return appContext.getSharedPreferences(
                 PluginsConstants.SETTINGS_PREFS_PREFIX + pluginId, Context.MODE_PRIVATE);
     }
+
+    private static final String FOREIGN_SETTINGS_PREFS = "exteraless_plugin_foreign_settings";
 
     public String getPluginSettingJson(String pluginId, String key) {
         if (appContext == null) {
@@ -1093,10 +1204,30 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void addXposedHook(String pluginId, de.robv.android.xposed.XC_MethodHook.Unhook unhook) {
+        if (PluginSinkGate.refuseForeign(pluginId, "addXposedHook")) {
+            return;
+        }
         app.exteraless.plugins.xposed.XposedHooks.addPluginUnhook(pluginId, unhook);
     }
 
+    @Override
+    public void addXposedHooks(String pluginId,
+                               java.util.ArrayList<de.robv.android.xposed.XC_MethodHook.Unhook> unhooks) {
+        if (PluginSinkGate.refuseForeign(pluginId, "addXposedHooks")) {
+            return;
+        }
+        if (unhooks == null) {
+            return;
+        }
+        for (de.robv.android.xposed.XC_MethodHook.Unhook unhook : unhooks) {
+            addXposedHook(pluginId, unhook);
+        }
+    }
+
     public void removeXposedHook(String pluginId, de.robv.android.xposed.XC_MethodHook.Unhook unhook) {
+        if (PluginSinkGate.refuseForeign(pluginId, "removeXposedHook")) {
+            return;
+        }
         app.exteraless.plugins.xposed.XposedHooks.removePluginUnhook(pluginId, unhook);
     }
 
@@ -1168,18 +1299,30 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     // ---------- имена API exteraGram ----------
 
     public void init() {
+        if (PluginSinkGate.refuseFromPlugin("init", true)) {
+            return;
+        }
         init(isSafeMode(), null);
     }
 
     public void init(Runnable onDone) {
+        if (PluginSinkGate.refuseFromPlugin("init", true)) {
+            return;
+        }
         init(isSafeMode(), onDone);
     }
 
     public void init(boolean startWithSafeMode) {
+        if (PluginSinkGate.refuseFromPlugin("init", true)) {
+            return;
+        }
         init(startWithSafeMode, null);
     }
 
     public void init(boolean startWithSafeMode, Runnable onDone) {
+        if (PluginSinkGate.refuseFromPlugin("init", true)) {
+            return;
+        }
         setSafeMode(startWithSafeMode);
         if (appContext == null && ApplicationLoader.applicationContext != null) {
             init(ApplicationLoader.applicationContext);
@@ -1194,10 +1337,16 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void restart() {
+        if (PluginSinkGate.refuseFromPlugin("restart", true)) {
+            return;
+        }
         restart(isSafeMode());
     }
 
     public void restart(boolean startWithSafeMode) {
+        if (PluginSinkGate.refuseFromPlugin("restart", true)) {
+            return;
+        }
         setSafeMode(startWithSafeMode);
         unloadAll();
         if (!isEngineEnabled() || startWithSafeMode) {
@@ -1211,10 +1360,16 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void shutdown() {
+        if (PluginSinkGate.refuseFromPlugin("shutdown", true)) {
+            return;
+        }
         shutdown(null);
     }
 
     public void shutdown(Runnable onDone) {
+        if (PluginSinkGate.refuseFromPlugin("shutdown", true)) {
+            return;
+        }
         unloadAll();
         if (onDone != null) {
             AndroidUtilities.runOnUIThread(onDone);
@@ -1488,6 +1643,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     // ---------- реестры хуков (зовётся из PythonBridge) ----------
 
     public void registerSendMessageHook(String pluginId, int priority) {
+        if (PluginSinkGate.refuseForeign(pluginId, "registerSendMessageHook")) {
+            return;
+        }
         // PLUGINS-SECURITY.md, «Точки проверки»: хук исходящих даёт и чтение текста,
         // и отмену отправки. Отказ — молча не регистрируем, плагин продолжает жить.
         if (!PluginPermissions.check(pluginId, PluginPermissions.MESSAGES_SEND,
@@ -1499,6 +1657,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void registerRequestHook(String pluginId, String requestName, boolean matchSubstring, int priority) {
+        if (PluginSinkGate.refuseForeign(pluginId, "registerRequestHook")) {
+            return;
+        }
         if (pluginId == null || requestName == null || requestName.isEmpty()) {
             return;
         }
@@ -1552,6 +1713,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
 
     /** Снять один request-хук плагина (SDK: {@code remove_hook(name)}). */
     public void unregisterRequestHook(String pluginId, String requestName) {
+        if (PluginSinkGate.refuseForeign(pluginId, "unregisterRequestHook")) {
+            return;
+        }
         if (pluginId == null || requestName == null) {
             return;
         }
@@ -1573,6 +1737,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
 
     /** Снять хук исходящих сообщений (SDK: {@code remove_hook("on_send_message_hook")}). */
     public void unregisterSendMessageHook(String pluginId) {
+        if (PluginSinkGate.refuseForeign(pluginId, "unregisterSendMessageHook")) {
+            return;
+        }
         if (pluginId != null) {
             sendMessageHooks.remove(pluginId);
             sendTargetsCache.invalidate();
@@ -1604,6 +1771,27 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
     }
 
     public void unregisterPluginHooks(String pluginId) {
+        if (PluginSinkGate.refuseForeign(pluginId, "unregisterPluginHooks")) {
+            return;
+        }
+        removeHooksByPluginId(pluginId);
+        synchronized (menuItems) {
+            menuItems.removeIf(item -> item.pluginId.equals(pluginId));
+        }
+        // Подсистемы с собственными реестрами.
+        app.exteraless.plugins.files.FilesControllerJava.unregisterAllForPlugin(pluginId);
+        app.exteraless.plugins.intents.IntentsDispatcher.unregisterAllForPlugin(pluginId);
+        app.exteraless.plugins.utils.ClassProxyFactory.releaseAllForPlugin(pluginId);
+    }
+
+    @Override
+    public void removeHooksByPluginId(String pluginId) {
+        if (PluginSinkGate.refuseForeign(pluginId, "removeHooksByPluginId")) {
+            return;
+        }
+        if (pluginId == null) {
+            return;
+        }
         sendMessageHooks.remove(pluginId);
         hookPriorities.keySet().removeIf(k -> k.endsWith('\u0001' + pluginId));
         synchronized (requestHooks) {
@@ -1619,14 +1807,7 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
             dropPluginFrom(updatesContainerHooks, pluginId);
         }
         invalidateHookTargets();
-        synchronized (menuItems) {
-            menuItems.removeIf(item -> item.pluginId.equals(pluginId));
-        }
-        // Подсистемы с собственными реестрами.
         app.exteraless.plugins.xposed.XposedHooks.unhookAllForPlugin(pluginId);
-        app.exteraless.plugins.files.FilesControllerJava.unregisterAllForPlugin(pluginId);
-        app.exteraless.plugins.intents.IntentsDispatcher.unregisterAllForPlugin(pluginId);
-        app.exteraless.plugins.utils.ClassProxyFactory.releaseAllForPlugin(pluginId);
     }
 
     @Override
@@ -1939,6 +2120,9 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
 
     public String registerMenuItem(String pluginId, String jsonMenuItem,
                                    com.chaquo.python.PyObject onClick) {
+        if (PluginSinkGate.refuseForeign(pluginId, "registerMenuItem")) {
+            return null;
+        }
         try {
             JSONObject obj = new JSONObject(jsonMenuItem);
             String requestedId = obj.optString("item_id");
@@ -1989,11 +2173,31 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
         return null;
     }
 
-    public void removeMenuItem(String pluginId, String itemId) {
+    @Override
+    public boolean removeMenuItem(String pluginId, String itemId) {
+        if (PluginSinkGate.refuseForeign(pluginId, "removeMenuItem")) {
+            return false;
+        }
+        boolean removed;
         synchronized (menuItems) {
-            menuItems.removeIf(i -> i.pluginId.equals(pluginId) && i.itemId.equals(itemId));
+            removed = menuItems.removeIf(i -> i.pluginId.equals(pluginId) && i.itemId.equals(itemId));
         }
         notifyMenuItemsUpdated();
+        return removed;
+    }
+
+    @Override
+    public void removeMenuItemsByPluginId(String pluginId) {
+        if (PluginSinkGate.refuseForeign(pluginId, "removeMenuItemsByPluginId")) {
+            return;
+        }
+        boolean removed;
+        synchronized (menuItems) {
+            removed = menuItems.removeIf(i -> i.pluginId.equals(pluginId));
+        }
+        if (removed) {
+            notifyMenuItemsUpdated();
+        }
     }
 
     /**

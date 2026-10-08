@@ -1,0 +1,1667 @@
+package app.exteraless.player;
+
+import static org.telegram.messenger.AndroidUtilities.dp;
+import static org.telegram.messenger.LocaleController.getString;
+
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Outline;
+import android.graphics.Bitmap;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
+import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
+import android.view.animation.PathInterpolator;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
+
+import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.DialogObject;
+import org.telegram.messenger.FileLoader;
+import org.telegram.messenger.LocaleController;
+import org.telegram.messenger.MediaController;
+import org.telegram.messenger.MessageObject;
+import org.telegram.messenger.MessagesController;
+import org.telegram.messenger.NotificationCenter;
+import org.telegram.messenger.R;
+import org.telegram.messenger.SharedConfig;
+import org.telegram.messenger.UserConfig;
+import org.telegram.messenger.audioinfo.AudioInfo;
+import org.telegram.tgnet.TLRPC;
+import org.telegram.ui.ActionBar.BottomSheet;
+import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Components.AudioPlayerAlert;
+import org.telegram.ui.Components.Bulletin;
+import org.telegram.ui.Components.BulletinFactory;
+import org.telegram.ui.Components.CubicBezierInterpolator;
+import org.telegram.ui.Components.ItemOptions;
+import org.telegram.ui.Components.LayoutHelper;
+import org.telegram.ui.LaunchActivity;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
+import app.exteraless.appearance.AppearanceConfig;
+
+public class PlayerSheet extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
+
+    public static PlayerSheet instance;
+
+    private static final float[] SPEEDS = {1f, 1.2f, 1.5f, 1.7f, 2f, 0.5f};
+    private static final CubicBezierInterpolator EMPHASIZED = new CubicBezierInterpolator(0.2, 0, 0, 1);
+    private static final PathInterpolator BACK_GESTURE = new PathInterpolator(0.1f, 0.1f, 0f, 1f);
+
+    private final LaunchActivity activity;
+    private final int account;
+    private final boolean dark;
+    private final int fallbackSeed;
+    private final FrameLayout root;
+    private final PlayerLayout layout;
+    private final FrameLayout header;
+    private final ImageView collapseButton;
+    private final ImageView moreButton;
+    private final PlayerIcon collapseIcon = PlayerIcon.stroke(PlayerIcon.CHEVRON_DOWN, 24);
+    private final PlayerIcon moreIcon = PlayerIcon.fill(PlayerIcon.MORE, 24);
+    private final TextView headerLabel;
+    private final TextView headerTitle;
+    private final CoverImage cover;
+    private final LinearLayout titleRow;
+    private final TextView titleView;
+    private final TextView artistView;
+    private final MorphButton likeButton;
+    private final PlayerIcon heartIcon = PlayerIcon.stroke(PlayerIcon.HEART, 24);
+    private final LinearLayout lyricsPanel;
+    private final CoverImage smallCover;
+    private final TextView smallTitle;
+    private final TextView smallArtist;
+    private final LyricsView lyricsView;
+    private final TextView sourceView;
+    private final WavySeekBar seekBar;
+    private final TextView bubble;
+    private final GradientDrawable bubbleBg = new GradientDrawable();
+    private final LinearLayout timeRow;
+    private final TextView timeNow;
+    private final TextView timeLeft;
+    private final ControlsRow controls;
+    private final LinearLayout group;
+    private final MorphButton speedButton;
+    private final MorphButton lyricsButton;
+    private final MorphButton queueButton;
+    private final Bulletin.Delegate bulletinDelegate = new Bulletin.Delegate() {
+        @Override
+        public int getBottomOffset(int tag) {
+            return getBottomInset();
+        }
+    };
+
+    private final Paint backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final RectF morphFrom = new RectF();
+    private final RectF morphTo = new RectF();
+    private final RectF morphCoverFrom = new RectF();
+    private final RectF morphCoverTo = new RectF();
+    private final RectF morphCoverBase = new RectF();
+    private final RectF morphRect = new RectF();
+    private final RectF morphCover = new RectF();
+    private final Rect morphSrc = new Rect();
+    private final Path morphPath = new Path();
+    private final Paint morphPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+    private PlayerMiniView miniSource;
+    private View morphCoverView;
+    private float morphCoverBaseRadius;
+    private boolean backPreview;
+    private float backProgress;
+    private int backDirection;
+    private ValueAnimator backAnimator;
+    private boolean skipMorph;
+    private boolean closing;
+    private boolean detached;
+    private ValueAnimator morphAnimator;
+    private float morphProgress = -1f;
+    private float morphFromRadius;
+    private float morphToRadius;
+    private float morphCoverFromRadius;
+    private float morphCoverToRadius;
+    private int morphFromColor;
+    private Bitmap morphSnapshot;
+    private Bitmap morphCoverBitmap;
+    private int morphBarsState = -1;
+    private boolean underLightStatus;
+    private boolean underLightNav;
+    private final RectF backgroundRect = new RectF();
+    private PlayerColors colors;
+    private ValueAnimator colorAnimator;
+    private MessageObject current;
+    private String currentKey;
+    private boolean lyricsMode;
+    private float lyricsFraction;
+    private ValueAnimator lyricsAnimator;
+    private String lyricsKey;
+    private boolean seeking;
+    private float seekProgress;
+    private Boolean lightBars;
+    private boolean touchInLyrics;
+    private float dragStartX;
+    private float dragStartY;
+    private boolean dragTracking;
+    private boolean dragActive;
+    private boolean coverAnimating;
+    private final int touchSlop;
+
+    public PlayerSheet(Context context, Theme.ResourcesProvider resourcesProvider) {
+        super(context, false, resourcesProvider);
+        Activity found = AndroidUtilities.findActivity(context);
+        activity = found instanceof LaunchActivity ? (LaunchActivity) found : LaunchActivity.instance;
+        touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        occupyNavigationBar = true;
+        drawNavigationBar = false;
+        setApplyTopPadding(false);
+        setApplyBottomPadding(false);
+
+        MessageObject playing = MediaController.getInstance().getPlayingMessageObject();
+        account = playing != null ? playing.currentAccount : UserConfig.selectedAccount;
+        currentAccount = account;
+        dark = PlayerColors.isDark(resourcesProvider);
+        fallbackSeed = PlayerColors.noCoverSeed(resourcesProvider);
+        Integer seed = PlayerArt.cachedSeed(playing);
+        colors = PlayerColors.fromSeed(seed != null ? seed : fallbackSeed, dark);
+
+        root = new FrameLayout(context) {
+            @Override
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY));
+            }
+
+            @Override
+            public boolean dispatchTouchEvent(MotionEvent ev) {
+                if (morphProgress >= 0f || closing) {
+                    return true;
+                }
+                int action = ev.getActionMasked();
+                if (action == MotionEvent.ACTION_DOWN) {
+                    touchInLyrics = lyricsMode && lyricsView.getVisibility() == VISIBLE && hitInRoot(lyricsView, ev.getX(), ev.getY());
+                }
+                boolean result = super.dispatchTouchEvent(ev);
+                if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && touchInLyrics) {
+                    touchInLyrics = false;
+                    container.requestDisallowInterceptTouchEvent(false);
+                }
+                return result;
+            }
+
+            @Override
+            public void setTranslationY(float translationY) {
+                super.setTranslationY(translationY);
+                invalidate();
+            }
+
+            @Override
+            protected void dispatchDraw(@NonNull Canvas canvas) {
+                if (morphProgress < 0f) {
+                    super.dispatchDraw(canvas);
+                    return;
+                }
+                drawMorphBackground(canvas);
+                super.dispatchDraw(canvas);
+                drawMorphForeground(canvas);
+            }
+
+            @Override
+            protected void onDraw(@NonNull Canvas canvas) {
+                if (morphProgress >= 0f) {
+                    return;
+                }
+                float r = dp(28) * Math.max(0f, Math.min(1f, getTranslationY() / dp(56)));
+                backgroundPaint.setColor(colors.surface);
+                backgroundRect.set(0, 0, getWidth(), getHeight() + r);
+                canvas.drawRoundRect(backgroundRect, r, r, backgroundPaint);
+            }
+
+            @Override
+            protected void onAttachedToWindow() {
+                super.onAttachedToWindow();
+                Bulletin.addDelegate(this, bulletinDelegate);
+            }
+
+            @Override
+            protected void onDetachedFromWindow() {
+                super.onDetachedFromWindow();
+                Bulletin.removeDelegate(this);
+            }
+        };
+        root.setWillNotDraw(false);
+        containerView = root;
+
+        layout = new PlayerLayout(context);
+        root.addView(layout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+
+        header = new FrameLayout(context);
+        collapseButton = new ImageView(context);
+        collapseButton.setScaleType(ImageView.ScaleType.CENTER);
+        collapseButton.setImageDrawable(collapseIcon);
+        collapseButton.setContentDescription(getString(R.string.Close));
+        collapseButton.setOnClickListener(v -> dismiss());
+        header.addView(collapseButton, LayoutHelper.createFrame(48, 48, Gravity.LEFT | Gravity.CENTER_VERTICAL));
+        moreButton = new ImageView(context);
+        moreButton.setScaleType(ImageView.ScaleType.CENTER);
+        moreButton.setImageDrawable(moreIcon);
+        moreButton.setContentDescription(getString(R.string.AccDescrMoreOptions));
+        moreButton.setOnClickListener(this::showMenu);
+        header.addView(moreButton, LayoutHelper.createFrame(48, 48, Gravity.RIGHT | Gravity.CENTER_VERTICAL));
+        LinearLayout headerCenter = new LinearLayout(context);
+        headerCenter.setOrientation(LinearLayout.VERTICAL);
+        headerCenter.setGravity(Gravity.CENTER_HORIZONTAL);
+        headerLabel = new TextView(context);
+        headerLabel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+        headerLabel.setLetterSpacing(0.08f);
+        headerLabel.setAllCaps(true);
+        headerLabel.setSingleLine(true);
+        headerLabel.setEllipsize(TextUtils.TruncateAt.END);
+        headerCenter.addView(headerLabel, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
+        headerTitle = new TextView(context);
+        headerTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        headerTitle.setTypeface(AndroidUtilities.bold());
+        headerTitle.setSingleLine(true);
+        headerTitle.setEllipsize(TextUtils.TruncateAt.END);
+        headerCenter.addView(headerTitle, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL, 0, 2, 0, 0));
+        header.addView(headerCenter, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER, 56, 0, 56, 0));
+        layout.addView(header);
+
+        cover = new CoverImage(context, 120);
+        cover.setRadius(dp(28));
+        cover.setListener(fallbackSeed, this::onSeed);
+        cover.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), dp(28));
+            }
+        });
+        cover.setElevation(dp(14));
+        cover.setOnTouchListener(this::onCoverTouch);
+        layout.addView(cover);
+
+        titleRow = new LinearLayout(context);
+        titleRow.setOrientation(LinearLayout.HORIZONTAL);
+        titleRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout titles = new LinearLayout(context);
+        titles.setOrientation(LinearLayout.VERTICAL);
+        titleView = new TextView(context);
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 26);
+        titleView.setTypeface(AndroidUtilities.bold());
+        titleView.setSingleLine(true);
+        titleView.setEllipsize(TextUtils.TruncateAt.END);
+        titles.addView(titleView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+        artistView = new TextView(context);
+        artistView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        artistView.setSingleLine(true);
+        artistView.setEllipsize(TextUtils.TruncateAt.END);
+        titles.addView(artistView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 4, 0, 0));
+        titleRow.addView(titles, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1f));
+        likeButton = new MorphButton(context, heartIcon);
+        likeButton.setRadius(dp(24), false);
+        likeButton.setOnClickListener(v -> toggleProfile());
+        titleRow.addView(likeButton, LayoutHelper.createLinear(48, 48, Gravity.CENTER_VERTICAL, 12, 0, 0, 0));
+        layout.addView(titleRow);
+
+        lyricsPanel = new LinearLayout(context);
+        lyricsPanel.setOrientation(LinearLayout.VERTICAL);
+        lyricsPanel.setVisibility(View.GONE);
+        LinearLayout smallRow = new LinearLayout(context);
+        smallRow.setOrientation(LinearLayout.HORIZONTAL);
+        smallRow.setGravity(Gravity.CENTER_VERTICAL);
+        smallCover = new CoverImage(context, 28);
+        smallCover.setRadius(dp(16));
+        smallRow.addView(smallCover, LayoutHelper.createLinear(56, 56));
+        LinearLayout smallTitles = new LinearLayout(context);
+        smallTitles.setOrientation(LinearLayout.VERTICAL);
+        smallTitle = new TextView(context);
+        smallTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        smallTitle.setTypeface(AndroidUtilities.bold());
+        smallTitle.setSingleLine(true);
+        smallTitle.setEllipsize(TextUtils.TruncateAt.END);
+        smallTitles.addView(smallTitle, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+        smallArtist = new TextView(context);
+        smallArtist.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        smallArtist.setSingleLine(true);
+        smallArtist.setEllipsize(TextUtils.TruncateAt.END);
+        smallTitles.addView(smallArtist, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 2, 0, 0));
+        smallRow.addView(smallTitles, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1f, Gravity.CENTER_VERTICAL, 14, 0, 0, 0));
+        lyricsPanel.addView(smallRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 12, 0, 0));
+        lyricsView = new LyricsView(context);
+        lyricsView.setDelegate(new LyricsView.Delegate() {
+            @Override
+            public void onAction(int state) {
+                if (state == LyricsView.STATE_OFFER) {
+                    AppearanceConfig.lrclibAllowed.setConfigBool(true);
+                }
+                fetchLyrics();
+            }
+
+            @Override
+            public void onSeek(long ms) {
+                MessageObject mo = current;
+                if (mo != null) {
+                    MediaController.getInstance().seekToProgressMs(mo, ms);
+                }
+            }
+        });
+        lyricsPanel.addView(lyricsView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 0, 1f, 0, 16, 0, 0));
+        sourceView = new TextView(context);
+        sourceView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+        sourceView.setSingleLine(true);
+        lyricsPanel.addView(sourceView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 16, 0, 8, 0, 0));
+        layout.addView(lyricsPanel);
+
+        seekBar = new WavySeekBar(context);
+        seekBar.setContentDescription(getString(R.string.OEPlayerSeek));
+        seekBar.setDelegate(new WavySeekBar.Delegate() {
+            @Override
+            public void onSeekStart() {
+                seeking = true;
+                bubble.animate().cancel();
+                bubble.setVisibility(View.VISIBLE);
+                bubble.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(150).start();
+            }
+
+            @Override
+            public void onSeekMove(float progress) {
+                seekProgress = progress;
+                updateTimes();
+                layoutBubble();
+            }
+
+            @Override
+            public void onSeekEnd(float progress, boolean commit) {
+                seeking = false;
+                MessageObject mo = current;
+                if (commit && mo != null) {
+                    MediaController.getInstance().seekToProgress(mo, progress);
+                    mo.audioProgress = progress;
+                    mo.audioProgressSec = (int) (mo.getDuration() * progress);
+                }
+                bubble.animate().cancel();
+                bubble.animate().alpha(0f).scaleX(0.8f).scaleY(0.8f).setDuration(150).withEndAction(() -> bubble.setVisibility(View.GONE)).start();
+                updateProgress();
+            }
+        });
+        layout.addView(seekBar);
+
+        timeRow = new LinearLayout(context);
+        timeRow.setOrientation(LinearLayout.HORIZONTAL);
+        timeNow = new TextView(context);
+        timeNow.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        timeNow.setFontFeatureSettings("tnum");
+        timeRow.addView(timeNow, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1f));
+        timeLeft = new TextView(context);
+        timeLeft.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        timeLeft.setFontFeatureSettings("tnum");
+        timeLeft.setGravity(Gravity.RIGHT);
+        timeRow.addView(timeLeft, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1f));
+        layout.addView(timeRow);
+
+        controls = new ControlsRow(context);
+        controls.shuffle.setOnClickListener(v -> {
+            MediaController.getInstance().setPlaybackOrderType(SharedConfig.shuffleMusic ? 0 : 2);
+            updateModes(true);
+        });
+        controls.repeat.setOnClickListener(v -> {
+            int mode = SharedConfig.repeatMode;
+            SharedConfig.setRepeatMode(mode == 0 ? 1 : mode == 1 ? 2 : 0);
+            updateModes(true);
+        });
+        controls.prev.setOnClickListener(v -> MediaController.getInstance().playPreviousMessage());
+        controls.next.setOnClickListener(v -> MediaController.getInstance().playNextMessage());
+        controls.play.setOnClickListener(v -> togglePlay());
+        controls.shuffle.setContentDescription(getString(R.string.ShuffleList));
+        controls.prev.setContentDescription(getString(R.string.AccDescrPrevious));
+        controls.next.setContentDescription(getString(R.string.Next));
+        layout.addView(controls);
+
+        group = new LinearLayout(context);
+        group.setOrientation(LinearLayout.HORIZONTAL);
+        speedButton = new MorphButton(context, PlayerIcon.stroke(PlayerIcon.SPEED, 20));
+        speedButton.setRadius(dp(26), dp(8), false);
+        speedButton.setOnClickListener(v -> cycleSpeed());
+        group.addView(speedButton, LayoutHelper.createLinear(0, 52, 1f));
+        lyricsButton = new MorphButton(context, PlayerIcon.stroke(PlayerIcon.LYRICS, 20));
+        lyricsButton.setText(getString(R.string.OEPlayerLyrics));
+        lyricsButton.setRadius(dp(8), false);
+        lyricsButton.setOnClickListener(v -> setLyricsMode(!lyricsMode, true));
+        group.addView(lyricsButton, LayoutHelper.createLinear(0, 52, 1f, 4, 0, 4, 0));
+        queueButton = new MorphButton(context, PlayerIcon.stroke(PlayerIcon.QUEUE, 20));
+        queueButton.setText(getString(R.string.OEPlayerQueue));
+        queueButton.setRadius(dp(8), dp(26), false);
+        queueButton.setOnClickListener(v -> openQueue());
+        group.addView(queueButton, LayoutHelper.createLinear(0, 52, 1f));
+        layout.addView(group);
+
+        bubble = new TextView(context);
+        bubble.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        bubble.setTypeface(AndroidUtilities.bold());
+        bubble.setFontFeatureSettings("tnum");
+        bubble.setPadding(dp(12), dp(6), dp(12), dp(6));
+        bubbleBg.setCornerRadius(dp(16));
+        bubble.setBackground(bubbleBg);
+        bubble.setVisibility(View.GONE);
+        bubble.setAlpha(0f);
+        layout.addView(bubble);
+
+        applyColors(colors);
+        bind(playing, false);
+    }
+
+    private boolean hitInRoot(View view, float x, float y) {
+        float left = 0;
+        float top = 0;
+        View v = view;
+        while (v != null && v != root) {
+            left += v.getLeft() + v.getTranslationX();
+            top += v.getTop() + v.getTranslationY();
+            if (!(v.getParent() instanceof View)) {
+                return false;
+            }
+            v = (View) v.getParent();
+        }
+        return v == root && x >= left && x < left + view.getWidth() && y >= top && y < top + view.getHeight();
+    }
+
+    @Override
+    protected boolean canDismissWithSwipe() {
+        if (morphProgress >= 0f || closing) {
+            return false;
+        }
+        return !touchInLyrics || !lyricsView.canScrollUp();
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        instance = this;
+        NotificationCenter nc = NotificationCenter.getInstance(account);
+        nc.addObserver(this, NotificationCenter.messagePlayingDidReset);
+        nc.addObserver(this, NotificationCenter.messagePlayingPlayStateChanged);
+        nc.addObserver(this, NotificationCenter.messagePlayingDidStart);
+        nc.addObserver(this, NotificationCenter.messagePlayingProgressDidChanged);
+        nc.addObserver(this, NotificationCenter.fileLoaded);
+        nc.addObserver(this, NotificationCenter.audioInfoLoaded);
+        nc.addObserver(this, NotificationCenter.musicIdsLoaded);
+        NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.messagePlayingSpeedChanged);
+        applySystemBars(true);
+    }
+
+    public void setTransitionSource(PlayerMiniView source) {
+        miniSource = source;
+    }
+
+    public void dismissImmediately() {
+        skipMorph = true;
+        dismiss();
+    }
+
+    @Override
+    public void dismiss() {
+        if (closing) {
+            return;
+        }
+        if (!skipMorph && miniSource != null && !isDismissed()) {
+            if (morphProgress >= 0f) {
+                boolean preview = backPreview;
+                closing = true;
+                detach();
+                cancelBackAnimator();
+                if (preview) {
+                    backPreview = false;
+                    morphCoverView.setVisibility(View.INVISIBLE);
+                }
+                startMorph(morphProgress, 0f, preview ? 380 : 300, this::finishMorphClose);
+                return;
+            }
+            float ty = root.getTranslationY();
+            root.setTranslationY(0);
+            if (prepareMorph(true)) {
+                closing = true;
+                detach();
+                cancelSheetAnimation();
+                morphTo.set(0, ty, root.getWidth(), root.getHeight() + ty);
+                morphToRadius = dp(28) * clamp01(ty / dp(56));
+                morphCoverTo.offset(0, ty);
+                startMorph(1f, 0f, 380, this::finishMorphClose);
+                return;
+            }
+            root.setTranslationY(ty);
+        }
+        detach();
+        if (morphAnimator != null) {
+            morphAnimator.removeAllListeners();
+            morphAnimator.cancel();
+            morphAnimator = null;
+        }
+        if (morphProgress >= 0f) {
+            cancelBackAnimator();
+            backPreview = false;
+            restoreMorphCover();
+            clearMorph();
+        }
+        if (miniSource != null) {
+            miniSource.setTransitionHidden(false);
+        }
+        super.dismiss();
+    }
+
+    private void finishMorphClose() {
+        if (miniSource != null) {
+            miniSource.setTransitionHidden(false);
+        }
+        root.setVisibility(View.INVISIBLE);
+        backDrawable.setAlpha(0);
+        skipDismissAnimation();
+        super.dismiss();
+    }
+
+    @Override
+    public void dismissInternal() {
+        if (miniSource != null) {
+            miniSource.setTransitionHidden(false);
+        }
+        super.dismissInternal();
+    }
+
+    @Override
+    protected boolean onCustomOpenAnimation() {
+        root.setTranslationY(0);
+        if (!prepareMorph(true)) {
+            return false;
+        }
+        morphTo.set(0, 0, root.getWidth(), root.getHeight());
+        morphToRadius = 0;
+        startMorph(0f, 1f, 420, () -> {
+            clearMorph();
+            restoreMorphCover();
+            cover.setTranslationZ(-cover.getElevation());
+            cover.animate().translationZ(0).setDuration(250).start();
+            morphBarsState = -1;
+            applySystemBars(true);
+            onOpenAnimationEnd();
+            if (delegate != null) {
+                delegate.onOpenAnimationEnd();
+            }
+        });
+        return true;
+    }
+
+    @Override
+    protected boolean onCustomBackStarted(int swipeDirection) {
+        if (miniSource == null || skipMorph) {
+            return false;
+        }
+        if (closing || (morphProgress >= 0f && !backPreview)) {
+            return true;
+        }
+        if (backPreview) {
+            cancelBackAnimator();
+        } else if (root.getTranslationY() != 0f || !prepareMorph(false)) {
+            return false;
+        } else {
+            morphCoverBase.set(morphCoverTo);
+            morphCoverBaseRadius = morphCoverToRadius;
+            morphProgress = 1f;
+            backProgress = 0f;
+            backPreview = true;
+        }
+        backDirection = swipeDirection;
+        applyBackPreview();
+        return true;
+    }
+
+    @Override
+    protected void onCustomBackProgressed(float progress) {
+        if (!backPreview || closing) {
+            return;
+        }
+        cancelBackAnimator();
+        backProgress = progress;
+        applyBackPreview();
+    }
+
+    @Override
+    protected void onCustomBackCancelled() {
+        if (!backPreview || closing) {
+            return;
+        }
+        cancelBackAnimator();
+        backAnimator = ValueAnimator.ofFloat(backProgress, 0f);
+        backAnimator.addUpdateListener(a -> {
+            backProgress = (float) a.getAnimatedValue();
+            applyBackPreview();
+        });
+        backAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                backAnimator = null;
+                backPreview = false;
+                clearMorph();
+                if (miniSource != null) {
+                    miniSource.setTransitionHidden(false);
+                }
+                morphBarsState = -1;
+                applySystemBars(true);
+            }
+        });
+        backAnimator.setDuration((long) (250 * clamp01(backProgress)));
+        backAnimator.setInterpolator(CubicBezierInterpolator.DEFAULT);
+        backAnimator.start();
+    }
+
+    private void applyBackPreview() {
+        float t = BACK_GESTURE.getInterpolation(clamp01(backProgress));
+        float w = root.getWidth();
+        float h = root.getHeight();
+        float s = 1f - 0.1f * t;
+        float inset = (w - w * s) / 2f;
+        float left = inset + Math.max(0f, inset - dp(8)) * backDirection;
+        float top = Math.max(h / 2f, Math.min(h, morphFrom.centerY())) * (1f - s);
+        morphTo.set(left, top, left + w * s, top + h * s);
+        morphToRadius = dp(28) * t;
+        morphCoverTo.set(left + morphCoverBase.left * s, top + morphCoverBase.top * s, left + morphCoverBase.right * s, top + morphCoverBase.bottom * s);
+        morphCoverToRadius = morphCoverBaseRadius * s;
+        applyMorph();
+    }
+
+    private void cancelBackAnimator() {
+        if (backAnimator != null) {
+            backAnimator.removeAllListeners();
+            backAnimator.cancel();
+            backAnimator = null;
+        }
+    }
+
+    private void restoreMorphCover() {
+        if (morphCoverView == cover) {
+            cover.setVisibility(lyricsFraction >= 1f ? View.INVISIBLE : View.VISIBLE);
+        } else if (morphCoverView != null) {
+            morphCoverView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private static float clamp01(float v) {
+        return Math.max(0f, Math.min(1f, v));
+    }
+
+    private static void lerpRect(RectF a, RectF b, float t, RectF out) {
+        out.set(a.left + (b.left - a.left) * t, a.top + (b.top - a.top) * t, a.right + (b.right - a.right) * t, a.bottom + (b.bottom - a.bottom) * t);
+    }
+
+    private void rectInRoot(View view, RectF out) {
+        float x = 0;
+        float y = 0;
+        View v = view;
+        while (v != null && v != root) {
+            x += v.getLeft() + v.getTranslationX();
+            y += v.getTop() + v.getTranslationY();
+            v = v.getParent() instanceof View ? (View) v.getParent() : null;
+        }
+        float px = view.getPivotX();
+        float py = view.getPivotY();
+        float sx = view.getScaleX();
+        float sy = view.getScaleY();
+        out.set(x + px * (1f - sx), y + py * (1f - sy), x + px + (view.getWidth() - px) * sx, y + py + (view.getHeight() - py) * sy);
+    }
+
+    private boolean prepareMorph(boolean hideCover) {
+        PlayerMiniView mini = miniSource;
+        if (skipMorph || mini == null || !mini.canTransition() || root.getWidth() == 0 || !root.isAttachedToWindow()) {
+            return false;
+        }
+        if (lyricsAnimator != null && lyricsAnimator.isRunning()) {
+            lyricsAnimator.end();
+        }
+        View coverView = lyricsFraction >= 0.5f ? smallCover : cover;
+        morphCoverView = coverView;
+        int[] loc = new int[2];
+        root.getLocationOnScreen(loc);
+        mini.getCardRect(morphFrom);
+        morphFrom.offset(-loc[0], -loc[1]);
+        mini.getCoverRect(morphCoverFrom);
+        morphCoverFrom.offset(-loc[0], -loc[1]);
+        morphFromRadius = mini.getCardRadius();
+        morphCoverFromRadius = mini.getCoverRadius();
+        morphFromColor = mini.getCardColor();
+        recycleSnapshot();
+        morphSnapshot = mini.captureCard();
+        Bitmap bitmap = coverView instanceof CoverImage ? ((CoverImage) coverView).getImageReceiver().getBitmap() : null;
+        morphCoverBitmap = bitmap != null ? bitmap : mini.getCoverBitmap();
+        rectInRoot(coverView, morphCoverTo);
+        morphCoverToRadius = coverView == cover ? dp(28) * cover.getScaleX() : dp(16);
+        if (activity != null && activity.getWindow() != null) {
+            int flags = activity.getWindow().getDecorView().getSystemUiVisibility();
+            underLightStatus = (flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0;
+            underLightNav = (flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0;
+        }
+        morphBarsState = -1;
+        mini.setTransitionHidden(true);
+        if (hideCover) {
+            coverView.setVisibility(View.INVISIBLE);
+        }
+        layout.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        return true;
+    }
+
+    private void startMorph(float from, float to, long duration, Runnable onEnd) {
+        if (morphAnimator != null) {
+            morphAnimator.removeAllListeners();
+            morphAnimator.cancel();
+        }
+        morphProgress = from;
+        applyMorph();
+        morphAnimator = ValueAnimator.ofFloat(from, to);
+        morphAnimator.addUpdateListener(a -> {
+            morphProgress = (float) a.getAnimatedValue();
+            applyMorph();
+        });
+        morphAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                morphAnimator = null;
+                onEnd.run();
+            }
+        });
+        morphAnimator.setDuration(duration);
+        morphAnimator.setInterpolator(EMPHASIZED);
+        morphAnimator.start();
+    }
+
+    private void applyMorph() {
+        float p = morphProgress;
+        lerpRect(morphFrom, morphTo, p, morphRect);
+        float s = morphRect.width() / Math.max(1, root.getWidth());
+        layout.setPivotX(0);
+        layout.setPivotY(0);
+        layout.setScaleX(s);
+        layout.setScaleY(s);
+        layout.setTranslationX(morphRect.left);
+        layout.setTranslationY(morphRect.top);
+        layout.setAlpha(clamp01((p - 0.35f) / 0.65f));
+        backDrawable.setAlpha(dimBehind ? (int) (dimBehindAlpha * clamp01(p)) : 0);
+        updateMorphBars();
+        root.invalidate();
+    }
+
+    private void clearMorph() {
+        morphProgress = -1f;
+        layout.setScaleX(1f);
+        layout.setScaleY(1f);
+        layout.setTranslationX(0);
+        layout.setTranslationY(0);
+        layout.setAlpha(1f);
+        layout.setLayerType(View.LAYER_TYPE_NONE, null);
+        recycleSnapshot();
+        morphCoverBitmap = null;
+        root.invalidate();
+    }
+
+    private void recycleSnapshot() {
+        if (morphSnapshot != null) {
+            morphSnapshot.recycle();
+            morphSnapshot = null;
+        }
+    }
+
+    private void updateMorphBars() {
+        int state = morphProgress > 0.5f ? 1 : 0;
+        if (state == morphBarsState) {
+            return;
+        }
+        morphBarsState = state;
+        if (state == 1) {
+            boolean light = colors.lightStatusBar();
+            setBars(light, light);
+        } else {
+            setBars(underLightStatus, underLightNav);
+        }
+    }
+
+    private void drawMorphBackground(Canvas canvas) {
+        float p = morphProgress;
+        lerpRect(morphFrom, morphTo, p, morphRect);
+        float r = morphFromRadius + (morphToRadius - morphFromRadius) * p;
+        morphPath.rewind();
+        morphPath.addRoundRect(morphRect, r, r, Path.Direction.CW);
+        canvas.save();
+        canvas.clipPath(morphPath);
+        backgroundPaint.setColor(ColorUtils.blendARGB(morphFromColor, colors.surface, clamp01(p / 0.5f)));
+        canvas.drawRect(morphRect, backgroundPaint);
+    }
+
+    private void drawMorphForeground(Canvas canvas) {
+        float p = morphProgress;
+        Bitmap snapshot = morphSnapshot;
+        if (snapshot != null && !snapshot.isRecycled()) {
+            float a = 1f - clamp01(p / 0.3f);
+            if (a > 0f) {
+                canvas.save();
+                float s = morphRect.width() / snapshot.getWidth();
+                canvas.translate(morphRect.left, morphRect.top);
+                canvas.scale(s, s);
+                morphPaint.setAlpha((int) (255 * a));
+                canvas.drawBitmap(snapshot, 0, 0, morphPaint);
+                canvas.restore();
+            }
+        }
+        canvas.restore();
+        if (backPreview) {
+            return;
+        }
+        lerpRect(morphCoverFrom, morphCoverTo, p, morphCover);
+        float r = morphCoverFromRadius + (morphCoverToRadius - morphCoverFromRadius) * p;
+        morphPath.rewind();
+        morphPath.addRoundRect(morphCover, r, r, Path.Direction.CW);
+        canvas.save();
+        canvas.clipPath(morphPath);
+        Bitmap bitmap = morphCoverBitmap;
+        if (bitmap != null && !bitmap.isRecycled() && bitmap.getWidth() > 0 && bitmap.getHeight() > 0) {
+            int bw = bitmap.getWidth();
+            int bh = bitmap.getHeight();
+            float ratio = morphCover.width() / Math.max(1f, morphCover.height());
+            if (bw / (float) bh > ratio) {
+                int w = (int) (bh * ratio);
+                int x = (bw - w) / 2;
+                morphSrc.set(x, 0, x + w, bh);
+            } else {
+                int h = (int) (bw / ratio);
+                int y = (bh - h) / 2;
+                morphSrc.set(0, y, bw, y + h);
+            }
+            morphPaint.setAlpha(255);
+            canvas.drawBitmap(bitmap, morphSrc, morphCover, morphPaint);
+        } else {
+            backgroundPaint.setColor(colors.primaryContainer);
+            canvas.drawRect(morphCover, backgroundPaint);
+        }
+        canvas.restore();
+    }
+
+    private void detach() {
+        if (detached) {
+            return;
+        }
+        detached = true;
+        if (instance == this) {
+            instance = null;
+        }
+        NotificationCenter nc = NotificationCenter.getInstance(account);
+        nc.removeObserver(this, NotificationCenter.messagePlayingDidReset);
+        nc.removeObserver(this, NotificationCenter.messagePlayingPlayStateChanged);
+        nc.removeObserver(this, NotificationCenter.messagePlayingDidStart);
+        nc.removeObserver(this, NotificationCenter.messagePlayingProgressDidChanged);
+        nc.removeObserver(this, NotificationCenter.fileLoaded);
+        nc.removeObserver(this, NotificationCenter.audioInfoLoaded);
+        nc.removeObserver(this, NotificationCenter.musicIdsLoaded);
+        NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.messagePlayingSpeedChanged);
+        if (colorAnimator != null) {
+            colorAnimator.cancel();
+        }
+    }
+
+    public static void onModesChanged() {
+        if (instance != null) {
+            instance.updateModes(true);
+        }
+    }
+
+    @Override
+    public void didReceivedNotification(int id, int account, Object... args) {
+        if (id == NotificationCenter.messagePlayingDidStart) {
+            MessageObject mo = MediaController.getInstance().getPlayingMessageObject();
+            if (mo == null || !mo.isMusic()) {
+                dismissImmediately();
+                return;
+            }
+            bind(mo, true);
+        } else if (id == NotificationCenter.messagePlayingDidReset) {
+            MessageObject mo = MediaController.getInstance().getPlayingMessageObject();
+            if (mo == null || !mo.isMusic()) {
+                dismissImmediately();
+            } else {
+                bind(mo, true);
+            }
+        } else if (id == NotificationCenter.messagePlayingPlayStateChanged) {
+            updatePlayState(true);
+            updateProgress();
+        } else if (id == NotificationCenter.messagePlayingProgressDidChanged) {
+            updateProgress();
+        } else if (id == NotificationCenter.audioInfoLoaded) {
+            MessageObject mo = current;
+            if (mo != null && PlayerArt.isPlaying(mo)) {
+                cover.setMessage(mo);
+                smallCover.setMessage(mo);
+                if (lyricsMode && lyricsView.getState() != LyricsView.STATE_LYRICS) {
+                    lyricsKey = null;
+                    loadLyrics();
+                }
+            }
+        } else if (id == NotificationCenter.fileLoaded) {
+            MessageObject mo = current;
+            if (mo != null && mo.getDocument() != null && TextUtils.equals((String) args[0], FileLoader.getAttachFileName(mo.getDocument()))) {
+                cover.setMessage(mo);
+                smallCover.setMessage(mo);
+                if (lyricsMode && (lyricsView.getState() != LyricsView.STATE_LYRICS)) {
+                    lyricsKey = null;
+                    loadLyrics();
+                }
+            }
+        } else if (id == NotificationCenter.musicIdsLoaded) {
+            updateLike(true);
+        } else if (id == NotificationCenter.messagePlayingSpeedChanged) {
+            updateSpeed();
+        }
+    }
+
+    private void bind(MessageObject mo, boolean animated) {
+        if (mo == null) {
+            return;
+        }
+        String key = PlayerArt.key(mo);
+        boolean changed = !TextUtils.equals(key, currentKey);
+        current = mo;
+        currentKey = key;
+        titleView.setText(mo.getMusicTitle());
+        artistView.setText(mo.getMusicAuthor());
+        smallTitle.setText(mo.getMusicTitle());
+        smallArtist.setText(mo.getMusicAuthor());
+        cover.setMessage(mo);
+        smallCover.setMessage(mo);
+        if (changed) {
+            Integer seed = PlayerArt.cachedSeed(mo);
+            if (seed != null) {
+                animateColors(PlayerColors.fromSeed(seed, dark), animated);
+            } else if (PlayerArt.fileCover(mo) == null && PlayerArt.fullLocation(mo) == null && PlayerArt.thumbLocation(mo) == null) {
+                animateColors(PlayerColors.fromSeed(fallbackSeed, dark), animated);
+            }
+            lyricsKey = null;
+            if (lyricsMode) {
+                loadLyrics();
+            }
+        }
+        updateHeader();
+        updateLike(animated);
+        updateModes(animated);
+        updateSpeed();
+        updatePlayState(animated);
+        updateProgress();
+    }
+
+    private void onSeed(MessageObject mo, int seed) {
+        if (mo == current) {
+            animateColors(PlayerColors.fromSeed(seed, dark), true);
+        }
+    }
+
+    private void updateHeader() {
+        MessageObject mo = current;
+        if (mo == null) {
+            return;
+        }
+        MessagesController.SavedMusicList saved = MediaController.getInstance().currentSavedMusicList;
+        if (saved != null) {
+            headerLabel.setText(getString(R.string.OEPlayerFromProfile));
+            headerTitle.setText(DialogObject.getShortName(saved.currentAccount, saved.dialogId));
+        } else if (MediaController.getInstance().currentPlaylistIsGlobalSearch()) {
+            headerLabel.setText(getString(R.string.OEPlayerFromSearch));
+            headerTitle.setText(getString(R.string.OEPlayerMusic));
+        } else {
+            long did = mo.getDialogId();
+            headerLabel.setText(getString(R.string.OEPlayerFromChat));
+            if (did == UserConfig.getInstance(account).getClientUserId()) {
+                headerTitle.setText(getString(R.string.SavedMessages));
+            } else {
+                headerTitle.setText(DialogObject.getName(account, did));
+            }
+        }
+    }
+
+    private void updateLike(boolean animated) {
+        MessageObject mo = current;
+        boolean visible = mo != null && mo.getDocument() != null && !PlayerActions.noForwards(mo);
+        likeButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+        if (!visible) {
+            return;
+        }
+        boolean saved = PlayerActions.isSavedToProfile(mo);
+        likeButton.setActive(saved, animated);
+        likeButton.setRadius(dp(saved ? 14 : 24), animated);
+        heartIcon.setFillStroke(saved);
+        likeButton.setContentDescription(getString(saved ? R.string.ProfilePlaylistRemoveFromProfile : R.string.AudioSaveToMyProfile));
+    }
+
+    private void toggleProfile() {
+        MessageObject mo = current;
+        if (mo == null || PlayerActions.isProfileSavePending(mo)) {
+            return;
+        }
+        boolean save = !PlayerActions.isSavedToProfile(mo);
+        likeButton.setActive(save, true);
+        likeButton.setRadius(dp(save ? 14 : 24), true);
+        heartIcon.setFillStroke(save);
+        PlayerActions.saveToProfile(mo, save, error -> {
+            Theme.ResourcesProvider rp = colors.provider(resourcesProvider);
+            if (error != null) {
+                updateLike(true);
+                BulletinFactory.of(root, rp).showForError(error);
+                return;
+            }
+            MessagesController.SavedMusicList list = MediaController.getInstance().currentSavedMusicList;
+            if (!save && list != null && list.dialogId == UserConfig.getInstance(mo.currentAccount).getClientUserId()) {
+                list.remove(mo);
+                if (list.list.isEmpty()) {
+                    MediaController.getInstance().cleanup();
+                    dismissImmediately();
+                    return;
+                }
+                NotificationCenter.getInstance(mo.currentAccount).postNotificationName(NotificationCenter.musicListLoaded, list);
+            }
+            updateLike(true);
+            BulletinFactory.of(root, rp).createSimpleBulletin(save ? R.raw.saved_messages : R.raw.ic_delete,
+                    getString(save ? R.string.AudioSaveToMyProfileSaved : R.string.AudioSaveToMyProfileUnsaved)).show();
+        });
+    }
+
+    private void updateModes(boolean animated) {
+        int mode = SharedConfig.repeatMode;
+        boolean repeatActive = mode == 1 || mode == 2;
+        controls.setModes(SharedConfig.shuffleMusic, repeatActive, mode == 2, animated);
+        controls.repeat.setContentDescription(getString(mode == 2 ? R.string.AccDescrRepeatOne : mode == 1 ? R.string.AccDescrRepeatList : R.string.AccDescrRepeatOff));
+    }
+
+    private void updateSpeed() {
+        float speed = MediaController.getInstance().getPlaybackSpeed(true);
+        DecimalFormat format = new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(currentLocale()));
+        String label = format.format(speed) + "×";
+        speedButton.setText(label);
+        speedButton.setContentDescription(getString(R.string.OEPlayerSpeed) + " " + label);
+    }
+
+    private static Locale currentLocale() {
+        Locale locale = LocaleController.getInstance().getCurrentLocale();
+        return locale != null ? locale : Locale.getDefault();
+    }
+
+    private void cycleSpeed() {
+        float speed = MediaController.getInstance().getPlaybackSpeed(true);
+        int index = -1;
+        for (int i = 0; i < SPEEDS.length; i++) {
+            if (Math.abs(SPEEDS[i] - speed) < 0.01f) {
+                index = i;
+                break;
+            }
+        }
+        float next = index < 0 ? 1f : SPEEDS[(index + 1) % SPEEDS.length];
+        MediaController.getInstance().setPlaybackSpeed(true, next);
+        updateSpeed();
+    }
+
+    private void togglePlay() {
+        MediaController mc = MediaController.getInstance();
+        if (mc.isDownloadingCurrentMessage()) {
+            return;
+        }
+        MessageObject mo = mc.getPlayingMessageObject();
+        if (mc.isMessagePaused()) {
+            mc.playMessage(mo);
+        } else {
+            mc.pauseMessage(mo);
+        }
+    }
+
+    private void updatePlayState(boolean animated) {
+        boolean playing = !MediaController.getInstance().isMessagePaused();
+        controls.setPlaying(playing, animated);
+        controls.play.setContentDescription(getString(playing ? R.string.AccActionPause : R.string.AccActionPlay));
+        seekBar.setPlaying(playing);
+        float scale = playing ? 1f : 0.92f;
+        if (cover.getScaleX() != scale) {
+            if (animated) {
+                cover.animate().scaleX(scale).scaleY(scale).setDuration(450).setInterpolator(EMPHASIZED).start();
+            } else {
+                cover.setScaleX(scale);
+                cover.setScaleY(scale);
+            }
+        }
+    }
+
+    private float displayProgress() {
+        MessageObject mo = current;
+        if (seeking) {
+            return seekProgress;
+        }
+        return mo != null ? mo.audioProgress : 0f;
+    }
+
+    private void updateProgress() {
+        MessageObject mo = current;
+        if (mo == null) {
+            return;
+        }
+        if (!seeking) {
+            seekBar.setProgress(mo.audioProgress);
+        }
+        updateTimes();
+        if (lyricsMode) {
+            lyricsView.setPosition((long) (mo.audioProgress * mo.getDuration() * 1000));
+        }
+    }
+
+    private void updateTimes() {
+        MessageObject mo = current;
+        if (mo == null) {
+            return;
+        }
+        int duration = (int) Math.round(mo.getDuration());
+        int now = seeking ? (int) (duration * seekProgress) : Math.min(duration, mo.audioProgressSec);
+        String a = formatTime(now);
+        String b = "−" + formatTime(Math.max(0, duration - now));
+        if (!TextUtils.equals(timeNow.getText(), a)) {
+            timeNow.setText(a);
+            bubble.setText(a);
+        }
+        if (!TextUtils.equals(timeLeft.getText(), b)) {
+            timeLeft.setText(b);
+        }
+    }
+
+    private static String formatTime(int seconds) {
+        if (seconds >= 3600) {
+            return String.format(Locale.US, "%d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60);
+        }
+        return String.format(Locale.US, "%d:%02d", seconds / 60, seconds % 60);
+    }
+
+    private void layoutBubble() {
+        if (bubble.getWidth() == 0) {
+            bubble.post(this::layoutBubble);
+            return;
+        }
+        float left = dp(3);
+        float right = seekBar.getWidth() - dp(3);
+        float x = seekBar.getLeft() + left + displayProgress() * (right - left);
+        float tx = x - bubble.getLeft() - bubble.getWidth() / 2f;
+        float min = -bubble.getLeft() + dp(8);
+        float max = layout.getWidth() - bubble.getLeft() - bubble.getWidth() - dp(8);
+        bubble.setTranslationX(Math.max(min, Math.min(max, tx)));
+    }
+
+    private void setLyricsMode(boolean value, boolean animated) {
+        if (lyricsMode == value) {
+            return;
+        }
+        lyricsMode = value;
+        lyricsButton.setActive(value, animated);
+        lyricsButton.setRadius(dp(value ? 26 : 8), animated);
+        if (value) {
+            loadLyrics();
+            MessageObject mo = current;
+            if (mo != null) {
+                lyricsView.setPosition((long) (mo.audioProgress * mo.getDuration() * 1000));
+            }
+        }
+        if (lyricsAnimator != null) {
+            lyricsAnimator.cancel();
+        }
+        float target = value ? 1f : 0f;
+        if (!animated) {
+            setLyricsFraction(target);
+            return;
+        }
+        lyricsPanel.setVisibility(View.VISIBLE);
+        cover.setVisibility(View.VISIBLE);
+        titleRow.setVisibility(View.VISIBLE);
+        lyricsAnimator = ValueAnimator.ofFloat(lyricsFraction, target);
+        lyricsAnimator.addUpdateListener(a -> setLyricsFraction((float) a.getAnimatedValue()));
+        lyricsAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                setLyricsFraction(target);
+            }
+        });
+        lyricsAnimator.setDuration(360);
+        lyricsAnimator.setInterpolator(EMPHASIZED);
+        lyricsAnimator.start();
+    }
+
+    private void setLyricsFraction(float f) {
+        lyricsFraction = f;
+        float playerAlpha = Math.max(0f, 1f - f * 1.6f);
+        float lyricsAlpha = Math.max(0f, (f - 0.35f) / 0.65f);
+        cover.setAlpha(playerAlpha);
+        titleRow.setAlpha(playerAlpha);
+        cover.setTranslationY(-dp(24) * f);
+        titleRow.setTranslationY(-dp(24) * f);
+        lyricsPanel.setAlpha(lyricsAlpha);
+        lyricsPanel.setTranslationY(dp(24) * (1f - f));
+        cover.setVisibility(f >= 1f ? View.INVISIBLE : View.VISIBLE);
+        titleRow.setVisibility(f >= 1f ? View.INVISIBLE : View.VISIBLE);
+        lyricsPanel.setVisibility(f <= 0f ? View.GONE : View.VISIBLE);
+    }
+
+    private OnlineLyrics.Query query(MessageObject mo) {
+        String album = null;
+        if (PlayerArt.isPlaying(mo)) {
+            AudioInfo info = MediaController.getInstance().getAudioInfo();
+            if (info != null) {
+                album = info.getAlbum();
+            }
+        }
+        return new OnlineLyrics.Query(mo.getMusicAuthor(false), mo.getMusicTitle(false), album, (int) Math.round(mo.getDuration()));
+    }
+
+    private long positionMs() {
+        MessageObject mo = current;
+        return mo == null ? 0 : (long) (mo.audioProgress * mo.getDuration() * 1000);
+    }
+
+    private void loadLyrics() {
+        MessageObject mo = current;
+        if (mo == null) {
+            return;
+        }
+        String key = currentKey;
+        if (TextUtils.equals(lyricsKey, key)) {
+            return;
+        }
+        lyricsKey = key;
+        if (PlayerArt.isPlaying(mo)) {
+            AudioInfo info = MediaController.getInstance().getAudioInfo();
+            Lyrics embedded = info != null ? Lyrics.parse(info.getLyrics(), Lyrics.SOURCE_FILE) : null;
+            if (embedded != null) {
+                showLyrics(embedded);
+                return;
+            }
+        }
+        OnlineLyrics.Query q = query(mo);
+        if (!q.valid()) {
+            lyricsView.showState(LyricsView.STATE_NOT_FOUND);
+            sourceView.setText(null);
+            return;
+        }
+        Lyrics cached = OnlineLyrics.cached(q);
+        if (cached != null) {
+            showLyrics(cached);
+            return;
+        }
+        lyricsView.showState(LyricsView.STATE_LOADING);
+        sourceView.setText(null);
+        OnlineLyrics.loadCached(q, (lyrics, status) -> {
+            if (!TextUtils.equals(key, currentKey)) {
+                return;
+            }
+            if (lyrics != null) {
+                showLyrics(lyrics);
+            } else if (AppearanceConfig.lrclibAllowed.Bool()) {
+                fetchLyrics();
+            } else {
+                lyricsView.showState(LyricsView.STATE_OFFER);
+            }
+        });
+    }
+
+    private void fetchLyrics() {
+        MessageObject mo = current;
+        if (mo == null) {
+            return;
+        }
+        String key = currentKey;
+        OnlineLyrics.Query q = query(mo);
+        if (!q.valid()) {
+            lyricsView.showState(LyricsView.STATE_NOT_FOUND);
+            return;
+        }
+        if (OnlineLyrics.knownMissing(q)) {
+            lyricsView.showState(LyricsView.STATE_NOT_FOUND);
+            return;
+        }
+        lyricsView.showState(LyricsView.STATE_LOADING);
+        sourceView.setText(null);
+        OnlineLyrics.fetch(q, (lyrics, status) -> {
+            if (!TextUtils.equals(key, currentKey)) {
+                return;
+            }
+            if (lyrics != null) {
+                showLyrics(lyrics);
+            } else {
+                lyricsView.showState(status == OnlineLyrics.ERROR ? LyricsView.STATE_ERROR : LyricsView.STATE_NOT_FOUND);
+            }
+        });
+    }
+
+    private void showLyrics(Lyrics lyrics) {
+        if (lyrics.instrumental) {
+            lyricsView.showState(LyricsView.STATE_INSTRUMENTAL);
+            sourceView.setText(lyrics.provider);
+            return;
+        }
+        lyricsView.setLyrics(lyrics, positionMs());
+        if (lyrics.source == Lyrics.SOURCE_ONLINE) {
+            sourceView.setText(LocaleController.formatString(lyrics.synced ? R.string.OEPlayerSourceSynced : R.string.OEPlayerSourcePlain, lyrics.provider));
+        } else {
+            sourceView.setText(getString(lyrics.synced ? R.string.OEPlayerSourceSyncedFile : R.string.OEPlayerSourcePlainFile));
+        }
+    }
+
+    private void openQueue() {
+        new PlayerQueueSheet(getContext(), colors, resourcesProvider).show();
+    }
+
+    private void openClassic() {
+        dismissImmediately();
+        if (activity != null) {
+            new AudioPlayerAlert(activity, resourcesProvider).show();
+        }
+    }
+
+    private void showMenu(View anchor) {
+        MessageObject mo = current;
+        if (mo == null || activity == null) {
+            return;
+        }
+        boolean noForwards = PlayerActions.noForwards(mo);
+        Theme.ResourcesProvider rp = colors.provider(resourcesProvider);
+        ItemOptions o = ItemOptions.makeOptions(container, rp, anchor, true);
+        if (!noForwards) {
+            ItemOptions sub = o.makeSwipeback();
+            sub.add(R.drawable.ic_ab_back, getString(R.string.Back), o::closeSwipeback);
+            sub.addGap();
+            sub.addIf(!PlayerActions.isSavedToProfile(mo), R.drawable.left_status_profile, getString(R.string.AudioSaveToMyProfile), () -> {
+                o.dismiss();
+                toggleProfile();
+            });
+            sub.add(R.drawable.msg_saved, getString(R.string.AudioSaveToSavedMessages), () -> {
+                o.dismiss();
+                PlayerActions.forwardTo(activity, mo, UserConfig.getInstance(mo.currentAccount).getClientUserId());
+            });
+            sub.add(R.drawable.menu_download_round, getString(R.string.AudioSaveToMusicFolder), () -> {
+                o.dismiss();
+                PlayerActions.saveToMusic(activity, mo, root, rp);
+            });
+            sub.addGap();
+            sub.addText(getString(R.string.AudioSaveToInfo), 12, dp(200));
+            o.add(R.drawable.msg_stories_save, getString(R.string.AudioSaveTo), () -> o.openSwipeback(sub));
+            if (o.getLast() != null) {
+                o.getLast().setRightIcon(R.drawable.msg_arrowright);
+            }
+            o.add(R.drawable.msg_forward, getString(R.string.Forward), () -> {
+                o.dismiss();
+                dismissImmediately();
+                PlayerActions.forward(activity, mo);
+            });
+        } else {
+            o.add(R.drawable.menu_download_round, getString(R.string.AudioSaveToMusicFolder), () -> {
+                o.dismiss();
+                PlayerActions.saveToMusic(activity, mo, root, rp);
+            });
+        }
+        o.add(R.drawable.msg_shareout, getString(R.string.ShareFile), () -> {
+            o.dismiss();
+            PlayerActions.share(activity, mo);
+        });
+        o.addIf(mo.getId() > 0, R.drawable.msg_message, getString(R.string.ShowInChat), () -> {
+            o.dismiss();
+            dismissImmediately();
+            PlayerActions.showInChat(activity, mo);
+        });
+        o.addGap();
+        o.add(R.drawable.msg_filled_data_music, getString(R.string.OEPlayerClassic), () -> {
+            o.dismiss();
+            openClassic();
+        });
+        o.setGravity(LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT);
+        o.show();
+    }
+
+    private boolean onCoverTouch(View v, MotionEvent e) {
+        if (coverAnimating) {
+            return false;
+        }
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                dragStartX = e.getRawX();
+                dragStartY = e.getRawY();
+                dragTracking = true;
+                dragActive = false;
+                return true;
+            case MotionEvent.ACTION_MOVE: {
+                if (!dragTracking) {
+                    return false;
+                }
+                float dx = e.getRawX() - dragStartX;
+                float dy = e.getRawY() - dragStartY;
+                if (!dragActive) {
+                    if (Math.abs(dx) > touchSlop && Math.abs(dx) > Math.abs(dy) * 1.2f) {
+                        dragActive = true;
+                        dragStartX = e.getRawX();
+                        dx = 0;
+                        if (v.getParent() != null) {
+                            v.getParent().requestDisallowInterceptTouchEvent(true);
+                        }
+                    } else if (Math.abs(dy) > touchSlop) {
+                        dragTracking = false;
+                        return false;
+                    }
+                }
+                if (dragActive) {
+                    setCoverDrag(dx);
+                }
+                return true;
+            }
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                float dx = e.getRawX() - dragStartX;
+                boolean wasActive = dragActive;
+                dragTracking = false;
+                dragActive = false;
+                if (wasActive) {
+                    finishCoverDrag(e.getActionMasked() == MotionEvent.ACTION_UP ? dx : 0);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void setCoverDrag(float dx) {
+        cover.setTranslationX(dx);
+        cover.setRotation(dx / dp(40));
+        cover.setAlpha(1f - Math.min(Math.abs(dx) / dp(420), 0.4f));
+    }
+
+    private void finishCoverDrag(float dx) {
+        if (Math.abs(dx) < dp(70)) {
+            cover.animate().translationX(0).rotation(0).alpha(1f).setDuration(450).setInterpolator(EMPHASIZED).start();
+            return;
+        }
+        boolean next = dx < 0;
+        float out = (next ? -1 : 1) * layout.getWidth();
+        coverAnimating = true;
+        cover.animate().translationX(out).rotation(out / dp(40) / 4f).alpha(0f).setDuration(180).setInterpolator(CubicBezierInterpolator.EASE_IN).withEndAction(() -> {
+            if (next) {
+                MediaController.getInstance().playNextMessage();
+            } else {
+                MessageObject mo = MediaController.getInstance().getPlayingMessageObject();
+                if (mo != null) {
+                    mo.audioProgressSec = 0;
+                }
+                MediaController.getInstance().playPreviousMessage();
+            }
+            cover.setTranslationX(-out * 0.35f);
+            cover.setRotation(0);
+            cover.animate().translationX(0).alpha(1f).setDuration(450).setInterpolator(EMPHASIZED).withEndAction(() -> coverAnimating = false).start();
+        }).start();
+    }
+
+    private void animateColors(PlayerColors target, boolean animated) {
+        if (colorAnimator != null) {
+            colorAnimator.cancel();
+            colorAnimator = null;
+        }
+        if (!animated) {
+            applyColors(target);
+            return;
+        }
+        PlayerColors from = colors;
+        colorAnimator = ValueAnimator.ofFloat(0f, 1f);
+        colorAnimator.addUpdateListener(a -> applyColors(PlayerColors.lerp(from, target, (float) a.getAnimatedValue())));
+        colorAnimator.setDuration(600);
+        colorAnimator.setInterpolator(EMPHASIZED);
+        colorAnimator.start();
+    }
+
+    private void applyColors(PlayerColors c) {
+        colors = c;
+        root.invalidate();
+        collapseIcon.setColor(c.onSurface);
+        moreIcon.setColor(c.onSurface);
+        collapseButton.setBackground(Theme.createSelectorDrawable(c.ripple(), Theme.RIPPLE_MASK_CIRCLE_20DP));
+        moreButton.setBackground(Theme.createSelectorDrawable(c.ripple(), Theme.RIPPLE_MASK_CIRCLE_20DP));
+        headerLabel.setTextColor(c.onSurfaceVariant);
+        headerTitle.setTextColor(c.onSurface);
+        cover.setColors(c.primaryContainer, c.onPrimaryContainer);
+        smallCover.setColors(c.primaryContainer, c.onPrimaryContainer);
+        if (Build.VERSION.SDK_INT >= 28) {
+            cover.setOutlineSpotShadowColor(c.shadow());
+            cover.setOutlineAmbientShadowColor(c.shadow());
+        }
+        titleView.setTextColor(c.onSurface);
+        artistView.setTextColor(c.onSurfaceVariant);
+        smallTitle.setTextColor(c.onSurface);
+        smallArtist.setTextColor(c.onSurfaceVariant);
+        likeButton.setColors(0, c.onSurfaceVariant, c.primaryContainer, c.onPrimaryContainer);
+        lyricsView.setColors(c);
+        sourceView.setTextColor(c.onSurfaceVariant);
+        seekBar.setColors(c.primary, c.secondaryContainer);
+        timeNow.setTextColor(c.onSurfaceVariant);
+        timeLeft.setTextColor(c.onSurfaceVariant);
+        bubbleBg.setColor(c.onSurface);
+        bubble.setTextColor(c.surface);
+        controls.shuffle.setColors(0, c.onSurfaceVariant, c.secondaryContainer, c.onSecondaryContainer);
+        controls.repeat.setColors(0, c.onSurfaceVariant, c.secondaryContainer, c.onSecondaryContainer);
+        controls.repeat.setBadgeColors(c.primary, c.onPrimary);
+        controls.prev.setColors(c.primaryContainer, c.onPrimaryContainer, c.primaryContainer, c.onPrimaryContainer);
+        controls.next.setColors(c.primaryContainer, c.onPrimaryContainer, c.primaryContainer, c.onPrimaryContainer);
+        controls.play.setColors(c.primary, c.onPrimary, c.primary, c.onPrimary);
+        speedButton.setColors(c.surfaceHigh, c.onSurface, c.surfaceHigh, c.onSurface);
+        lyricsButton.setColors(c.surfaceHigh, c.onSurface, c.primary, c.onPrimary);
+        queueButton.setColors(c.surfaceHigh, c.onSurface, c.surfaceHigh, c.onSurface);
+        applySystemBars(false);
+    }
+
+    private void applySystemBars(boolean force) {
+        if (morphProgress >= 0f || closing) {
+            return;
+        }
+        boolean light = colors.lightStatusBar();
+        if (!force && lightBars != null && lightBars == light) {
+            return;
+        }
+        lightBars = light;
+        setBars(light, light);
+    }
+
+    private void setBars(boolean lightStatus, boolean lightNav) {
+        if (getWindow() != null) {
+            AndroidUtilities.setLightStatusBar(getWindow(), lightStatus);
+            AndroidUtilities.setLightNavigationBar(this, lightNav);
+        }
+        if (Build.VERSION.SDK_INT >= 26) {
+            AndroidUtilities.setLightStatusBar(container, lightStatus);
+            AndroidUtilities.setLightNavigationBar(container, lightNav);
+        }
+    }
+
+    private class PlayerLayout extends ViewGroup {
+
+        private int coverSize;
+        private int stageHeight;
+
+        PlayerLayout(Context context) {
+            super(context);
+            setClipChildren(false);
+            setClipToPadding(false);
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            int width = MeasureSpec.getSize(widthMeasureSpec);
+            int height = MeasureSpec.getSize(heightMeasureSpec);
+            int top = getStatusBarHeight();
+            int bottom = getBottomInset();
+            int side = dp(24);
+            int contentW = Math.max(0, width - side * 2);
+            int exactW = MeasureSpec.makeMeasureSpec(contentW, MeasureSpec.EXACTLY);
+            header.measure(MeasureSpec.makeMeasureSpec(contentW + dp(24), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(dp(56), MeasureSpec.EXACTLY));
+            seekBar.measure(exactW, MeasureSpec.makeMeasureSpec(dp(40), MeasureSpec.EXACTLY));
+            timeRow.measure(exactW, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            controls.measure(exactW, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            group.measure(exactW, MeasureSpec.makeMeasureSpec(dp(52), MeasureSpec.EXACTLY));
+            titleRow.measure(exactW, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            bubble.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            int fixed = dp(56) + dp(6) + dp(40) + timeRow.getMeasuredHeight() + dp(12) + controls.getMeasuredHeight() + dp(52) + dp(28) + dp(16);
+            int available = height - top - bottom - fixed;
+            int titleH = titleRow.getMeasuredHeight();
+            coverSize = Math.max(dp(96), Math.min(contentW, available - dp(16) - dp(26) - titleH));
+            stageHeight = dp(16) + coverSize + dp(26) + titleH;
+            int coverSpec = MeasureSpec.makeMeasureSpec(coverSize, MeasureSpec.EXACTLY);
+            cover.measure(coverSpec, coverSpec);
+            lyricsPanel.measure(exactW, MeasureSpec.makeMeasureSpec(stageHeight, MeasureSpec.EXACTLY));
+            setMeasuredDimension(width, height);
+        }
+
+        @Override
+        protected void onLayout(boolean changed, int l, int t, int r, int b) {
+            int width = r - l;
+            int height = b - t;
+            int top = getStatusBarHeight();
+            int bottom = getBottomInset();
+            int side = dp(24);
+            int contentW = Math.max(0, width - side * 2);
+            int y = top;
+            header.layout(side - dp(12), y, side - dp(12) + header.getMeasuredWidth(), y + dp(56));
+            y += dp(56);
+            int stageTop = y;
+            int coverLeft = (width - coverSize) / 2;
+            cover.layout(coverLeft, y + dp(16), coverLeft + coverSize, y + dp(16) + coverSize);
+            int titleTop = y + dp(16) + coverSize + dp(26);
+            titleRow.layout(side, titleTop, side + contentW, titleTop + titleRow.getMeasuredHeight());
+            lyricsPanel.layout(side, stageTop, side + contentW, stageTop + stageHeight);
+            y = stageTop + stageHeight + dp(6);
+            seekBar.layout(side, y, side + contentW, y + dp(40));
+            int bubbleTop = y - dp(36);
+            bubble.layout(side, bubbleTop, side + bubble.getMeasuredWidth(), bubbleTop + bubble.getMeasuredHeight());
+            y += dp(40);
+            timeRow.layout(side, y, side + contentW, y + timeRow.getMeasuredHeight());
+            y += timeRow.getMeasuredHeight() + dp(12);
+            controls.layout(side, y, side + contentW, y + controls.getMeasuredHeight());
+            int groupTop = height - bottom - dp(28) - dp(52);
+            group.layout(side, groupTop, side + contentW, groupTop + dp(52));
+            if (seeking) {
+                layoutBubble();
+            }
+        }
+    }
+}

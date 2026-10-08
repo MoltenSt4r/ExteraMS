@@ -68,6 +68,8 @@ public final class PluginSinkGate {
             "java.lang.Process",
             "app.exteraless.plugins.PluginPermissions",
             "app.exteraless.plugins.PluginTrustLevel",
+            "app.exteraless.plugins.PluginGrantStore",
+            "app.exteraless.plugins.SignedGrantPreferences",
             "app.exteraless.plugins.PluginSinkGate",
             "app.exteraless.plugins.PluginsWatchdog",
             "app.exteraless.plugins.PluginRuntime",
@@ -95,6 +97,8 @@ public final class PluginSinkGate {
             "dalvik.system.PathClassLoader",
             "dalvik.system.InMemoryDexClassLoader",
             "dalvik.system.BaseDexClassLoader",
+            "java.security.KeyStore",
+            "android.security.keystore.",
     };
 
     /** Классы, требующие разрешения network. */
@@ -138,6 +142,7 @@ public final class PluginSinkGate {
         ok += hookOverlayWindows();
         ok += hookClassResolution();
         ok += hookMessengerSinks();
+        ok += hookGrantStore();
         ok += hookPythonCallbacks();
         FileLog.d("PluginSinkGate: " + ok + " hooks installed");
     }
@@ -407,6 +412,58 @@ public final class PluginSinkGate {
         return count;
     }
 
+    private static int hookGrantStore() {
+        final Class<?> owner = classForName("android.app.ContextImpl");
+        if (owner == null) {
+            return 0;
+        }
+        XC_MethodHook hook = new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
+                if (param.args == null || param.args.length == 0) {
+                    return;
+                }
+                String settingsOwner = foreignSettingsOwner(param.args[0]);
+                if (!PluginGrantStore.isStore(param.args[0]) && settingsOwner == null) {
+                    return;
+                }
+                String pluginId = enterCheck();
+                if (pluginId == null) {
+                    return;
+                }
+                try {
+                    if (settingsOwner != null) {
+                        if (!settingsOwner.equals(pluginId)
+                                && !PluginPermissions.has(pluginId, PluginPermissions.HOOKS)) {
+                            deny(pluginId, owner.getName() + "." + param.method.getName(), "settings",
+                                    settingsOwner, "settings of other plugins are not available", param);
+                        }
+                    } else if (!PluginGrantStore.isOwnCall()) {
+                        deny(pluginId, owner.getName() + "." + param.method.getName(), "settings",
+                                String.valueOf(param.args[0]),
+                                "plugin permissions are not available to plugins", param);
+                    }
+                } finally {
+                    leaveCheck();
+                }
+            }
+        };
+        return hookAll(owner, "getSharedPreferences", hook)
+                + hookAll(owner, "deleteSharedPreferences", hook);
+    }
+
+    private static String foreignSettingsOwner(Object target) {
+        String name = target instanceof String ? (String) target
+                : target instanceof java.io.File ? ((java.io.File) target).getName() : null;
+        if (name == null || !name.startsWith(PluginsConstants.SETTINGS_PREFS_PREFIX)) {
+            return null;
+        }
+        if (name.endsWith(".xml")) {
+            name = name.substring(0, name.length() - 4);
+        }
+        return name.substring(PluginsConstants.SETTINGS_PREFS_PREFIX.length());
+    }
+
     /**
      * Конструкторы загрузчиков dex.
      *
@@ -496,10 +553,8 @@ public final class PluginSinkGate {
                 try {
                     final Object request = param.args == null || param.args.length == 0
                             ? null : param.args[0];
-                    final String name = request == null ? "" : request.getClass().getSimpleName();
-                    final boolean writes = isWritingRequest(name);
-                    final String permission = writes
-                            ? PluginPermissions.MESSAGES_SEND : PluginPermissions.MESSAGES_READ;
+                    final String name = requestName(request);
+                    final String permission = requestPermission(name);
                     if (PluginPermissions.check(pluginId, permission)) {
                         PluginAuditJournal.record(pluginId, "sendRequest", "messages", name, true);
                         return;
@@ -696,15 +751,71 @@ public final class PluginSinkGate {
     }
 
     /** Запрос меняет что-то на сервере, а не только читает. */
-    private static boolean isWritingRequest(String name) {
-        if (name == null) {
-            return false;
+    static String requestName(Object request) {
+        if (request == null) {
+            return "";
         }
-        String lower = name.toLowerCase(java.util.Locale.ROOT);
-        return lower.contains("send") || lower.contains("edit") || lower.contains("delete")
-                || lower.contains("forward") || lower.contains("set") || lower.contains("save")
-                || lower.contains("upload") || lower.contains("create") || lower.contains("join")
-                || lower.contains("leave") || lower.contains("invite") || lower.contains("report");
+        String name = request.getClass().getName();
+        name = name.substring(name.lastIndexOf('.') + 1).replace('$', '_');
+        return name.startsWith("TLRPC_") ? name.substring("TLRPC_".length()) : name;
+    }
+
+    private static final String[] ACCOUNT_NAMESPACES = {"TL_auth_", "TL_account_"};
+
+    private static final String[] PAYMENT_NAMESPACES = {"TL_payments_", "TL_stars_"};
+
+    private static final java.util.Set<String> SENSITIVE_ACCOUNT_READS = new java.util.HashSet<>(java.util.Arrays.asList(
+            "getAuthorizations", "getPassword", "getTmpPassword", "getAuthorizationForm",
+            "getWebAuthorizations", "getAllSecureValues", "getSecureValue", "getPasswordSettings"));
+
+    private static final java.util.Set<String> ROUTINE_ACCOUNT_WRITES = new java.util.HashSet<>(java.util.Arrays.asList(
+            "updateStatus", "updateNotifySettings", "updateDeviceLocked"));
+
+    private static final String[] READ_VERBS = {"get", "search", "check", "resolve", "read", "fetch"};
+
+    static String requestPermission(String name) {
+        String method = null;
+        String namespace = null;
+        for (String prefix : ACCOUNT_NAMESPACES) {
+            if (name.startsWith(prefix)) {
+                namespace = prefix;
+            }
+        }
+        if (namespace != null) {
+            method = name.substring(namespace.length());
+            if ("TL_auth_".equals(namespace)) {
+                return PluginPermissions.HOOKS;
+            }
+            if (ROUTINE_ACCOUNT_WRITES.contains(method)) {
+                return PluginPermissions.MESSAGES_SEND;
+            }
+            if (method.startsWith("get") && !SENSITIVE_ACCOUNT_READS.contains(method)) {
+                return PluginPermissions.MESSAGES_READ;
+            }
+            return PluginPermissions.HOOKS;
+        }
+        for (String prefix : PAYMENT_NAMESPACES) {
+            if (name.startsWith(prefix)) {
+                return isReadVerb(name.substring(prefix.length()))
+                        ? PluginPermissions.MESSAGES_READ : PluginPermissions.HOOKS;
+            }
+        }
+        if (name.endsWith("_acceptUrlAuth") || name.endsWith("_requestUrlAuth")
+                || name.endsWith("_editCreator")) {
+            return PluginPermissions.HOOKS;
+        }
+        int separator = name.indexOf('_', name.startsWith("TL_") ? 3 : 0);
+        String verb = separator < 0 ? name : name.substring(separator + 1);
+        return isReadVerb(verb) ? PluginPermissions.MESSAGES_READ : PluginPermissions.MESSAGES_SEND;
+    }
+
+    private static boolean isReadVerb(String method) {
+        for (String verb : READ_VERBS) {
+            if (method.startsWith(verb)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Class<?> classForName(String name) {
@@ -910,6 +1021,43 @@ public final class PluginSinkGate {
         } finally {
             leaveCheck();
         }
+    }
+
+    public static String callingPlugin() {
+        if (PluginRuntime.current() == null && !PluginRuntime.isPythonActive()) {
+            return null;
+        }
+        String pluginId = enterCheck();
+        if (pluginId != null) {
+            leaveCheck();
+        }
+        return pluginId;
+    }
+
+    public static boolean refuseForeign(String targetPluginId, String what) {
+        String pluginId = callingPlugin();
+        if (pluginId == null || pluginId.equals(targetPluginId)) {
+            return false;
+        }
+        if (PluginPermissions.has(pluginId, PluginPermissions.HOOKS)) {
+            return false;
+        }
+        PluginAuditJournal.record(pluginId, what, "engine", String.valueOf(targetPluginId), false);
+        FileLog.w("PluginSinkGate: refused " + what + " on " + targetPluginId + " from plugin " + pluginId);
+        return true;
+    }
+
+    public static boolean refuseFromPlugin(String what, boolean allowTrusted) {
+        String pluginId = callingPlugin();
+        if (pluginId == null) {
+            return false;
+        }
+        if (allowTrusted && PluginPermissions.has(pluginId, PluginPermissions.HOOKS)) {
+            return false;
+        }
+        PluginAuditJournal.record(pluginId, what, "engine", "", false);
+        FileLog.w("PluginSinkGate: refused " + what + " from plugin " + pluginId);
+        return true;
     }
 
     /** id плагина, если проверять надо; null — приложение или мы уже внутри проверки. */

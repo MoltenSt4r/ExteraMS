@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="OEChatsHideTimeOnStickers">隐藏贴纸上的时间</string>
+    <string name="OEChatsStickerTime">贴纸上的时间</string>
+    <string name="OEChatsStickerTimeSide">在侧边</string>
+    <string name="OEChatsStickerTimeHidden">隐藏</string>
     <string name="OEChatsReplies">回复</string>
     <string name="OEChatsReplyColors">背景颜色</string>
     <string name="OEChatsReplyEmoji">表情</string>
@@ -16,6 +18,7 @@
     <string name="OEChatsCameraTypeCamera2">Camera2</string>
     <string name="OEChatsCameraStabilization">防抖</string>
     <string name="OEChatsCameraTypeCameraX">CameraX</string>
+    <string name="OEChatsCameraTypeTelegram">Telegram（新版）</string>
     <string name="OEChatsCameraMirrorMode">镜像模式</string>
     <string name="OEChatsStartWithWideAngle">默认使用广角</string>
     <string name="OEChatsExtendedFps">扩展帧率范围</string>
@@ -26,7 +29,6 @@
     <string name="OEChatsPhoto">照片</string>
     <string name="OEChatsAlwaysSendInHD">始终以高清发送</string>
     <string name="OEChatsHideCameraTile">隐藏即时相机方块</string>
-    <string name="OEChatsHideCameraTileInfo">附件菜单中的相机方块将被隐藏。</string>
     <string name="OEChatsDoubleTapSeekDuration">双击快进时长</string>
     <string name="OEChatsPauseOnMinimize">自动暂停</string>
     <string name="OEChatsPauseOnMinimizeInfo">设备锁屏或应用退至后台时暂停媒体播放。</string>
@@ -36,7 +38,7 @@
     <string name="OEChatsStickersAndEmoji">贴纸与表情</string>
     <string name="OEChatsDoubleTap">双击</string>
     <string name="OEChatsMessages">消息</string>
-    <string name="OEChatsVideos">视频与媒体</string>
+    <string name="OEChatsVideos">视频</string>
     <string name="OEChatsUnlimited">无限制</string>
     <string name="OEChatsUnlimitedStickers">贴纸</string>
     <string name="OEChatsUnlimitedGifs">GIF</string>
@@ -57,7 +59,6 @@
     <string name="OEChatsHideReactionsChannels">频道</string>
     <string name="OEChatsHideReactionsGroups">群组</string>
     <string name="OEChatsHideReactionsPrivate">私聊</string>
-    <string name="OEChatsHideReactionsInfo">在所选对话类型中，界面上将不显示回应。</string>
     <string name="OEChatsQuickTransitions">快速滑动切换</string>
     <string name="OEChatsQuickTransitionChannels">频道</string>
     <string name="OEChatsQuickTransitionTopics">话题</string>
@@ -119,47 +120,19 @@
     <string name="OEChatsAskWhenCalling">拨打电话</string>
     <string name="OEChatsAskWhenRepeating">复读消息</string>
     <string name="OEChatsAskWhenBotCommands">发送机器人指令</string>
+    <string name="OEChatsStripTracking">移除链接中的跟踪参数</string>
+    <string name="OEChatsStripTrackingOnOpen">打开链接时</string>
+    <string name="OEChatsStripTrackingOnPaste">粘贴链接时</string>
+    <string name="OEChatsStripTrackingInfo">使用 AdGuard URL Tracking 过滤器移除链接中的 utm_source、fbclid 等跟踪参数。</string>
+    <string name="OEChatsTrackingFilter">跟踪过滤器</string>
+    <string name="OEChatsTrackingFilterValue">AdGuard，%1$s</string>
+    <string name="OEChatsTrackingFilterUpdate">更新过滤器</string>
+    <string name="OEChatsTrackingFilterRevert">使用内置过滤器</string>
+    <string name="OEChatsTrackingFilterUpdated">过滤器已更新</string>
+    <string name="OEChatsTrackingFilterLatest">过滤器已是最新</string>
+    <string name="OEChatsTrackingFilterFailed">无法更新过滤器</string>
     <string name="OEChatsHdrPhotos">HDR 照片</string>
     <string name="OEChatsHdrPhotosInfo">以完整亮度显示 HDR 照片。若照片发暗，请关闭。</string>
-    <!-- Text typing animations -->
-    <string name="OEChatsTextAnimation">输入文本动画</string>
-    <string name="OEChatsTextAnimationInfo">柔和显现、自上滑入、退格粒子爆炸与丝滑流动光标。</string>
-    <string name="OEChatsTextAnimationEnable">启用文本动画</string>
-    <string name="OEChatsTextAnimationDuration">显现时长</string>
-    <string name="OEChatsTextAnimationPreviewHint">在此输入以测试动画效果…</string>
-    <string name="OEChatsTextAnimationBlur">柔和显现（模糊）</string>
-    <string name="OEChatsTextAnimationBlurDuration">模糊时长</string>
-    <string name="OEChatsTextAnimationBlurRadius">模糊半径</string>
-    <string name="OEChatsTextAnimationBlurDelay">文字延迟</string>
-    <string name="OEChatsTextAnimationMotion">动效与缩放</string>
-    <string name="OEChatsTextAnimationSlide">自上滑入</string>
-    <string name="OEChatsTextAnimationSlideDist">滑入距离</string>
-    <string name="OEChatsTextAnimationScale">缩放出现</string>
-    <string name="OEChatsTextAnimationScaleStart">起始缩放</string>
-    <string name="OEChatsTextAnimationRotate">旋转</string>
-    <string name="OEChatsTextAnimationRotateAngle">旋转角度</string>
-    <string name="OEChatsTextAnimationParticles">退格删除粒子</string>
-    <string name="OEChatsTextAnimationParticlesStyle">粒子样式</string>
-    <string name="OEChatsTextAnimationParticlesDust">灰尘</string>
-    <string name="OEChatsTextAnimationParticlesSparks">火花</string>
-    <string name="OEChatsTextAnimationParticlesSnow">雪花</string>
-    <string name="OEChatsTextAnimationParticlesPetals">花瓣</string>
-    <string name="OEChatsTextAnimationParticlesLetters">字符</string>
-    <string name="OEChatsTextAnimationParticleCount">粒子数量</string>
-    <string name="OEChatsTextAnimationParticleSpeed">粒子速度</string>
-    <string name="OEChatsTextAnimationParticleSpread">粒子发散</string>
-    <string name="OEChatsTextAnimationParticleSize">粒子大小</string>
-    <string name="OEChatsTextAnimationCursor">光标</string>
-    <string name="OEChatsTextAnimationCursorFluid">平滑光标</string>
-    <string name="OEChatsTextAnimationCursorSpeed">光标速度</string>
-    <string name="OEChatsTextAnimationCursorWidth">光标宽度</string>
-    <string name="OEChatsTextAnimationLiquidCursor">液体拉伸光标</string>
-    <string name="OEChatsTextAnimationLiquidStretch">拉伸强度</string>
-    <string name="OEChatsTextAnimationIgnoreSpaces">忽略空格</string>
-    <string name="OEChatsTextAnimationAnimateAllLines">所有行均播放动画</string>
-    <string name="OEChatsTextAnimationReset">重置动画设置</string>
-    <string name="OEChatsTextAnimationResetConfirm">是否将所有文本动画设置恢复为默认值？</string>
-
     <string name="OEChatsTranslateInSheet">Telegram 翻译窗口</string>
     <string name="OEChatsTranslateInSheetInfo">点按翻译时打开官方客户端的翻译窗口，可切换翻译服务</string>
     <string name="OEChatsInlineMath">输入框内计算</string>
@@ -169,4 +142,14 @@
     <string name="OEChatsInlineMathAnnouncement">结果：%1$s</string>
     <string name="OELocalPremiumInfo">高级表情会以链接形式发送，exteraless 及其他支持此功能的客户端会将其显示为真正的表情。其他 Premium 功能仅在此设备上生效。</string>
     <string name="OELocalPremiumEmojiHint">你没有 **Telegram Premium**，因此此表情会以链接形式发送：只有 **exteraless** 及支持此功能的客户端用户能看到它。</string>
+    <string name="OEChatsSections">分区</string>
+    <string name="OEChatsMenus">菜单和按钮</string>
+    <string name="OEChatsMenusInfo">对话、消息和媒体查看器菜单</string>
+    <string name="OEChatsMedia">媒体和相机</string>
+    <string name="OEChatsMediaInfo">相机、照片、视频和语音消息</string>
+    <string name="OEChatsInputHeader">输入框</string>
+    <string name="OEChatsButtonsHeader">按钮</string>
+    <string name="OEChatsMenusHeader">菜单</string>
+    <string name="OEChatsPlaybackHeader">播放</string>
+    <string name="OEChatsVoiceHeader">语音消息</string>
 </resources>

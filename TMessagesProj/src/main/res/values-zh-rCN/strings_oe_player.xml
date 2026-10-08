@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="OEAppearanceMd3Player">音乐播放器</string>
+    <string name="OEAppearanceMd3MiniPlayer">迷你播放器</string>
+    <string name="OEPlayerFromChat">来自聊天</string>
+    <string name="OEPlayerFromProfile">来自个人资料</string>
+    <string name="OEPlayerFromSearch">来自搜索</string>
+    <string name="OEPlayerMusic">音乐</string>
+    <string name="OEPlayerLyrics">歌词</string>
+    <string name="OEPlayerQueue">接下来</string>
+    <string name="OEPlayerShuffle">随机播放</string>
+    <string name="OEPlayerSpeed">播放速度</string>
+    <string name="OEPlayerSeek">进度</string>
+    <string name="OEPlayerOpen">打开播放器</string>
+    <string name="OEPlayerClassic">经典播放器</string>
+    <string name="OEPlayerNoLyricsTitle">文件中没有歌词</string>
+    <string name="OEPlayerNoLyricsText">可以在 LRCLIB 和 lrcmux 上搜索歌词。曲目名称将发送到互联网。</string>
+    <string name="OEPlayerFindLyrics">在线搜索</string>
+    <string name="OEPlayerLyricsSearching">正在搜索歌词…</string>
+    <string name="OEPlayerLyricsNotFound">未找到歌词</string>
+    <string name="OEPlayerLyricsNotFoundText">没有任何提供方返回这首歌的歌词。</string>
+    <string name="OEPlayerLyricsError">无法加载歌词</string>
+    <string name="OEPlayerLyricsErrorText">请检查网络连接后重试。</string>
+    <string name="OEPlayerRetry">重试</string>
+    <string name="OEPlayerInstrumental">纯音乐</string>
+    <string name="OEPlayerInstrumentalText">这首歌没有歌词。</string>
+    <string name="OEPlayerSourceSynced">同步歌词 · %1$s</string>
+    <string name="OEPlayerSourcePlain">歌词 · %1$s</string>
+    <string name="OEPlayerSourceSyncedFile">文件中的同步歌词</string>
+    <string name="OEPlayerSourcePlainFile">文件中的歌词</string>
+    <string name="OEPlayerTracks_one">%1$d 首曲目</string>
+    <string name="OEPlayerTracks_two">%1$d 首曲目</string>
+    <string name="OEPlayerTracks_few">%1$d 首曲目</string>
+    <string name="OEPlayerTracks_many">%1$d 首曲目</string>
+    <string name="OEPlayerTracks_other">%1$d 首曲目</string>
+</resources>

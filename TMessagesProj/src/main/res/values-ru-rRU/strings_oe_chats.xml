@@ -194,4 +194,15 @@
     <string name="OEChatsInlineMathAnnouncement">Результат: %1$s</string>
     <string name="OELocalPremiumInfo">Премиум-эмодзи уходят ссылками, которые exteraless и поддерживающие это клиенты показывают как настоящие эмодзи. Остальные функции Premium работают только на этом устройстве.</string>
     <string name="OELocalPremiumEmojiHint">У вас нет **Telegram Premium**, поэтому эмодзи уйдёт ссылкой: увидят его только пользователи **exteraless** и клиентов, поддерживающих это.</string>
+    <string name="OEChatsStripTracking">Убирать трекинг из ссылок</string>
+    <string name="OEChatsStripTrackingOnOpen">При открытии ссылок</string>
+    <string name="OEChatsStripTrackingOnPaste">При вставке ссылок</string>
+    <string name="OEChatsStripTrackingInfo">Убирает из ссылок метки слежки вроде utm_source и fbclid по фильтру AdGuard URL Tracking.</string>
+    <string name="OEChatsTrackingFilter">Фильтр трекинга</string>
+    <string name="OEChatsTrackingFilterValue">AdGuard, %1$s</string>
+    <string name="OEChatsTrackingFilterUpdate">Обновить фильтр</string>
+    <string name="OEChatsTrackingFilterRevert">Вернуть встроенный фильтр</string>
+    <string name="OEChatsTrackingFilterUpdated">Фильтр обновлён</string>
+    <string name="OEChatsTrackingFilterLatest">Фильтр уже свежий</string>
+    <string name="OEChatsTrackingFilterFailed">Не удалось обновить фильтр</string>
 </resources>

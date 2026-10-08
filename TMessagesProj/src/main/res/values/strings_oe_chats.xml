@@ -197,4 +197,15 @@
     <string name="OEChatsInlineMathAnnouncement">Result: %1$s</string>
     <string name="OELocalPremiumInfo">Premium emoji are sent as links that exteraless and other clients that support this show as the real emoji. Other Premium features work only on this device.</string>
     <string name="OELocalPremiumEmojiHint">You don\'t have **Telegram Premium**, so this emoji is sent as a link: only users of **exteraless** and clients that support this will see it.</string>
+    <string name="OEChatsStripTracking">Remove tracking from links</string>
+    <string name="OEChatsStripTrackingOnOpen">When opening links</string>
+    <string name="OEChatsStripTrackingOnPaste">When pasting links</string>
+    <string name="OEChatsStripTrackingInfo">Removes tracking parameters such as utm_source and fbclid from links using the AdGuard URL Tracking filter.</string>
+    <string name="OEChatsTrackingFilter">Tracking filter</string>
+    <string name="OEChatsTrackingFilterValue">AdGuard, %1$s</string>
+    <string name="OEChatsTrackingFilterUpdate">Update filter</string>
+    <string name="OEChatsTrackingFilterRevert">Use built-in filter</string>
+    <string name="OEChatsTrackingFilterUpdated">Filter updated</string>
+    <string name="OEChatsTrackingFilterLatest">Filter is already up to date</string>
+    <string name="OEChatsTrackingFilterFailed">Couldn\'t update the filter</string>
 </resources>

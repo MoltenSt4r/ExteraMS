@@ -31,7 +31,7 @@ public class UnifiedPushService extends PushService {
     public static final String UP_GATEWAY_DEFAULT = "https://p2p.belloworld.it/"; // https://github.com/Mercurygram/Mercurygram?tab=readme-ov-file#unifiedpush-put-to-post-gateway
 
     private static final String DISTRIBUTOR_NTFY = "io.heckel.ntfy";
-    private static final String UP_FAILED = "__UNIFIEDPUSH_FAILED__";
+    static final String UP_FAILED = "__UNIFIEDPUSH_FAILED__";
 
     private static final int WAKELOCK_TIMEOUT_MS = 30_000;
 
