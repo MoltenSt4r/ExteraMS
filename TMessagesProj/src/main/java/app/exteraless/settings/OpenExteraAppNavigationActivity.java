@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import app.exteraless.appearance.AppearanceConfig;
 import app.exteraless.appearance.AvatarCornersSeekBar;
@@ -26,6 +27,7 @@ import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.Utilities;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
+import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.BulletinFactory;
@@ -38,6 +40,7 @@ import org.telegram.ui.MainTabsLayout;
 
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.config.ConfigItem;
+import tw.nekomimi.nekogram.helpers.SettingsHelper;
 import xyz.nextalone.nagram.NaConfig;
 
 /**
@@ -97,7 +100,7 @@ public class OpenExteraAppNavigationActivity extends BaseFragment {
         final FrameLayout contentView = new FrameLayout(context);
         contentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
 
-        listView = new UniversalRecyclerView(this, this::fillItems, this::onItemClick, null);
+        listView = new UniversalRecyclerView(this, this::fillItems, this::onItemClick, this::onItemLongClick);
         listView.setSections();
         listView.adapter.setApplyBackground(false);
         listView.allowReorder(true);
@@ -254,6 +257,65 @@ public class OpenExteraAppNavigationActivity extends BaseFragment {
     }
 
     // ---- обработка ----
+
+    private static final int[] LINK_IDS = {
+            ID_TABLET_MODE, ID_BACK_ANIMATION, ID_PREDICTIVE_INTENSITY, ID_BOTTOM_NAVIGATION_BAR,
+            ID_HIDE_TAB_TITLES, ID_HIDE_CONTACTS_TAB, ID_HIDE_CALLS_TAB, ID_HIDE_PROFILE_TAB,
+            ID_DRAWER, ID_IMMERSIVE
+    };
+    private static final String[] LINK_KEYS = {
+            "tabletMode", "backAnimation", "predictiveBackIntensity", "bottomNavigationBar",
+            "MainTabsHideTitles", "MainTabsHideContacts", "MainTabsHideCallsSettings", "MainTabsHideProfile",
+            "navigationDrawer", "immersiveDrawerAnimation"
+    };
+
+    private static String linkKey(int id) {
+        for (int i = 0; i < LINK_IDS.length; i++) {
+            if (LINK_IDS[i] == id) {
+                return LINK_KEYS[i];
+            }
+        }
+        return null;
+    }
+
+    private static int linkId(String key) {
+        for (int i = 0; i < LINK_KEYS.length; i++) {
+            if (LINK_KEYS[i].equals(key)) {
+                return LINK_IDS[i];
+            }
+        }
+        return 0;
+    }
+
+    private boolean onItemLongClick(UItem item, View view, int position, float x, float y) {
+        final String key = item == null ? null : linkKey(item.id);
+        if (key == null) {
+            return false;
+        }
+        showDialog(new AlertDialog.Builder(getContext(), getResourceProvider())
+                .setItems(new CharSequence[]{getString(R.string.CopyLink)}, (dialog, which) -> {
+                    AndroidUtilities.addToClipboard(String.format(Locale.US, "https://%s/%s?r=%s",
+                            getMessagesController().linkPrefix, SettingsHelper.linkPathFor("exteraless_navigation"), key));
+                    BulletinFactory.of(this).createCopyLinkBulletin().show();
+                })
+                .create());
+        return true;
+    }
+
+    public void scrollToRow(String key, Runnable unknown) {
+        final int id = linkId(key);
+        final int position = id == 0 || listView == null ? -1 : listView.findPositionByItemId(id);
+        if (position < 0) {
+            if (unknown != null) {
+                unknown.run();
+            }
+            return;
+        }
+        listView.highlightRow(() -> {
+            listView.layoutManager.scrollToPositionWithOffset(position, dp(60));
+            return position;
+        });
+    }
 
     private void onItemClick(UItem item, View view, int position, float x, float y) {
         final int id = item.id;

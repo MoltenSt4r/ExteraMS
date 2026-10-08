@@ -48,8 +48,12 @@ import org.telegram.ui.Components.SizeNotifierFrameLayout;
 import org.telegram.ui.Components.URLSpanNoUnderline;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 import tw.nekomimi.nekogram.ui.cells.AccountCell;
 import tw.nekomimi.nekogram.ui.cells.EmojiSetCell;
@@ -268,6 +272,9 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
     }
 
     public void scrollToRow(String key, Runnable unknown) {
+        if (!rowMap.containsKey(key) && expandGroupFor(key) && listAdapter != null) {
+            listAdapter.notifyDataSetChanged();
+        }
         if (rowMap.containsKey(key)) {
             listView.highlightRow(() -> {
                 // noinspection ConstantConditions
@@ -275,7 +282,7 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
                 layoutManager.scrollToPositionWithOffset(position, dp(60));
                 return position;
             });
-        } else {
+        } else if (unknown != null) {
             unknown.run();
         }
     }
@@ -283,6 +290,43 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
     protected void updateRows() {
         rowCount = 0;
         rowMap.clear();
+        rowMapReverse.clear();
+    }
+
+    protected static final class CollapsibleGroup {
+        private final BooleanSupplier expanded;
+        private final Consumer<Boolean> setExpanded;
+
+        public CollapsibleGroup(BooleanSupplier expanded, Consumer<Boolean> setExpanded) {
+            this.expanded = expanded;
+            this.setExpanded = setExpanded;
+        }
+    }
+
+    protected List<CollapsibleGroup> collapsibleGroups() {
+        return Collections.emptyList();
+    }
+
+    private boolean expandGroupFor(String key) {
+        for (CollapsibleGroup group : collapsibleGroups()) {
+            if (group.expanded.getAsBoolean()) {
+                continue;
+            }
+            group.setExpanded.accept(true);
+            updateRows();
+            if (rowMap.containsKey(key)) {
+                return true;
+            }
+            group.setExpanded.accept(false);
+        }
+        updateRows();
+        return false;
+    }
+
+    private final HashMap<Integer, String> searchRows = new HashMap<>();
+
+    public HashMap<Integer, String> getSearchRows() {
+        return searchRows;
     }
 
     public HashMap<Integer, String> getRowMapReverse() {
@@ -290,6 +334,18 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
     }
 
     public void buildRowsForSearch() {
+        List<CollapsibleGroup> groups = collapsibleGroups();
+        boolean[] was = new boolean[groups.size()];
+        for (int i = 0; i < groups.size(); i++) {
+            was[i] = groups.get(i).expanded.getAsBoolean();
+            groups.get(i).setExpanded.accept(true);
+        }
+        updateRows();
+        searchRows.clear();
+        searchRows.putAll(rowMapReverse);
+        for (int i = 0; i < groups.size(); i++) {
+            groups.get(i).setExpanded.accept(was[i]);
+        }
         updateRows();
     }
 

@@ -51,6 +51,9 @@ import tw.nekomimi.nekogram.settings.NekoEmojiSettingsActivity;
 import tw.nekomimi.nekogram.ui.cells.HeaderCell;
 import xyz.nextalone.nagram.NaConfig;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Экран «Оформление» раздела openExtera — визуальный порт AppearancePreferencesActivity
  * из exteraGram. Живые превью (аватарки, список чатов, папки) портированы 1:1 из
@@ -171,6 +174,15 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
     public OpenExteraAppearanceActivity() {
         super();
         AppearanceConfig.init();
+    }
+
+    @Override
+    protected List<CollapsibleGroup> collapsibleGroups() {
+        return Arrays.asList(
+                new CollapsibleGroup(() -> md3Expanded, expanded -> md3Expanded = expanded),
+                new CollapsibleGroup(() -> iosExpanded, expanded -> iosExpanded = expanded),
+                new CollapsibleGroup(() -> hideAiExpanded, expanded -> hideAiExpanded = expanded),
+                new CollapsibleGroup(() -> hideSettingsExpanded, expanded -> hideSettingsExpanded = expanded));
     }
 
     @Override
