@@ -45,6 +45,7 @@ import java.io.IOException;
 import tw.nekomimi.nekogram.helpers.AppRestartHelper;
 import tw.nekomimi.nekogram.settings.NekoExperimentalSettingsActivity;
 import tw.nekomimi.nekogram.utils.AndroidUtil;
+import tw.nekomimi.nekogram.utils.ShareUtil;
 
 public class AyuData {
     private static final String IMPORT_DATABASE = AyuConstants.AYU_DATABASE + "-import";
@@ -186,6 +187,43 @@ public class AyuData {
         lastSeenDao = null;
         spyDao = null;
         deletedDialogDao = null;
+    }
+
+    public static void exportAyuDatabase(BaseFragment fragment) {
+        if (fragment.getParentActivity() == null) {
+            return;
+        }
+        AlertDialog progressDialog = new AlertDialog(fragment.getParentActivity(), AlertDialog.ALERT_TYPE_SPINNER, fragment.getResourceProvider());
+        progressDialog.setCanCancel(false);
+        progressDialog.show();
+        Utilities.globalQueue.postRunnable(() -> {
+            try {
+                File dbFile = ApplicationLoader.applicationContext.getDatabasePath(AyuConstants.AYU_DATABASE);
+                File exportFile = new File(AndroidUtilities.getCacheDir(), AyuConstants.AYU_DATABASE_EXPORT);
+                checkpointDatabase();
+                if (!AndroidUtilities.copyFile(dbFile, exportFile)) {
+                    if (!exportFile.delete()) {
+                        exportFile.deleteOnExit();
+                    }
+                    throw new IOException("Failed to copy Ayu database");
+                }
+                AndroidUtilities.runOnUIThread(() -> {
+                    progressDialog.dismiss();
+                    Context activity = fragment.getParentActivity();
+                    if (activity != null) {
+                        ShareUtil.shareFile(activity, exportFile);
+                    }
+                });
+            } catch (Exception e) {
+                FileLog.e(e);
+                AndroidUtilities.runOnUIThread(() -> {
+                    progressDialog.dismiss();
+                    if (fragment.getParentActivity() != null) {
+                        BulletinFactory.of(fragment).createSimpleBulletin(R.raw.error, getString(R.string.ErrorOccurred)).show();
+                    }
+                });
+            }
+        });
     }
 
     public static void importAyuDatabase(BaseFragment fragment, File importFile) {

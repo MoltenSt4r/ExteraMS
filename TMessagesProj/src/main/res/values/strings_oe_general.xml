@@ -164,4 +164,25 @@
     <string name="OEAyuForwardLoadingMedia">Loading media</string>
     <string name="OEAyuForwardLoadingCount">Files: %1$d of %2$d</string>
     <string name="OEAyuForwardLoadFailed">Couldn\'t load media for forwarding</string>
+    <string name="OEUpdateAvailable">Update available: %1$s</string>
+    <string name="OEUpdateInstall">Update</string>
+    <string name="OEUpdateInstallSize">Update (%1$s)</string>
+    <string name="OEUpdateLater">Later</string>
+    <string name="OEUpdateSkip">Skip this version</string>
+    <string name="OEUpdateDownloading">Downloading update</string>
+    <string name="OEUpdateDownloadFailed">Could not download the update</string>
+    <string name="OEUpdateCheckFailed">Could not check for updates</string>
+    <string name="OEUserLookupTitle">Starting @usinfobot</string>
+    <string name="OEUserLookupStart">Finding a user by ID requires **@usinfobot**. It only works once started, so we\'ll send it /start. A chat with it will appear in your chat list.</string>
+    <string name="OEUserLookupStartButton">Start</string>
+    <string name="OEUserLookupNotFound">User %1$d not found</string>
+    <string name="OEUpdateTitle">Update available</string>
+    <string name="OEUpdateDownloadProgress">%1$s of %2$s</string>
+    <string name="OEAyuSaveInArchived">Save in archived chats</string>
+    <string name="OEAyuSaveInArchivedInfo">Deleted and edited messages from chats in the archive are saved too.</string>
+    <string name="OEAyuDatabaseExport">Export database</string>
+    <string name="OEAyuDatabaseImport">Import database</string>
+    <string name="OEAyuDatabaseImportInfo">Deleted and edited messages from this file will be added to the ones already saved. Exports from exteraless and AyuGram are supported. Media from another app may be unavailable.</string>
+    <string name="OEAyuDatabaseImportDone">Messages added: %1$d</string>
+    <string name="OEAyuDatabaseImportFailed">Couldn\'t import this file</string>
 </resources>

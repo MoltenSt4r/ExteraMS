@@ -44724,6 +44724,8 @@ public class ChatActivity extends BaseFragment implements
                             getString(R.string.ImportAyuDBAlert),
                             R.drawable.msg_photo_settings_solar, getString(R.string.Import), true,
                             () -> AyuData.importAyuDatabase(ChatActivity.this, finalLocFile));
+                } else if (app.exteraless.backup.AyuDatabaseImport.isAyuGramExport(message.getDocumentName())) {
+                    app.exteraless.backup.AyuDatabaseImport.confirm(ChatActivity.this, locFile);
                 } else if (app.exteraless.icons.IconPackManager.isIconPack(message)) {
                     // openExtera: иконпак, присланный файлом в чат
                     app.exteraless.icons.IconPackManager.getInstance()

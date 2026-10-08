@@ -1467,6 +1467,12 @@ object NaConfig {
             ConfigItem.configTypeBool,
             true
         )
+    val saveInArchivedChats =
+        addConfig(
+            "SaveInArchivedChats",
+            ConfigItem.configTypeBool,
+            true
+        )
     val mainTabsHideCallsSettings =
         addConfig(
             "MainTabsHideCallsSettings",

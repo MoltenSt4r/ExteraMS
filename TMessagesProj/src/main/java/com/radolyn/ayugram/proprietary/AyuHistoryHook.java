@@ -216,7 +216,7 @@ public abstract class AyuHistoryHook {
         }
     }
 
-    private static TLRPC.TL_message map(DeletedMessageFull deletedMessageFull, int accountId) {
+    public static TLRPC.TL_message map(DeletedMessageFull deletedMessageFull, int accountId) {
         TLRPC.Reaction reaction;
         TLRPC.TL_message tlMessage = new TLRPC.TL_message();
         AyuMessageUtils.map(deletedMessageFull.message, tlMessage, accountId);
@@ -255,7 +255,7 @@ public abstract class AyuHistoryHook {
         return messageObj;
     }
 
-    private static boolean hasContent(DeletedMessageFull messageFull) {
+    public static boolean hasContent(DeletedMessageFull messageFull) {
         return messageFull != null && messageFull.message != null && (!TextUtils.isEmpty(messageFull.message.text) || !TextUtils.isEmpty(messageFull.message.mediaPath) || messageFull.message.documentSerialized != null);
     }
 }

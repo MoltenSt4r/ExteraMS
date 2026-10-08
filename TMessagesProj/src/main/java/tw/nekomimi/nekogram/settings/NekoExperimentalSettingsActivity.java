@@ -579,36 +579,7 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
     }
 
     private void exportAyuDB() {
-        if (getParentActivity() == null) return;
-        AlertDialog progressDialog = new AlertDialog(getParentActivity(), AlertDialog.ALERT_TYPE_SPINNER);
-        progressDialog.setCanCancel(false);
-        progressDialog.show();
-        Utilities.globalQueue.postRunnable(() -> {
-            try {
-                File dbFile = ApplicationLoader.applicationContext.getDatabasePath(AyuConstants.AYU_DATABASE);
-                File exportFile = new File(AndroidUtilities.getCacheDir(), AyuConstants.AYU_DATABASE_EXPORT);
-                AyuData.checkpointDatabase();
-                if (!AndroidUtilities.copyFile(dbFile, exportFile)) {
-                    if (!exportFile.delete()) exportFile.deleteOnExit();
-                    throw new IOException("Failed to copy Ayu database");
-                }
-                AndroidUtilities.runOnUIThread(() -> {
-                    Context parentActivity = getParentActivity();
-                    progressDialog.dismiss();
-                    if (parentActivity != null) {
-                        ShareUtil.shareFile(parentActivity, exportFile);
-                    }
-                });
-            } catch (Exception e) {
-                FileLog.e(e);
-                AndroidUtilities.runOnUIThread(() -> {
-                    progressDialog.dismiss();
-                    if (getParentActivity() != null) {
-                        BulletinFactory.of(this).createSimpleBulletin(R.raw.error, getString(R.string.ErrorOccurred)).show();
-                    }
-                });
-            }
-        });
+        AyuData.exportAyuDatabase(this);
     }
 
     private void checkStoriesRows() {

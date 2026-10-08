@@ -10306,7 +10306,13 @@ public class MessagesController extends BaseController implements NotificationCe
 
     protected void deleteDialog(long did, int first, int onlyHistory, int max_id, boolean revoke, TLRPC.InputPeer peer, long taskId) {
         if (onlyHistory == 3 && NaConfig.INSTANCE.getEnableSaveDeletedMessages().Bool()) {
+            if (first == 1) {
+                com.radolyn.ayugram.messages.AyuDeletedDialogs.onDialogEmptied(currentAccount, did);
+            }
             return;
+        }
+        if (first == 1 && (onlyHistory == 0 || onlyHistory == 1)) {
+            com.radolyn.ayugram.messages.AyuDeletedDialogs.forget(currentAccount, did);
         }
         if (onlyHistory == 2) {
             if (did == getUserConfig().getClientUserId()) {
@@ -14057,6 +14063,9 @@ public class MessagesController extends BaseController implements NotificationCe
                     reloadDialogsReadValue(dialogsToReload, 0);
                 }
                 loadUnreadDialogs();
+                if (loadType == DIALOGS_LOAD_TYPE_CACHE && folderId == 0) {
+                    com.radolyn.ayugram.messages.AyuDeletedDialogs.restore(currentAccount);
+                }
                 if (dialogsRes.dialogs != null) {
                     for (int i = 0; i < dialogsRes.dialogs.size(); i++) {
                         final long dialogId = dialogsRes.dialogs.get(i).id;

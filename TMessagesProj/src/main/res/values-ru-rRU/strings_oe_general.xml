@@ -161,4 +161,25 @@
     <string name="OEAyuForwardLoadingMedia">Загрузка медиа</string>
     <string name="OEAyuForwardLoadingCount">Файлов: %1$d из %2$d</string>
     <string name="OEAyuForwardLoadFailed">Не удалось загрузить медиа для пересылки</string>
+    <string name="OEUpdateAvailable">Доступно обновление: %1$s</string>
+    <string name="OEUpdateInstall">Обновить</string>
+    <string name="OEUpdateInstallSize">Обновить (%1$s)</string>
+    <string name="OEUpdateLater">Позже</string>
+    <string name="OEUpdateSkip">Пропустить версию</string>
+    <string name="OEUpdateDownloading">Загрузка обновления</string>
+    <string name="OEUpdateDownloadFailed">Не удалось скачать обновление</string>
+    <string name="OEUpdateCheckFailed">Не удалось проверить обновления</string>
+    <string name="OEUserLookupTitle">Запуск @usinfobot</string>
+    <string name="OEUserLookupStart">Чтобы найти пользователя по ID, нужен бот **@usinfobot**. Он работает только после запуска, поэтому мы отправим ему /start. В списке чатов появится чат с ним.</string>
+    <string name="OEUserLookupStartButton">Запустить</string>
+    <string name="OEUserLookupNotFound">Пользователь %1$d не найден</string>
+    <string name="OEUpdateTitle">Доступно обновление</string>
+    <string name="OEUpdateDownloadProgress">%1$s из %2$s</string>
+    <string name="OEAyuSaveInArchived">Сохранять в архивных чатах</string>
+    <string name="OEAyuSaveInArchivedInfo">Удалённые и изменённые сообщения из чатов в архиве тоже сохраняются.</string>
+    <string name="OEAyuDatabaseExport">Экспорт базы</string>
+    <string name="OEAyuDatabaseImport">Импорт базы</string>
+    <string name="OEAyuDatabaseImportInfo">Удалённые и изменённые сообщения из файла добавятся к уже сохранённым. Подходят выгрузки exteraless и AyuGram. Медиа из другого приложения могут не открыться.</string>
+    <string name="OEAyuDatabaseImportDone">Добавлено сообщений: %1$d</string>
+    <string name="OEAyuDatabaseImportFailed">Не удалось импортировать файл</string>
 </resources>

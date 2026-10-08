@@ -84,7 +84,7 @@ public class AyuSavePreferences {
             return false;
         }
 
-        if (!saveDeletedForDialogKind(accountId, dialogId)) {
+        if (!saveDeletedForDialogKind(accountId, dialogId) || !saveInDialogFolder(accountId, dialogId)) {
             return false;
         }
 
@@ -132,6 +132,18 @@ public class AyuSavePreferences {
         return ChatObject.isChannelAndNotMegaGroup(chat)
                 ? NaConfig.INSTANCE.getSaveDeletedInChannels().Bool()
                 : NaConfig.INSTANCE.getSaveDeletedInGroups().Bool();
+    }
+
+    public static boolean saveInDialogFolder(int accountId, long dialogId) {
+        if (NaConfig.INSTANCE.getSaveInArchivedChats().Bool()) {
+            return true;
+        }
+        try {
+            TLRPC.Dialog dialog = MessagesController.getInstance(accountId).dialogs_dict.get(dialogId);
+            return dialog == null || dialog.folder_id != 1;
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     public static void setSaveDeletedExclusion(long chatId, boolean value) {

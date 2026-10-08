@@ -2,7 +2,9 @@ package app.exteraless.settings;
 
 import static org.telegram.messenger.LocaleController.getString;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +37,7 @@ import org.telegram.ui.Components.RecyclerListView;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import app.exteraless.backup.AyuDatabaseImport;
 import app.exteraless.drawer.MainMenuItem;
 import app.exteraless.drawer.MainMenuLayout;
 import app.exteraless.pillstack.PillStackConfig;
@@ -52,6 +55,7 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
     private static final int TYPE_EXPANDABLE_SWITCH = 104;
     private static final int TYPE_ROUND_CHECK = 105;
     private static final int SAVE_MEDIA_TOTAL = 5;
+    private static final int DATABASE_IMPORT_REQUEST_CODE = 41;
 
     /** Булевы функции секции; режим призрака гасится отдельно — он не один ConfigItem. */
     private static final ConfigItem[] AYU_FEATURE_CONFIGS = {
@@ -77,6 +81,7 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
     private int saveReadDateRow;
     private int saveDeletedRow;
     private int saveEditsRow;
+    private int saveInArchivedRow;
     private int saveMediaRow;
     private int saveMediaPrivateChatsRow;
     private int saveMediaPublicChannelsRow;
@@ -94,6 +99,8 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
     private int deletedIconRow;
     private int deletedMarkRow;
     private int forwardProtectedRow;
+    private int exportDbRow;
+    private int importDbRow;
     private int disableAllRow;
     private int clearDbRow;
     private int dividerRow;
@@ -125,6 +132,7 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
         replyToDeletedRow = deletedIconRow = deletedMarkRow = -1;
         saveMediaPrivateChatsRow = saveMediaPublicChannelsRow = saveMediaPrivateChannelsRow = -1;
         saveMediaPublicGroupsRow = saveMediaPrivateGroupsRow = -1;
+        saveInArchivedRow = addRow("saveInArchived");
         // Подчинённые строки живут только при включённом сохранении удалённых —
         // тот же порядок, что у NekoExperimentalSettingsActivity.checkSaveDeletedRows.
         if (NaConfig.INSTANCE.getEnableSaveDeletedMessages().Bool()) {
@@ -151,6 +159,8 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
             }
         }
         forwardProtectedRow = addRow(NaConfig.INSTANCE.getForwardProtectedAsCopy().getKey());
+        exportDbRow = addRow("databaseExport");
+        importDbRow = addRow("databaseImport");
         disableAllRow = addRow("ayuDisableAll");
         clearDbRow = addRow("ayuClearDatabase");
         dividerRow = addRow();
@@ -210,6 +220,8 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
             toggleAyuConfig(view, NaConfig.INSTANCE.getEnableSaveDeletedMessages(), true);
         } else if (position == saveEditsRow) {
             toggleAyuConfig(view, NaConfig.INSTANCE.getEnableSaveEditsHistory(), false);
+        } else if (position == saveInArchivedRow) {
+            toggleAyuConfig(view, NaConfig.INSTANCE.getSaveInArchivedChats(), false);
         } else if (position == saveMediaRow) {
             saveMediaExpanded = !saveMediaExpanded;
             rebuildRowsAndNotify();
@@ -243,6 +255,10 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
             showDeletedMarkDialog();
         } else if (position == forwardProtectedRow) {
             toggleAyuConfig(view, NaConfig.INSTANCE.getForwardProtectedAsCopy(), false);
+        } else if (position == exportDbRow) {
+            AyuData.exportAyuDatabase(this);
+        } else if (position == importDbRow) {
+            openDatabasePicker();
         } else if (position == disableAllRow) {
             showDisableAllDialog();
         } else if (position == clearDbRow) {
@@ -267,6 +283,28 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
                 hidden.add(ghostId);
             }
             MainMenuLayout.save(layout, hidden);
+        }
+    }
+
+    private void openDatabasePicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        try {
+            startActivityForResult(intent, DATABASE_IMPORT_REQUEST_CODE);
+        } catch (Exception e) {
+            BulletinFactory.of(this).createSimpleBulletin(R.raw.error, getString(R.string.ErrorOccurred)).show();
+        }
+    }
+
+    @Override
+    public void onActivityResultFragment(int requestCode, int resultCode, Intent data) {
+        if (requestCode != DATABASE_IMPORT_REQUEST_CODE) {
+            super.onActivityResultFragment(requestCode, resultCode, data);
+            return;
+        }
+        if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            AyuDatabaseImport.importFromUri(this, data.getData());
         }
     }
 
@@ -564,6 +602,11 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
                         bindAyuCheck(cell, NaConfig.INSTANCE.getEnableSaveDeletedMessages(), true);
                     } else if (position == saveEditsRow) {
                         bindAyuCheck(cell, NaConfig.INSTANCE.getEnableSaveEditsHistory(), true);
+                    } else if (position == saveInArchivedRow) {
+                        cell.setTextAndValueAndCheck(
+                                getString(R.string.OEAyuSaveInArchived),
+                                getString(R.string.OEAyuSaveInArchivedInfo),
+                                NaConfig.INSTANCE.getSaveInArchivedChats().Bool(), true, true);
                     } else if (position == botUserRow) {
                         bindAyuCheck(cell, NaConfig.INSTANCE.getSaveDeletedMessageForBotUser(), true);
                     } else if (position == botChatRow) {
@@ -596,6 +639,12 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
                     if (position == ghostRow) {
                         cell.setColors(Theme.key_windowBackgroundWhiteGrayIcon, Theme.key_windowBackgroundWhiteBlackText);
                         cell.setTextAndIcon(getString(R.string.GhostMode), R.drawable.ayu_ghost, true);
+                    } else if (position == exportDbRow) {
+                        cell.setColors(Theme.key_windowBackgroundWhiteGrayIcon, Theme.key_windowBackgroundWhiteBlackText);
+                        cell.setTextAndIcon(getString(R.string.OEAyuDatabaseExport), R.drawable.msg_share, true);
+                    } else if (position == importDbRow) {
+                        cell.setColors(Theme.key_windowBackgroundWhiteGrayIcon, Theme.key_windowBackgroundWhiteBlackText);
+                        cell.setTextAndIcon(getString(R.string.OEAyuDatabaseImport), R.drawable.msg_download, false);
                     } else if (position == disableAllRow) {
                         cell.setColors(Theme.key_text_RedRegular, Theme.key_text_RedBold);
                         cell.setTextAndIcon(getString(R.string.OEGeneralAyuMomentsDisableAll), R.drawable.msg_block, true);
@@ -633,7 +682,8 @@ public class OpenExteraAyuMomentsActivity extends BaseNekoSettingsActivity {
                 return TYPE_HEADER;
             } else if (position == dividerRow) {
                 return TYPE_INFO_PRIVACY;
-            } else if (position == ghostRow || position == disableAllRow) {
+            } else if (position == ghostRow || position == disableAllRow
+                    || position == exportDbRow || position == importDbRow) {
                 return TYPE_TEXT;
             } else if (position == deletedMarkRow || position == clearDbRow) {
                 return TYPE_SETTINGS;
