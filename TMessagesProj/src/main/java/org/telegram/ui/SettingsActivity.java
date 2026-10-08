@@ -1,5 +1,7 @@
 package org.telegram.ui;
 
+import tw.nekomimi.nekogram.utils.ShareUtil;
+import app.exteraless.debug.PluginToggleTrace;
 import app.exteraless.settings.OpenExteraSettingsActivity;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
@@ -1591,7 +1593,20 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             presentFragment(new app.exteraless.settings.OpenExteraUpdatesActivity());
             return Unit.INSTANCE;
         });
+        if (PluginToggleTrace.getLog() != null) {
+            builder.addItem(getString(R.string.OEPluginToggleLogShare), R.drawable.msg_share, (it) -> {
+                shareProfilerReport(getParentActivity(), PluginToggleTrace.getLog());
+                return Unit.INSTANCE;
+            });
+        }
         builder.show();
+    }
+
+    private static void shareProfilerReport(android.app.Activity activity, java.io.File file) {
+        if (activity == null || activity.isFinishing() || file == null || !file.exists()) {
+            return;
+        }
+        ShareUtil.shareFile(activity, file);
     }
 
     public void openDebugMenu() {

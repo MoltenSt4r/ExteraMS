@@ -206,4 +206,6 @@
     <string name="PluginOverlayTitle">Поверх других приложений</string>
     <string name="PluginOverlayText">%1$s хочет показать окно поверх других приложений. Разрешите это в настройках системы и попробуйте снова.</string>
     <string name="PluginOverlayOpen">Открыть настройки</string>
+    <string name="PluginsSafeModeEnabledNow">Безопасный режим включён, все плагины выключены.</string>
+    <string name="PluginsSafeModeDisabledNow">Безопасный режим выключен, плагины загружаются.</string>
 </resources>

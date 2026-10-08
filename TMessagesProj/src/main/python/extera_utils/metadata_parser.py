@@ -55,6 +55,49 @@ def _file_key(path: str):
     return (st.st_size, st.st_mtime_ns)
 
 
+_DISK_CACHE_VERSION = 1
+
+
+def _disk_cache_path(path: str) -> str:
+    head, tail = os.path.split(path)
+    return os.path.join(head, "__pycache__", tail.rpartition(".")[0] + ".meta.json")
+
+
+def _load_disk_cache(path: str, key):
+    if key is None:
+        return None
+    try:
+        with open(_disk_cache_path(path), "r", encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(data, dict) or data.get("v") != _DISK_CACHE_VERSION \
+            or data.get("size") != key[0] or data.get("mtime_ns") != key[1] \
+            or not isinstance(data.get("meta"), dict) or not isinstance(data.get("roots"), list):
+        return None
+    return data["meta"], data["roots"]
+
+
+def _store_disk_cache(path: str, key, meta, roots) -> None:
+    if key is None or sys.dont_write_bytecode:
+        return
+    target = _disk_cache_path(path)
+    tmp = f"{target}.{os.getpid()}.tmp"
+    try:
+        if json.loads(json.dumps(meta)) != meta:
+            return
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(tmp, "w", encoding="utf-8") as handle:
+            json.dump({"v": _DISK_CACHE_VERSION, "size": key[0], "mtime_ns": key[1],
+                       "meta": meta, "roots": list(roots)}, handle, ensure_ascii=False)
+        os.replace(tmp, target)
+    except Exception:
+        try:
+            os.remove(tmp)
+        except Exception:
+            pass
+
+
 def top_level_import_roots(nodes):
     for node in nodes:
         if isinstance(node, ast.Import):
@@ -197,7 +240,15 @@ def read_metadata(path: str) -> Dict[str, Any]:
     cached = _metadata_cache.get(path)
     if key is not None and cached is not None and cached[0] == key:
         return copy.deepcopy(cached[1])
-    meta = _read_metadata_uncached(path)
+    stored = _load_disk_cache(path, key)
+    if stored is not None:
+        meta, roots = stored
+        _roots_cache[path] = (key, tuple(roots))
+    else:
+        meta = _read_metadata_uncached(path)
+        roots_entry = _roots_cache.get(path)
+        if roots_entry is not None and roots_entry[0] == key:
+            _store_disk_cache(path, key, meta, roots_entry[1])
     if key is not None:
         _metadata_cache[path] = (key, copy.deepcopy(meta))
     return meta

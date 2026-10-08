@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import app.exteraless.debug.PluginToggleTrace;
+
 /**
  * Python-рантайм движка плагинов (Chaquopy, CPython 3.12).
  * Упрощённый аналог PythonPluginsEngine.java exteraGram (3097 строк): без pip,
@@ -94,6 +96,13 @@ public class PythonPluginsEngine extends com.exteragram.messenger.plugins.Python
         } catch (Throwable t) {
             return null;
         }
+    }
+
+    public String debugPythonStacks() {
+        if (!started || loader == null) {
+            return null;
+        }
+        return loader.callAttr("debug_python_stacks").toJava(String.class);
     }
 
     public interface StartCallback {
@@ -237,8 +246,15 @@ public class PythonPluginsEngine extends com.exteragram.messenger.plugins.Python
         PluginsWatchdog watchdog = PluginsController.getInstance().getWatchdog();
         // Загрузка — единственный заход, который пишется в маркер сразу.
         watchdog.notePluginEnter(plugin.id, true);
+        final PluginToggleTrace trace = PluginToggleTrace.current();
         try {
+            if (trace != null) {
+                trace.beforePython();
+            }
             String result = loader.callAttr("load_plugin", plugin.path, plugin.id).toJava(String.class);
+            if (trace != null) {
+                trace.afterPython(result);
+            }
             watchdog.notePluginExit(plugin.id);
             rememberInstance(plugin.id);
             return result;
@@ -313,8 +329,15 @@ public class PythonPluginsEngine extends com.exteragram.messenger.plugins.Python
         }
         PluginsWatchdog watchdog = PluginsController.getInstance().getWatchdog();
         watchdog.notePluginEnter(plugin.id);
+        final PluginToggleTrace trace = PluginToggleTrace.current();
         try {
-            loader.callAttr("unload_plugin", plugin.id);
+            if (trace != null) {
+                trace.beforePython();
+            }
+            PyObject result = loader.callAttr("unload_plugin", plugin.id);
+            if (trace != null) {
+                trace.afterPython(result == null ? null : result.toString());
+            }
         } catch (Throwable t) {
             FileLog.e("PluginsEngine: unload failed for " + plugin.id, t);
         } finally {

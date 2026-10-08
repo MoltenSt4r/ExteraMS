@@ -197,4 +197,6 @@
     <string name="PluginOverlayTitle">在其他应用上层显示</string>
     <string name="PluginOverlayText">%1$s 想在其他应用上层显示窗口。请在系统设置中允许后重试。</string>
     <string name="PluginOverlayOpen">打开设置</string>
+    <string name="PluginsSafeModeEnabledNow">安全模式已开启，所有插件已停用。</string>
+    <string name="PluginsSafeModeDisabledNow">安全模式已关闭，正在加载插件。</string>
 </resources>

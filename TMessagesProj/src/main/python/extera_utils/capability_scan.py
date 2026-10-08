@@ -109,6 +109,10 @@ _MARKERS = (
     ("joverride", PERM_HOOKS, "class proxy"),
     ("allocate_instance", PERM_HOOKS, "class proxy"),
     ("deoptimize", PERM_HOOKS, "deoptimize"),
+    ("TYPE_APPLICATION_OVERLAY", PERM_HOOKS, "overlay window"),
+    ("TYPE_SYSTEM_ALERT", PERM_HOOKS, "overlay window"),
+    ("TYPE_SYSTEM_OVERLAY", PERM_HOOKS, "overlay window"),
+    ("LayoutParams.TYPE_PHONE", PERM_HOOKS, "overlay window"),
     # ---- нативный код ----
     ("import ctypes", PERM_NATIVE, "ctypes"),
     ("ctypes.CDLL", PERM_NATIVE, "ctypes"),

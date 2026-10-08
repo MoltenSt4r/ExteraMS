@@ -37,6 +37,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import app.exteraless.debug.PluginToggleTrace;
+
 /**
  * Реестр и фасад движка плагинов. Аналог PluginsController.java exteraGram (1842 строки),
  * упрощённо: без диалогов установки из чата, без pip, без автообновлений SDK.
@@ -740,16 +742,32 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
             return loadPluginInternal(p);
         } else if (!enabled && p.loaded) {
             unregisterPluginHooks(id);
+            final PluginToggleTrace trace = PluginToggleTrace.current();
+            if (trace != null) {
+                trace.mark("hooks removed");
+            }
             PythonPluginsEngine.getInstance().unload(p);
         }
         return true;
     }
 
     public void setPluginEnabled(String id, boolean enabled, Utilities.Callback<String> callback) {
+        final PluginToggleTrace trace = PluginToggleTrace.start(id, enabled);
         PythonPluginsEngine.getInstance().runOnEngine(() -> {
-            boolean ok = setPluginEnabled(id, enabled);
+            trace.enterEngine();
+            boolean ok;
+            try {
+                ok = setPluginEnabled(id, enabled);
+            } finally {
+                trace.leaveEngine();
+            }
             if (callback != null) {
-                AndroidUtilities.runOnUIThread(() -> callback.run(ok ? null : id));
+                AndroidUtilities.runOnUIThread(() -> {
+                    callback.run(ok ? null : id);
+                    trace.finish(ok);
+                });
+            } else {
+                trace.finish(ok);
             }
         });
     }

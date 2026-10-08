@@ -183,4 +183,6 @@
     <string name="PluginOverlayTitle">الظهور فوق التطبيقات الأخرى</string>
     <string name="PluginOverlayText">تريد %1$s عرض نافذة فوق التطبيقات الأخرى. اسمح بذلك في إعدادات النظام ثم حاول مرة أخرى.</string>
     <string name="PluginOverlayOpen">فتح الإعدادات</string>
+    <string name="PluginsSafeModeEnabledNow">تم تفعيل الوضع الآمن، وأُوقفت جميع الإضافات.</string>
+    <string name="PluginsSafeModeDisabledNow">تم إيقاف الوضع الآمن، جارٍ تحميل الإضافات.</string>
 </resources>

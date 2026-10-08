@@ -253,6 +253,12 @@ def is_available() -> bool:
     return True
 
 
+def _lap(record, name: str) -> None:
+    clock = getattr(record, "__dict__", {}).get("_clock")
+    if clock is not None:
+        clock.lap(name)
+
+
 def load_plugin_record(record, path: str) -> None:
     """Load an .elyx/.eaf plugin from *path* and attach it to *record*.
 
@@ -275,6 +281,8 @@ def load_plugin_record(record, path: str) -> None:
 
             catalog = load_strings_from_zip(zf, strings_declared.strip("/"))
 
+    _lap(record, "elyx read archive")
+
     # 2. Normalize metadata; description placeholders use the archive strings.
     strings_for_meta = Strings(catalog) if catalog else None
     lookup = strings_for_meta.get if strings_for_meta is not None else None
@@ -288,6 +296,7 @@ def load_plugin_record(record, path: str) -> None:
     # 4. Extract content-addressed; then bundled wheels.
     digest, extract_dir = archive.extract_archive(path, plugins_dir, plugin_id)
     wheel_dirs = archive.process_wheels(extract_dir, refmap, plugins_dir, plugin_id)
+    _lap(record, "elyx extract")
 
     # 5. Build the environment first (may fail on a bad declared directory,
     #    before anything is registered), then register namespace + environment
@@ -315,8 +324,10 @@ def load_plugin_record(record, path: str) -> None:
     try:
         # 6. Import the entry module inside the isolated namespace.
         entry_name = _entry_module_name(refmap, extract_dir)
+        _lap(record, "elyx namespace")
         module = importlib.import_module(f"{plugin_namespace.prefix}.{entry_name}")
         state.module = module
+        _lap(record, "elyx import")
 
         # 7. Instantiate and bind the plugin class.
         plugin_class = _find_plugin_class(module)
@@ -333,8 +344,11 @@ def load_plugin_record(record, path: str) -> None:
     _record_set(record, "path", path)
     _record_set(record, "metadata", metainfo)
 
+    _lap(record, "elyx instantiate")
+
     # Loading succeeded: drop extractions of previous content versions.
     archive.cleanup_stale_extractions(plugins_dir, plugin_id, digest)
+    _lap(record, "elyx cleanup")
 
 
 def unload_plugin_record(record) -> None:

@@ -197,4 +197,6 @@ Código:
     <string name="PluginOverlayTitle">Mostrar sobre otras apps</string>
     <string name="PluginOverlayText">%1$s quiere mostrar una ventana sobre otras apps. Permítelo en los ajustes del sistema e inténtalo de nuevo.</string>
     <string name="PluginOverlayOpen">Abrir ajustes</string>
+    <string name="PluginsSafeModeEnabledNow">Modo seguro activado: todos los plugins están desactivados.</string>
+    <string name="PluginsSafeModeDisabledNow">Modo seguro desactivado: cargando los plugins.</string>
 </resources>

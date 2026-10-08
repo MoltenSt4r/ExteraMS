@@ -66,6 +66,17 @@ def test_app_files_dir_offers_files(scanner, tmp_path):
     assert "files" in found
 
 
+def test_overlay_window_offers_hooks(scanner, tmp_path):
+    found = _scan(scanner, tmp_path, (
+        "from android.view import WindowManager\n"
+        "def params():\n"
+        "    p = WindowManager.LayoutParams()\n"
+        "    p.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY\n"
+        "    return p\n"
+    ))
+    assert "hooks" in found
+
+
 def test_own_plugin_dir_is_offered_nothing(scanner, tmp_path):
     found = _scan(scanner, tmp_path, (
         "from file_utils import get_plugin_dir, get_plugin_cache_dir\n"

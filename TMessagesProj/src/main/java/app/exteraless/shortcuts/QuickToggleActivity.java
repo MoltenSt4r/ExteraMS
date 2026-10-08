@@ -52,9 +52,9 @@ public class QuickToggleActivity extends Activity {
     private CharSequence toggleSafeMode() {
         final PluginsController controller = PluginsController.getInstance();
         final boolean enabled = !controller.isSafeMode();
-        controller.setSafeMode(enabled);
+        controller.restart(enabled);
         return LocaleController.getString(enabled
-                ? R.string.PluginsSafeModeEnabled
-                : R.string.PluginsSafeModeDisabled);
+                ? R.string.PluginsSafeModeEnabledNow
+                : R.string.PluginsSafeModeDisabledNow);
     }
 }

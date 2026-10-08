@@ -135,6 +135,7 @@ public final class PluginSinkGate {
         ok += hookNativeLoad();
         ok += hookNetwork(URL.class, "openConnection", "open a network connection");
         ok += hookNetwork(Socket.class, "connect", "connect to the network");
+        ok += hookOverlayWindows();
         ok += hookClassResolution();
         ok += hookMessengerSinks();
         ok += hookPythonCallbacks();
@@ -554,6 +555,46 @@ public final class PluginSinkGate {
         count += hookAll(owner, "postUrl", hook);
         count += hookAll(owner, "loadDataWithBaseURL", hook);
         return count;
+    }
+
+    private static int hookOverlayWindows() {
+        final Class<?> owner = classForName("android.view.WindowManagerImpl");
+        if (owner == null) {
+            return 0;
+        }
+        return hookAll(owner, "addView", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
+                if (!isSystemWindow(param)) {
+                    return;
+                }
+                String pluginId = enterCheck();
+                if (pluginId == null) {
+                    return;
+                }
+                try {
+                    if (PluginPermissions.check(pluginId, PluginPermissions.HOOKS)) {
+                        PluginAuditJournal.record(pluginId, "WindowManager.addView", "overlay",
+                                describe(param), true);
+                        return;
+                    }
+                    deny(pluginId, "WindowManager.addView", "overlay", describe(param),
+                            "missing the 'hooks' permission", param);
+                } finally {
+                    leaveCheck();
+                }
+            }
+        });
+    }
+
+    private static boolean isSystemWindow(XC_MethodHook.MethodHookParam param) {
+        if (param.args == null || param.args.length < 2
+                || !(param.args[1] instanceof android.view.WindowManager.LayoutParams)) {
+            return false;
+        }
+        final int type = ((android.view.WindowManager.LayoutParams) param.args[1]).type;
+        return type >= android.view.WindowManager.LayoutParams.FIRST_SYSTEM_WINDOW
+                && type <= android.view.WindowManager.LayoutParams.LAST_SYSTEM_WINDOW;
     }
 
     /**

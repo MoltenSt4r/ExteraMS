@@ -197,4 +197,6 @@ Wtyczka: %1$s
     <string name="PluginOverlayTitle">Wyświetlanie nad innymi aplikacjami</string>
     <string name="PluginOverlayText">%1$s chce wyświetlić okno nad innymi aplikacjami. Zezwól na to w ustawieniach systemu i spróbuj ponownie.</string>
     <string name="PluginOverlayOpen">Otwórz ustawienia</string>
+    <string name="PluginsSafeModeEnabledNow">Tryb awaryjny włączony, wszystkie wtyczki są wyłączone.</string>
+    <string name="PluginsSafeModeDisabledNow">Tryb awaryjny wyłączony, wtyczki się ładują.</string>
 </resources>

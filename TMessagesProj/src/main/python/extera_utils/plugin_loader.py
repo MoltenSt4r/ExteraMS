@@ -21,6 +21,8 @@ import os
 import re
 import sys
 import threading
+import time
+import types
 from collections import namedtuple
 from dataclasses import dataclass, field, replace
 from typing import Any, Callable, Dict, List, Optional
@@ -2083,26 +2085,53 @@ def _dependency_available(name: str) -> bool:
         return False
 
 
+class _PhaseClock:
+    def __init__(self):
+        self.entered = time.monotonic_ns()
+        self.last = self.entered
+        self.phases = {}
+
+    def lap(self, name):
+        now = time.monotonic_ns()
+        self.phases[name] = round((now - self.last) / 1e6, 1)
+        self.last = now
+
+    def attach(self, result):
+        try:
+            data = json.loads(result)
+        except Exception:
+            return result
+        data["timings"] = dict(self.phases, entered_ns=self.entered)
+        return json.dumps(data, ensure_ascii=False)
+
+
 def load_plugin(path: str, plugin_id: str) -> str:
     """Validate metadata, install requirements, import and start the plugin."""
+    clock = _PhaseClock()
     _install_sandbox()  # идемпотентно; на случай, если импорт модуля не прошёл
+    clock.lap("sandbox")
     if str(path).endswith((".elyx", ".eaf")):
-        return _load_elyx_plugin(path, plugin_id)
+        return clock.attach(_load_elyx_plugin(path, plugin_id, clock))
 
     try:
         meta = read_metadata(path)  # validation; raises PluginMetadataError
     except Exception as e:
-        return _error_json(e)
+        return clock.attach(_error_json(e))
+    clock.lap("metadata")
 
     try:
         if plugin_id in plugins:
             _unload_record(plugin_id, quiet=True)
+            clock.lap("unload previous")
 
         if meta.get("requirements"):
             _ensure_requirements(plugin_id, meta["requirements"])
+            clock.lap("requirements")
 
         _preload_neighbour_plugins(path, plugin_id)
+        clock.lap("neighbours")
         module, module_name = _import_module(path, plugin_id)
+        clock.lap("import")
         plugin_class = _find_plugin_class(module, path, plugin_id)
         instance = plugin_class()
         instance._exteraless_attach(plugin_id)
@@ -2114,6 +2143,7 @@ def load_plugin(path: str, plugin_id: str) -> str:
                 continue
         plugins[plugin_id] = PluginRecord(module=module, instance=instance, path=path,
                                           module_name=module_name)
+        clock.lap("instantiate")
 
         try:
             if _overrides(plugin_class, "on_plugin_load"):
@@ -2122,16 +2152,17 @@ def load_plugin(path: str, plugin_id: str) -> str:
         except Exception:
             _unload_record(plugin_id, quiet=True)
             raise
+        clock.lap("on_plugin_load")
 
         has_settings = _overrides(plugin_class, "create_settings")
-        return json.dumps({"ok": True, "error": None, "has_settings": has_settings,
-                           "handles": _handled_hooks(plugin_class)},
-                          ensure_ascii=False)
+        return clock.attach(json.dumps({"ok": True, "error": None, "has_settings": has_settings,
+                                        "handles": _handled_hooks(plugin_class)},
+                                       ensure_ascii=False))
     except Exception as e:
-        return _error_json(e)
+        return clock.attach(_error_json(e))
 
 
-def _load_elyx_plugin(path: str, plugin_id: str) -> str:
+def _load_elyx_plugin(path: str, plugin_id: str, clock=None) -> str:
     """Structured .elyx/.eaf plugins delegate to elyx_runtime (owned elsewhere).
 
     SINGLE DISPATCH POINT: elyx_runtime.load_plugin_record(record, path)
@@ -2149,8 +2180,10 @@ def _load_elyx_plugin(path: str, plugin_id: str) -> str:
             _unload_record(plugin_id, quiet=True)
         record = PluginRecord(module=None, instance=None, path=path)
         record.__dict__["_elyx"] = True
+        record.__dict__["_clock"] = clock
         with plugin_context(plugin_id):
             elyx_runtime.load_plugin_record(record, path)
+        record.__dict__.pop("_clock", None)
         if record.instance is None:
             raise RuntimeError("elyx_runtime did not populate the plugin record")
         plugins[plugin_id] = record
@@ -2161,6 +2194,8 @@ def _load_elyx_plugin(path: str, plugin_id: str) -> str:
         except Exception:
             _unload_record(plugin_id, quiet=True)
             raise
+        if clock is not None:
+            clock.lap("on_plugin_load")
         has_settings = _overrides(type(record.instance), "create_settings")
         return json.dumps({"ok": True, "error": None, "has_settings": has_settings,
                            "handles": _handled_hooks(type(record.instance))},
@@ -2169,7 +2204,23 @@ def _load_elyx_plugin(path: str, plugin_id: str) -> str:
         return _error_json(e)
 
 
-def _unload_record(plugin_id: str, quiet: bool):
+def _mark_disabled(instance) -> None:
+    if instance is None:
+        return
+    try:
+        if "enabled" in vars(instance):
+            return
+        for cls in type(instance).__mro__:
+            if "enabled" in vars(cls):
+                if cls is not BasePlugin:
+                    return
+                break
+        instance.enabled = False
+    except Exception:
+        pass
+
+
+def _unload_record(plugin_id: str, quiet: bool, clock=None):
     record = plugins.pop(plugin_id, None)
     if record is None:
         return
@@ -2180,12 +2231,17 @@ def _unload_record(plugin_id: str, quiet: bool):
             with plugin_context(plugin_id):
                 instance.on_plugin_unload()
     finally:
+        if clock is not None:
+            clock.lap("on_plugin_unload")
+        _mark_disabled(instance)
         try:
             if instance is not None and hasattr(instance, "_exteraless_cleanup_resources"):
                 with plugin_context(plugin_id):
                     instance._exteraless_cleanup_resources()
         except Exception:
             pass
+        if clock is not None:
+            clock.lap("cleanup")
         if getattr(record, "_elyx", False):
             # Elyx namespace teardown (module eviction etc.) is elyx_runtime's job.
             try:
@@ -2193,6 +2249,8 @@ def _unload_record(plugin_id: str, quiet: bool):
                 elyx_runtime.unload_plugin_record(record)
             except Exception:
                 pass
+            if clock is not None:
+                clock.lap("elyx teardown")
         else:
             # Не по module.__name__: плагины переписывают его себе в шапке
             # (zwylib ставит "ZwyLib"), и запись в sys.modules пережила бы
@@ -2202,18 +2260,36 @@ def _unload_record(plugin_id: str, quiet: bool):
                 sys.modules.pop(name, None)
         if getattr(record, "path", None):
             _forget_owner(record.path)
+        if clock is not None:
+            clock.lap("forget owner")
         try:
             from . import classes as _classes
             _classes.forget_plugin_classes(plugin_id)
         except Exception:
             pass
+        if clock is not None:
+            clock.lap("forget classes")
         record.click_callbacks.clear()
         record.custom_views.clear()
 
 
-def unload_plugin(plugin_id: str) -> None:
-    _unload_record(plugin_id, quiet=False)
-    return None
+def unload_plugin(plugin_id: str) -> str:
+    clock = _PhaseClock()
+    _unload_record(plugin_id, quiet=False, clock=clock)
+    clock.lap("finish")
+    return clock.attach("{}")
+
+
+def debug_python_stacks() -> str:
+    import traceback
+    names = {t.ident: t.name for t in threading.enumerate()}
+    out = []
+    for ident, frame in sys._current_frames().items():
+        out.append(f"      [{names.get(ident, ident)}]")
+        for entry in traceback.format_stack(frame, limit=12):
+            for line in entry.rstrip().splitlines():
+                out.append("        " + line)
+    return "\n".join(out) + "\n"
 
 
 def uninstall_plugin(plugin_id: str) -> None:
