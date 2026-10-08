@@ -52,6 +52,7 @@ public class FeedChannelsActivity extends BaseFragment implements NotificationCe
     private static final int ID_BOTTOM_TAB = Integer.MAX_VALUE - 1;
     private static final int ID_UNREAD_COUNTER = Integer.MAX_VALUE - 2;
     private static final int ID_INCLUDE_ARCHIVED = Integer.MAX_VALUE;
+    private static final int ID_ADD_NEW_CHANNELS = Integer.MAX_VALUE - 3;
 
     private static final Comparator<TLRPC.Chat> BY_TITLE =
             Comparator.comparing(FeedChannelsActivity::sortKey);
@@ -197,16 +198,20 @@ public class FeedChannelsActivity extends BaseFragment implements NotificationCe
         }
     }
 
+    private ArrayList<Long> channelIds() {
+        ArrayList<Long> dialogIds = new ArrayList<>(channels.size());
+        for (int i = 0; i < channels.size(); i++) {
+            dialogIds.add(-channels.get(i).id);
+        }
+        return dialogIds;
+    }
+
     private void setAllExcluded(boolean excluded) {
         FeedConfig config = FeedConfig.getInstance(currentAccount);
         if (excluded) {
-            ArrayList<Long> dialogIds = new ArrayList<>(channels.size());
-            for (int i = 0; i < channels.size(); i++) {
-                dialogIds.add(-channels.get(i).id);
-            }
-            config.excludeAll(dialogIds);
+            config.excludeAll(channelIds());
         } else {
-            config.clearExcluded();
+            config.includeAll(channelIds());
         }
         update();
     }
@@ -221,9 +226,13 @@ public class FeedChannelsActivity extends BaseFragment implements NotificationCe
                     .setChecked(AppearanceConfig.showFeedTab()));
             items.add(UItem.asCheck(ID_UNREAD_COUNTER, getString(R.string.FeedUnreadCounter))
                     .setChecked(AppearanceConfig.showFeedUnreadCounter()));
-            items.add(UItem.asCheck(ID_INCLUDE_ARCHIVED, getString(R.string.FeedIncludeArchived))
+            items.add(UItem.asCheck(ID_INCLUDE_ARCHIVED, getString(R.string.FeedIncludeArchived),
+                    getString(R.string.FeedIncludeArchivedInfo), true)
                     .setChecked(config.getIncludeArchived()));
-            items.add(UItem.asShadow(getString(R.string.FeedIncludeArchivedInfo)));
+            items.add(UItem.asCheck(ID_ADD_NEW_CHANNELS, getString(R.string.FeedAddNewChannels),
+                    getString(config.getAddNewChannels() ? R.string.FeedAddNewChannelsOnInfo : R.string.FeedAddNewChannelsOffInfo), true)
+                    .setChecked(config.getAddNewChannels()));
+            items.add(UItem.asShadow((CharSequence) null));
         }
 
         ArrayList<UItem> shown = new ArrayList<>();
@@ -268,6 +277,10 @@ public class FeedChannelsActivity extends BaseFragment implements NotificationCe
             // NotificationCenter.
             NotificationCenter.getInstance(currentAccount)
                     .postNotificationName(NotificationCenter.feedTabVisibleToggled);
+        } else if (item.id == ID_ADD_NEW_CHANNELS) {
+            FeedConfig config = FeedConfig.getInstance(currentAccount);
+            config.setAddNewChannels(!config.getAddNewChannels(), channelIds());
+            update();
         } else if (item.id == ID_INCLUDE_ARCHIVED) {
             FeedConfig config = FeedConfig.getInstance(currentAccount);
             config.setIncludeArchived(!config.getIncludeArchived());

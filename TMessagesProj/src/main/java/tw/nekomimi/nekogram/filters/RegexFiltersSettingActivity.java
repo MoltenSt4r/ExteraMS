@@ -239,7 +239,7 @@ public class RegexFiltersSettingActivity extends BaseNekoSettingsActivity {
                                 boolean found = false;
                                 for (int i = 0; i < currentShared.size(); i++) {
                                     AyuFilter.FilterModel ex = currentShared.get(i);
-                                    if (ex != null && ex.regex != null && ex.regex.equals(in.regex) && ex.caseInsensitive == in.caseInsensitive) {
+                                    if (ex != null && ex.sameAs(in)) {
                                         ex.enabled = in.enabled;
                                         found = true;
                                         break;
@@ -276,7 +276,7 @@ public class RegexFiltersSettingActivity extends BaseNekoSettingsActivity {
                                             target.filters = new ArrayList<>();
                                         for (int i = 0; i < target.filters.size(); i++) {
                                             AyuFilter.FilterModel ex = target.filters.get(i);
-                                            if (ex != null && ex.regex != null && ex.regex.equals(in.regex) && ex.caseInsensitive == in.caseInsensitive) {
+                                            if (ex != null && ex.sameAs(in)) {
                                                 ex.enabled = in.enabled;
                                                 found = true;
                                                 break;

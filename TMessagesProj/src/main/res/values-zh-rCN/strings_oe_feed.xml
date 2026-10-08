@@ -19,4 +19,7 @@
     <string name="FeedSettings">信息流设置</string>
     <string name="FeedShownChannels">显示在信息流中</string>
     <string name="HideFeedTab">隐藏信息流标签</string>
+    <string name="FeedAddNewChannels">添加新频道</string>
+    <string name="FeedAddNewChannelsOnInfo">你关注的新频道会自动出现在动态中。</string>
+    <string name="FeedAddNewChannelsOffInfo">新频道将保持隐藏，直到你在下方勾选。</string>
 </resources>

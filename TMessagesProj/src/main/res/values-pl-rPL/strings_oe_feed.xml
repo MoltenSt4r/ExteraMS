@@ -19,4 +19,7 @@
     <string name="FeedSettings">Ustawienia strumienia</string>
     <string name="FeedShownChannels">Pokazywane w strumieniu</string>
     <string name="HideFeedTab">Ukryj zakładkę strumienia</string>
+    <string name="FeedAddNewChannels">Dodawaj nowe kanały</string>
+    <string name="FeedAddNewChannelsOnInfo">Nowe obserwowane kanały automatycznie pojawiają się w kanale aktualności.</string>
+    <string name="FeedAddNewChannelsOffInfo">Nowe kanały pozostają ukryte, dopóki nie zaznaczysz ich poniżej.</string>
 </resources>

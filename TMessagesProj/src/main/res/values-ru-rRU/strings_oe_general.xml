@@ -182,4 +182,6 @@
     <string name="OEAyuDatabaseImportInfo">Удалённые и изменённые сообщения из файла добавятся к уже сохранённым. Подходят выгрузки exteraless и AyuGram. Медиа из другого приложения могут не открыться.</string>
     <string name="OEAyuDatabaseImportDone">Добавлено сообщений: %1$d</string>
     <string name="OEAyuDatabaseImportFailed">Не удалось импортировать файл</string>
+    <string name="OEAyuRegexReversed">Обратный</string>
+    <string name="OEAyuRegexReversedInfo">Скрывать сообщения, которые не совпадают с выражением</string>
 </resources>

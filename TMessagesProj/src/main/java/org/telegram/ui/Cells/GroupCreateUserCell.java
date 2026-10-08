@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,6 +62,7 @@ public class GroupCreateUserCell extends FrameLayout {
     private SimpleTextView nameTextView;
     private SimpleTextView statusTextView;
     private CheckBox2 checkBox;
+    private ImageView openChatView;
     private AvatarDrawable avatarDrawable;
     private Object currentObject;
     private CharSequence currentName;
@@ -192,7 +194,39 @@ public class GroupCreateUserCell extends FrameLayout {
         drawDivider = false;
         currentPremium = false;
         currentMiniapps = false;
+        if (openChatView != null && openChatView.getVisibility() != GONE) {
+            openChatView.setVisibility(GONE);
+            openChatView.setOnClickListener(null);
+            updateTextMargins();
+        }
         update(0);
+    }
+
+    public void setOpenChatView(Runnable onClick) {
+        if (openChatView == null) {
+            openChatView = new ImageView(getContext());
+            openChatView.setImageResource(R.drawable.msg_arrow_forward);
+            openChatView.setScaleType(ImageView.ScaleType.CENTER);
+            openChatView.setBackground(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector, resourcesProvider)));
+            openChatView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider), PorterDuff.Mode.MULTIPLY));
+            addView(openChatView, LayoutHelper.createFrame(40, 40, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.CENTER_VERTICAL, LocaleController.isRTL ? 10 : 0, 0, LocaleController.isRTL ? 0 : 10, 0));
+        }
+        openChatView.setVisibility(VISIBLE);
+        openChatView.setOnClickListener(v -> onClick.run());
+        updateTextMargins();
+    }
+
+    private void updateTextMargins() {
+        int end = AndroidUtilities.dp((openChatView != null && openChatView.getVisibility() == VISIBLE ? 64 : 28) + padding);
+        for (SimpleTextView view : new SimpleTextView[]{nameTextView, statusTextView}) {
+            LayoutParams params = (LayoutParams) view.getLayoutParams();
+            if (LocaleController.isRTL) {
+                params.leftMargin = end;
+            } else {
+                params.rightMargin = end;
+            }
+        }
+        requestLayout();
     }
 
     public void setPremium() {

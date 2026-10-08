@@ -127,7 +127,11 @@ public class RegexSharedFiltersListActivity extends BaseNekoSettingsActivity {
                         ArrayList<AyuFilter.FilterModel> filters = AyuFilter.getRegexFilters();
                         if (idx >= 0 && idx < filters.size()) {
                             AyuFilter.FilterModel model = filters.get(idx);
-                            ((TextCheckCell) holder.itemView).setTextAndCheck(model.regex, model.enabled, true);
+                            if (model.reversed) {
+                                ((TextCheckCell) holder.itemView).setTextAndValueAndCheck(model.regex, getString(R.string.OEAyuRegexReversed), model.enabled, false, true);
+                            } else {
+                                ((TextCheckCell) holder.itemView).setTextAndCheck(model.regex, model.enabled, true);
+                            }
                         }
                     }
                     break;

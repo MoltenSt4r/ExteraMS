@@ -174,4 +174,6 @@
     <string name="OEAyuDatabaseImportInfo">ستُضاف الرسائل المحذوفة والمعدّلة من هذا الملف إلى الرسائل المحفوظة. ملفات التصدير من exteraless وAyuGram مدعومة. قد لا تتوفر الوسائط من تطبيق آخر.</string>
     <string name="OEAyuDatabaseImportDone">الرسائل المضافة: %1$d</string>
     <string name="OEAyuDatabaseImportFailed">تعذّر استيراد هذا الملف</string>
+    <string name="OEAyuRegexReversed">عكسي</string>
+    <string name="OEAyuRegexReversedInfo">إخفاء الرسائل التي لا تطابق التعبير</string>
 </resources>

@@ -19,4 +19,7 @@
     <string name="FeedSettings">Feed Settings</string>
     <string name="FeedShownChannels">Shown in feed</string>
     <string name="HideFeedTab">Hide Feed Tab</string>
+    <string name="FeedAddNewChannels">Add New Channels</string>
+    <string name="FeedAddNewChannelsOnInfo">New channels you follow appear in the feed automatically.</string>
+    <string name="FeedAddNewChannelsOffInfo">New channels stay hidden until you check them below.</string>
 </resources>

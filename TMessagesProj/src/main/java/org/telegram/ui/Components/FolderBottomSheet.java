@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -1044,6 +1045,10 @@ public class FolderBottomSheet extends BottomSheetWithRecyclerListView {
                     userCell.getCheckBox().getCheckBoxBase().setAlpha(alreadyJoined.contains(did) ? .5f : 1f);
                     userCell.setChecked(selectedPeers.contains(did), false);
                     userCell.setObject(object, name, status);
+                    if (object instanceof TLRPC.Chat && canOpenChat((TLRPC.Chat) object)) {
+                        final TLRPC.Chat chat = (TLRPC.Chat) object;
+                        userCell.setOpenChatView(() -> openChat(chat));
+                    }
                 } else if (viewType == VIEW_TYPE_HEADER) {
                     HeaderCell headerCell = (HeaderCell) holder.itemView;
                     if (position == alreadyHeaderRow) {
@@ -1428,6 +1433,24 @@ public class FolderBottomSheet extends BottomSheetWithRecyclerListView {
                 countText.setText(count > 0 ? "+" + count : "", animated);
                 invalidate();
             }
+        }
+    }
+
+    private static boolean canOpenChat(TLRPC.Chat chat) {
+        return !TextUtils.isEmpty(ChatObject.getPublicUsername(chat)) || !ChatObject.isNotInChat(chat);
+    }
+
+    private void openChat(TLRPC.Chat chat) {
+        final BaseFragment fragment = getBaseFragment();
+        dismiss();
+        if (fragment == null) {
+            return;
+        }
+        final String username = ChatObject.getPublicUsername(chat);
+        if (!TextUtils.isEmpty(username)) {
+            fragment.getMessagesController().openByUserName(username, fragment, 1);
+        } else {
+            fragment.getMessagesController().openChatOrProfileWith(null, chat, fragment, 1, false);
         }
     }
 

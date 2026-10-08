@@ -143,7 +143,11 @@ public class RegexChatFiltersListActivity extends BaseNekoSettingsActivity {
                         var filters = AyuFilter.getChatFiltersForDialog(dialogId);
                         if (idx >= 0 && idx < filters.size()) {
                             var model = filters.get(idx);
-                            textCheckCell.setTextAndCheck(model.regex, model.enabled, true);
+                            if (model.reversed) {
+                                textCheckCell.setTextAndValueAndCheck(model.regex, getString(R.string.OEAyuRegexReversed), model.enabled, false, true);
+                            } else {
+                                textCheckCell.setTextAndCheck(model.regex, model.enabled, true);
+                            }
                         }
                     }
                     break;

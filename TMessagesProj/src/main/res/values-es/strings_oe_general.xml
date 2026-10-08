@@ -123,4 +123,6 @@
     <string name="OEAyuDatabaseImportInfo">Los mensajes eliminados y editados de este archivo se añadirán a los ya guardados. Se admiten exportaciones de exteraless y AyuGram. Es posible que los archivos multimedia de otra app no estén disponibles.</string>
     <string name="OEAyuDatabaseImportDone">Mensajes añadidos: %1$d</string>
     <string name="OEAyuDatabaseImportFailed">No se pudo importar este archivo</string>
+    <string name="OEAyuRegexReversed">Inverso</string>
+    <string name="OEAyuRegexReversedInfo">Ocultar los mensajes que no coinciden con la expresión</string>
 </resources>

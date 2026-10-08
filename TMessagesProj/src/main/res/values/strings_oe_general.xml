@@ -185,4 +185,6 @@
     <string name="OEAyuDatabaseImportInfo">Deleted and edited messages from this file will be added to the ones already saved. Exports from exteraless and AyuGram are supported. Media from another app may be unavailable.</string>
     <string name="OEAyuDatabaseImportDone">Messages added: %1$d</string>
     <string name="OEAyuDatabaseImportFailed">Couldn\'t import this file</string>
+    <string name="OEAyuRegexReversed">Reversed</string>
+    <string name="OEAyuRegexReversedInfo">Hide messages that don\'t match the expression</string>
 </resources>

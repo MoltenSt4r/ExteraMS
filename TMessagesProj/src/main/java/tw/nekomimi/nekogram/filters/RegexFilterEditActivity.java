@@ -48,6 +48,7 @@ public class RegexFilterEditActivity extends BaseFragment {
     private final String prefillText;
     private final boolean canSelectSharedTarget;
     private boolean caseInsensitive;
+    private boolean reversed;
     private boolean addToSharedFilters;
 
     private EditTextBoldCursor editField;
@@ -56,6 +57,7 @@ public class RegexFilterEditActivity extends BaseFragment {
     private TextView errorTextView;
 
     private TextCheckCell caseInsensitiveButtonView;
+    private TextCheckCell reversedButtonView;
     private TextCheckCell addToSharedFiltersButtonView;
 
     public RegexFilterEditActivity() {
@@ -97,6 +99,7 @@ public class RegexFilterEditActivity extends BaseFragment {
         this.chatFilterIdx = chatFilterIdx;
         this.filterModel = AyuFilter.getChatFiltersForDialog(dialogId).size() > chatFilterIdx && chatFilterIdx >= 0 ? AyuFilter.getChatFiltersForDialog(dialogId).get(chatFilterIdx) : null;
         this.caseInsensitive = this.filterModel == null || this.filterModel.caseInsensitive;
+        this.reversed = this.filterModel != null && this.filterModel.reversed;
         this.prefillText = null;
         this.canSelectSharedTarget = false;
         this.addToSharedFilters = false;
@@ -106,6 +109,7 @@ public class RegexFilterEditActivity extends BaseFragment {
         this.filterIdx = filterIdx; // use -1 to CREATE, not EDIT
         this.filterModel = AyuFilter.getRegexFilters().get(filterIdx);
         this.caseInsensitive = filterModel.caseInsensitive;
+        this.reversed = filterModel.reversed;
         this.targetDialogId = 0L;
         this.chatFilterIdx = -1;
         this.prefillText = null;
@@ -148,20 +152,20 @@ public class RegexFilterEditActivity extends BaseFragment {
 
                     // If editing a chat-specific filter, update that entry and return.
                     if (chatFilterIdx != -1 && targetDialogId != 0L) {
-                        AyuFilter.editChatFilter(targetDialogId, chatFilterIdx, text, caseInsensitive);
+                        AyuFilter.editChatFilter(targetDialogId, chatFilterIdx, text, caseInsensitive, reversed);
                     } else if (filterIdx != -1) {
                         // editing shared filter
-                        AyuFilter.editFilter(filterIdx, text, caseInsensitive);
+                        AyuFilter.editFilter(filterIdx, text, caseInsensitive, reversed);
                     } else {
                         // creating a new filter (shared or chat-scoped)
                         if (targetDialogId != 0L) {
                             if (canSelectSharedTarget && addToSharedFilters) {
-                                AyuFilter.addFilter(text, caseInsensitive);
+                                AyuFilter.addFilter(text, caseInsensitive, reversed);
                             } else {
-                                AyuFilter.addChatFilter(targetDialogId, text, caseInsensitive);
+                                AyuFilter.addChatFilter(targetDialogId, text, caseInsensitive, reversed);
                             }
                         } else {
-                            AyuFilter.addFilter(text, caseInsensitive);
+                            AyuFilter.addFilter(text, caseInsensitive, reversed);
                         }
                     }
 
@@ -260,6 +264,17 @@ public class RegexFilterEditActivity extends BaseFragment {
             caseInsensitive = checked;
         });
         linearLayout.addView(caseInsensitiveButtonView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, 24, 10, 24, 0));
+
+        reversedButtonView = new TextCheckCell(context);
+        reversedButtonView.setFocusable(true);
+        reversedButtonView.setTextAndValueAndCheck(getString(R.string.OEAyuRegexReversed), getString(R.string.OEAyuRegexReversedInfo), reversed, true, true);
+        reversedButtonView.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
+        reversedButtonView.setOnClickListener((v) -> {
+            boolean checked = !reversedButtonView.isChecked();
+            reversedButtonView.setChecked(checked);
+            reversed = checked;
+        });
+        linearLayout.addView(reversedButtonView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, 24, 10, 24, 0));
 
         return fragmentView;
     }

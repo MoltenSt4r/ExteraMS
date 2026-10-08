@@ -19,4 +19,7 @@
     <string name="FeedSettings">Настройки ленты</string>
     <string name="FeedShownChannels">Показаны в ленте</string>
     <string name="HideFeedTab">Скрыть вкладку ленты</string>
+    <string name="FeedAddNewChannels">Добавлять новые каналы</string>
+    <string name="FeedAddNewChannelsOnInfo">Новые каналы, на которые вы подписаны, сразу появляются в ленте.</string>
+    <string name="FeedAddNewChannelsOffInfo">Новые каналы скрыты, пока вы не отметите их ниже.</string>
 </resources>

@@ -68,17 +68,18 @@ public class AyuFilter {
         return filterModels;
     }
 
-    public static void addFilter(String text, boolean caseInsensitive) {
+    public static void addFilter(String text, boolean caseInsensitive, boolean reversed) {
         var list = new ArrayList<>(getRegexFilters());
         FilterModel filterModel = new FilterModel();
         filterModel.regex = text;
         filterModel.caseInsensitive = caseInsensitive;
+        filterModel.reversed = reversed;
         filterModel.enabled = true;
         list.add(0, filterModel);
         saveFilter(list);
     }
 
-    public static void editFilter(int filterIdx, String text, boolean caseInsensitive) {
+    public static void editFilter(int filterIdx, String text, boolean caseInsensitive, boolean reversed) {
         var list = new ArrayList<>(getRegexFilters());
         if (filterIdx < 0 || filterIdx >= list.size()) {
             return;
@@ -86,6 +87,7 @@ public class AyuFilter {
         FilterModel filterModel = list.get(filterIdx);
         filterModel.regex = text;
         filterModel.caseInsensitive = caseInsensitive;
+        filterModel.reversed = reversed;
         saveFilter(list);
     }
 
@@ -225,7 +227,7 @@ public class AyuFilter {
                             if (!pattern.enabled) {
                                 continue;
                             }
-                            if (pattern.pattern != null && pattern.pattern.matcher(text).find()) {
+                            if (pattern.matches(text)) {
                                 return true;
                             }
                         }
@@ -245,7 +247,7 @@ public class AyuFilter {
                 if (!pattern.enabled) {
                     continue;
                 }
-                if (pattern.pattern != null && pattern.pattern.matcher(text).find()) {
+                if (pattern.matches(text)) {
                     return true;
                 }
             }
@@ -356,7 +358,7 @@ public class AyuFilter {
         return new ArrayList<>();
     }
 
-    public static void addChatFilter(long dialogId, String text, boolean caseInsensitive) {
+    public static void addChatFilter(long dialogId, String text, boolean caseInsensitive, boolean reversed) {
         var entries = new ArrayList<>(getChatFilterEntries());
         ChatFilterEntry target = null;
         for (var e : entries) {
@@ -374,6 +376,7 @@ public class AyuFilter {
         FilterModel filterModel = new FilterModel();
         filterModel.regex = text;
         filterModel.caseInsensitive = caseInsensitive;
+        filterModel.reversed = reversed;
         filterModel.enabled = true;
         if (target.filters == null) {
             target.filters = new ArrayList<>();
@@ -383,7 +386,7 @@ public class AyuFilter {
         saveChatFilterEntries(entries);
     }
 
-    public static void editChatFilter(long dialogId, int filterIdx, String text, boolean caseInsensitive) {
+    public static void editChatFilter(long dialogId, int filterIdx, String text, boolean caseInsensitive, boolean reversed) {
         var entries = new ArrayList<>(getChatFilterEntries());
         for (var e : entries) {
             if (e.dialogId == dialogId) {
@@ -391,6 +394,7 @@ public class AyuFilter {
                     var fm = e.filters.get(filterIdx);
                     fm.regex = text;
                     fm.caseInsensitive = caseInsensitive;
+                    fm.reversed = reversed;
                     saveChatFilterEntries(entries);
                 }
                 return;
@@ -760,6 +764,8 @@ public class AyuFilter {
         public boolean caseInsensitive;
         @Expose
         public boolean enabled = true;
+        @Expose
+        public boolean reversed;
         public Pattern pattern;
 
         // Legacy fields for deserialization migration only
@@ -777,6 +783,15 @@ public class AyuFilter {
                 pattern = null;
                 FileLog.e(e);
             }
+        }
+
+        public boolean matches(CharSequence text) {
+            return pattern != null && pattern.matcher(text).find() != reversed;
+        }
+
+        public boolean sameAs(FilterModel other) {
+            return other != null && regex != null && regex.equals(other.regex)
+                    && caseInsensitive == other.caseInsensitive && reversed == other.reversed;
         }
 
         public boolean migrateFromLegacy(long dialogId) {

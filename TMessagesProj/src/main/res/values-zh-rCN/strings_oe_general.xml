@@ -123,4 +123,6 @@
     <string name="OEAyuDatabaseImportInfo">此文件中被删除和编辑的消息将添加到已保存的消息中。支持 exteraless 和 AyuGram 的导出文件。来自其他应用的媒体可能无法打开。</string>
     <string name="OEAyuDatabaseImportDone">已添加消息：%1$d</string>
     <string name="OEAyuDatabaseImportFailed">无法导入此文件</string>
+    <string name="OEAyuRegexReversed">反向</string>
+    <string name="OEAyuRegexReversedInfo">隐藏与表达式不匹配的消息</string>
 </resources>

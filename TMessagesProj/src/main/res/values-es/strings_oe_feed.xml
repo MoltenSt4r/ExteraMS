@@ -19,4 +19,7 @@
     <string name="FeedSettings">Ajustes del feed</string>
     <string name="FeedShownChannels">Mostrados en el feed</string>
     <string name="HideFeedTab">Ocultar la pestaña del feed</string>
+    <string name="FeedAddNewChannels">Añadir canales nuevos</string>
+    <string name="FeedAddNewChannelsOnInfo">Los canales nuevos que sigues aparecen en el feed automáticamente.</string>
+    <string name="FeedAddNewChannelsOffInfo">Los canales nuevos permanecen ocultos hasta que los marques abajo.</string>
 </resources>

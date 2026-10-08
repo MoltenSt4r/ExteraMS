@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Feed">الموجز</string>
+    <string name="FeedAllChannelsExcluded">جميع القنوات مستبعدة من الموجز.</string>
+    <string name="FeedBottomTab">إظهار في التبويبات السفلية</string>
+    <string name="FeedBottomTabInfo">إظهار الموجز كتبويب في شريط التنقل السفلي بدلًا من تبويب جهات الاتصال.</string>
+    <string name="FeedChannelHidden">تم إخفاء **%1$s** من الموجز</string>
+    <string name="FeedChannels">القنوات</string>
+    <string name="FeedChannelsInfo">ألغِ تحديد قناة لإخفاء منشوراتها من الموجز. تظهر القنوات الجديدة تلقائيًا.</string>
+    <string name="FeedHiddenChannels">مخفية</string>
+    <string name="FeedHideChannel">إخفاء من الموجز</string>
+    <string name="FeedUnreadCounter">عدّاد المنشورات غير المقروءة</string>
+    <string name="FeedIncludeArchived">إظهار المحادثات من الأرشيف</string>
+    <string name="FeedIncludeArchivedInfo">تضمين القنوات من محادثاتك المؤرشفة في الموجز أيضًا.</string>
+    <string name="FeedMarkAllRead">تعليم الكل كمقروء</string>
+    <string name="FeedMarkAllReadConfirm">تعليم جميع المنشورات في قنوات الموجز كمقروءة؟ سيتم تعليمها كمقروءة في القنوات الأصلية أيضًا.</string>
+    <string name="FeedMarkAllReadDone">تم تعليم جميع المنشورات كمقروءة</string>
+    <string name="FeedNoPosts">لا توجد منشورات قنوات بعد.</string>
+    <string name="FeedSettings">إعدادات الموجز</string>
+    <string name="FeedShownChannels">تظهر في الموجز</string>
+    <string name="HideFeedTab">إخفاء تبويب الموجز</string>
+    <string name="FeedAddNewChannels">إضافة القنوات الجديدة</string>
+    <string name="FeedAddNewChannelsOnInfo">تظهر القنوات الجديدة التي تتابعها في الخلاصة تلقائيًا.</string>
+    <string name="FeedAddNewChannelsOffInfo">تبقى القنوات الجديدة مخفية حتى تحددها أدناه.</string>
+</resources>

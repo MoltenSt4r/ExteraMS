@@ -160,7 +160,11 @@ public class AyuGhostUtils {
         }
 
         // Block read receipts if disabled
-        if (!NekoConfig.sendReadMessagePackets.Bool() && (isReadMessageRequest(object))) {
+        if (!NekoConfig.sendReadMessagePackets.Bool() && object instanceof TLRPC.TL_messages_getMessagesViews views && views.increment) {
+            if (!AyuState.getAllowReadPacket() && !readExcluded) {
+                views.increment = false;
+            }
+        } else if (!NekoConfig.sendReadMessagePackets.Bool() && (isReadMessageRequest(object))) {
             if (!AyuState.getAllowReadPacket() && !readExcluded) {
                 FileLog.d("GhostMode: Blocking read status request and sending fake response.");
                 sendFakeReadResponse(onCompleteOrig);

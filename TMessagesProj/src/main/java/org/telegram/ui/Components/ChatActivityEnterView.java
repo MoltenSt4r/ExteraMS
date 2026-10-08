@@ -6246,8 +6246,9 @@ public class ChatActivityEnterView extends FrameLayout implements
             final int mimeCount = clipDescription == null ? 0 : clipDescription.getMimeTypeCount();
             final String mime = mimeCount == 0 ? null : clipDescription.getMimeType(Math.min(i, mimeCount - 1));
             // одиночный gif/webp-стикер прямо из клавиатуры уходит в чат без редактора
+            final boolean isGboardSticker = clipDescription != null && clipDescription.getExtras() != null && clipDescription.getExtras().getBoolean("com.google.android.inputmethod.content.IS_STICKER");
             final boolean sendAsIs = payload.getSource() == ContentInfoCompat.SOURCE_INPUT_METHOD && clip.getItemCount() == 1
-                    && ((mime != null && mime.equalsIgnoreCase("image/gif")) || SendMessagesHelper.shouldSendWebPAsSticker(null, uri));
+                    && ((mime != null && mime.equalsIgnoreCase("image/gif")) || isGboardSticker || (mime != null && mime.equalsIgnoreCase("image/webp") && SendMessagesHelper.shouldSendWebPAsSticker(null, uri)));
             if (!sendAsIs) {
                 final SendMessagesHelper.SendingMediaInfo info = new SendMessagesHelper.SendingMediaInfo();
                 info.uri = uri;
