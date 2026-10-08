@@ -32,12 +32,11 @@
     <string name="AppIconMoltenGramDotted">Dotted</string>
     <string name="AppIconMoltenGramNeon">Neon</string>
     <string name="AppIconMoltenGramLava">Lava</string>
-    <string name="AppIconMoltenGramAero">Aero</string>
-    <string name="AppIconMoltenGramPixel">Pixel</string>
-    <string name="AppIconMoltenGramMint">Mint</string>
+    <string name="AppIconMoltenGramCyber">Cyber</string>
+    <string name="AppIconMoltenGramCosmic">Cosmic</string>
     <string name="AppIconMoltenGramMocha">Mocha</string>
-    <string name="AppIconMoltenGramSunset">Sunset</string>
-    <string name="AppIconMoltenGramAzure">Azure</string>
+    <string name="AppIconMoltenGramGlacier">Glacier</string>
+    <string name="AppIconMoltenGramLavender">Lavender</string>
     <string name="AppIconExteraMSMD3">Default</string>
     <string name="AppIconExteraMSDotted" translatable="false">MoltenGram Dotted</string>
     <string name="AppIconExteraMSGoogle" translatable="false">MoltenGram Google</string>

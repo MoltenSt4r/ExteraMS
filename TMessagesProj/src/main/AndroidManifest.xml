@@ -198,10 +198,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramAeroIcon"
+            android:name="org.telegram.messenger.MoltenGramCyberIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_aero"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_aero_round"
+            android:icon="@mipmap/ic_launcher_moltengram_cyber"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_cyber_round"
             android:exported="true">
 
             <intent-filter>
@@ -214,26 +214,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramPixelIcon"
+            android:name="org.telegram.messenger.MoltenGramCosmicIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_pixel"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_pixel_round"
-            android:exported="true">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-            </intent-filter>
-            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
-        </activity-alias>
-
-        <activity-alias
-            android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramMintIcon"
-            android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_mint"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_mint_round"
+            android:icon="@mipmap/ic_launcher_moltengram_cosmic"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_cosmic_round"
             android:exported="true">
 
             <intent-filter>
@@ -262,10 +246,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramSunsetIcon"
+            android:name="org.telegram.messenger.MoltenGramGlacierIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_sunset"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_sunset_round"
+            android:icon="@mipmap/ic_launcher_moltengram_glacier"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_glacier_round"
             android:exported="true">
 
             <intent-filter>
@@ -278,10 +262,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramAzureIcon"
+            android:name="org.telegram.messenger.MoltenGramLavenderIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_azure"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_azure_round"
+            android:icon="@mipmap/ic_launcher_moltengram_lavender"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_lavender_round"
             android:exported="true">
 
             <intent-filter>

@@ -30,12 +30,11 @@
     <string name="AppIconMoltenGramDotted">Точки</string>
     <string name="AppIconMoltenGramNeon">Неон</string>
     <string name="AppIconMoltenGramLava">Лава</string>
-    <string name="AppIconMoltenGramAero">Аэро</string>
-    <string name="AppIconMoltenGramPixel">Пиксель</string>
-    <string name="AppIconMoltenGramMint">Мята</string>
+    <string name="AppIconMoltenGramCyber">Кибер</string>
+    <string name="AppIconMoltenGramCosmic">Космос</string>
     <string name="AppIconMoltenGramMocha">Мокко</string>
-    <string name="AppIconMoltenGramSunset">Закат</string>
-    <string name="AppIconMoltenGramAzure">Лазурь</string>
+    <string name="AppIconMoltenGramGlacier">Ледник</string>
+    <string name="AppIconMoltenGramLavender">Лаванда</string>
     <string name="AppIconExteraMSMD3">Основная</string>
     <string name="AppIconExteraMSDotted" translatable="false">MoltenGram Точки</string>
     <string name="AppIconExteraMSGoogle" translatable="false">MoltenGram Google</string>

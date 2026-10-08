@@ -86,7 +86,7 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
                 holderView.bind(icon);
                 holderView.iconView.setBackground(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(ICONS_ROUND_RADIUS), Color.TRANSPARENT, Theme.getColor(Theme.key_listSelector), Color.BLACK));
                 holderView.iconView.setForeground(icon.foreground);
-                holderView.iconView.setIsNekoXIcon(false);
+                holderView.iconView.setIsNekoXIcon(icon.group == LauncherIconController.IconGroup.MOLTENGRAM);
                 holderView.iconView.setAdaptiveIconMode(icon.group != LauncherIconController.IconGroup.TELEGRAM);
             }
 
@@ -335,7 +335,7 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
         }
 
         public void setForeground(int res) {
-            foreground = ContextCompat.getDrawable(getContext(), res);
+            foreground = res != 0 ? ContextCompat.getDrawable(getContext(), res) : null;
             invalidate();
         }
 

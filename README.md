@@ -22,7 +22,7 @@
 - **Bleeding-edge:** сборки носят статус экспериментальных и созданы для активного тестирования.
 - **Дружественность к апстриму:** проект **не является конкурентом** exteraless или другим клиентам Telegram. Это площадка для обкатки идей, лучшие из которых могут быть предложены в upstream.
 - **Безопасность плагинов:** сохраняется изоляция и строгая модель разрешений для плагинов из exteraless.
-- **Фирменный дизайн и иконки:** эксклюзивные иконки лаунчера (Obsidian, Dotted, Neon, Lava, Aero, Pixel, Mint, Mocha, Sunset, Azure), атмосферный экран выбора в стиле Nothing OS.
+- **Фирменный дизайн и иконки:** эксклюзивные иконки лаунчера (Основная, Точки, Неон, Лава, Кибер, Космос, Мокко, Ледник, Лаванда), плавный экран выбора в стиле Nothing OS.
 
 * **Имя пакета:** `com.moltengram.app` (позволяет устанавливать приложение параллельно с exteraless и официальным Telegram)
 * **Что под капотом:** модули оформления и параметров чатов, иконпаки, полоса пилюль (Pill Stack), расширенное боковое меню, движок Python-плагинов и экспериментальные доработки MoltenGram.
@@ -126,7 +126,7 @@ Python 3.12 лишь под них, и на `armeabi-v7a` конфигураци
 - **Bleeding-edge:** Builds are experimental and crafted for rapid innovation.
 - **Not a competitor:** MoltenGram is **not** a competitor to exteraless or any other client. It serves as a testing ground for experimental ideas that can later be upstreamed.
 - **Plugin isolation:** Retains exteraless's secure plugin permission model.
-- **Distinctive identity & icons:** Obsidian, Dotted, Neon, Lava, Aero, Pixel, Mint, Mocha, Sunset, Azure launcher styles with atmospheric Nothing OS-inspired picker.
+- **Distinctive identity & icons:** MoltenGram, Dotted, Neon, Lava, Cyber, Cosmic, Mocha, Glacier, Lavender launcher styles with smooth Nothing OS-inspired picker.
 
 * **Package name:** `com.moltengram.app` (allows co-existence alongside exteraless and official Telegram on the same device)
 
