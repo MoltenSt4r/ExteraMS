@@ -150,10 +150,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramDottedIcon"
+            android:name="org.telegram.messenger.MoltenGramMonochromeIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_dotted"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_dotted_round"
+            android:icon="@mipmap/ic_launcher_moltengram_monochrome"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_monochrome_round"
             android:exported="true">
 
             <intent-filter>
@@ -166,10 +166,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramNeonIcon"
+            android:name="org.telegram.messenger.MoltenGramEndeavourOSIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_neon"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_neon_round"
+            android:icon="@mipmap/ic_launcher_moltengram_endeavouros"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_endeavouros_round"
             android:exported="true">
 
             <intent-filter>
@@ -182,10 +182,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramLavaIcon"
+            android:name="org.telegram.messenger.MoltenGramSunriseIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_lava"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_lava_round"
+            android:icon="@mipmap/ic_launcher_moltengram_sunrise"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_sunrise_round"
             android:exported="true">
 
             <intent-filter>
@@ -198,10 +198,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramCyberIcon"
+            android:name="org.telegram.messenger.MoltenGramAeroIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_cyber"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_cyber_round"
+            android:icon="@mipmap/ic_launcher_moltengram_aero"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_aero_round"
             android:exported="true">
 
             <intent-filter>
@@ -214,10 +214,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramCosmicIcon"
+            android:name="org.telegram.messenger.MoltenGramStarIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_cosmic"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_cosmic_round"
+            android:icon="@mipmap/ic_launcher_moltengram_star"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_star_round"
             android:exported="true">
 
             <intent-filter>
@@ -230,10 +230,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramMochaIcon"
+            android:name="org.telegram.messenger.MoltenGramCoffeeIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_mocha"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_mocha_round"
+            android:icon="@mipmap/ic_launcher_moltengram_coffee"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_coffee_round"
             android:exported="true">
 
             <intent-filter>
@@ -262,10 +262,10 @@
 
         <activity-alias
             android:enabled="false"
-            android:name="org.telegram.messenger.MoltenGramLavenderIcon"
+            android:name="org.telegram.messenger.MoltenGramGoogleIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/ic_launcher_moltengram_lavender"
-            android:roundIcon="@mipmap/ic_launcher_moltengram_lavender_round"
+            android:icon="@mipmap/ic_launcher_moltengram_google"
+            android:roundIcon="@mipmap/ic_launcher_moltengram_google_round"
             android:exported="true">
 
             <intent-filter>

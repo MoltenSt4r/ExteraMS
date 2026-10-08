@@ -76,25 +76,25 @@ public class LauncherIconController {
     }
 
     public enum LauncherIcon {
-        // MoltenGram
+        // MoltenGram (9 curated styles)
         MOLTENGRAM("MoltenGramIcon", R.drawable.moltengram_icon_background,
                 0, R.string.AppIconMoltenGramDefault, IconGroup.MOLTENGRAM, "@moltenst4r", "Signature emerald flame", 0xFF1E713B),
-        MOLTENGRAM_DOTTED("MoltenGramDottedIcon", R.drawable.moltengram_dotted_icon_background,
-                0, R.string.AppIconMoltenGramDotted, IconGroup.MOLTENGRAM, "@moltenst4r", "Nothing Glyph dot-matrix", 0xFF666666),
-        MOLTENGRAM_NEON("MoltenGramNeonIcon", R.drawable.moltengram_neon_icon_background,
-                0, R.string.AppIconMoltenGramNeon, IconGroup.MOLTENGRAM, "@moltenst4r", "Layered translucent neon glass", 0xFF9A00FF),
-        MOLTENGRAM_LAVA("MoltenGramLavaIcon", R.drawable.moltengram_lava_icon_background,
-                0, R.string.AppIconMoltenGramLava, IconGroup.MOLTENGRAM, "@moltenst4r", "Glowing molten magma core", 0xFFE63C1E),
-        MOLTENGRAM_CYBER("MoltenGramCyberIcon", R.drawable.moltengram_cyber_icon_background,
-                0, R.string.AppIconMoltenGramCyber, IconGroup.MOLTENGRAM, "@moltenst4r", "Cyberpunk energy flame", 0xFFF87443),
-        MOLTENGRAM_COSMIC("MoltenGramCosmicIcon", R.drawable.moltengram_cosmic_icon_background,
-                0, R.string.AppIconMoltenGramCosmic, IconGroup.MOLTENGRAM, "@moltenst4r", "Cosmic starlight in deep space", 0xFFFFD700),
-        MOLTENGRAM_MOCHA("MoltenGramMochaIcon", R.drawable.moltengram_mocha_icon_background,
-                0, R.string.AppIconMoltenGramMocha, IconGroup.MOLTENGRAM, "@moltenst4r", "Warm mocha and soft peach", 0xFF8B5A2B),
+        MOLTENGRAM_MONOCHROME("MoltenGramMonochromeIcon", R.drawable.moltengram_monochrome_icon_background,
+                0, R.string.AppIconMoltenGramMonochrome, IconGroup.MOLTENGRAM, "@moltenst4r", "Nothing OS minimal monochrome", 0xFF666666),
+        MOLTENGRAM_ENDEAVOUROS("MoltenGramEndeavourOSIcon", R.drawable.moltengram_endeavouros_icon_background,
+                0, R.string.AppIconMoltenGramEndeavourOS, IconGroup.MOLTENGRAM, "@moltenst4r", "EndeavourOS indigo violet", 0xFF7B52AB),
+        MOLTENGRAM_SUNRISE("MoltenGramSunriseIcon", R.drawable.moltengram_sunrise_icon_background,
+                0, R.string.AppIconMoltenGramSunrise, IconGroup.MOLTENGRAM, "@moltenst4r", "Morning twilight gradient", 0xFFE06C53),
+        MOLTENGRAM_AERO("MoltenGramAeroIcon", R.drawable.moltengram_aero_icon_background,
+                0, R.string.AppIconMoltenGramAero, IconGroup.MOLTENGRAM, "@moltenst4r", "Frutiger aero 3D glass aesthetic", 0xFF007A9E),
+        MOLTENGRAM_STAR("MoltenGramStarIcon", R.drawable.moltengram_star_icon_background,
+                0, R.string.AppIconMoltenGramStar, IconGroup.MOLTENGRAM, "@moltenst4r", "Deep cosmic space starlight", 0xFFFFD700),
+        MOLTENGRAM_COFFEE("MoltenGramCoffeeIcon", R.drawable.moltengram_coffee_icon_background,
+                0, R.string.AppIconMoltenGramCoffee, IconGroup.MOLTENGRAM, "@moltenst4r", "Warm marble mocha coffee", 0xFF8B5A2B),
         MOLTENGRAM_GLACIER("MoltenGramGlacierIcon", R.drawable.moltengram_glacier_icon_background,
                 0, R.string.AppIconMoltenGramGlacier, IconGroup.MOLTENGRAM, "@moltenst4r", "Deep ocean glacier cyan", 0xFF00B4D8),
-        MOLTENGRAM_LAVENDER("MoltenGramLavenderIcon", R.drawable.moltengram_lavender_icon_background,
-                0, R.string.AppIconMoltenGramLavender, IconGroup.MOLTENGRAM, "@moltenst4r", "Minimal pastel lavender", 0xFFBA9AFF),
+        MOLTENGRAM_GOOGLE("MoltenGramGoogleIcon", R.drawable.moltengram_google_icon_background,
+                R.drawable.moltengram_google_icon_foreground, R.string.AppIconMoltenGramGoogle, IconGroup.MOLTENGRAM, "@moltenst4r", "Material 3 Expressive", 0xFF4285F4),
 
         // Telegram
         TELEGRAM("TelegramIcon", R.drawable.icon_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconTelegramOriginal, IconGroup.TELEGRAM, "@telegram", "The classic paper plane", 0xFF143854),

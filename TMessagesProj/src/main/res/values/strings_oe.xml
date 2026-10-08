@@ -28,15 +28,15 @@
     <string name="AppIconsMoltenGram" translatable="false">MoltenGram Icons</string>
     <string name="AppIconsExteraMS" translatable="false">MoltenGram Icons</string>
     <string name="AppIconsTelegram" translatable="false">Telegram Icons</string>
-    <string name="AppIconMoltenGramDefault">Default</string>
-    <string name="AppIconMoltenGramDotted">Dotted</string>
-    <string name="AppIconMoltenGramNeon">Neon</string>
-    <string name="AppIconMoltenGramLava">Lava</string>
-    <string name="AppIconMoltenGramCyber">Cyber</string>
-    <string name="AppIconMoltenGramCosmic">Cosmic</string>
-    <string name="AppIconMoltenGramMocha">Mocha</string>
+    <string name="AppIconMoltenGramDefault">MaterialYou</string>
+    <string name="AppIconMoltenGramMonochrome">Monochrome</string>
+    <string name="AppIconMoltenGramEndeavourOS">EndeavourOS</string>
+    <string name="AppIconMoltenGramSunrise">Sunrise</string>
+    <string name="AppIconMoltenGramAero">Frutiger Aero</string>
+    <string name="AppIconMoltenGramStar">Star</string>
+    <string name="AppIconMoltenGramCoffee">Coffee</string>
     <string name="AppIconMoltenGramGlacier">Glacier</string>
-    <string name="AppIconMoltenGramLavender">Lavender</string>
+    <string name="AppIconMoltenGramGoogle">Google style</string>
     <string name="OpenExteraPreferences">MoltenGram Preferences</string>
     <string name="OpenExteraCreditsSection">Credits</string>
     <string name="OpenExteraCreditsExteraless" translatable="false">@exteraless</string>

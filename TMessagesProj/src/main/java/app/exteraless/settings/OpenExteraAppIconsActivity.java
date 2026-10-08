@@ -3,29 +3,28 @@ package app.exteraless.settings;
 import static org.telegram.messenger.AndroidUtilities.dp;
 import static org.telegram.messenger.LocaleController.getString;
 
-import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RadialGradient;
-import android.graphics.Shader;
+import android.graphics.RectF;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.graphics.ColorUtils;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.ActionBar;
@@ -45,8 +45,7 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.LauncherIconController;
 
 /**
- * Fullscreen App Icon picker matching Nothing OS / exteraGram styling
- * with smooth transitions, atmospheric glow, and full theme integration.
+ * Fullscreen App Icon picker matching exteraGram's launcher icon selection screen.
  */
 public class OpenExteraAppIconsActivity extends BaseFragment {
 
@@ -56,7 +55,7 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
     private RecyclerListView listView;
     private IconsAdapter adapter;
 
-    private AtmosphericHeaderLayout headerLayout;
+    private LinearLayout headerLayout;
     private AppIconsSelectorCell.AdaptiveIconImageView headerIconView;
     private TextView headerTitleView;
     private TextView headerAuthorView;
@@ -78,7 +77,7 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
     public View createView(Context context) {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(getString(R.string.OEAppearanceAppIcon));
+        actionBar.setTitle("");
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -91,15 +90,15 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
         FrameLayout contentView = new FrameLayout(context);
         contentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
 
-        // Header view with atmospheric radial glow behind the large preview
-        headerLayout = new AtmosphericHeaderLayout(context);
+        // Header view containing large preview, title, and author
+        headerLayout = new LinearLayout(context);
         headerLayout.setOrientation(LinearLayout.VERTICAL);
         headerLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-        headerLayout.setPadding(0, dp(20), 0, dp(18));
+        headerLayout.setPadding(0, dp(16), 0, dp(16));
 
         headerIconView = new AppIconsSelectorCell.AdaptiveIconImageView(context);
         headerIconView.setOuterPadding(dp(8));
-        headerIconView.setBackgroundOuterPadding(0);
+        headerIconView.setBackgroundOuterPadding(dp(36));
         headerLayout.addView(headerIconView, LayoutHelper.createLinear(110, 110, Gravity.CENTER_HORIZONTAL));
 
         headerTitleView = new TextView(context);
@@ -115,7 +114,7 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
         headerAuthorView.setGravity(Gravity.CENTER);
         headerLayout.addView(headerAuthorView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL, 0, 4, 0, 0));
 
-        updateHeader(selectedIcon, false);
+        updateHeader(selectedIcon);
 
         // RecyclerView with 4 columns
         listView = new RecyclerListView(context);
@@ -128,7 +127,7 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
         });
         listView.setLayoutManager(gridLayoutManager);
         listView.setClipToPadding(false);
-        listView.setPadding(dp(12), dp(4), dp(12), dp(96));
+        listView.setPadding(dp(12), dp(4), dp(12), dp(84));
         adapter = new IconsAdapter();
         listView.setAdapter(adapter);
 
@@ -137,7 +136,7 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
             LauncherIconController.LauncherIcon icon = icons.get(position - 1);
             if (selectedIcon != icon) {
                 selectedIcon = icon;
-                updateHeader(selectedIcon, true);
+                updateHeader(selectedIcon);
                 updateButtonState();
                 adapter.notifyDataSetChanged();
             }
@@ -152,7 +151,7 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
                 new int[]{Color.TRANSPARENT, Theme.getColor(Theme.key_windowBackgroundGray)}
         );
         bottomGradient.setBackground(gradient);
-        contentView.addView(bottomGradient, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 88, Gravity.BOTTOM));
+        contentView.addView(bottomGradient, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 84, Gravity.BOTTOM));
 
         // Bottom floating pill button
         selectButton = new TextView(context);
@@ -185,30 +184,15 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
         return fragmentView;
     }
 
-    private void updateHeader(LauncherIconController.LauncherIcon icon, boolean animate) {
+    private void updateHeader(LauncherIconController.LauncherIcon icon) {
         if (icon == null || headerIconView == null) return;
         headerIconView.setImageResource(icon.background);
-        headerIconView.setIsNekoXIcon(icon.group == LauncherIconController.IconGroup.MOLTENGRAM);
         headerIconView.setForeground(icon.foreground);
+        headerIconView.setIsNekoXIcon(icon.group == LauncherIconController.IconGroup.MOLTENGRAM);
         headerIconView.setAdaptiveIconMode(icon.group != LauncherIconController.IconGroup.TELEGRAM);
-
-        if (animate) {
-            headerIconView.setScaleX(0.88f);
-            headerIconView.setScaleY(0.88f);
-            headerIconView.animate()
-                    .scaleX(1.0f)
-                    .scaleY(1.0f)
-                    .setDuration(240)
-                    .setInterpolator(new OvershootInterpolator(1.3f))
-                    .start();
-        }
 
         headerTitleView.setText(getString(icon.title));
         headerAuthorView.setText(icon.author != null ? icon.author : "");
-
-        if (headerLayout != null) {
-            headerLayout.animateGlowTo(icon.glowColor);
-        }
     }
 
     private void updateButtonState() {
@@ -284,7 +268,7 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
 
             iconView = new AppIconsSelectorCell.AdaptiveIconImageView(context);
             iconView.setOuterPadding(dp(5));
-            iconView.setBackgroundOuterPadding(0);
+            iconView.setBackgroundOuterPadding(dp(28));
             iconContainer.addView(iconView, LayoutHelper.createFrame(56, 56, Gravity.CENTER));
 
             checkmarkBadge = new ImageView(context);
@@ -311,8 +295,8 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
 
         public void bind(LauncherIconController.LauncherIcon icon, boolean isSelected) {
             iconView.setImageResource(icon.background);
-            iconView.setIsNekoXIcon(icon.group == LauncherIconController.IconGroup.MOLTENGRAM);
             iconView.setForeground(icon.foreground);
+            iconView.setIsNekoXIcon(icon.group == LauncherIconController.IconGroup.MOLTENGRAM);
             iconView.setAdaptiveIconMode(icon.group != LauncherIconController.IconGroup.TELEGRAM);
 
             titleView.setText(getString(icon.title));
@@ -329,70 +313,6 @@ public class OpenExteraAppIconsActivity extends BaseFragment {
                         Theme.getColor(Theme.key_listSelector)
                 ));
                 checkmarkBadge.setVisibility(GONE);
-            }
-        }
-    }
-
-    private static class AtmosphericHeaderLayout extends LinearLayout {
-        private final Paint glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private int currentGlowColor = 0;
-        private ValueAnimator glowAnimator;
-
-        public AtmosphericHeaderLayout(Context context) {
-            super(context);
-            setWillNotDraw(false);
-        }
-
-        public void animateGlowTo(int targetGlowColor) {
-            int alpha = Theme.isCurrentThemeDark() ? 0x48 : 0x22;
-            int tintedTarget = ColorUtils.setAlphaComponent(targetGlowColor, alpha);
-            if (currentGlowColor == 0) {
-                currentGlowColor = tintedTarget;
-                updateShader();
-                invalidate();
-                return;
-            }
-            if (glowAnimator != null) {
-                glowAnimator.cancel();
-            }
-            glowAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), currentGlowColor, tintedTarget);
-            glowAnimator.setDuration(260);
-            glowAnimator.addUpdateListener(animation -> {
-                currentGlowColor = (int) animation.getAnimatedValue();
-                updateShader();
-                invalidate();
-            });
-            glowAnimator.start();
-        }
-
-        private void updateShader() {
-            int w = getWidth();
-            int h = getHeight();
-            if (w <= 0 || h <= 0) return;
-
-            float cx = w / 2f;
-            float cy = dp(75);
-            float radius = w * 0.75f;
-
-            glowPaint.setShader(new RadialGradient(
-                    cx, cy, radius,
-                    new int[]{currentGlowColor, Color.TRANSPARENT},
-                    new float[]{0f, 1f},
-                    Shader.TileMode.CLAMP
-            ));
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            super.onSizeChanged(w, h, oldw, oldh);
-            updateShader();
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-            if (currentGlowColor != 0) {
-                canvas.drawRect(0, 0, getWidth(), getHeight(), glowPaint);
             }
         }
     }

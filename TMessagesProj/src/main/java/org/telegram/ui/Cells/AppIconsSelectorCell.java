@@ -335,7 +335,7 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
         }
 
         public void setForeground(int res) {
-            foreground = res != 0 ? ContextCompat.getDrawable(getContext(), res) : null;
+            foreground = ContextCompat.getDrawable(getContext(), res);
             invalidate();
         }
 
@@ -370,15 +370,20 @@ public class AppIconsSelectorCell extends RecyclerListView implements Notificati
         public void draw(Canvas canvas) {
             canvas.save();
             canvas.clipPath(path);
-            if (!this.isNekoXIcon)
+            if (!this.isNekoXIcon) {
                 canvas.scale(1f + backgroundOuterPadding / (float) getWidth(), 1f + backgroundOuterPadding / (float) getHeight(), getWidth() / 2f, getHeight() / 2f);
+            }
             super.draw(canvas);
             canvas.restore();
 
-            if (foreground != null && !this.isNekoXIcon) {
+            if (foreground != null) {
                 canvas.save();
                 canvas.clipPath(path);
-                foreground.setBounds(-outerPadding, -outerPadding, getWidth() + outerPadding, getHeight() + outerPadding);
+                if (this.isNekoXIcon) {
+                    foreground.setBounds(0, 0, getWidth(), getHeight());
+                } else {
+                    foreground.setBounds(-outerPadding, -outerPadding, getWidth() + outerPadding, getHeight() + outerPadding);
+                }
                 foreground.draw(canvas);
                 canvas.restore();
             }

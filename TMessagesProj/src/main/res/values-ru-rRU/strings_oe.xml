@@ -26,15 +26,15 @@
     <string name="AppIconsMoltenGram" translatable="false">Иконки MoltenGram</string>
     <string name="AppIconsExteraMS" translatable="false">Иконки MoltenGram</string>
     <string name="AppIconsTelegram" translatable="false">Иконки Telegram</string>
-    <string name="AppIconMoltenGramDefault">Основная</string>
-    <string name="AppIconMoltenGramDotted">Точки</string>
-    <string name="AppIconMoltenGramNeon">Неон</string>
-    <string name="AppIconMoltenGramLava">Лава</string>
-    <string name="AppIconMoltenGramCyber">Кибер</string>
-    <string name="AppIconMoltenGramCosmic">Космос</string>
-    <string name="AppIconMoltenGramMocha">Мокко</string>
+    <string name="AppIconMoltenGramDefault">MaterialYou</string>
+    <string name="AppIconMoltenGramMonochrome">Monochrome</string>
+    <string name="AppIconMoltenGramEndeavourOS">EndeavourOS</string>
+    <string name="AppIconMoltenGramSunrise">Sunrise</string>
+    <string name="AppIconMoltenGramAero">Frutiger Aero</string>
+    <string name="AppIconMoltenGramStar">Star</string>
+    <string name="AppIconMoltenGramCoffee">Coffee</string>
     <string name="AppIconMoltenGramGlacier">Ледник</string>
-    <string name="AppIconMoltenGramLavender">Лаванда</string>
+    <string name="AppIconMoltenGramGoogle">Google style</string>
     <string name="OpenExteraPreferences">Настройки MoltenGram</string>
     <string name="OpenExteraCreditsSection">Благодарности</string>
     <string name="OpenExteraCreditsExteraless" translatable="false">@exteraless</string>
