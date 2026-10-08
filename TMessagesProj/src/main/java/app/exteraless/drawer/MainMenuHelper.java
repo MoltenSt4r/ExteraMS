@@ -137,12 +137,47 @@ public final class MainMenuHelper {
         if (item == MainMenuItem.BOTS) {
             return addAttachMenuBotMenuItems(io, ctx);
         }
+        if (item == MainMenuItem.PLUGINS) {
+            return addPluginsMenuItem(io, ctx);
+        }
         final MenuItemInfo info = resolveMenuItem(id, ctx);
         if (info == null || info.onClick() == null) {
             return false;
         }
         io.add(info.iconRes(), info.text(), info.onClick());
         bindLongClick(io, info.onLongClick());
+        return true;
+    }
+
+    public static boolean addPluginsMenuItem(ItemOptions io, MenuContext ctx) {
+        final MenuItemInfo info = resolveMenuItem(MainMenuItem.PLUGINS.getId(), ctx);
+        if (info == null || info.onClick() == null) {
+            return false;
+        }
+        final List<MenuItemInfo> plugins = app.exteraless.plugins.menus.MenuInjector.mainMenuItems(ctx.currentAccount(), ctx.fragment());
+        if (plugins.isEmpty()) {
+            io.add(info.iconRes(), info.text(), info.onClick());
+            return true;
+        }
+        final ItemOptions swipeback = io.makeSwipeback();
+        swipeback.add(R.drawable.ic_ab_back, LocaleController.getString(R.string.Back), io::closeSwipeback);
+        swipeback.addGap();
+        for (MenuItemInfo plugin : plugins) {
+            swipeback.add(plugin.iconRes(), plugin.text(), () -> {
+                io.dismiss();
+                plugin.onClick().run();
+            });
+        }
+        io.add(info.iconRes(), info.text(), () -> io.openSwipeback(swipeback));
+        final ActionBarMenuSubItem last = io.getLast();
+        if (last != null) {
+            last.setRightIcon(R.drawable.msg_arrowright);
+            last.setOnLongClickListener(v -> {
+                io.dismiss();
+                info.onClick().run();
+                return true;
+            });
+        }
         return true;
     }
 
@@ -183,12 +218,28 @@ public final class MainMenuHelper {
         if (item == MainMenuItem.BOTS) {
             return resolveDrawerBotMenuItems(ctx);
         }
+        if (item == MainMenuItem.PLUGINS) {
+            return resolveDrawerPluginMenuItems(ctx);
+        }
         if (item == MainMenuItem.ARCHIVE && !hasArchivedChats(ctx.currentAccount())) {
             // Пустой архив в шторке не показывается.
             return Collections.emptyList();
         }
         final MenuItemInfo info = resolveMenuItem(id, ctx);
         return info == null ? Collections.emptyList() : Collections.singletonList(info);
+    }
+
+    private static List<MenuItemInfo> resolveDrawerPluginMenuItems(MenuContext ctx) {
+        final MenuItemInfo info = resolveMenuItem(MainMenuItem.PLUGINS.getId(), ctx);
+        final ArrayList<MenuItemInfo> result = new ArrayList<>();
+        if (info != null) {
+            result.add(info);
+        }
+        for (MenuItemInfo plugin : app.exteraless.plugins.menus.MenuInjector.mainMenuItems(ctx.currentAccount(), ctx.fragment())) {
+            final Runnable openPlugins = info != null ? info.onClick() : null;
+            result.add(new MenuItemInfo(plugin.iconRes() != 0 ? plugin.iconRes() : R.drawable.msg_plugins, plugin.text(), plugin.onClick(), openPlugins));
+        }
+        return result;
     }
 
     private static List<MenuItemInfo> resolveDrawerBotMenuItems(MenuContext ctx) {

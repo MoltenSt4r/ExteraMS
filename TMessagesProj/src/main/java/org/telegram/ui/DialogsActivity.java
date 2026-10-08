@@ -14245,7 +14245,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
 
         // exteraless plugins: пункты плагинов (MAIN_MENU) в конце меню «⋮».
-        app.exteraless.plugins.menus.MenuInjector.appendMainMenuItems(io, currentAccount);
+        app.exteraless.plugins.menus.MenuInjector.appendMainMenuItems(io, currentAccount, this);
 
         io.show();
         io.setTranslationY(-dp(64));

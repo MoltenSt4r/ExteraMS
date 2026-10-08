@@ -5146,11 +5146,18 @@ public class ChatActivity extends BaseFragment implements
             java.util.Map<String, Object> pluginMenuContext = new java.util.HashMap<>();
             pluginMenuContext.put("account", currentAccount);
             pluginMenuContext.put("dialog_id", dialog_id);
+            pluginMenuContext.put("fragment", this);
+            pluginMenuContext.put("context", context);
             if (currentChat != null) {
                 pluginMenuContext.put("chat", currentChat);
+                pluginMenuContext.put("chatId", currentChat.id);
             }
             if (currentUser != null) {
                 pluginMenuContext.put("user", currentUser);
+                pluginMenuContext.put("userId", currentUser.id);
+            }
+            if (currentEncryptedChat != null) {
+                pluginMenuContext.put("encryptedChat", currentEncryptedChat);
             }
             pluginsMenu = app.exteraless.plugins.menus.MenuInjector.attachSwipeBackMenu(
                     headerItem,

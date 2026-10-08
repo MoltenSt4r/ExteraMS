@@ -74,7 +74,9 @@ public abstract class PluginsController {
 
     public abstract void shutdown(Runnable onDone);
 
-    public abstract void runOnPluginsQueue(Runnable runnable);
+    public static void runOnPluginsQueue(Runnable runnable) {
+        app.exteraless.plugins.PluginsController.runOnPluginsQueue(runnable);
+    }
 
     public abstract String getPluginPath(String id);
 

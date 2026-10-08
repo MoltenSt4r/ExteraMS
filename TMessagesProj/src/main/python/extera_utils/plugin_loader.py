@@ -597,6 +597,12 @@ def guard_java_class(name):
     _log_once(f"{pid}|jclass|{name}",
               f"plugin {pid!r}: class {name!r} refused, missing {perm!r}")
     try:
+        java = _permissions()
+        if java is not None:
+            java.check(pid, wanted[0], f"class {name}")
+    except Exception:
+        pass
+    try:
         from . import audit_gate
         audit_gate.note_denied_class(pid, name, perm)
     except Exception:

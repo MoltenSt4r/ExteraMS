@@ -9,6 +9,7 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.proxy.ProxySettings;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -126,7 +127,42 @@ public final class ProxyController {
     }
 
     public synchronized SharedConfig.ProxyInfo getCurrentProxy() {
+        SharedConfig.loadProxyList();
         return SharedConfig.currentProxy;
+    }
+
+    public synchronized void setCurrentProxy(SharedConfig.ProxyInfo info) {
+        SharedConfig.loadProxyList();
+        SharedConfig.currentProxy = info;
+    }
+
+    public synchronized ArrayList<SharedConfig.ProxyInfo> getProxyList() {
+        SharedConfig.loadProxyList();
+        return new ArrayList<>(SharedConfig.proxyList);
+    }
+
+    public synchronized void loadProxyList() {
+        SharedConfig.loadProxyList();
+    }
+
+    public synchronized void saveProxyList() {
+        SharedConfig.saveProxyList();
+    }
+
+    public synchronized void removeProxy(SharedConfig.ProxyInfo info) {
+        ensureLoaded();
+        String link = keyOf(info);
+        if (!TextUtils.isEmpty(link) && names.remove(link) != null) {
+            persist();
+        }
+    }
+
+    public synchronized void clearAll() {
+        ensureLoaded();
+        if (!names.isEmpty()) {
+            names.clear();
+            persist();
+        }
     }
 
     public synchronized SharedConfig.ProxyInfo addProxy(SharedConfig.ProxyInfo info) {

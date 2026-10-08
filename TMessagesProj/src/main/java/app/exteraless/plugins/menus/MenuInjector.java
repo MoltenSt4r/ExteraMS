@@ -20,12 +20,17 @@ import org.telegram.ui.Components.ItemOptions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import app.exteraless.drawer.DrawerMenuItemView;
+import app.exteraless.drawer.MainMenuHelper;
+import app.exteraless.drawer.MainMenuItem;
+import app.exteraless.drawer.MainMenuLayout;
 import app.exteraless.plugins.MenuItemRecord;
 import app.exteraless.plugins.PluginsController;
 
@@ -211,7 +216,8 @@ public final class MenuInjector {
      * @param onItemClick колбэк закрытия шторки из DrawerMenuView (может быть null)
      */
     public static void appendDrawerItems(LinearLayout container, int currentAccount, Runnable onItemClick) {
-        if (container == null || !PluginsController.getInstance().isEngineEnabled()) {
+        if (container == null || !PluginsController.getInstance().isEngineEnabled()
+                || MainMenuLayout.getLayout().contains(MainMenuItem.PLUGINS.getId())) {
             return;
         }
         List<MenuItemRecord> records =
@@ -330,41 +336,48 @@ public final class MenuInjector {
      * Добавить пункты плагинов в меню «⋮» главного экрана. Зовётся в
      * {@code DialogsActivity.showItemOptions} перед {@code io.show()}.
      */
-    public static void appendMainMenuItems(ItemOptions io, int currentAccount) {
-        if (io == null || !PluginsController.getInstance().isEngineEnabled()) {
-            return;
+    public static List<MainMenuHelper.MenuItemInfo> mainMenuItems(int currentAccount, BaseFragment fragment) {
+        if (!PluginsController.getInstance().isEngineEnabled()) {
+            return Collections.emptyList();
         }
-        List<MenuItemRecord> records =
-                PluginsController.getInstance().getMenuItemsFor(MenuItemRecord.MenuType.MAIN_MENU);
+        LinkedHashSet<MenuItemRecord> records = new LinkedHashSet<>(
+                PluginsController.getInstance().getMenuItemsFor(MenuItemRecord.MenuType.MAIN_MENU));
+        records.addAll(PluginsController.getInstance().getMenuItemsFor(MenuItemRecord.MenuType.DRAWER_MENU));
         if (records.isEmpty()) {
-            return;
+            return Collections.emptyList();
         }
         Map<String, Object> menuContext = new HashMap<>();
         menuContext.put("account", currentAccount);
-        boolean addedAny = false;
+        if (fragment != null) {
+            menuContext.put("fragment", fragment);
+            if (fragment.getParentActivity() != null) {
+                menuContext.put("context", fragment.getParentActivity());
+            }
+        }
+        ArrayList<MainMenuHelper.MenuItemInfo> result = new ArrayList<>(records.size());
         for (MenuItemRecord record : records) {
             if (!isVisible(record, menuContext)) {
                 continue;
             }
-            if (!addedAny) {
-                io.addGap();
-                addedAny = true;
-            }
-            CharSequence text = record.text != null ? record.text : record.itemId;
-            Runnable onClick = () -> {
-                Map<String, Object> clickContext = new HashMap<>();
-                clickContext.put("account", currentAccount);
-                PluginsController.getInstance()
-                        .dispatchMenuClick(record.pluginId, record.itemId, clickContext);
-            };
-            int iconRes = resolveIcon(null, record.icon);
-            if (record.subtext != null) {
-                io.add(text, record.subtext, onClick);
-            } else if (iconRes != 0) {
-                io.add(iconRes, text, onClick);
-            } else {
-                io.add(text, onClick);
-            }
+            int icon = resolveIcon(null, record.icon);
+            result.add(new MainMenuHelper.MenuItemInfo(icon, record.text != null ? record.text : record.itemId, () ->
+                    PluginsController.getInstance().dispatchMenuClick(record.pluginId, record.itemId, new HashMap<>(menuContext)), null));
         }
+        return result;
+    }
+
+    public static void appendMainMenuItems(ItemOptions io, int currentAccount, BaseFragment fragment) {
+        if (io == null || !PluginsController.getInstance().isEngineEnabled()) {
+            return;
+        }
+        if (MainMenuLayout.isCustomized() && MainMenuLayout.getLayout().contains(MainMenuItem.PLUGINS.getId())) {
+            return;
+        }
+        MainMenuHelper.MenuContext ctx = MainMenuHelper.createMenuContext(currentAccount, fragment);
+        if (mainMenuItems(currentAccount, fragment).isEmpty()) {
+            return;
+        }
+        io.addGap();
+        MainMenuHelper.addPluginsMenuItem(io, ctx);
     }
 }

@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
+import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.LaunchActivity;
@@ -86,12 +87,51 @@ public final class PluginDenialNotice {
         String name = plugin != null ? plugin.getDisplayName() : pluginId;
         CharSequence text = LocaleController.formatString(R.string.PluginDeniedNotice,
                 name, PluginPermissionsActivity.titleOf(permission));
+        final boolean grantable = PluginPermissions.isKnown(permission);
         BulletinFactory.of(fragment)
                 .createSimpleBulletin(R.raw.error, text,
-                        LocaleController.getString(R.string.PluginDeniedOpen),
-                        () -> fragment.presentFragment(new PluginPermissionsActivity(pluginId)))
+                        LocaleController.getString(grantable ? R.string.PluginDeniedGrant : R.string.PluginDeniedOpen),
+                        () -> {
+                            if (grantable) {
+                                grant(fragment, pluginId, name, permission);
+                            } else {
+                                fragment.presentFragment(new PluginPermissionsActivity(pluginId));
+                            }
+                        })
                 .show();
         return true;
+    }
+
+    private static void grant(BaseFragment fragment, String pluginId, String name, String permission) {
+        if (PluginTrustLevel.allows(pluginId, permission)) {
+            applyGrant(fragment, pluginId, name, permission, PluginTrustLevel.getLevel(pluginId));
+            return;
+        }
+        final int level = PluginPermissions.isDangerous(permission) ? PluginTrustLevel.TRUSTED : PluginTrustLevel.GATED;
+        if (level != PluginTrustLevel.TRUSTED || fragment.getParentActivity() == null) {
+            applyGrant(fragment, pluginId, name, permission, level);
+            return;
+        }
+        new AlertDialog.Builder(fragment.getParentActivity(), fragment.getResourceProvider())
+                .setTitle(PluginPermissionsActivity.titleOf(permission))
+                .setMessage(LocaleController.formatString(R.string.PluginGrantTrustedConfirm, name))
+                .setPositiveButton(LocaleController.getString(R.string.PluginDeniedGrant),
+                        (d, w) -> applyGrant(fragment, pluginId, name, permission, level))
+                .setNegativeButton(LocaleController.getString(R.string.Cancel), null)
+                .show();
+    }
+
+    private static void applyGrant(BaseFragment fragment, String pluginId, String name, String permission, int level) {
+        if (PluginTrustLevel.getLevel(pluginId) < level) {
+            PluginTrustLevel.setLevel(pluginId, level);
+        }
+        PluginPermissions.grant(pluginId, permission);
+        BulletinFactory.of(fragment)
+                .createSimpleBulletin(R.raw.contact_check,
+                        LocaleController.formatString(R.string.PluginGrantedRestart, name),
+                        LocaleController.getString(R.string.PluginGrantedRestartAction),
+                        () -> PluginsController.getInstance().reloadPlugin(pluginId))
+                .show();
     }
 
     /** Забыть показанное (удаление плагина, смена разрешений). */

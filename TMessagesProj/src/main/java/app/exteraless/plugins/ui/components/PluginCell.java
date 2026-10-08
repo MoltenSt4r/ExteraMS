@@ -382,16 +382,9 @@ public class PluginCell extends FrameLayout implements NotificationCenter.Notifi
 
     public void set(Plugin plugin, PluginCellDelegate delegate) {
         setDelegate(delegate);
-        if (plugin == null) {
-            setModel(null);
-            return;
-        }
-        PluginsController controller = PluginsController.getInstance();
-        setModel(new Model(plugin, controller.isPluginPinned(plugin.id),
-                controller.isCompactView(), delegate));
-    }
-
-    private void setModel(Model model) {
+        final PluginsController controller = PluginsController.getInstance();
+        final Model model = plugin == null ? null : new Model(plugin, controller.isPluginPinned(plugin.id),
+                controller.isCompactView(), delegate);
         if (model == null || model.plugin == null) {
             pluginId = null;
             pluginIcon = null;

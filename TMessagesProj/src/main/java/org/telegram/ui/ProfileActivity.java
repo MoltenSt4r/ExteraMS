@@ -12896,11 +12896,17 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             java.util.Map<String, Object> pluginMenuContext = new java.util.HashMap<>();
             pluginMenuContext.put("account", currentAccount);
             pluginMenuContext.put("dialog_id", getDialogId());
+            pluginMenuContext.put("fragment", this);
+            if (getParentActivity() != null) {
+                pluginMenuContext.put("context", getParentActivity());
+            }
             if (userId != 0) {
                 pluginMenuContext.put("user", getMessagesController().getUser(userId));
+                pluginMenuContext.put("userId", userId);
             }
             if (chatId != 0) {
                 pluginMenuContext.put("chat", getMessagesController().getChat(chatId));
+                pluginMenuContext.put("chatId", chatId);
             }
             pluginsMenu = app.exteraless.plugins.menus.MenuInjector.attachSwipeBackMenu(
                     otherItem,
