@@ -15,6 +15,7 @@ public class LauncherIconController {
         "org.telegram.messenger.MoltenStarIcon",
         "org.telegram.messenger.MoltenStarGoogleIcon",
         "org.telegram.messenger.MoltenStarDottedIcon",
+        "org.telegram.messenger.MoltenGramMonochromeIcon",
         "org.telegram.messenger.DefaultIcon"
     };
 
@@ -83,19 +84,9 @@ public class LauncherIconController {
         android.graphics.Path path = new android.graphics.Path();
         path.addCircle(size / 2f, size / 2f, size / 2f, android.graphics.Path.Direction.CW);
         canvas.clipPath(path);
-        android.graphics.drawable.Drawable bg = androidx.core.content.ContextCompat.getDrawable(context, icon.background);
-        if (bg != null) {
-            bg.setBounds(0, 0, size, size);
-            bg.draw(canvas);
-        }
-        if (icon.foreground != 0) {
-            android.graphics.drawable.Drawable fg = androidx.core.content.ContextCompat.getDrawable(context, icon.foreground);
-            if (fg != null) {
-                int pad = org.telegram.messenger.AndroidUtilities.dp(sizeDp * 0.1f);
-                fg.setBounds(-pad, -pad, size + pad, size + pad);
-                fg.draw(canvas);
-            }
-        }
+        android.graphics.drawable.Drawable bg = icon.background != 0 ? androidx.core.content.ContextCompat.getDrawable(context, icon.background) : null;
+        android.graphics.drawable.Drawable fg = icon.foreground != 0 ? androidx.core.content.ContextCompat.getDrawable(context, icon.foreground) : null;
+        app.exteraless.appicons.AppIcons.draw(canvas, bg, fg, size);
         return new android.graphics.drawable.BitmapDrawable(context.getResources(), bitmap);
     }
 
@@ -105,11 +96,19 @@ public class LauncherIconController {
     }
 
     public enum LauncherIcon {
-        // MoltenGram (10 curated styles)
-        MOLTENGRAM("MoltenGramIcon", R.drawable.moltengram_icon_background,
-                0, R.string.AppIconMoltenGramDefault, IconGroup.MOLTENGRAM, "@moltenst4r", "Signature emerald flame", 0xFF1E713B),
-        MOLTENGRAM_MONOCHROME("MoltenGramMonochromeIcon", R.drawable.moltengram_monochrome_icon_background,
-                0, R.string.AppIconMoltenGramMonochrome, IconGroup.MOLTENGRAM, "@moltenst4r", "Nothing OS minimal monochrome", 0xFF666666),
+        // MoltenGram (14 curated styles)
+        MOLTENGRAM("MoltenGramIcon", R.drawable.moltengram_adaptive_icon_background,
+                R.drawable.moltengram_icon_foreground, R.string.AppIconMoltenGramDefault, IconGroup.MOLTENGRAM, "@moltenst4r", "Monet Material You adaptive", 0xFF1E713B),
+        MOLTENGRAM_PROTON("MoltenGramProtonIcon", R.drawable.moltengram_proton_icon_background,
+                0, R.string.AppIconMoltenGramProton, IconGroup.MOLTENGRAM, "@moltenst4r", "Proton cyber aesthetics", 0xFF6D4AFF),
+        MOLTENGRAM_SAD("MoltenGramSadIcon", R.drawable.moltengram_sad_icon_background,
+                0, R.string.AppIconMoltenGramSad, IconGroup.MOLTENGRAM, "@moltenst4r", "Melancholy moody vibes", 0xFF4A6572),
+        MOLTENGRAM_SCHIZOPHRENIA("MoltenGramSchizophreniaIcon", R.drawable.moltengram_schizophrenia_icon_background,
+                0, R.string.AppIconMoltenGramSchizophrenia, IconGroup.MOLTENGRAM, "@moltenst4r", "Chaotic glitch reality", 0xFFD32F2F),
+        MOLTENGRAM_BURNING("MoltenGramBurningIcon", R.drawable.moltengram_burning_icon_background,
+                0, R.string.AppIconMoltenGramBurning, IconGroup.MOLTENGRAM, "@moltenst4r", "Blazing fiery inferno", 0xFFFF5722),
+        MOLTENGRAM_ANOTHERCHANCE("MoltenGramAnotherChanceIcon", R.drawable.moltengram_anotherchance_icon_background,
+                0, R.string.AppIconMoltenGramAnotherChance, IconGroup.MOLTENGRAM, "@moltenst4r", "Another chance renewal", 0xFF00897B),
         MOLTENGRAM_DOTTED("MoltenGramDottedIcon", R.drawable.moltengram_dotted_icon_background,
                 0, R.string.AppIconMoltenGramDotted, IconGroup.MOLTENGRAM, "@moltenst4r", "Nothing OS glyph dot matrix", 0xFFFFFFFF),
         MOLTENGRAM_ENDEAVOUROS("MoltenGramEndeavourOSIcon", R.drawable.moltengram_endeavouros_icon_background,

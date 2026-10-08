@@ -97,7 +97,7 @@ public final class AppIcons {
     }
 
     // слои 108dp, а видно только 72dp в центре
-    static void draw(Canvas canvas, Drawable background, Drawable foreground, int size) {
+    public static void draw(Canvas canvas, Drawable background, Drawable foreground, int size) {
         int bleed = size / 4;
         if (background != null) {
             background.setBounds(-bleed, -bleed, size + bleed, size + bleed);

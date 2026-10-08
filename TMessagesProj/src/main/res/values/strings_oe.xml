@@ -28,8 +28,12 @@
     <string name="AppIconsMoltenGram" translatable="false">MoltenGram Icons</string>
     <string name="AppIconsExteraMS" translatable="false">MoltenGram Icons</string>
     <string name="AppIconsTelegram" translatable="false">Telegram Icons</string>
-    <string name="AppIconMoltenGramDefault">MaterialYou</string>
-    <string name="AppIconMoltenGramMonochrome">Monochrome</string>
+    <string name="AppIconMoltenGramDefault">Material You</string>
+    <string name="AppIconMoltenGramProton">Proton</string>
+    <string name="AppIconMoltenGramSad">Sad</string>
+    <string name="AppIconMoltenGramSchizophrenia">Schizophrenia</string>
+    <string name="AppIconMoltenGramBurning">Burning</string>
+    <string name="AppIconMoltenGramAnotherChance">Another Chance</string>
     <string name="AppIconMoltenGramDotted">Dotted</string>
     <string name="AppIconMoltenGramEndeavourOS">EndeavourOS</string>
     <string name="AppIconMoltenGramSunrise">Sunrise</string>

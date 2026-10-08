@@ -132,26 +132,21 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: ${{ success() }}
         with:
-          tag_name: v12.10.4
-          name: MoltenGram v12.10.4
+          tag_name: v12.10.5
+          name: MoltenGram v12.10.5
           make_latest: true
           body: |
-            ### Релиз MoltenGram v12.10.4
+            ### Релиз MoltenGram v12.10.5
+
+            **Адаптивные иконки и Monet Material You:**
+            - Настоящая адаптивная динамическая иконка под тему системы Monet (Material You на Android 12+).
+            - Обновлена иконка в шторке уведомлений на фирменный символ MoltenGram.
+            - Полностью удалена монохромная иконка и убран монохромный оверрайд с дизайнерских иконок.
+            - Добавлено 5 новых авторских иконок: Proton, Sad, Schizophrenia, Burning, Another Chance.
 
             **Брендинг и внешний вид:**
             - Ребрендинг проекта в **MoltenGram** (имя пакета `com.moltengram.app`, официальный канал `@MoltenGram`).
             - Восстановлено оригинальное плавное меню выбора иконки приложения с адаптивными версиями.
-            - 9 уникальных дизайнерских иконок:
-              - **MaterialYou** — фирменное изумрудное пламя на мятном фоне.
-              - **Monochrome** — минималистичный черно-белый стиль Nothing OS.
-              - **EndeavourOS** — индиго-лавандовый градиент.
-              - **Sunrise** — мягкий рассветный градиент.
-              - **Frutiger Aero** — объёмное 3D стекло.
-              - **Star** — глубокое космическое звёздное пламя.
-              - **Coffee** — тёплые тона мокко и кофе.
-              - **Ледник (Glacier)** — глубокий океанический бирюзовый ледник.
-              - **Google style** — Material 3 Expressive с контуром Google.
-            - Поддержка динамических монохромных иконок Android 13+ (Nothing OS и Google Pixel).
             - Чистый векторный контур изумрудного пламени для кнопки отправки сообщений.
 
             **Новый встроенный функционал («из коробки»):**
@@ -218,4 +213,4 @@ jobs:
           curl -s -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/fdroid.yml/dispatches \
-            -d '{"ref":"main","inputs":{"tag":"v12.10.3"}}' || true
+            -d '{"ref":"main","inputs":{"tag":"v12.10.5"}}' || true

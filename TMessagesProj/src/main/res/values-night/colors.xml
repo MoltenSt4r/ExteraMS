@@ -9,4 +9,6 @@
     <color name="widget_action_text">#75ADE5</color>
     <color name="widget_edit_text">#8D949B</color>
     <color name="SplashBackground">#202124</color>
+    <color name="moltengram_adaptive_background">#122018</color>
+    <color name="moltengram_adaptive_foreground">#7CE8A2</color>
 </resources>
