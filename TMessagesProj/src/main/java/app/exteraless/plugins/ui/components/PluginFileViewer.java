@@ -24,7 +24,7 @@ import app.exteraless.utils.MarkdownUtils;
 
 public final class PluginFileViewer {
 
-    private static final long MAX_SIZE = 512 * 1024;
+    static final long MAX_SIZE = 512 * 1024;
     private static final int CHUNK_SIZE = 8192;
 
     private PluginFileViewer() {

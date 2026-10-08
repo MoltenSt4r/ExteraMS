@@ -165,7 +165,6 @@ Código:
     <string name="PluginWatchdogMuted">%1$s ya no avisará sobre ralentizaciones. Puedes restaurar los avisos en los ajustes del complemento.</string>
     <string name="PluginWatchdogWarnings">Avisos de ralentización</string>
     <string name="PluginWatchdogWarningsInfo">Avisar cuando el complemento ocupe el hilo principal demasiado tiempo o deje de responder.</string>
-
     <!-- ExteraMS: Beta & Backup/Export -->
     <string name="PluginsBetaTitle">Funciones beta</string>
     <string name="PluginsBetaImportPy">Importar complementos .py</string>
@@ -185,4 +184,9 @@ Código:
     <string name="PluginsBackupInvalid">El archivo no es una copia de seguridad válida.</string>
     <string name="PluginsBackupRestoreConfirm">¿Restaurar %1$d complementos de esta copia?</string>
     <string name="PluginsBackupShareTitle">Exportar copia de seguridad</string>
+    <string name="PluginDeniedGrant">Conceder</string>
+    <string name="PluginGrantedRestart">Permiso concedido a %1$s. Reinicia el plugin si no lo aplica.</string>
+    <string name="PluginGrantedRestartAction">Reiniciar</string>
+    <string name="PluginGrantTrustedConfirm">%1$s recibirá el nivel de acceso «De confianza»: con él, el plugin puede cambiar el código de la app. ¿Conceder?</string>
+    <string name="PluginsAiReviewToolsPrompt">Revisa este plugin de un cliente de Telegram en busca de cualquier cosa que pueda dañar al usuario: recopilación oculta de datos, envío de mensajes o archivos a terceros, robo de credenciales, código descargado en tiempo de ejecución.\n\nEscribe la respuesta en %2$s.\n\nPlugin: %1$s\n\nEl código fuente no se incluye aquí: léelo con las herramientas. Archivos: %3$s.\nDatos incrustados (cadenas base64 y archivos binarios): %4$s\n\nLee cada archivo hasta el final con read_source, por rangos, y decodifica cada bloque incrustado con decode_base64 para ver qué contiene realmente: código, DEX, bibliotecas nativas, URL, claves. Basa el veredicto solo en lo que realmente leíste y di qué partes no pudiste revisar.</string>
 </resources>

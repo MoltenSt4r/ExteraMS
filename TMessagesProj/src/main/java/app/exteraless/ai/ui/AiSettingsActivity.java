@@ -81,6 +81,7 @@ public class AiSettingsActivity extends BaseNekoSettingsActivity {
     private int temperatureRow;
     private int streamingRow;
     private int saveHistoryRow;
+    private int disableToolsRow;
     private int clearHistoryRow;
     private int generationDividerRow;
 
@@ -135,6 +136,7 @@ public class AiSettingsActivity extends BaseNekoSettingsActivity {
         temperatureRow = addRow("temperature");
         streamingRow = addRow("streaming");
         saveHistoryRow = addRow("saveHistory");
+        disableToolsRow = addRow("disableTools");
         clearHistoryRow = addRow("clearHistory");
         generationDividerRow = addRow();
     }
@@ -220,6 +222,9 @@ public class AiSettingsActivity extends BaseNekoSettingsActivity {
         } else if (position == saveHistoryRow) {
             AiConfig.setSaveHistory(!AiConfig.getSaveHistory());
             ((TextCheckCell) view).setChecked(AiConfig.getSaveHistory());
+        } else if (position == disableToolsRow) {
+            AiConfig.setDisableTools(!AiConfig.getDisableTools());
+            ((TextCheckCell) view).setChecked(AiConfig.getDisableTools());
         } else if (position == clearHistoryRow) {
             AiConfig.clearConversationHistory();
             BulletinFactory.of(this).createSimpleBulletin(R.raw.ic_delete,
@@ -828,6 +833,9 @@ public class AiSettingsActivity extends BaseNekoSettingsActivity {
                     } else if (position == saveHistoryRow) {
                         cell.setTextAndCheck(getString(R.string.OEAiSaveHistory),
                                 AiConfig.getSaveHistory(), true);
+                    } else if (position == disableToolsRow) {
+                        cell.setTextAndValueAndCheck(getString(R.string.OEAiDisableTools),
+                                getString(R.string.OEAiDisableToolsInfo), AiConfig.getDisableTools(), true, true);
                     }
                     break;
                 }
@@ -899,7 +907,7 @@ public class AiSettingsActivity extends BaseNekoSettingsActivity {
             if (position == temperatureRow) {
                 return TYPE_TEMPERATURE;
             }
-            if (position == streamingRow || position == saveHistoryRow) {
+            if (position == streamingRow || position == saveHistoryRow || position == disableToolsRow) {
                 return TYPE_CHECK;
             }
             return TYPE_SETTINGS;

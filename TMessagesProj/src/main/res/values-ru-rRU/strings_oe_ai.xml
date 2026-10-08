@@ -48,4 +48,6 @@
     <string name="OEAiRolePrompt">Указание для модели</string>
     <string name="OEAiThoughtTime">Думал %1$d с</string>
     <string name="OEAiDetails">Подробности</string>
+    <string name="OEAiDisableTools">Отключить инструменты</string>
+    <string name="OEAiDisableToolsInfo">Проверка плагина уходит одним запросом, как раньше: только первые 48 КБ кода, встроенные данные не расшифровываются</string>
 </resources>

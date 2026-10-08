@@ -48,4 +48,6 @@
     <string name="OEAiRolePrompt">给模型的指令</string>
     <string name="OEAiThoughtTime">思考了 %1$d 秒</string>
     <string name="OEAiDetails">详情</string>
+    <string name="OEAiDisableTools">禁用工具</string>
+    <string name="OEAiDisableToolsInfo">插件审查像以前一样一次性发送代码：仅前 48 KB，不解码内嵌数据</string>
 </resources>

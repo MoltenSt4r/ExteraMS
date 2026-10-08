@@ -48,4 +48,6 @@
     <string name="OEAiRolePrompt">Instrukcja dla modelu</string>
     <string name="OEAiThoughtTime">Myślał %1$d s</string>
     <string name="OEAiDetails">Szczegóły</string>
+    <string name="OEAiDisableTools">Wyłącz narzędzia</string>
+    <string name="OEAiDisableToolsInfo">Sprawdzanie wtyczki wysyła kod jednym żądaniem, jak wcześniej: tylko pierwsze 48 KB, bez dekodowania osadzonych danych</string>
 </resources>

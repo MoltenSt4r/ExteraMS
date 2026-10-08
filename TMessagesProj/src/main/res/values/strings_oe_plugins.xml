@@ -175,7 +175,6 @@ Source:
     <string name="PluginWatchdogMuted">%1$s will no longer warn about slowdowns. You can bring the warnings back in the plugin settings.</string>
     <string name="PluginWatchdogWarnings">Slowdown warnings</string>
     <string name="PluginWatchdogWarningsInfo">Warn when this plugin holds the main thread for too long or stops responding.</string>
-
     <!-- ExteraMS: Beta & Backup/Export -->
     <string name="PluginsBetaTitle">Beta features</string>
     <string name="PluginsBetaImportPy">Import .py plugins</string>
@@ -195,4 +194,9 @@ Source:
     <string name="PluginsBackupInvalid">The file is not a valid plugin backup.</string>
     <string name="PluginsBackupRestoreConfirm">Restore %1$d plugins from this backup?</string>
     <string name="PluginsBackupShareTitle">Export plugins backup</string>
+    <string name="PluginDeniedGrant">Grant</string>
+    <string name="PluginGrantedRestart">Permission granted to %1$s. Restart the plugin if it doesn\'t pick it up.</string>
+    <string name="PluginGrantedRestartAction">Restart</string>
+    <string name="PluginGrantTrustedConfirm">%1$s will get the Trusted access level: with it, the plugin can change the app\'s code. Grant?</string>
+    <string name="PluginsAiReviewToolsPrompt">Review this Telegram client plugin for anything that could harm the user: hidden data collection, sending messages or files to third parties, credential theft, code downloaded at runtime.\n\nWrite the answer in %2$s.\n\nPlugin: %1$s\n\nThe source is not included here — read it with the tools. Files: %3$s.\nEmbedded data (base64 strings and binary files): %4$s\n\nRead every file to the end with read_source, a range at a time, and decode every embedded blob with decode_base64 to see what it really contains: code, DEX, native libraries, URLs, keys. Base the verdict only on what you actually read, and say which parts you could not inspect.</string>
 </resources>

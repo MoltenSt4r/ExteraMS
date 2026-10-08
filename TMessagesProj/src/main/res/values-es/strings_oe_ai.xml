@@ -48,4 +48,6 @@
     <string name="OEAiRolePrompt">Instrucción para el modelo</string>
     <string name="OEAiThoughtTime">Pensó %1$d s</string>
     <string name="OEAiDetails">Detalles</string>
+    <string name="OEAiDisableTools">Desactivar herramientas</string>
+    <string name="OEAiDisableToolsInfo">La revisión de plugins envía el código en una sola solicitud, como antes: solo los primeros 48 KB, sin decodificar los datos incrustados</string>
 </resources>

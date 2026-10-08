@@ -32,6 +32,7 @@ public final class AiConfig {
     private static final String KEY_TEMPERATURE = "temperature";
     private static final String KEY_SHOW_RESPONSE_ONLY = "showResponseOnly";
     private static final String KEY_INSERT_AS_QUOTE = "insertAsQuote";
+    private static final String KEY_DISABLE_TOOLS = "disableTools";
     private static final String KEY_SELECTED_SERVICE_ID = "selectedServiceId";
     private static final String KEY_SELECTED_SERVICE_HASH = "selectedService";
     private static final String KEY_SELECTED_ROLE = "selectedRole";
@@ -64,6 +65,14 @@ public final class AiConfig {
 
     public static void setResponseStreaming(boolean value) {
         getEditor().putBoolean(KEY_RESPONSE_STREAMING, value).apply();
+    }
+
+    public static boolean getDisableTools() {
+        return getPreferences().getBoolean(KEY_DISABLE_TOOLS, false);
+    }
+
+    public static void setDisableTools(boolean value) {
+        getEditor().putBoolean(KEY_DISABLE_TOOLS, value).apply();
     }
 
     public static int getTemperature() {

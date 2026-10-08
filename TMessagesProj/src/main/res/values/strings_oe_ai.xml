@@ -48,4 +48,6 @@
     <string name="OEAiRolePrompt">Instruction for the model</string>
     <string name="OEAiThoughtTime">Thought for %1$d s</string>
     <string name="OEAiDetails">Details</string>
+    <string name="OEAiDisableTools">Disable tools</string>
+    <string name="OEAiDisableToolsInfo">Plugin review sends the code in one request, as before: only the first 48 KB, embedded data is not decoded</string>
 </resources>

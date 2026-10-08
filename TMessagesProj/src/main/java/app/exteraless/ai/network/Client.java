@@ -45,6 +45,7 @@ public class Client {
     private static final int MAX_IMAGE_SIDE = 2048;
     private static final int MAX_HISTORY_MESSAGES = 32;
     private static final int MAX_HISTORY_SYMBOLS = 24000;
+    private static final int MAX_TOOL_ROUNDS = 24;
     private static final String[] REASONING_FIELDS = {"reasoning_content", "reasoning", "reasoning_details", "thinking"};
 
     private static volatile OkHttpClient sharedHttpClient;
@@ -52,6 +53,8 @@ public class Client {
     private final OkHttpClient httpClient;
     private final Service serviceOverride;
     private final Role roleOverride;
+    private final ToolHandler toolHandler;
+    private final java.util.Set<String> cancelled = ConcurrentHashMap.newKeySet();
     private final AtomicBoolean generating = new AtomicBoolean();
     private final ConcurrentHashMap<String, Call> activeCalls = new ConcurrentHashMap<>();
 
@@ -59,6 +62,12 @@ public class Client {
 
         private Service serviceOverride;
         private Role roleOverride;
+        private ToolHandler toolHandler;
+
+        public Builder tools(ToolHandler handler) {
+            this.toolHandler = handler;
+            return this;
+        }
 
         public Builder serviceOverride(Service service) {
             this.serviceOverride = service;
@@ -78,6 +87,7 @@ public class Client {
     private Client(Builder builder) {
         this.serviceOverride = builder.serviceOverride;
         this.roleOverride = builder.roleOverride;
+        this.toolHandler = builder.toolHandler;
         this.httpClient = httpClient();
     }
 
@@ -165,6 +175,9 @@ public class Client {
     }
 
     public void cancel(String requestId) {
+        if (requestId != null) {
+            cancelled.add(requestId);
+        }
         Call call = requestId == null ? null : activeCalls.remove(requestId);
         if (call != null) {
             call.cancel();
@@ -229,6 +242,14 @@ public class Client {
     }
 
     public void generate(String requestId, List<Message> messages, boolean streaming, GenerationCallback callback) {
+        if (toolHandler != null) {
+            generateWithTools(requestId, messages, streaming, callback);
+            return;
+        }
+        generatePlain(requestId, messages, streaming, callback);
+    }
+
+    private void generatePlain(String requestId, List<Message> messages, boolean streaming, GenerationCallback callback) {
         final Service service = service();
         if (service == null || TextUtils.isEmpty(service.getUrl())
                 || TextUtils.isEmpty(service.getModel())) {
@@ -290,9 +311,10 @@ public class Client {
 
     private Request buildRequest(Service service, List<Message> messages, boolean streaming)
             throws Exception {
-        String base = Service.normalizeUrl(service.getUrl());
-        String url = base + (base.endsWith("/") ? "chat/completions" : "/chat/completions");
+        return request(service, requestBody(service, basePayload(messages), streaming));
+    }
 
+    private JSONArray basePayload(List<Message> messages) throws Exception {
         JSONArray payload = new JSONArray();
         Role role = role();
         if (role != null && !TextUtils.isEmpty(role.getPrompt())) {
@@ -301,7 +323,10 @@ public class Client {
         for (Message message : messages) {
             payload.put(encode(message));
         }
+        return payload;
+    }
 
+    private JSONObject requestBody(Service service, JSONArray payload, boolean streaming) throws Exception {
         JSONObject body = new JSONObject();
         body.put("model", service.getModel());
         body.put("messages", payload);
@@ -313,7 +338,12 @@ public class Client {
         } else if (ModelsCatalog.supportsReasoning(service.getModel())) {
             body.put("reasoning_effort", "none");
         }
+        return body;
+    }
 
+    private Request request(Service service, JSONObject body) {
+        String base = Service.normalizeUrl(service.getUrl());
+        String url = base + (base.endsWith("/") ? "chat/completions" : "/chat/completions");
         return new Request.Builder()
                 .url(url)
                 .addHeader("Content-Type", "application/json")
@@ -322,6 +352,136 @@ public class Client {
                 .addHeader("X-Title", "MoltenGram")
                 .post(RequestBody.create(body.toString(), JSON))
                 .build();
+    }
+
+    private void generateWithTools(String requestId, List<Message> messages, boolean streaming, GenerationCallback callback) {
+        final Service service = service();
+        if (service == null || TextUtils.isEmpty(service.getUrl())
+                || TextUtils.isEmpty(service.getModel())) {
+            notifyError(requestId, callback, 0, "service is not configured");
+            return;
+        }
+        if (TextUtils.isEmpty(service.getKey())) {
+            notifyError(requestId, callback, 0, "api key is not set");
+            return;
+        }
+        cancelled.remove(requestId);
+        generating.set(true);
+        final ArrayList<Message> copy = new ArrayList<>(messages);
+        new Thread(() -> runTools(requestId, service, copy, streaming, callback), "ai-tools").start();
+    }
+
+    private void runTools(String requestId, Service service, List<Message> messages, boolean streaming,
+                          GenerationCallback callback) {
+        boolean thinkingReported = false;
+        try {
+            JSONArray payload = basePayload(messages);
+            for (int round = 0; round < MAX_TOOL_ROUNDS; round++) {
+                if (cancelled.remove(requestId)) {
+                    finish(requestId);
+                    return;
+                }
+                JSONObject body = requestBody(service, payload, false);
+                body.put("tools", toolHandler.definitions());
+                body.put("tool_choice", round == MAX_TOOL_ROUNDS - 1 ? "none" : "auto");
+                Call call = httpClient.newCall(request(service, body));
+                activeCalls.put(requestId, call);
+                JSONObject message;
+                try (Response response = call.execute()) {
+                    ResponseBody responseBody = response.body();
+                    if (!response.isSuccessful()) {
+                        String detail = responseBody == null ? null : readErrorMessage(responseBody);
+                        int code = response.code();
+                        if (round == 0 && code >= 400 && code < 500 && code != 401 && code != 403 && code != 429) {
+                            List<Message> fallback = toolHandler.fallback();
+                            if (fallback != null && !fallback.isEmpty()) {
+                                FileLog.e("AiClient: tools rejected (" + code + ", " + detail + "), falling back");
+                                activeCalls.remove(requestId);
+                                generatePlain(requestId, fallback, streaming, callback);
+                                return;
+                            }
+                        }
+                        notifyError(requestId, callback, code, detail);
+                        return;
+                    }
+                    if (responseBody == null) {
+                        notifyError(requestId, callback, response.code(), "empty response");
+                        return;
+                    }
+                    JSONArray choices = new JSONObject(responseBody.string()).optJSONArray("choices");
+                    message = choices == null || choices.length() == 0 ? null
+                            : choices.getJSONObject(0).optJSONObject("message");
+                }
+                if (message == null) {
+                    notifyError(requestId, callback, 0, "empty response");
+                    return;
+                }
+                String reasoning = reasoningOf(message);
+                if (!TextUtils.isEmpty(reasoning)) {
+                    if (!thinkingReported) {
+                        thinkingReported = true;
+                        notifyThinking(callback);
+                    }
+                    notifyReasoning(callback, reasoning.endsWith("\n") ? reasoning : reasoning + "\n");
+                }
+                JSONArray calls = message.optJSONArray("tool_calls");
+                if (calls == null || calls.length() == 0) {
+                    String content = text(message, "content");
+                    if (content == null) {
+                        notifyError(requestId, callback, 0, "empty response");
+                        return;
+                    }
+                    ReasoningFilter filter = new ReasoningFilter();
+                    String visible = filter.filter(content) + filter.flush();
+                    String thought = filter.consumeReasoning();
+                    if (thought != null) {
+                        notifyReasoning(callback, thought);
+                    }
+                    notifyResponse(requestId, callback, visible);
+                    return;
+                }
+                JSONObject assistant = new JSONObject().put("role", "assistant")
+                        .put("content", message.isNull("content") ? JSONObject.NULL : message.opt("content"))
+                        .put("tool_calls", calls);
+                payload.put(assistant);
+                for (int i = 0; i < calls.length(); i++) {
+                    JSONObject toolCall = calls.optJSONObject(i);
+                    if (toolCall == null) {
+                        continue;
+                    }
+                    JSONObject function = toolCall.optJSONObject("function");
+                    String name = function == null ? "" : function.optString("name");
+                    JSONObject arguments;
+                    try {
+                        String raw = function == null ? null : function.optString("arguments", "{}");
+                        arguments = TextUtils.isEmpty(raw) ? new JSONObject() : new JSONObject(raw);
+                    } catch (Exception e) {
+                        arguments = new JSONObject();
+                    }
+                    if (!thinkingReported) {
+                        thinkingReported = true;
+                        notifyThinking(callback);
+                    }
+                    notifyReasoning(callback, "\u2192 " + toolHandler.describe(name, arguments) + "\n");
+                    String result;
+                    try {
+                        result = toolHandler.call(name, arguments);
+                    } catch (Throwable t) {
+                        result = "error: " + t.getMessage();
+                    }
+                    payload.put(new JSONObject().put("role", "tool")
+                            .put("tool_call_id", toolCall.optString("id"))
+                            .put("content", result == null ? "" : result));
+                }
+            }
+            notifyError(requestId, callback, 0, "too many tool calls");
+        } catch (Exception e) {
+            if (cancelled.remove(requestId)) {
+                finish(requestId);
+            } else {
+                notifyError(requestId, callback, 0, e.getMessage());
+            }
+        }
     }
 
     private static JSONObject encode(Message message) throws Exception {
@@ -642,6 +802,7 @@ public class Client {
 
     private void finish(String requestId) {
         activeCalls.remove(requestId);
+        cancelled.remove(requestId);
         if (activeCalls.isEmpty()) {
             generating.set(false);
         }
