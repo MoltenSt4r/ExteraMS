@@ -81,7 +81,7 @@ public final class PluginsBackupHelper {
 
                 JSONObject manifest = new JSONObject();
                 manifest.put("version", 1);
-                manifest.put("app", "ExteraMS");
+                manifest.put("app", "MoltenGram");
                 manifest.put("timestamp", System.currentTimeMillis());
 
                 JSONArray pluginsArr = new JSONArray();

@@ -8,32 +8,61 @@ import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.R;
 
 public class LauncherIconController {
+    private static final String[] LEGACY_ALIASES = {
+        "org.telegram.messenger.ExteraMSMD3Icon",
+        "org.telegram.messenger.ExteraMSGoogleIcon",
+        "org.telegram.messenger.ExteraMSDottedIcon",
+        "org.telegram.messenger.MoltenStarIcon",
+        "org.telegram.messenger.MoltenStarGoogleIcon",
+        "org.telegram.messenger.MoltenStarDottedIcon",
+        "org.telegram.messenger.DefaultIcon"
+    };
+
     public static void tryFixLauncherIconIfNeeded() {
+        Context ctx = ApplicationLoader.applicationContext;
+        if (ctx == null) return;
+        PackageManager pm = ctx.getPackageManager();
+        boolean hasEnabled = false;
         for (LauncherIcon icon : LauncherIcon.values()) {
-            if (isEnabled(icon)) {
-                return;
+            if (pm.getComponentEnabledSetting(icon.getComponentName(ctx)) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                hasEnabled = true;
+                break;
             }
         }
-
-        setIcon(LauncherIcon.MOLTENGRAM);
+        for (String legacy : LEGACY_ALIASES) {
+            ComponentName cn = new ComponentName(ctx.getPackageName(), legacy);
+            try {
+                if (pm.getComponentEnabledSetting(cn) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                    pm.setComponentEnabledSetting(cn, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                }
+            } catch (Exception ignored) {}
+        }
+        if (!hasEnabled) {
+            setIcon(LauncherIcon.MOLTENGRAM);
+        }
     }
 
     public static boolean isEnabled(LauncherIcon icon) {
         Context ctx = ApplicationLoader.applicationContext;
+        if (ctx == null) return false;
         int i = ctx.getPackageManager().getComponentEnabledSetting(icon.getComponentName(ctx));
-        // Пока пользователь ничего не выбирал, включённой считается наша иконка:
-        // именно она стоит у <application> в манифесте, и переключатель должен
-        // показывать выбранным то, что человек видит на рабочем столе.
         return i == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                 || i == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && icon == LauncherIcon.MOLTENGRAM;
     }
 
     public static void setIcon(LauncherIcon icon) {
         Context ctx = ApplicationLoader.applicationContext;
+        if (ctx == null) return;
         PackageManager pm = ctx.getPackageManager();
         for (LauncherIcon i : LauncherIcon.values()) {
             pm.setComponentEnabledSetting(i.getComponentName(ctx), i == icon ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        }
+        for (String legacy : LEGACY_ALIASES) {
+            ComponentName cn = new ComponentName(ctx.getPackageName(), legacy);
+            try {
+                pm.setComponentEnabledSetting(cn, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            } catch (Exception ignored) {}
         }
     }
 

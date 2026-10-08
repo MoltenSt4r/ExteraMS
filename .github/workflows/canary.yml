@@ -120,12 +120,11 @@ jobs:
 
             **Новый функционал и изменения:**
             - Полный ребрендинг: **MoltenGram** (`com.moltengram.app`)
-            - 10 уникальных дизайнерских стилей иконки приложения (Default, Dotted, Neon, Lava, Aero, Pixel, Mint, Mocha, Sunset, Azure)
-            - Полноэкранный выбор иконки с живым атмосферным свечением под цвет темы и плашками авторов
-            - Карточка настроек оформления под вкладками папок чатов
-            - Разделенные аватарка и меню «три точки» в шапке диалога
-            - MD3 переключатели с тонкой обводкой в выключенном состоянии
-            - Встроенный быстрый калькулятор после знака «=»
+            - 9 кураторских стилей иконки (MaterialYou, Monochrome, EndeavourOS, Sunrise, Frutiger Aero, Star, Coffee, Glacier, Google style)
+            - Новый полноэкранный выбор иконки с живой анимацией сжатия, акцентным свечением и чекбоксами (PR #98)
+            - Исправлен вылет приложения с Resource ID #0x0 в IconsResources
+            - Полноценная поддержка монохромных иконок Android 13+ для Nothing OS и Google Pixel
+            - Новый логотип MoltenGram на экране входа (Intro) и при запуске (Splash Screen)
           files: |
             TMessagesProj/build/outputs/apk/staging/*.apk
 

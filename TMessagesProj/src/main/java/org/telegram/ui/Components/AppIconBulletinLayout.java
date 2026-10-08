@@ -34,11 +34,17 @@ public class AppIconBulletinLayout extends Bulletin.ButtonLayout {
         textView.setTypeface(Typeface.SANS_SERIF);
         addView(textView, LayoutHelper.createFrameRelatively(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL, 56, 0, 16, 0));
 
-        // NekoX: try to fix NekoX icon
-        imageView.setImageDrawable(ContextCompat.getDrawable(context, icon.background));
+        // MoltenGram: icon preview
+        if (icon.background != 0) {
+            imageView.setImageDrawable(ContextCompat.getDrawable(context, icon.background));
+        }
         imageView.setOuterPadding(AndroidUtilities.dp(8));
         imageView.setBackgroundOuterPadding(AndroidUtilities.dp(24));
-        imageView.setForeground(icon.foreground);
+        if (icon.foreground != 0) {
+            imageView.setForeground(icon.foreground);
+        } else {
+            imageView.setForeground(0);
+        }
         imageView.setIsNekoXIcon(false);
         textView.setText(AndroidUtilities.replaceTags(LocaleController.formatString(R.string.AppIconChangedTo, LocaleController.getString(icon.title))));
     }

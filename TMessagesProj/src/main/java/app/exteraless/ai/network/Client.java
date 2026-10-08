@@ -318,8 +318,8 @@ public class Client {
                 .url(url)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Bearer " + service.getKey())
-                .addHeader("HTTP-Referer", "https://github.com/MoltenSt4r/ExteraMS")
-                .addHeader("X-Title", "ExteraMS")
+                .addHeader("HTTP-Referer", "https://github.com/MoltenSt4r/MoltenGram")
+                .addHeader("X-Title", "MoltenGram")
                 .post(RequestBody.create(body.toString(), JSON))
                 .build();
     }

@@ -38,4 +38,6 @@
     <string name="MainTabsHideCallsSettings">Ukryj kartę Połączenia</string>
     <string name="MainTabsHideProfile">Ukryj kartę profilu</string>
     <string name="OEBotWebViewUpdate">Zaktualizuj WebView</string>
+    <string name="AppIconsSelect">Wybierz</string>
+    <string name="AppIconsKeep">Zostaw tę</string>
 </resources>

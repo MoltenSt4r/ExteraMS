@@ -22,17 +22,26 @@ public class IconsResources extends Resources {
 
     @Override
     public Drawable getDrawable(int id) throws NotFoundException {
+        if (id == 0) {
+            return null;
+        }
         return getDrawableForDensity(id, 0, null);
     }
 
     @Override
     public Drawable getDrawable(int id, @Nullable Theme theme) throws NotFoundException {
+        if (id == 0) {
+            return null;
+        }
         return getDrawableForDensity(id, 0, theme);
     }
 
     @Nullable
     @Override
     public Drawable getDrawableForDensity(int id, int density, @Nullable Theme theme) {
+        if (id == 0) {
+            return null;
+        }
         // openExtera: сначала спрашиваем установленные паки иконок
         Drawable fromPack = IconPackManager.getInstance().getDrawable(this, id, density, theme);
         if (fromPack != null) {
@@ -44,6 +53,9 @@ public class IconsResources extends Resources {
     @Nullable
     @Override
     public Drawable getDrawableForDensity(int id, int density) throws NotFoundException {
+        if (id == 0) {
+            return null;
+        }
         return getDrawableForDensity(id, density, null);
     }
 
@@ -53,12 +65,22 @@ public class IconsResources extends Resources {
      */
     @Nullable
     public Drawable getOriginalDrawableForDensity(int id, int density, @Nullable Theme theme) {
+        if (id == 0) {
+            return null;
+        }
         int converted = getConversion(id);
+        if (converted == 0) {
+            return null;
+        }
         // Только super.getDrawableForDensity: это терминальная реализация в Resources.
         // super.getDrawable(...) звать нельзя — он внутри вызывает виртуальный
         // getDrawableForDensity, попадает обратно в наш override и уходит в рекурсию.
         // density == 0 базовый Resources трактует как «без переопределения плотности».
-        return super.getDrawableForDensity(converted, density, theme);
+        try {
+            return super.getDrawableForDensity(converted, density, theme);
+        } catch (NotFoundException e) {
+            return null;
+        }
     }
 
     private int getConversion(int icon) {
@@ -66,6 +88,9 @@ public class IconsResources extends Resources {
     }
 
     private int getConversion(int icon, int forcedIconsType) {
+        if (icon == 0) {
+            return 0;
+        }
         if (_iconsType == -1) {
             _iconsType = NaConfig.INSTANCE.getIconReplacements().Int();
         }

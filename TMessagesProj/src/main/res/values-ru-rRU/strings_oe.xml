@@ -35,6 +35,8 @@
     <string name="AppIconMoltenGramCoffee">Coffee</string>
     <string name="AppIconMoltenGramGlacier">Ледник</string>
     <string name="AppIconMoltenGramGoogle">Google style</string>
+    <string name="AppIconsSelect">Выбрать</string>
+    <string name="AppIconsKeep">Оставить эту</string>
     <string name="OpenExteraPreferences">Настройки MoltenGram</string>
     <string name="OpenExteraCreditsSection">Благодарности</string>
     <string name="OpenExteraCreditsExteraless" translatable="false">@exteraless</string>

@@ -156,7 +156,11 @@ public class TextDetailSettingsCell extends FrameLayout {
         }
         rightLauncherIconView.setVisibility(VISIBLE);
         rightLauncherIconView.setImageResource(icon.background);
-        rightLauncherIconView.setForeground(icon.foreground);
+        if (icon.foreground != 0) {
+            rightLauncherIconView.setForeground(icon.foreground);
+        } else {
+            rightLauncherIconView.setForeground(0);
+        }
         rightLauncherIconView.setOuterPadding(AndroidUtilities.dp(3));
         rightLauncherIconView.setBackgroundOuterPadding(AndroidUtilities.dp(20));
         rightLauncherIconView.setAdaptiveIconMode(icon.group != org.telegram.ui.LauncherIconController.IconGroup.TELEGRAM);

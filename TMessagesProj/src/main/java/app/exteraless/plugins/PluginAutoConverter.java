@@ -119,7 +119,7 @@ public final class PluginAutoConverter {
                 version = vm.group(1);
             }
 
-            String author = "ExteraMS";
+            String author = "MoltenGram";
             Matcher am = AUTHOR_PATTERN.matcher(content);
             if (am.find()) {
                 author = am.group(1);
@@ -143,7 +143,7 @@ public final class PluginAutoConverter {
 
             StringBuilder converted = new StringBuilder();
             converted.append("# -*- coding: utf-8 -*-\n");
-            converted.append("# Auto-converted plugin by ExteraMS\n");
+            converted.append("# Auto-converted plugin by MoltenGram\n");
             if (!hasId) {
                 converted.append("__id__ = \"").append(escape(id)).append("\"\n");
             }
@@ -164,7 +164,7 @@ public final class PluginAutoConverter {
             converted.append(content);
 
             if (!hasBasePlugin) {
-                converted.append("\n\n# --- Auto-generated plugin wrapper by ExteraMS ---\n");
+                converted.append("\n\n# --- Auto-generated plugin wrapper by MoltenGram ---\n");
                 converted.append("try:\n");
                 converted.append("    from base_plugin import BasePlugin\n\n");
                 converted.append("    class _AutoPlugin(BasePlugin):\n");

@@ -558,7 +558,7 @@ public class OpenExteraAppearanceActivity extends BaseNekoSettingsActivity {
             presentFragment(new IconPacksActivity());
             return;
         } else if (position == appIconRow) {
-            presentFragment(new OpenExteraAppIconsActivity());
+            presentFragment(new app.exteraless.appicons.AppIconsActivity());
             return;
         } else if (position == chipFoldersRow) {
             presentFragment(new app.exteraless.appearance.ChipFoldersSettingsActivity());

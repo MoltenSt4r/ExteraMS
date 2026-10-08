@@ -1183,7 +1183,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
             } else if (position == backgroundRow) {
                 presentFragment(new WallpapersListActivity(WallpapersListActivity.TYPE_ALL));
             } else if (position == appIconRow) {
-                presentFragment(new app.exteraless.settings.OpenExteraAppIconsActivity());
+                presentFragment(new app.exteraless.appicons.AppIconsActivity());
             } else if (position == changeUserColor) {
                 presentFragment(new PeerColorActivity(0).setOnApplied(this));
             } else if (position == sendByEnterRow) {
@@ -2528,10 +2528,10 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                     view = new RadioButtonCell(mContext);
                     break;
                 case TYPE_APP_ICON:
-                    view = new AppIconsSelectorCell(mContext, ThemeActivity.this, currentAccount, LauncherIconController.IconGroup.MOLTENGRAM);
+                    view = new app.exteraless.appicons.AppIconEntryCell(mContext, ThemeActivity.this);
                     break;
                 case TYPE_APP_ICON_TELEGRAM:
-                    view = new AppIconsSelectorCell(mContext, ThemeActivity.this, currentAccount, LauncherIconController.IconGroup.TELEGRAM);
+                    view = new app.exteraless.appicons.AppIconEntryCell(mContext, ThemeActivity.this);
                     break;
                 case TYPE_CHOOSE_COLOR:
                     view = new PeerColorActivity.ChangeNameColorCell(currentAccount, 0, mContext, getResourceProvider());
@@ -2863,7 +2863,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 return TYPE_DEFAULT_THEMES_PREVIEW;
             } else if (position == saveToGalleryOption1Row || position == saveToGalleryOption2Row) {
                 return TYPE_SAVE_TO_GALLERY;
-            } else if (position == exteramsIconSelectorRow) {
+            } else if (position == appIconRow || position == exteramsIconSelectorRow) {
                 return TYPE_APP_ICON;
             } else if (position == telegramIconSelectorRow) {
                 return TYPE_APP_ICON_TELEGRAM;
