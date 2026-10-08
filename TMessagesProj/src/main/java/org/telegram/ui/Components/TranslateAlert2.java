@@ -120,6 +120,8 @@ public class TranslateAlert2 extends BottomSheet implements NotificationCenter.N
     private BaseFragment fragment;
     private Utilities.CallbackReturn<URLSpan, Boolean> onLinkPress;
     private boolean firstTranslation = true;
+    private final boolean nekoProviders = app.exteraless.chats.ChatsConfig.translateInSheet.Bool();
+    private int sheetProvider = tw.nekomimi.nekogram.NekoConfig.translationProvider.Int();
 
     public TranslateAlert2(
         Context context,
@@ -144,6 +146,7 @@ public class TranslateAlert2 extends BottomSheet implements NotificationCenter.N
         fixNavigationBar();
 
         this.reqText = text;
+        this.providerEntities = entities;
         this.reqPeer = peer;
         this.reqMessageId = messageId;
         this.reqSum = sum;
@@ -313,6 +316,12 @@ public class TranslateAlert2 extends BottomSheet implements NotificationCenter.N
             reqId = null;
         }
 
+        if (nekoProviders && reqRichMessage == null && !reqSum
+                && sheetProvider != tw.nekomimi.nekogram.translate.Translator.providerTelegram) {
+            translateWithProvider();
+            return;
+        }
+
         final String method = MessagesController.getInstance(currentAccount).translationsManualEnabled;
         if ("alternative".equalsIgnoreCase(method)) {
             translateAlt();
@@ -448,6 +457,56 @@ public class TranslateAlert2 extends BottomSheet implements NotificationCenter.N
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36"
     };
+    private int providerRequest;
+    private ArrayList<TLRPC.MessageEntity> providerEntities;
+
+    private void translateWithProvider() {
+        final int request = ++providerRequest;
+        app.exteraless.utils.text.TranslatorUtils.translate(reqText == null ? "" : reqText, toLanguage, providerEntities, new app.exteraless.utils.text.TranslatorUtils.TranslateCallback() {
+            @Override
+            public void onSuccess(TLRPC.TL_textWithEntities result) {
+                if (request != providerRequest || isDismissed() || result == null) {
+                    return;
+                }
+                firstTranslation = false;
+                CharSequence translated = SpannableStringBuilder.valueOf(result.text == null ? "" : result.text);
+                MessageObject.addEntitiesToText(translated, result.entities, false, true, false, false);
+                textView.setText(preprocessText(translated));
+                adapter.updateMainView(textViewContainer);
+            }
+
+            @Override
+            public void onFailed() {
+                if (request != providerRequest || isDismissed()) {
+                    return;
+                }
+                if (firstTranslation) {
+                    dismiss();
+                    NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.showBulletin, Bulletin.TYPE_ERROR, LocaleController.getString(R.string.TranslationFailedAlert2));
+                } else {
+                    BulletinFactory.of((FrameLayout) containerView, resourcesProvider).createErrorBulletin(LocaleController.getString(R.string.TranslationFailedAlert2)).show();
+                    if (prevToLanguage != null) {
+                        headerView.toLanguageTextView.setText(languageName(toLanguage = prevToLanguage));
+                    }
+                    adapter.updateMainView(textViewContainer);
+                }
+            }
+        });
+    }
+
+    private void onProviderSelected(int provider) {
+        if (sheetProvider == provider) {
+            return;
+        }
+        sheetProvider = provider;
+        if (provider != tw.nekomimi.nekogram.translate.Translator.providerTelegram || org.telegram.messenger.UserConfig.getInstance(currentAccount).isPremium()) {
+            tw.nekomimi.nekogram.NekoConfig.translationProvider.setConfigInt(provider);
+        }
+        headerView.titleTextView.setText(tw.nekomimi.nekogram.settings.NekoTranslatorSettingsActivity.getProviderName(provider));
+        adapter.updateMainView(reqRichMessage != null ? richLoadingPreviewView : loadingTextView);
+        translate();
+    }
+
     private void translateAlt() {
         final String text = reqText == null ? "" : reqText.toString();
         String _fromLng = fromLanguage;
@@ -1225,7 +1284,30 @@ public class TranslateAlert2 extends BottomSheet implements NotificationCenter.N
             titleTextView.setText(LocaleController.getString(R.string.AutomaticTranslation));
             titleTextView.setPivotX(0);
             titleTextView.setPivotY(0);
-            addView(titleTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.FILL_HORIZONTAL, 22, 20, 22, 0));
+            if (nekoProviders) {
+                titleTextView.setText(tw.nekomimi.nekogram.settings.NekoTranslatorSettingsActivity.getProviderName(sheetProvider));
+                titleTextView.setSingleLine(true);
+                titleTextView.setEllipsize(TextUtils.TruncateAt.END);
+                Drawable arrow = ContextCompat.getDrawable(context, R.drawable.ic_arrow_drop_down);
+                if (arrow != null) {
+                    arrow = arrow.mutate();
+                    arrow.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_dialogTextBlack), PorterDuff.Mode.MULTIPLY));
+                    arrow.setBounds(0, -dp(1), dp(22), dp(21));
+                    if (LocaleController.isRTL) {
+                        titleTextView.setCompoundDrawables(arrow, null, null, null);
+                    } else {
+                        titleTextView.setCompoundDrawables(null, null, arrow, null);
+                    }
+                }
+                titleTextView.setCompoundDrawablePadding(dp(2));
+                titleTextView.setOnClickListener(v -> tw.nekomimi.nekogram.translate.Translator.showProviderSelect(titleTextView, provider -> {
+                    onProviderSelected(provider);
+                    return kotlin.Unit.INSTANCE;
+                }));
+                addView(titleTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), 22, 20, 22, 0));
+            } else {
+                addView(titleTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.FILL_HORIZONTAL, 22, 20, 22, 0));
+            }
 
             subtitleView = new LinearLayout(context) {
                 @Override
