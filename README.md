@@ -29,7 +29,8 @@
 
 ### Ссылки
 
-* Исходный код MoltenGram: [github.com/MoltenSt4r/ExteraMS](https://github.com/MoltenSt4r/ExteraMS)
+* Канал MoltenGram: [@MoltenGram](https://t.me/MoltenGram)
+* Исходный код MoltenGram: [github.com/MoltenSt4r/MoltenGram](https://github.com/MoltenSt4r/MoltenGram)
 * Исходный код апстрима (exteraless): [github.com/exteraless/exteraless](https://github.com/exteraless/exteraless)
 * Канал апстрима: [@exteraless](https://t.me/exteraless)
 
@@ -132,7 +133,8 @@ Python 3.12 лишь под них, и на `armeabi-v7a` конфигураци
 
 ### Links
 
-* MoltenGram repository: [github.com/MoltenSt4r/ExteraMS](https://github.com/MoltenSt4r/ExteraMS)
+* MoltenGram channel: [@MoltenGram](https://t.me/MoltenGram)
+* MoltenGram repository: [github.com/MoltenSt4r/MoltenGram](https://github.com/MoltenSt4r/MoltenGram)
 * Upstream repository: [github.com/exteraless/exteraless](https://github.com/exteraless/exteraless)
 * Upstream channel: [@exteraless](https://t.me/exteraless)
 

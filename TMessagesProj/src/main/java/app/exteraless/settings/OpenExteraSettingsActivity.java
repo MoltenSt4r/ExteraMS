@@ -188,10 +188,10 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
         } else if (position == otherRow) {
             presentFragment(new OpenExteraOtherActivity());
         } else if (position == channelRow) {
-            getMessagesController().openByUserName("ExteraMS", this, 1);
+            getMessagesController().openByUserName("MoltenGram", this, 1);
         } else if (position == sourceRow) {
             org.telegram.messenger.browser.Browser.openUrl(getParentActivity(),
-                    "https://github.com/MoltenSt4r/ExteraMS");
+                    "https://github.com/MoltenSt4r/MoltenGram");
         } else if (position == creditsExteralessRow) {
             getMessagesController().openByUserName("exteraless", this, 1);
         } else if (position == creditsNagramXRow) {
@@ -248,7 +248,7 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
                         cell.setTextAndIcon(getString(R.string.OpenExteraOther), R.drawable.msg_fave, false);
                     } else if (position == channelRow) {
                         cell.setTextAndValueAndIcon(getString(R.string.ProfileChannel),
-                                "@ExteraMS", R.drawable.msg_channel, true);
+                                "@MoltenGram", R.drawable.msg_channel, true);
                     } else if (position == sourceRow) {
                         cell.setTextAndValueAndIcon(getString(R.string.OpenExteraSource),
                                 "GitHub", R.drawable.msg_language, false);
