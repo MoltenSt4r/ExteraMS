@@ -35,12 +35,6 @@
     <string name="AppIconMoltenGramMocha">Мокко</string>
     <string name="AppIconMoltenGramGlacier">Ледник</string>
     <string name="AppIconMoltenGramLavender">Лаванда</string>
-    <string name="AppIconExteraMSMD3">Основная</string>
-    <string name="AppIconExteraMSDotted" translatable="false">MoltenGram Точки</string>
-    <string name="AppIconExteraMSGoogle" translatable="false">MoltenGram Google</string>
-    <string name="AppIconMoltenStar" translatable="false">MoltenStar</string>
-    <string name="AppIconMoltenStarDotted" translatable="false">MoltenStar Точки</string>
-    <string name="AppIconMoltenStarGoogle" translatable="false">MoltenStar Google</string>
     <string name="OpenExteraPreferences">Настройки MoltenGram</string>
     <string name="OpenExteraCreditsSection">Благодарности</string>
     <string name="OpenExteraCreditsExteraless" translatable="false">@exteraless</string>

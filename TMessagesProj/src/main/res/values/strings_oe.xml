@@ -37,12 +37,6 @@
     <string name="AppIconMoltenGramMocha">Mocha</string>
     <string name="AppIconMoltenGramGlacier">Glacier</string>
     <string name="AppIconMoltenGramLavender">Lavender</string>
-    <string name="AppIconExteraMSMD3">Default</string>
-    <string name="AppIconExteraMSDotted" translatable="false">MoltenGram Dotted</string>
-    <string name="AppIconExteraMSGoogle" translatable="false">MoltenGram Google</string>
-    <string name="AppIconMoltenStar" translatable="false">MoltenStar</string>
-    <string name="AppIconMoltenStarDotted" translatable="false">MoltenStar Dotted</string>
-    <string name="AppIconMoltenStarGoogle" translatable="false">MoltenStar Google</string>
     <string name="OpenExteraPreferences">MoltenGram Preferences</string>
     <string name="OpenExteraCreditsSection">Credits</string>
     <string name="OpenExteraCreditsExteraless" translatable="false">@exteraless</string>
