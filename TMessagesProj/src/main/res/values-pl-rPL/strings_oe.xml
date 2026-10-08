@@ -40,4 +40,14 @@
     <string name="OEBotWebViewUpdate">Zaktualizuj WebView</string>
     <string name="AppIconsSelect">Wybierz</string>
     <string name="AppIconsKeep">Zostaw tę</string>
+    <string name="OEProfilerStart">Uruchom profiler przycięć</string>
+    <string name="OEProfilerStop">Zatrzymaj profiler i udostępnij raport</string>
+    <string name="OEProfilerStarted">Profiler działa. Korzystaj z aplikacji jak zwykle, a potem zatrzymaj go tutaj.</string>
+    <string name="OEProfilerShareLast">Udostępnij ostatni raport profilera</string>
+    <string name="OEProfileIdDate">Data rejestracji i dołączenia</string>
+    <string name="OEProfileAccountCreated">Konto **%1$s** utworzono %2$s</string>
+    <string name="OEProfileJoinedChat">Dołączono do **%1$s** %2$s</string>
+    <string name="OEProfileJoinedChannel">Zasubskrybowano **%1$s** %2$s</string>
+    <string name="OEProfileChatCreated">**%1$s** utworzono %2$s</string>
+    <string name="OEProfileJoinDateUnknown">Data dołączenia jest niedostępna</string>
 </resources>

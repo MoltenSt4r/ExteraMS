@@ -20,7 +20,8 @@ public enum PillType {
     DC_PING(11),
     GOLD(12),
     ETH(13),
-    EUR(14);
+    EUR(14),
+    LAST_SEEN(15);
 
     public final int id;
 

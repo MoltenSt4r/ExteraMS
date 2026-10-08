@@ -90,4 +90,20 @@
     <string name="OpenExteraUpdatesLastCheck">Last check: %s</string>
     <string name="OpenExteraUpdatesLastCheckNever">Never</string>
     <string name="OpenExteraUpdatesChannel">Updates channel</string>
+    <string name="OEProfilerStart">Start jank profiler</string>
+    <string name="OEProfilerStop">Stop profiler and share report</string>
+    <string name="OEProfilerStarted">Profiler is running. Use the app as usual, then stop it here.</string>
+    <string name="OEProfilerShareLast">Share last profiler report</string>
+    <string name="OEEnergyProfilerStart">Start energy profiler</string>
+    <string name="OEEnergyProfilerStop">Stop energy profiler and share report</string>
+    <string name="OEEnergyProfilerStarted">Energy profiler is running, also in the background and after restarts. Use the phone as usual for a few hours, then stop it here.</string>
+    <string name="OEEnergyProfilerShareCurrent">Share energy report so far</string>
+    <string name="OEEnergyProfilerShareLast">Share last energy report</string>
+    <string name="OEPluginToggleLogShare">Share plugin toggle log</string>
+    <string name="OEProfileIdDate">Registration and join date</string>
+    <string name="OEProfileAccountCreated">**%1$s** joined Telegram %2$s</string>
+    <string name="OEProfileJoinedChat">You joined **%1$s** on %2$s</string>
+    <string name="OEProfileJoinedChannel">You subscribed to **%1$s** on %2$s</string>
+    <string name="OEProfileChatCreated">**%1$s** was created on %2$s</string>
+    <string name="OEProfileJoinDateUnknown">Join date is unavailable</string>
 </resources>

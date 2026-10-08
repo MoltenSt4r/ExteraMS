@@ -85,4 +85,20 @@
     <string name="OpenExteraUpdatesLastCheck">Последняя проверка: %s</string>
     <string name="OpenExteraUpdatesLastCheckNever">Никогда</string>
     <string name="OpenExteraUpdatesChannel">Канал обновлений</string>
+    <string name="OEProfilerStart">Запустить профайлер</string>
+    <string name="OEProfilerStop">Остановить профайлер и отправить отчёт</string>
+    <string name="OEProfilerStarted">Профайлер запущен. Пользуйтесь приложением как обычно, потом остановите его здесь же.</string>
+    <string name="OEProfilerShareLast">Отправить последний отчёт профайлера</string>
+    <string name="OEEnergyProfilerStart">Запустить профиль энергопотребления</string>
+    <string name="OEEnergyProfilerStop">Остановить профиль энергопотребления и отправить отчёт</string>
+    <string name="OEEnergyProfilerStarted">Профиль энергопотребления запущен, он работает и в фоне, и после перезапуска. Пользуйтесь телефоном как обычно несколько часов, потом остановите его здесь же.</string>
+    <string name="OEEnergyProfilerShareCurrent">Отправить текущий отчёт об энергопотреблении</string>
+    <string name="OEEnergyProfilerShareLast">Отправить последний отчёт об энергопотреблении</string>
+    <string name="OEPluginToggleLogShare">Отправить журнал включения плагинов</string>
+    <string name="OEProfileIdDate">Дата регистрации и вступления</string>
+    <string name="OEProfileAccountCreated">Аккаунт **%1$s** создан %2$s</string>
+    <string name="OEProfileJoinedChat">Вы вступили в **%1$s** %2$s</string>
+    <string name="OEProfileJoinedChannel">Вы подписались на **%1$s** %2$s</string>
+    <string name="OEProfileChatCreated">**%1$s** создан %2$s</string>
+    <string name="OEProfileJoinDateUnknown">Дата вступления недоступна</string>
 </resources>

@@ -52,4 +52,5 @@
     <string name="PillStackRateTo">To</string>
     <string name="PillStackAddRate">Add a rate</string>
     <string name="PillStackRemoveRate">Remove this rate pill?</string>
+    <string name="PillStackLastSeen">My Status</string>
 </resources>

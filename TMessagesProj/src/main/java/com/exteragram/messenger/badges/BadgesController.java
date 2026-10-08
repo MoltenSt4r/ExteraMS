@@ -1,17 +1,22 @@
 package com.exteragram.messenger.badges;
 
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.widget.FrameLayout;
 
 import com.exteragram.messenger.api.dto.BadgeDTO;
 import com.exteragram.messenger.badges.source.ApiBadgeSource;
+import com.exteragram.messenger.utils.text.LocaleUtils;
 
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.UserConfig;
+import org.telegram.messenger.UserObject;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Components.AnimatedEmojiDrawable;
+import org.telegram.ui.Components.BulletinFactory;
 
 import java.util.function.Consumer;
 
@@ -156,6 +161,10 @@ public final class BadgesController {
     public void showBadgeBulletin(BaseFragment fragment, BadgeDTO badge, TLRPC.Chat chat,
                                   Theme.ResourcesProvider resourcesProvider, int account,
                                   FrameLayout containerLayout, Boolean showButton) {
+        if (chat == null || badge == null) {
+            return;
+        }
+        showBadgeBulletin(fragment, badge, formatBadgeText(badge, chat.title), resourcesProvider, account, containerLayout);
     }
 
     public void showBadgeBulletin(BaseFragment fragment, BadgeDTO badge, TLRPC.User user,
@@ -166,10 +175,38 @@ public final class BadgesController {
     public void showBadgeBulletin(BaseFragment fragment, BadgeDTO badge, TLRPC.User user,
                                   Theme.ResourcesProvider resourcesProvider, int account,
                                   FrameLayout containerLayout, Boolean showButton) {
+        if (user == null || badge == null) {
+            return;
+        }
+        showBadgeBulletin(fragment, badge, formatBadgeText(badge, UserObject.getUserName(user)), resourcesProvider, account, containerLayout);
     }
 
     public void showBadgeBulletin(BaseFragment fragment, TLRPC.User user,
                                   Theme.ResourcesProvider resourcesProvider, int account,
                                   FrameLayout containerLayout, Boolean showButton) {
+        showBadgeBulletin(fragment, getBadge(user), user, resourcesProvider, account, containerLayout, showButton);
+    }
+
+    private void showBadgeBulletin(BaseFragment fragment, BadgeDTO badge, CharSequence text,
+                                   Theme.ResourcesProvider resourcesProvider, int account,
+                                   FrameLayout containerLayout) {
+        BulletinFactory factory = containerLayout != null
+                ? BulletinFactory.of(containerLayout, resourcesProvider)
+                : BulletinFactory.of(fragment);
+        if (factory == null) {
+            return;
+        }
+        factory.createEmojiBulletin(AnimatedEmojiDrawable.findDocument(account, badge.getDocumentId()), text)
+                .wrapContent()
+                .show();
+    }
+
+    private CharSequence formatBadgeText(BadgeDTO badge, CharSequence fallbackText) {
+        String text = badge.getText();
+        if (TextUtils.isEmpty(text)) {
+            return fallbackText;
+        }
+        CharSequence formatted = LocaleUtils.formatWithUsernames(text);
+        return formatted != null ? formatted : fallbackText;
     }
 }

@@ -41,4 +41,5 @@
     <string name="PillStackRateTo">A</string>
     <string name="PillStackAddRate">Añadir una tasa</string>
     <string name="PillStackRemoveRate">¿Eliminar esta píldora de tasa?</string>
+    <string name="PillStackLastSeen">Mi estado</string>
 </resources>

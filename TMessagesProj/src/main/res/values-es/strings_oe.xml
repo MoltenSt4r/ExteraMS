@@ -40,4 +40,14 @@
     <string name="OEBotWebViewUpdate">Actualizar WebView</string>
     <string name="AppIconsSelect">Seleccionar</string>
     <string name="AppIconsKeep">Quedarme con este</string>
+    <string name="OEProfilerStart">Iniciar el perfilador de tirones</string>
+    <string name="OEProfilerStop">Detener el perfilador y compartir el informe</string>
+    <string name="OEProfilerStarted">El perfilador está activo. Usa la app como siempre y luego detenlo aquí.</string>
+    <string name="OEProfilerShareLast">Compartir el último informe del perfilador</string>
+    <string name="OEProfileIdDate">Fecha de registro y de unión</string>
+    <string name="OEProfileAccountCreated">**%1$s** se unió a Telegram %2$s</string>
+    <string name="OEProfileJoinedChat">Te uniste a **%1$s** el %2$s</string>
+    <string name="OEProfileJoinedChannel">Te suscribiste a **%1$s** el %2$s</string>
+    <string name="OEProfileChatCreated">**%1$s** se creó el %2$s</string>
+    <string name="OEProfileJoinDateUnknown">La fecha de unión no está disponible</string>
 </resources>

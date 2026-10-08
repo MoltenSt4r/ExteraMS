@@ -2343,7 +2343,7 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
             return;
         }
 
-        final boolean hasAvatar = chatAvatarContainer.hasVisibleAvatar();
+        final boolean hasAvatar = chatAvatarContainer.hasVisibleAvatar() && !chatAvatarContainer.isAvatarCentered();
         int visualWidth = chatAvatarContainer.getVisualWidth();
         if (hasAvatar) {
             //visualWidth = Math.max(visualWidth, dp(168));
@@ -2396,7 +2396,7 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
 
     public void checkMenuItemsWidth() {
         int defaultMenuWidth = Math.max(0, menu != null ? (int) menu.getItemsWidth() - dp(1) - dp(1) : 0);
-        if (!isSearchFieldVisible && chatAvatarContainer == null && menu != null && menu.isCenteredTitle()) {
+        if (!isSearchFieldVisible && (chatAvatarContainer == null || chatAvatarContainer.isAvatarCentered() && chatAvatarContainer.hasVisibleAvatar()) && menu != null && menu.isCenteredTitle()) {
             defaultMenuWidth = Math.max(defaultMenuWidth, dp(46));
         }
         final int actionMenuWidth = Math.max(0, actionMode != null ? actionMode.getItemsWidth() - dp(1) - dp(1) : 0);
@@ -2437,7 +2437,14 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
             final int rightDefault = getWidth() - rightOffset;
             final int widthDefault = rightDefault - leftDefault;
             final int left, right;
-            if (chatAvatarContainer != null) {
+            if (chatAvatarContainer != null && chatAvatarContainer.isAvatarCentered()) {
+                final int width = lerp(Math.min(widthDefault, (int) animatorAvatarContainerWidth.getFactor() + p * 2 + Math.round(glassAvatarGap)), widthDefault, Math.max(searchFactor, actionModeFactor));
+                final float titleCenter = chatAvatarContainer.getTitleCenterX();
+                left = Math.max(leftDefault, Math.min(rightDefault - width, Math.round(chatAvatarContainer.getLeft() + titleCenter - width / 2f)));
+                right = left + width;
+                chatAvatarContainer.setTranslationX(0);
+                chatAvatarContainer.setPivotX(titleCenter);
+            } else if (chatAvatarContainer != null) {
                 final int width = lerp(Math.min(widthDefault, (int) animatorAvatarContainerWidth.getFactor() + p * 2 + Math.round(glassAvatarGap)), widthDefault, Math.max(searchFactor, actionModeFactor));
                 left = (rightDefault + leftDefault - width) / 2;
                 right = left + width;

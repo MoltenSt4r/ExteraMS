@@ -432,6 +432,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private RLottieDrawable cellCameraDrawable;
 
     private HintView fwdRestrictedHint;
+    private HintView idDateHint;
 //    private ProfileMetaballView metaball;
     private FrameLayout avatarContainer;
     private FrameLayout avatarContainer2;
@@ -6013,6 +6014,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (fwdRestrictedHint != null) {
                     fwdRestrictedHint.hide();
                 }
+                if (idDateHint != null) {
+                    idDateHint.hide();
+                }
                 checkListViewScroll();
                 if (participantsMap != null && !usersEndReached && layoutManager.findLastVisibleItemPosition() > membersEndRow - 8) {
                     getChannelParticipants(false);
@@ -6052,6 +6056,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         fwdRestrictedHint.setAlpha(0);
         frameLayout.addView(fwdRestrictedHint, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 12, 0, 12, 0));
         sharedMediaLayout.setForwardRestrictedHint(fwdRestrictedHint);
+
+        idDateHint = new HintView(getParentActivity(), 7, true);
+        idDateHint.setAlpha(0);
+        idDateHint.setShowingDuration(4500);
+        frameLayout.addView(idDateHint, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 12, 0, 12, 0));
 
         ViewGroup decorView;
         decorView = (ViewGroup) getParentActivity().getWindow().getDecorView();
@@ -11798,7 +11807,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         newString2 = getString(R.string.StarRatingLevelNegative).toLowerCase(Locale.ROOT);
                     } else {
                         if (!NekoConfig.sendOnlinePackets.Bool() || NekoConfig.sendOfflinePacketAfterOnline.Bool()) {
-                            newString2 = getString(R.string.VoipOfflineTitle);
+                            final int lastSeen = app.exteraless.ghost.OwnLastSeen.seconds(currentAccount, user);
+                            newString2 = lastSeen > 0 ? app.exteraless.ghost.OwnLastSeen.format(lastSeen) : getString(R.string.VoipOfflineTitle);
                         } else {
                             newString2 = LocaleController.getString(R.string.Online);
                         }
@@ -11880,12 +11890,18 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 boolean rightIconIsPremium = false, rightIconIsStatus = false;
                 nameTextView[a].setRightDrawableOutside(a == 0);
                 if (a == 0 && !copyFromChatActivity) {
+                    BadgeDTO userBadge = BadgesController.INSTANCE.getBadge(user);
+                    nameTextView[a].setRightDrawable2OnClick(null);
                     if (user.scam || user.fake) {
                         nameTextView[a].setRightDrawable2(getScamDrawable(user.scam ? 0 : 1));
                         nameTextViewRightDrawable2ContentDescription = LocaleController.getString(R.string.ScamMessage);
                     } else if (user.verified) {
                         nameTextView[a].setRightDrawable2(getVerifiedCrossfadeDrawable(a));
                         nameTextViewRightDrawable2ContentDescription = LocaleController.getString(R.string.AccDescrVerified);
+                    } else if (userBadge != null) {
+                        nameTextView[a].setRightDrawable2(getBadgeDrawable(userBadge, false, a));
+                        nameTextView[a].setRightDrawable2OnClick(v -> BadgesController.INSTANCE.showBadgeBulletin(this, userBadge, user, resourcesProvider, currentAccount));
+                        nameTextViewRightDrawable2ContentDescription = userBadge.getText();
                     } else if (getMessagesController().isDialogMuted(dialogId != 0 ? dialogId : userId, topicId)) {
                         nameTextView[a].setRightDrawable2(getThemedDrawable(Theme.key_drawable_muteIconDrawable));
                         nameTextViewRightDrawable2ContentDescription = LocaleController.getString(R.string.NotificationsMuted);
@@ -11894,13 +11910,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         nameTextViewRightDrawable2ContentDescription = null;
                     }
                     Long selfEmojiDocId = (user != null && user.self) ? UserObject.getEmojiStatusDocumentId(user) : null;
-                    BadgeDTO userBadge = BadgesController.INSTANCE.getBadge(user);
-                    if (userBadge != null) {
-                        rightIconIsStatus = true;
-                        rightIconIsPremium = false;
-                        nameTextView[a].setRightDrawable(getBadgeDrawable(userBadge, false, a));
-                        nameTextViewRightDrawableContentDescription = userBadge.getText();
-                    } else if (user != null/* && !getMessagesController().premiumFeaturesBlocked()*/ && !MessagesController.isSupportUser(user) && (DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId != null && selfEmojiDocId != 0))) {
+                    if (user != null/* && !getMessagesController().premiumFeaturesBlocked()*/ && !MessagesController.isSupportUser(user) && (DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId != null && selfEmojiDocId != 0))) {
                         rightIconIsStatus = true;
                         rightIconIsPremium = false;
                         if (user.self && (selfEmojiDocId != null && selfEmojiDocId != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
@@ -11921,21 +11931,20 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         nameTextViewRightDrawableContentDescription = null;
                     }
                 } else if (a == 1) {
+                    BadgeDTO userBadge = BadgesController.INSTANCE.getBadge(user);
+                    nameTextView[a].setRightDrawable2OnClick(null);
                     if (user.scam || user.fake) {
                         nameTextView[a].setRightDrawable2(getScamDrawable(user.scam ? 0 : 1));
                     } else if (user.verified) {
                         nameTextView[a].setRightDrawable2(getVerifiedCrossfadeDrawable(a));
+                    } else if (userBadge != null) {
+                        nameTextView[a].setRightDrawable2(getBadgeDrawable(userBadge, true, a));
+                        nameTextView[a].setRightDrawable2OnClick(v -> BadgesController.INSTANCE.showBadgeBulletin(this, userBadge, user, resourcesProvider, currentAccount));
                     } else {
                         nameTextView[a].setRightDrawable2(null);
                     }
                     Long selfEmojiDocId2 = (user != null && user.self) ? UserObject.getEmojiStatusDocumentId(user) : null;
-                    BadgeDTO userBadge2 = BadgesController.INSTANCE.getBadge(user);
-                    if (userBadge2 != null) {
-                        rightIconIsStatus = true;
-                        rightIconIsPremium = false;
-                        nameTextView[a].setRightDrawable(getBadgeDrawable(userBadge2, true, a));
-                        nameTextViewRightDrawableContentDescription = userBadge2.getText();
-                    } else if (/*!getMessagesController().premiumFeaturesBlocked() && */user != null && !MessagesController.isSupportUser(user) && (DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId2 != null && selfEmojiDocId2 != 0))) {
+                    if (/*!getMessagesController().premiumFeaturesBlocked() && */user != null && !MessagesController.isSupportUser(user) && (DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId2 != null && selfEmojiDocId2 != 0))) {
                         rightIconIsStatus = true;
                         rightIconIsPremium = false;
                         if (user.self && (selfEmojiDocId2 != null && selfEmojiDocId2 != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
@@ -12228,22 +12237,24 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 nameTextView[a].setRightDrawableOutside(a == 0);
                 nameTextView[a].setRightDrawableOnClick(null);
                 if (a != 0) {
+                    BadgeDTO chatBadge = BadgesController.INSTANCE.getBadge(chat);
+                    nameTextView[a].setRightDrawable2OnClick(null);
                     if (chat.scam || chat.fake) {
                         nameTextView[a].setRightDrawable2(getScamDrawable(chat.scam ? 0 : 1));
                         nameTextViewRightDrawableContentDescription = LocaleController.getString(R.string.ScamMessage);
                     } else if (chat.verified) {
                         nameTextView[a].setRightDrawable2(getVerifiedCrossfadeDrawable(a));
                         nameTextViewRightDrawableContentDescription = LocaleController.getString(R.string.AccDescrVerified);
+                    } else if (chatBadge != null) {
+                        nameTextView[a].setRightDrawable2(getBadgeDrawable(chatBadge, true, a));
+                        final TLRPC.Chat badgeChat = chat;
+                        nameTextView[a].setRightDrawable2OnClick(v -> BadgesController.INSTANCE.showBadgeBulletin(this, chatBadge, badgeChat, resourcesProvider, currentAccount));
+                        nameTextViewRightDrawableContentDescription = chatBadge.getText();
                     } else {
                         nameTextView[a].setRightDrawable2(null);
                         nameTextViewRightDrawableContentDescription = null;
                     }
-                    BadgeDTO chatBadge = BadgesController.INSTANCE.getBadge(chat);
-                    if (chatBadge != null) {
-                        nameTextView[a].setRightDrawable(getBadgeDrawable(chatBadge, true, a));
-                        nameTextView[a].setRightDrawableOutside(true);
-                        nameTextViewRightDrawableContentDescription = chatBadge.getText();
-                    } else if (DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
+                    if (DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
                         nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, true, false, a));
                         nameTextView[a].setRightDrawableOutside(true);
                         nameTextViewRightDrawableContentDescription = null;
@@ -14035,6 +14046,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     TextDetailCell detailCell = (TextDetailCell) holder.itemView;
                     boolean containsQr = false;
                     boolean containsGift = false;
+                    boolean containsIdDate = false;
                     if (position == birthdayRow) {
                         TLRPC.UserFull userFull = getMessagesController().getUserFull(userId);
                         if (userFull != null && userFull.birthday != null) {
@@ -14157,6 +14169,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         }
                         detailCell.setTextAndValue(text, alsoUsernamesString(username, usernames, value), infoEndRowEmpty == -1 && (isTopic || bizHoursRow != -1 || bizLocationRow != -1) && birthdayRow < 0);
                     } else if (position == idDcRow) {
+                        containsIdDate = true;
                         long id = getId(true);
                         int dc = getDc();
                         boolean isUserSelf = userId == UserConfig.getInstance(currentAccount).getClientUserId();
@@ -14244,6 +14257,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         Drawable drawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.header_qr_24);
                         drawable.setColorFilter(new PorterDuffColorFilter(dontApplyPeerColor(getThemedColor(Theme.key_actionBarDefaultIcon), false), PorterDuff.Mode.MULTIPLY));
                         detailCell.setImage(drawable, LocaleController.getString(R.string.GetQRCode));
+                        detailCell.setImageClickListener(ProfileActivity.this::onTextDetailCellImageClicked);
+                    } else if (containsIdDate) {
+                        Drawable drawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.msg_calendar2);
+                        drawable.setColorFilter(new PorterDuffColorFilter(dontApplyPeerColor(getThemedColor(Theme.key_actionBarDefaultIcon), false), PorterDuff.Mode.MULTIPLY));
+                        detailCell.setImage(drawable, LocaleController.getString(R.string.OEProfileIdDate));
                         detailCell.setImageClickListener(ProfileActivity.this::onTextDetailCellImageClicked);
                     } else {
                         detailCell.setImage(null);
@@ -16249,7 +16267,89 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 return;
             }
             showDialog(new GiftSheet(getContext(), currentAccount, userId, null, null));
+        } else if (parent.getTag() != null && ((int) parent.getTag()) == idDcRow) {
+            showIdDateHint(view);
         }
+    }
+
+    private void showIdDateHint(View anchor) {
+        if (idDateHint == null) {
+            return;
+        }
+        if (idDateHint.getTag() != null) {
+            idDateHint.hide();
+            return;
+        }
+        if (userId != 0) {
+            final TLRPC.User user = getMessagesController().getUser(userId);
+            final String name = user != null ? UserObject.getFirstName(user) : String.valueOf(userId);
+            showIdDateHint(anchor, LocaleController.formatString(R.string.OEProfileAccountCreated, name, ProfileDateHelper.getUserTime(userId)));
+            return;
+        }
+        final TLRPC.Chat chat = getMessagesController().getChat(chatId);
+        if (chat == null) {
+            return;
+        }
+        if (ChatObject.isNotInChat(chat)) {
+            if (chat.date != 0) {
+                showIdDateHint(anchor, LocaleController.formatString(R.string.OEProfileChatCreated, chat.title, formatIdDate(chat.date)));
+            } else {
+                showIdDateHint(anchor, LocaleController.getString(R.string.OEProfileJoinDateUnknown));
+            }
+            return;
+        }
+        final int date = selfJoinDate(chat);
+        if (date != 0 || !ChatObject.isChannel(chat)) {
+            showJoinedHint(anchor, chat, date);
+            return;
+        }
+        final TLRPC.TL_channels_getParticipant req = new TLRPC.TL_channels_getParticipant();
+        req.channel = getMessagesController().getInputChannel(chatId);
+        req.participant = getMessagesController().getInputPeer(getUserConfig().getClientUserId());
+        final int reqId = getConnectionsManager().sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
+            int joined = 0;
+            if (response instanceof TLRPC.TL_channels_channelParticipant && ((TLRPC.TL_channels_channelParticipant) response).participant != null) {
+                joined = ((TLRPC.TL_channels_channelParticipant) response).participant.date;
+            }
+            if (anchor.isAttachedToWindow()) {
+                showJoinedHint(anchor, chat, joined);
+            }
+        }));
+        getConnectionsManager().bindRequestToGuid(reqId, classGuid);
+    }
+
+    private int selfJoinDate(TLRPC.Chat chat) {
+        if (ChatObject.isChannel(chat)) {
+            return chat.date;
+        }
+        final long selfId = getUserConfig().getClientUserId();
+        if (chatInfo != null && chatInfo.participants != null) {
+            for (TLRPC.ChatParticipant participant : chatInfo.participants.participants) {
+                if (participant.user_id == selfId) {
+                    return participant instanceof TLRPC.TL_chatParticipantCreator ? chat.date : participant.date;
+                }
+            }
+        }
+        return 0;
+    }
+
+    private void showJoinedHint(View anchor, TLRPC.Chat chat, int date) {
+        if (date == 0) {
+            showIdDateHint(anchor, LocaleController.getString(R.string.OEProfileJoinDateUnknown));
+        } else {
+            final int format = ChatObject.isChannelAndNotMegaGroup(chat) ? R.string.OEProfileJoinedChannel : R.string.OEProfileJoinedChat;
+            showIdDateHint(anchor, LocaleController.formatString(format, chat.title, formatIdDate(date)));
+        }
+    }
+
+    private String formatIdDate(int date) {
+        final long ms = date * 1000L;
+        return LocaleController.formatString(R.string.formatDateAtTime, LocaleController.getInstance().getFormatterYear().format(ms), LocaleController.getInstance().getFormatterDay().format(ms));
+    }
+
+    private void showIdDateHint(View anchor, String text) {
+        idDateHint.setText(AndroidUtilities.replaceTags(text));
+        idDateHint.showForView(anchor, true);
     }
 
     private boolean fullyVisible;

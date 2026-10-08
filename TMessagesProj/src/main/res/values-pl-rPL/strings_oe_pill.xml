@@ -41,4 +41,5 @@
     <string name="PillStackRateTo">Na</string>
     <string name="PillStackAddRate">Dodaj kurs</string>
     <string name="PillStackRemoveRate">Usunąć tę pigułkę kursu?</string>
+    <string name="PillStackLastSeen">Mój status</string>
 </resources>

@@ -51,4 +51,5 @@
     <string name="PillStackRateTo">В</string>
     <string name="PillStackAddRate">Добавить курс</string>
     <string name="PillStackRemoveRate">Удалить эту пилюлю курса?</string>
+    <string name="PillStackLastSeen">Мой статус</string>
 </resources>
