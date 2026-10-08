@@ -1689,6 +1689,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                         if (draftMessage != null) {
                             MediaDataController.addTextStyleRuns(draftMessage, messSpan, TextStyleSpan.FLAG_STYLE_SPOILER | TextStyleSpan.FLAG_STYLE_STRIKE);
                             if (draftMessage != null && draftMessage.entities != null) {
+                                app.exteraless.chats.LinkedCustomEmoji.parse(draftMessage.message, draftMessage.entities);
                                 MediaDataController.addAnimatedEmojiSpans(draftMessage.entities, messSpan, currentMessagePaint == null ? null : currentMessagePaint.getFontMetricsInt());
                             }
                         } else if (draftVoice) {

@@ -267,11 +267,11 @@ public abstract class LocaleUtils {
     }
 
     public static boolean canUseLocalPremiumEmojis() {
-        return false;
+        return canUseLocalPremiumEmojis(UserConfig.selectedAccount);
     }
 
     public static boolean canUseLocalPremiumEmojis(int account) {
-        return false;
+        return app.exteraless.chats.LinkedCustomEmoji.canSend(account);
     }
 
     public static String normalizeResourceLanguage(String language) {

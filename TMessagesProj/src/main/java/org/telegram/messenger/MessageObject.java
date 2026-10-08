@@ -133,6 +133,8 @@ import xyz.nextalone.nagram.NaConfig;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
 import tw.nekomimi.nekogram.syntaxhighlight.SyntaxHighlight;
 
+import app.exteraless.chats.LinkedCustomEmoji;
+
 public class MessageObject {
     private static final int MESSAGE_ID_RESERVED_BITS_MASK = 0x70000000;
     private static final int MESSAGE_ID_EPHEMERAL_BITS_MASK = 0x60000000;
@@ -2085,6 +2087,10 @@ public class MessageObject {
 
         currentAccount = accountNum;
         messageOwner = message;
+        LinkedCustomEmoji.parse(message.message, message.entities);
+        if (message.reply_to != null) {
+            LinkedCustomEmoji.parse(message.reply_to.quote_text, message.reply_to.quote_entities);
+        }
         replyMessageObject = replyToMessage;
         eventId = eid;
         wasUnread = !messageOwner.out && messageOwner.unread;
@@ -6800,16 +6806,9 @@ public class MessageObject {
     private boolean hasNonEmojiEntities() {
         if (messageOwner == null || messageOwner.entities == null)
             return false;
-        for (int i = 0; i < messageOwner.entities.size(); ++i) {
-            TLRPC.MessageEntity entity = messageOwner.entities.get(i);
-            if (entity instanceof TLRPC.TL_messageEntityCustomEmoji) {
-                continue;
-            }
-            if (entity instanceof TLRPC.TL_messageEntityTextUrl && ((TLRPC.TL_messageEntityTextUrl) entity).url != null && ((TLRPC.TL_messageEntityTextUrl) entity).url.startsWith("tg://emoji?id=")) {
-                continue;
-            }
-            return true;
-        }
+        for (int i = 0; i < messageOwner.entities.size(); ++i)
+            if (!(messageOwner.entities.get(i) instanceof TLRPC.TL_messageEntityCustomEmoji) && !LinkedCustomEmoji.isLink(messageOwner.entities.get(i)))
+                return true;
         return false;
     }
 

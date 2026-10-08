@@ -51,6 +51,8 @@ import org.telegram.ui.ChatActivity;
 import org.telegram.ui.Components.Premium.PremiumFeatureBottomSheet;
 import org.telegram.ui.PremiumPreviewFragment;
 
+import app.exteraless.chats.LinkedCustomEmoji;
+
 public class EditTextEmoji extends FrameLayout implements NotificationCenter.NotificationCenterDelegate, SizeNotifierFrameLayout.SizeNotifierFrameLayoutDelegate {
 
     private EditTextCaption editText;
@@ -829,6 +831,9 @@ public class EditTextEmoji extends FrameLayout implements NotificationCenter.Not
         };
         emojiView.emojiCacheType = emojiViewCacheType;
         emojiView.allowEmojisForNonPremium(allowEmojisForNonPremium);
+        if (!allowEmojisForNonPremium && allowAnimatedEmoji && (currentStyle == STYLE_DIALOG || currentStyle == STYLE_PHOTOVIEWER)) {
+            emojiView.allowLocalPremiumEmojis(LinkedCustomEmoji.canSend(UserConfig.selectedAccount));
+        }
         emojiView.setVisibility(GONE);
         emojiViewAlpha = 0.0f;
         if (AndroidUtilities.isTablet()) {

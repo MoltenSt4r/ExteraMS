@@ -61840,6 +61840,7 @@ public class TLRPC {
 
         public long document_id;
         public TLRPC.Document document; //custom
+        public boolean local;
 
         public void readParams(InputSerializedData stream, boolean exception) {
             offset = stream.readInt32(exception);
@@ -61848,6 +61849,10 @@ public class TLRPC {
         }
 
         public void serializeToStream(OutputSerializedData stream) {
+            if (local) {
+                app.exteraless.chats.LinkedCustomEmoji.toLink(this).serializeToStream(stream);
+                return;
+            }
             stream.writeInt32(constructor);
             stream.writeInt32(offset);
             stream.writeInt32(length);
@@ -61855,6 +61860,10 @@ public class TLRPC {
         }
 
         @Override public void serializeToJson(TLJsonBuilder builder) {
+            if (local) {
+                app.exteraless.chats.LinkedCustomEmoji.toLink(this).serializeToJson(builder);
+                return;
+            }
             builder.writeString("_", constructorName);
             builder.writeInt32("offset", offset);
             builder.writeInt32("length", length);

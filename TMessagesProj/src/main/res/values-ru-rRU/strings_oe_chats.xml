@@ -192,4 +192,6 @@
     <string name="OEChatsInlineMathCurrency">Валюты через @calcmulabot</string>
     <string name="OEChatsInlineMathCurrencyInfo">Выражения с валютами, например «10 usd to rub =», отправляются боту @calcmulabot за курсом.</string>
     <string name="OEChatsInlineMathAnnouncement">Результат: %1$s</string>
+    <string name="OELocalPremiumInfo">Премиум-эмодзи уходят ссылками, которые exteraless и поддерживающие это клиенты показывают как настоящие эмодзи. Остальные функции Premium работают только на этом устройстве.</string>
+    <string name="OELocalPremiumEmojiHint">У вас нет **Telegram Premium**, поэтому эмодзи уйдёт ссылкой: увидят его только пользователи **exteraless** и клиентов, поддерживающих это.</string>
 </resources>

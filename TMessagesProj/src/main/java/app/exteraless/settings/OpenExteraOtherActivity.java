@@ -524,8 +524,8 @@ public class OpenExteraOtherActivity extends BaseNekoSettingsActivity {
                     } else {
                         cell.setIcon(0);
                         if (position == localPremiumRow) {
-                            cell.setTextAndCheck(getString(R.string.localPremium),
-                                    NekoConfig.localPremium.Bool(), true);
+                            cell.setTextAndValueAndCheck(getString(R.string.localPremium),
+                                    getString(R.string.OELocalPremiumInfo), NekoConfig.localPremium.Bool(), true, true);
                         } else if (position == unlimitedPinnedDialogsRow) {
                             cell.setTextAndValueAndCheck(getString(R.string.UnlimitedPinnedDialogs),
                                     getString(R.string.UnlimitedPinnedDialogsAbout),

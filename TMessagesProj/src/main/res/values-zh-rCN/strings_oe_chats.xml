@@ -167,4 +167,6 @@
     <string name="OEChatsInlineMathCurrency">通过 @calcmulabot 换算货币</string>
     <string name="OEChatsInlineMathCurrencyInfo">含货币的算式（如“10 usd to rub =”）会发送给 @calcmulabot 获取汇率。</string>
     <string name="OEChatsInlineMathAnnouncement">结果：%1$s</string>
+    <string name="OELocalPremiumInfo">高级表情会以链接形式发送，exteraless 及其他支持此功能的客户端会将其显示为真正的表情。其他 Premium 功能仅在此设备上生效。</string>
+    <string name="OELocalPremiumEmojiHint">你没有 **Telegram Premium**，因此此表情会以链接形式发送：只有 **exteraless** 及支持此功能的客户端用户能看到它。</string>
 </resources>

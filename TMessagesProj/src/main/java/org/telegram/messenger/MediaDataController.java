@@ -115,6 +115,8 @@ import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.helpers.EntitiesHelper;
 import xyz.nextalone.nagram.NaConfig;
 
+import app.exteraless.chats.LinkedCustomEmoji;
+
 @SuppressWarnings("unchecked")
 public class MediaDataController extends BaseController {
     public final static String
@@ -4536,7 +4538,7 @@ public class MediaDataController extends BaseController {
         } else if (!message.entities.isEmpty()) {
             for (int a = 0; a < message.entities.size(); a++) {
                 final TLRPC.MessageEntity entity = message.entities.get(a);
-                if (entity instanceof TLRPC.TL_messageEntityUrl || entity instanceof TLRPC.TL_messageEntityTextUrl || entity instanceof TLRPC.TL_messageEntityEmail) {
+                if (entity instanceof TLRPC.TL_messageEntityUrl || entity instanceof TLRPC.TL_messageEntityTextUrl && !LinkedCustomEmoji.isLink(entity) || entity instanceof TLRPC.TL_messageEntityEmail) {
                     return MEDIA_URL;
                 }
             }
@@ -7870,7 +7872,8 @@ public class MediaDataController extends BaseController {
             }
         }
         if (entities != null && !entities.isEmpty()) {
-            draftMessage.entities = entities;
+            draftMessage.entities = new ArrayList<>(entities);
+            LinkedCustomEmoji.replaceForSend(currentAccount, dialogId, draftMessage.entities);
             draftMessage.flags |= 8;
         }
 

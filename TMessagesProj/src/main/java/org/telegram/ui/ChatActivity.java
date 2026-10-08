@@ -8,6 +8,7 @@
 
 package org.telegram.ui;
 
+import app.exteraless.chats.LinkedCustomEmoji;
 import app.exteraless.OpenExteraConfig;
 import app.exteraless.feed.FeedChannelAvatarMenu;
 import app.exteraless.feed.FeedChatIntegration;
@@ -15725,6 +15726,7 @@ public class ChatActivity extends BaseFragment implements
                             newEntity = new TLRPC.TL_messageEntityCustomEmoji();
                             ((TLRPC.TL_messageEntityCustomEmoji) newEntity).document_id = ((TLRPC.TL_messageEntityCustomEmoji) entity).document_id;
                             ((TLRPC.TL_messageEntityCustomEmoji) newEntity).document = ((TLRPC.TL_messageEntityCustomEmoji) entity).document;
+                            ((TLRPC.TL_messageEntityCustomEmoji) newEntity).local = ((TLRPC.TL_messageEntityCustomEmoji) entity).local;
                         } else if (entity instanceof TLRPC.TL_messageEntityTextUrl && ((TLRPC.TL_messageEntityTextUrl) entity).url != null && ((TLRPC.TL_messageEntityTextUrl) entity).url.startsWith("tg://emoji?id=")) {
                             newEntity = new TLRPC.TL_messageEntityTextUrl();
                             ((TLRPC.TL_messageEntityTextUrl) newEntity).url = ((TLRPC.TL_messageEntityTextUrl) entity).url;
@@ -32018,6 +32020,7 @@ public class ChatActivity extends BaseFragment implements
                 CharSequence message;
                 if (!draftMessage.entities.isEmpty()) {
                     SpannableStringBuilder stringBuilder = SpannableStringBuilder.valueOf(draftMessage.message);
+                    LinkedCustomEmoji.parse(draftMessage.message, draftMessage.entities);
                     MediaDataController.sortEntities(draftMessage.entities);
                     for (int a = 0; a < draftMessage.entities.size(); a++) {
                         TLRPC.MessageEntity entity = draftMessage.entities.get(a);

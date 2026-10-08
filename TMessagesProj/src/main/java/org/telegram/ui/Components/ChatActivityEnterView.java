@@ -122,6 +122,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import org.telegram.ui.recyclerview.ChatListItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import app.exteraless.chats.LinkedCustomEmoji;
 import app.exteraless.components.ChatActivityEnterViewStaticIconView;
 
 import org.jetbrains.annotations.NotNull;
@@ -8691,10 +8692,9 @@ public class ChatActivityEnterView extends FrameLayout implements
         if (message == null || parentFragment == null) {
             return false;
         }
-        if (xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool()) {
-            return false;
-        }
-        final boolean isPremium = UserConfig.getInstance(currentAccount).isPremium();
+        final boolean isPremium = UserConfig.getInstance(currentAccount).isPremium()
+                || LinkedCustomEmoji.canSend(currentAccount)
+                || xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool();
         if (!isPremium && UserConfig.getInstance(currentAccount).getClientUserId() != dialogId && message instanceof Spanned) {
             AnimatedEmojiSpan[] animatedEmojis = ((Spanned) message).getSpans(0, message.length(), AnimatedEmojiSpan.class);
             if (animatedEmojis != null) {
@@ -13209,9 +13209,8 @@ public class ChatActivityEnterView extends FrameLayout implements
             emojiView.updateColors();
         }
         emojiView.setAllow(allowStickers, allowGifs, true);
-        if (xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool()) {
-            emojiView.allowEmojisForNonPremium(true);
-        }
+        emojiView.allowLocalPremiumEmojis(LinkedCustomEmoji.canSend(currentAccount)
+                || xyz.nextalone.nagram.NaConfig.INSTANCE.getCustomEmojiForNonPremium().Bool());
         emojiView.setVisibility(GONE);
         emojiView.setShowing(false);
         if (windowInsetsInAppController != null) {

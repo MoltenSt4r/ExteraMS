@@ -167,4 +167,6 @@
     <string name="OEChatsInlineMathCurrency">Divisas mediante @calcmulabot</string>
     <string name="OEChatsInlineMathCurrencyInfo">Las expresiones con divisas, como «10 usd to rub =», se envían a @calcmulabot para obtener el tipo de cambio.</string>
     <string name="OEChatsInlineMathAnnouncement">Resultado: %1$s</string>
+    <string name="OELocalPremiumInfo">Los emoji premium se envían como enlaces que exteraless y otros clientes compatibles muestran como emoji reales. Las demás funciones Premium solo funcionan en este dispositivo.</string>
+    <string name="OELocalPremiumEmojiHint">No tienes **Telegram Premium**, así que este emoji se envía como enlace: solo lo verán los usuarios de **exteraless** y clientes compatibles.</string>
 </resources>

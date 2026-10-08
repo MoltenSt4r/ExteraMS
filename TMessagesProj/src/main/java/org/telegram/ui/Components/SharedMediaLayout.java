@@ -1,5 +1,6 @@
 package org.telegram.ui.Components;
 
+import app.exteraless.chats.LinkedCustomEmoji;
 import app.exteraless.utils.AppUtils;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
@@ -1437,6 +1438,10 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
             if (messagesDict[loadIndex].indexOfKey(messageObject.getId()) >= 0) {
                 return false;
             }
+            if (LinkedCustomEmoji.isLinkOnlyMessage(messageObject.messageOwner)) {
+                updateIds(messageObject, loadIndex, enc);
+                return false;
+            }
             ArrayList<MessageObject> messageObjects = sectionArrays.get(messageObject.monthKey);
             if (messageObjects == null) {
                 messageObjects = new ArrayList<>();
@@ -1455,6 +1460,17 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
                 messages.add(messageObject);
             }
             messagesDict[loadIndex].put(messageObject.getId(), messageObject);
+            updateIds(messageObject, loadIndex, enc);
+            if (!hasVideos && messageObject.isVideo()) {
+                hasVideos = true;
+            }
+            if (!hasPhotos && messageObject.isPhoto()) {
+                hasPhotos = true;
+            }
+            return true;
+        }
+
+        private void updateIds(MessageObject messageObject, int loadIndex, boolean enc) {
             if (!enc) {
                 if (messageObject.getId() > 0) {
                     max_id[loadIndex] = Math.min(messageObject.getId(), max_id[loadIndex]);
@@ -1464,13 +1480,6 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
                 max_id[loadIndex] = Math.max(messageObject.getId(), max_id[loadIndex]);
                 min_id = Math.min(messageObject.getId(), min_id);
             }
-            if (!hasVideos && messageObject.isVideo()) {
-                hasVideos = true;
-            }
-            if (!hasPhotos && messageObject.isPhoto()) {
-                hasPhotos = true;
-            }
-            return true;
         }
 
         public MessageObject deleteMessage(int mid, int loadIndex) {
@@ -9363,7 +9372,7 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
                     TLRPC.messages_Messages res = (TLRPC.messages_Messages) response;
                     for (int a = 0; a < res.messages.size(); a++) {
                         TLRPC.Message message = res.messages.get(a);
-                        if (max_id != 0 && message.id > max_id) {
+                        if (max_id != 0 && message.id > max_id || LinkedCustomEmoji.isLinkOnlyMessage(message)) {
                             continue;
                         }
                         messageObjects.add(new MessageObject(profileActivity.getCurrentAccount(), message, false, true));
