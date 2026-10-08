@@ -30,6 +30,7 @@
     <string name="AppIconsTelegram" translatable="false">Telegram Icons</string>
     <string name="AppIconMoltenGramDefault">MaterialYou</string>
     <string name="AppIconMoltenGramMonochrome">Monochrome</string>
+    <string name="AppIconMoltenGramDotted">Dotted</string>
     <string name="AppIconMoltenGramEndeavourOS">EndeavourOS</string>
     <string name="AppIconMoltenGramSunrise">Sunrise</string>
     <string name="AppIconMoltenGramAero">Frutiger Aero</string>
@@ -63,4 +64,25 @@
     <string name="MainTabsHideCallsSettings">Hide Calls tab</string>
     <string name="MainTabsHideProfile">Hide Profile tab</string>
     <string name="OEBotWebViewUpdate">Update WebView</string>
+    <string name="OpenExteraUpdates">Updates</string>
+    <string name="OpenExteraUpdatesAutoCheck">Automatic update check</string>
+    <string name="OpenExteraUpdatesAutoCheckDesc">Check for updates on application launch</string>
+    <string name="OpenExteraUpdatesCanary">Include Canary &amp; Beta</string>
+    <string name="OpenExteraUpdatesCanaryDesc">Receive experimental builds and pre-releases</string>
+    <string name="OpenExteraUpdatesAutoDownload">Auto-download updates</string>
+    <string name="OpenExteraUpdatesAutoDownloadDesc">Download update files automatically without permission</string>
+    <string name="OpenExteraUpdatesAutoDownloadAsk">Ask before downloading</string>
+    <string name="OpenExteraUpdatesAutoDownloadWifi">Wi-Fi only</string>
+    <string name="OpenExteraUpdatesAutoDownloadAlways">Always (without asking)</string>
+    <string name="OpenExteraUpdatesCheckNow">Check for updates</string>
+    <string name="OpenExteraUpdatesChecking">Checking for updates…</string>
+    <string name="OpenExteraUpdatesLatest">You are using the latest version</string>
+    <string name="OpenExteraUpdatesAvailable">Update available</string>
+    <string name="OpenExteraUpdatesInstallNow">Install update</string>
+    <string name="OpenExteraUpdatesDownloadNow">Download update</string>
+    <string name="OpenExteraUpdatesDownloading">Downloading update (%d%%)</string>
+    <string name="OpenExteraUpdatesChangelog">What\'s new</string>
+    <string name="OpenExteraUpdatesLastCheck">Last check: %s</string>
+    <string name="OpenExteraUpdatesLastCheckNever">Never</string>
+    <string name="OpenExteraUpdatesChannel">Updates channel</string>
 </resources>

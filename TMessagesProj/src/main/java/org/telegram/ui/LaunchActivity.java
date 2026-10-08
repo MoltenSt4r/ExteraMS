@@ -6160,16 +6160,31 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     }
 
     public void checkAppUpdate(boolean force, Browser.Progress progress, boolean updateAlways) {
-        if (!tw.nekomimi.nekogram.helpers.remote.BaseRemoteHelper.hasMetadataChannel()) {
-            UpdateHelper.cleanAppUpdate();
-            if (progress != null) {
-                progress.end();
-                BaseFragment fragment = getLastFragment();
-                if (fragment != null) {
-                    BulletinFactory.of(fragment).createSimpleBulletin(R.raw.done,
-                            LocaleController.getString(R.string.YourVersionIsLatestNax)).show();
+        app.exteraless.ota.MoltenGramOtaManager ota = app.exteraless.ota.MoltenGramOtaManager.getInstance();
+        if (ota.isOtaEnabled() || force) {
+            if (progress != null) progress.init();
+            ota.checkUpdates(force, this, (res, error) -> {
+                if (progress != null) {
+                    progress.end();
                 }
-            }
+                if (res != null) {
+                    BaseFragment fragment = getLastFragment();
+                    if (fragment != null) {
+                        BulletinFactory.of(fragment).createSimpleBulletin(R.raw.ic_download,
+                                LocaleController.getString(R.string.OpenExteraUpdatesAvailable) + ": " + res.version).show();
+                    }
+                } else if (force) {
+                    BaseFragment fragment = getLastFragment();
+                    if (fragment != null) {
+                        if (error == null) {
+                            BulletinFactory.of(fragment).createSimpleBulletin(R.raw.done,
+                                    LocaleController.getString(R.string.OpenExteraUpdatesLatest)).show();
+                        } else {
+                            AlertsCreator.createSimpleAlert(LaunchActivity.this, getString(R.string.ErrorOccurred) + "\n" + error).show();
+                        }
+                    }
+                }
+            });
             return;
         }
        /*if (!ApplicationLoader.isStandaloneBuild() && !ApplicationLoader.isBetaBuild()) {

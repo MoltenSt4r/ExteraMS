@@ -36,6 +36,7 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
     private int appearanceRow;
     private int chatsRow;
     private int pluginsRow;
+    private int updatesRow;
     private int otherRow;
     private int categoriesDividerRow;
 
@@ -61,6 +62,7 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
         appearanceRow = addRow("appearance");
         chatsRow = addRow("chats");
         pluginsRow = addRow("plugins");
+        updatesRow = addRow("updates");
         otherRow = addRow("other");
         categoriesDividerRow = addRow();
 
@@ -185,6 +187,8 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
             presentFragment(new OpenExteraChatsActivity());
         } else if (position == pluginsRow) {
             presentFragment(new app.exteraless.plugins.ui.PluginsActivity());
+        } else if (position == updatesRow) {
+            presentFragment(new OpenExteraUpdatesActivity());
         } else if (position == otherRow) {
             presentFragment(new OpenExteraOtherActivity());
         } else if (position == channelRow) {
@@ -244,6 +248,11 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
                         cell.setTextAndIcon(getString(R.string.OpenExteraChats), R.drawable.msg_discussion, true);
                     } else if (position == pluginsRow) {
                         cell.setTextAndIcon(getString(R.string.OpenExteraPlugins), R.drawable.msg_plugins, true);
+                    } else if (position == updatesRow) {
+                        boolean hasUpd = app.exteraless.ota.MoltenGramOtaManager.getInstance().isUpdateAvailable();
+                        cell.setTextAndValueAndIcon(getString(R.string.OpenExteraUpdates),
+                                hasUpd ? getString(R.string.OpenExteraUpdatesAvailable) : ("v" + org.telegram.messenger.BuildConfig.BUILD_VERSION_STRING),
+                                R.drawable.sync_outline_28, true);
                     } else if (position == otherRow) {
                         cell.setTextAndIcon(getString(R.string.OpenExteraOther), R.drawable.msg_fave, false);
                     } else if (position == channelRow) {

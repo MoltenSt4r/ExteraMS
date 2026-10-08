@@ -28,6 +28,7 @@
     <string name="AppIconsTelegram" translatable="false">Иконки Telegram</string>
     <string name="AppIconMoltenGramDefault">MaterialYou</string>
     <string name="AppIconMoltenGramMonochrome">Monochrome</string>
+    <string name="AppIconMoltenGramDotted">Точки</string>
     <string name="AppIconMoltenGramEndeavourOS">EndeavourOS</string>
     <string name="AppIconMoltenGramSunrise">Sunrise</string>
     <string name="AppIconMoltenGramAero">Frutiger Aero</string>
@@ -58,4 +59,25 @@
     <string name="MainTabsHideProfile">Скрыть вкладку профиля</string>
     <string name="OENowPlayingScrobbling">Сейчас играет</string>
     <string name="OEBotWebViewUpdate">Обновить WebView</string>
+    <string name="OpenExteraUpdates">Обновления</string>
+    <string name="OpenExteraUpdatesAutoCheck">Автоматическая проверка</string>
+    <string name="OpenExteraUpdatesAutoCheckDesc">Проверять наличие обновлений при запуске</string>
+    <string name="OpenExteraUpdatesCanary">Включать Canary и Beta</string>
+    <string name="OpenExteraUpdatesCanaryDesc">Получать экспериментальные сборки и предварительные релизы</string>
+    <string name="OpenExteraUpdatesAutoDownload">Автозагрузка обновлений</string>
+    <string name="OpenExteraUpdatesAutoDownloadDesc">Скачивать файлы обновлений автоматически без разрешения</string>
+    <string name="OpenExteraUpdatesAutoDownloadAsk">Спрашивать перед скачиванием</string>
+    <string name="OpenExteraUpdatesAutoDownloadWifi">Только по Wi-Fi</string>
+    <string name="OpenExteraUpdatesAutoDownloadAlways">Всегда (без разрешения)</string>
+    <string name="OpenExteraUpdatesCheckNow">Проверить обновления</string>
+    <string name="OpenExteraUpdatesChecking">Проверка наличия обновлений…</string>
+    <string name="OpenExteraUpdatesLatest">У вас установлена актуальная версия</string>
+    <string name="OpenExteraUpdatesAvailable">Доступно обновление</string>
+    <string name="OpenExteraUpdatesInstallNow">Установить обновление</string>
+    <string name="OpenExteraUpdatesDownloadNow">Скачать обновление</string>
+    <string name="OpenExteraUpdatesDownloading">Загрузка обновления (%d%%)</string>
+    <string name="OpenExteraUpdatesChangelog">Список изменений</string>
+    <string name="OpenExteraUpdatesLastCheck">Последняя проверка: %s</string>
+    <string name="OpenExteraUpdatesLastCheckNever">Никогда</string>
+    <string name="OpenExteraUpdatesChannel">Канал обновлений</string>
 </resources>

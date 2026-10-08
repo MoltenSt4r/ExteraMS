@@ -105,11 +105,13 @@ public class LauncherIconController {
     }
 
     public enum LauncherIcon {
-        // MoltenGram (9 curated styles)
+        // MoltenGram (10 curated styles)
         MOLTENGRAM("MoltenGramIcon", R.drawable.moltengram_icon_background,
                 0, R.string.AppIconMoltenGramDefault, IconGroup.MOLTENGRAM, "@moltenst4r", "Signature emerald flame", 0xFF1E713B),
         MOLTENGRAM_MONOCHROME("MoltenGramMonochromeIcon", R.drawable.moltengram_monochrome_icon_background,
                 0, R.string.AppIconMoltenGramMonochrome, IconGroup.MOLTENGRAM, "@moltenst4r", "Nothing OS minimal monochrome", 0xFF666666),
+        MOLTENGRAM_DOTTED("MoltenGramDottedIcon", R.drawable.moltengram_dotted_icon_background,
+                0, R.string.AppIconMoltenGramDotted, IconGroup.MOLTENGRAM, "@moltenst4r", "Nothing OS glyph dot matrix", 0xFFFFFFFF),
         MOLTENGRAM_ENDEAVOUROS("MoltenGramEndeavourOSIcon", R.drawable.moltengram_endeavouros_icon_background,
                 0, R.string.AppIconMoltenGramEndeavourOS, IconGroup.MOLTENGRAM, "@moltenst4r", "EndeavourOS indigo violet", 0xFF7B52AB),
         MOLTENGRAM_SUNRISE("MoltenGramSunriseIcon", R.drawable.moltengram_sunrise_icon_background,
@@ -123,7 +125,7 @@ public class LauncherIconController {
         MOLTENGRAM_GLACIER("MoltenGramGlacierIcon", R.drawable.moltengram_glacier_icon_background,
                 0, R.string.AppIconMoltenGramGlacier, IconGroup.MOLTENGRAM, "@moltenst4r", "Deep ocean glacier cyan", 0xFF00B4D8),
         MOLTENGRAM_GOOGLE("MoltenGramGoogleIcon", R.drawable.moltengram_google_icon_background,
-                R.drawable.moltengram_google_icon_foreground, R.string.AppIconMoltenGramGoogle, IconGroup.MOLTENGRAM, "@moltenst4r", "Material 3 Expressive", 0xFF4285F4),
+                0, R.string.AppIconMoltenGramGoogle, IconGroup.MOLTENGRAM, "@moltenst4r", "Material 3 Expressive", 0xFF4285F4),
 
         // Telegram
         TELEGRAM("TelegramIcon", R.drawable.icon_background_sa, R.mipmap.icon_foreground_sa, R.string.AppIconTelegramOriginal, IconGroup.TELEGRAM, "@telegram", "The classic paper plane", 0xFF143854),

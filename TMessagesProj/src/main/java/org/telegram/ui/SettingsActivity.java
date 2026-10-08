@@ -1583,59 +1583,10 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             return Unit.INSTANCE;
         });
 
-        if (tw.nekomimi.nekogram.helpers.remote.BaseRemoteHelper.hasMetadataChannel()) {
-        builder.addItem(getString(R.string.CheckUpdate), R.drawable.msg_search_solar, (it) -> {
-            Browser.openUrl(getContext(), "tg://update");
+        builder.addItem(getString(R.string.OpenExteraUpdates), R.drawable.sync_outline_28, (it) -> {
+            presentFragment(new app.exteraless.settings.OpenExteraUpdatesActivity());
             return Unit.INSTANCE;
         });
-
-        String currentChannel = " - ";
-        switch (NaConfig.INSTANCE.getAutoUpdateChannel().Int()) {
-            case UpdateHelper.UPDATE_OFF:
-                currentChannel += getString(R.string.AutoCheckUpdateOFF);
-                break;
-            case UpdateHelper.UPDATE_CHANNEL_RELEASE:
-                currentChannel += getString(R.string.AutoCheckUpdateRelease);
-                break;
-            case UpdateHelper.UPDATE_CHANNEL_BETA:
-                currentChannel += getString(R.string.AutoCheckUpdateBeta);
-                break;
-        }
-
-        builder.addItem(getString(R.string.AutoCheckUpdateSwitch) + currentChannel, R.drawable.sync_outline_28, (it) -> {
-            BottomBuilder switchBuilder = new BottomBuilder(getParentActivity());
-            switchBuilder.addTitle(getString(R.string.AutoCheckUpdateSwitch));
-            switchBuilder.addRadioItem(getString(R.string.AutoCheckUpdateOFF), NaConfig.INSTANCE.getAutoUpdateChannel().Int() == UpdateHelper.UPDATE_OFF, (radioButtonCell) -> {
-                NaConfig.INSTANCE.getAutoUpdateChannel().setConfigInt(UpdateHelper.UPDATE_OFF);
-                switchBuilder.doRadioCheck(radioButtonCell);
-                AndroidUtilities.runOnUIThread(() -> {
-                    switchBuilder.dismiss();
-                    UpdateHelper.cleanAppUpdate();
-                }, 500);
-                return Unit.INSTANCE;
-            });
-            switchBuilder.addRadioItem(getString(R.string.AutoCheckUpdateRelease), NaConfig.INSTANCE.getAutoUpdateChannel().Int() == UpdateHelper.UPDATE_CHANNEL_RELEASE, (radioButtonCell) -> {
-                NaConfig.INSTANCE.getAutoUpdateChannel().setConfigInt(UpdateHelper.UPDATE_CHANNEL_RELEASE);
-                switchBuilder.doRadioCheck(radioButtonCell);
-                AndroidUtilities.runOnUIThread(() -> {
-                    switchBuilder.dismiss();
-                    Browser.openUrl(getContext(), "tg://update");
-                }, 500);
-                return Unit.INSTANCE;
-            });
-            switchBuilder.addRadioItem(getString(R.string.AutoCheckUpdateBeta), NaConfig.INSTANCE.getAutoUpdateChannel().Int() == UpdateHelper.UPDATE_CHANNEL_BETA, (radioButtonCell) -> {
-                NaConfig.INSTANCE.getAutoUpdateChannel().setConfigInt(UpdateHelper.UPDATE_CHANNEL_BETA);
-                switchBuilder.doRadioCheck(radioButtonCell);
-                AndroidUtilities.runOnUIThread(() -> {
-                    switchBuilder.dismiss();
-                    Browser.openUrl(getContext(), "tg://update");
-                }, 500);
-                return Unit.INSTANCE;
-            });
-            showDialog(switchBuilder.create());
-            return Unit.INSTANCE;
-        });
-        }
         builder.show();
     }
 

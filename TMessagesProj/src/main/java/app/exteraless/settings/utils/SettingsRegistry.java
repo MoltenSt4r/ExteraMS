@@ -24,6 +24,7 @@ import app.exteraless.settings.OpenExteraChatsActivity;
 import app.exteraless.settings.OpenExteraGeneralActivity;
 import app.exteraless.settings.OpenExteraOtherActivity;
 import app.exteraless.settings.OpenExteraSettingsActivity;
+import app.exteraless.settings.OpenExteraUpdatesActivity;
 
 /**
  * Реестр пунктов настроек под именем {@code com.exteragram.messenger.preferences.utils.SettingsRegistry}.
@@ -156,6 +157,7 @@ public class SettingsRegistry {
         icons.put(OpenExteraChatsActivity.class, R.drawable.msg_discussion);
         icons.put(OpenExteraOtherActivity.class, R.drawable.msg_fave);
         icons.put(OpenExteraAppNavigationActivity.class, R.drawable.msg_list);
+        icons.put(OpenExteraUpdatesActivity.class, R.drawable.sync_outline_28);
         return icons;
     }
 
