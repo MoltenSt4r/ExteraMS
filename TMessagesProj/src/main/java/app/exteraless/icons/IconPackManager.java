@@ -3,11 +3,15 @@ package app.exteraless.icons;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.LruCache;
 
 import androidx.annotation.Nullable;
+
+import com.caverock.androidsvg.SVG;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -310,6 +314,16 @@ public class IconPackManager {
             int width = Math.max(1, original != null ? original.getIntrinsicWidth() : AndroidUtilities.dp(24));
             int height = Math.max(1, original != null ? original.getIntrinsicHeight() : AndroidUtilities.dp(24));
 
+            if (isSvg(path)) {
+                try (InputStream in = new FileInputStream(path)) {
+                    Bitmap bitmap = renderSvg(in, width, height);
+                    if (bitmap != null) {
+                        bitmap.setDensity(density);
+                    }
+                    return bitmap;
+                }
+            }
+
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(path, options);
@@ -358,6 +372,34 @@ public class IconPackManager {
             return null;
         } catch (Throwable t) {
             FileLog.e("openExtera: error loading icon " + path, t);
+            return null;
+        }
+    }
+
+    public static boolean isSvg(@Nullable String path) {
+        return path != null && path.toLowerCase(java.util.Locale.ROOT).endsWith(".svg");
+    }
+
+    @Nullable
+    public static Bitmap renderSvg(InputStream in, int width, int height) {
+        try {
+            SVG svg = SVG.getFromInputStream(in);
+            RectF viewBox = svg.getDocumentViewBox();
+            if (viewBox == null || viewBox.width() <= 0 || viewBox.height() <= 0) {
+                float documentWidth = svg.getDocumentWidth();
+                float documentHeight = svg.getDocumentHeight();
+                if (documentWidth <= 0 || documentHeight <= 0) {
+                    return null;
+                }
+                svg.setDocumentViewBox(0, 0, documentWidth, documentHeight);
+            }
+            svg.setDocumentWidth(width);
+            svg.setDocumentHeight(height);
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            svg.renderToCanvas(new Canvas(bitmap));
+            return bitmap;
+        } catch (Throwable t) {
+            FileLog.e("openExtera: cannot render svg icon", t);
             return null;
         }
     }

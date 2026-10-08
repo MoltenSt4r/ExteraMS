@@ -125,15 +125,18 @@ def _own_roots(plugin_id: str):
             # .elyx_extracted / elyx_local_libs — распакованный код самого
             # плагина (elyx_runtime/archive.py:38-39): читать себя он вправе.
             roots.append(_real(os.path.join(plugins_dir, parent, plugin_id)))
-    cache = get_cache_dir()
-    if cache:
-        roots.append(_real(os.path.join(cache, "plugins", plugin_id)))
+    media_cache = _media_cache_dir()
+    app_cache = _app_cache_dir()
+    for cache in (media_cache, app_cache):
+        if cache:
+            roots.append(_real(os.path.join(cache, "plugins", plugin_id)))
     tmpdir = os.environ.get("TMPDIR")
-    if not tmpdir and cache:
-        tmpdir = os.path.join(cache, "chaquopy", "tmp")
+    if not tmpdir and app_cache:
+        tmpdir = os.path.join(app_cache, "chaquopy", "tmp")
     if tmpdir:
         roots.append(_real(tmpdir))
-    _own_roots_cache[plugin_id] = roots
+    if media_cache:
+        _own_roots_cache[plugin_id] = roots
     return roots
 
 
@@ -195,7 +198,24 @@ def get_files_dir() -> Optional[str]:
 
 
 def get_cache_dir() -> Optional[str]:
-    """Absolute path of the app-private cache directory."""
+    """Absolute path of Telegram's cache directory (FileLoader.MEDIA_DIR_CACHE),
+    falling back to the app-private cache directory."""
+    return _media_cache_dir() or _app_cache_dir()
+
+
+def _media_cache_dir() -> Optional[str]:
+    try:
+        from java import jclass
+        FileLoader = jclass("org.telegram.messenger.FileLoader")
+        directory = FileLoader.getDirectory(FileLoader.MEDIA_DIR_CACHE)
+        if directory is not None:
+            return str(directory.getAbsolutePath())
+    except Exception:
+        pass
+    return None
+
+
+def _app_cache_dir() -> Optional[str]:
     try:
         return str(_context().getCacheDir().getAbsolutePath())
     except Exception:

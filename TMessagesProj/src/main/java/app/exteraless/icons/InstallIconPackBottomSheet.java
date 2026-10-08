@@ -144,10 +144,15 @@ public class InstallIconPackBottomSheet extends BottomSheet {
                     continue;
                 }
                 try (InputStream in = zip.getInputStream(zipEntry)) {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    // Иконки в паках бывают крупные; для превью 48dp хватает.
-                    options.inSampleSize = 2;
-                    Bitmap bitmap = BitmapFactory.decodeStream(in, null, options);
+                    Bitmap bitmap;
+                    if (IconPackManager.isSvg(path)) {
+                        bitmap = IconPackManager.renderSvg(in, AndroidUtilities.dp(40), AndroidUtilities.dp(40));
+                    } else {
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        // Иконки в паках бывают крупные; для превью 48dp хватает.
+                        options.inSampleSize = 2;
+                        bitmap = BitmapFactory.decodeStream(in, null, options);
+                    }
                     if (bitmap != null) {
                         result.add(bitmap);
                     }

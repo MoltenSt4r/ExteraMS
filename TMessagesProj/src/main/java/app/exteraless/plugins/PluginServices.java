@@ -1,8 +1,11 @@
 package app.exteraless.plugins;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+
 import com.chaquo.python.PyObject;
 
-import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.DispatchQueue;
 import org.telegram.tgnet.ConnectionsManager;
@@ -251,10 +254,10 @@ public final class PluginServices {
                 FileLog.e("plugin ui callback failed", t);
             }
         };
-        if (delay > 0) {
-            AndroidUtilities.runOnUIThread(runnable, delay);
-        } else {
-            AndroidUtilities.runOnUIThread(runnable);
-        }
+        final Message message = Message.obtain(UI_HANDLER, runnable);
+        message.setAsynchronous(true);
+        UI_HANDLER.sendMessageDelayed(message, Math.max(0L, delay));
     }
+
+    private static final Handler UI_HANDLER = new Handler(Looper.getMainLooper());
 }

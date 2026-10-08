@@ -1611,6 +1611,39 @@ public class PluginsController extends com.exteragram.messenger.plugins.PluginsC
         app.exteraless.plugins.utils.ClassProxyFactory.releaseAllForPlugin(pluginId);
     }
 
+    @Override
+    public void cleanupPlugin(String pluginId) {
+        if (PluginSinkGate.refuseForeign(pluginId, "cleanupPlugin")) {
+            return;
+        }
+        unregisterPluginHooks(pluginId);
+        invalidatePluginSettings(pluginId);
+    }
+
+    @Override
+    public void addEventHook(String pluginId, String hookName, boolean matchSubstring, int priority) {
+        if (PluginSinkGate.refuseForeign(pluginId, "addEventHook")) {
+            return;
+        }
+        if (!matchSubstring && PluginsConstants.SEND_MESSAGE_HOOK.equals(hookName)) {
+            registerSendMessageHook(pluginId, priority);
+            return;
+        }
+        registerRequestHook(pluginId, hookName, matchSubstring, priority);
+    }
+
+    @Override
+    public void removeEventHook(String pluginId, String hookName) {
+        if (PluginSinkGate.refuseForeign(pluginId, "removeEventHook")) {
+            return;
+        }
+        if (PluginsConstants.SEND_MESSAGE_HOOK.equals(hookName)) {
+            unregisterSendMessageHook(pluginId);
+            return;
+        }
+        unregisterRequestHook(pluginId, hookName);
+    }
+
     // ---------- диспетчеры (зовутся из ядра Telegram) ----------
 
     /** События приложения из LaunchActivity: app_start/app_stop/app_pause/app_resume. */
