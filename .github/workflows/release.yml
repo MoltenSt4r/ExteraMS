@@ -100,6 +100,7 @@ jobs:
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           export BUILD_TIMESTAMP=$(date +%s)
           echo "build_timestamp=$BUILD_TIMESTAMP" >> "$GITHUB_OUTPUT"
+          export NATIVE_TARGET=arm64-v8a
           ./gradlew TMessagesProj:assembleRelease
       - name: Upload arm64-v8a Artifact
         uses: actions/upload-artifact@v7
