@@ -100,6 +100,7 @@
 
     <queries>
         <package android:name="com.google.android.apps.maps"/>
+        <package android:name="moe.shizuku.privileged.api"/>
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="ton"/>
@@ -1063,6 +1064,14 @@
             android:name="app.exteraless.icons.IconPackProvider"
             android:exported="false"
             android:grantUriPermissions="true"/>
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="${MAPS_API_KEY}" />
         <meta-data android:name="NothingKey" android:value="${GLYPH_API_KEY}" />

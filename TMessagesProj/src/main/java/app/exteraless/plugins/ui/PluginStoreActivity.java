@@ -584,10 +584,398 @@ public class PluginStoreActivity extends BaseFragment {
     }
 
     private void performDeepSearch(String query) {
-        if (activeSourceChats.isEmpty()) return;
+        if (activeSourceChats.isEmpty() || TextUtils.isEmpty(query)) return;
+        List<String> terms = getSearchQueryExpansions(query);
         for (TLRPC.Chat chat : activeSourceChats) {
-            searchChatBatch(chat, 0, query, null);
+            for (String term : terms) {
+                searchChatBatch(chat, 0, term, null);
+            }
         }
+    }
+
+    public static List<String> getSearchQueryExpansions(String query) {
+        List<String> list = new ArrayList<>();
+        if (TextUtils.isEmpty(query)) return list;
+        String q = query.trim().toLowerCase(Locale.ROOT);
+        list.add(q);
+
+        List<String> aliases = getAliases(q);
+        for (String a : aliases) {
+            if (!list.contains(a)) {
+                list.add(a);
+            }
+        }
+
+        String translit = transliterateToLatin(q);
+        if (!TextUtils.isEmpty(translit) && !list.contains(translit)) {
+            list.add(translit);
+        }
+
+        if (list.size() > 4) {
+            return list.subList(0, 4);
+        }
+        return list;
+    }
+
+    public static boolean matchPluginFuzzy(StorePlugin p, String query) {
+        if (p == null || TextUtils.isEmpty(query)) return true;
+        String rawQuery = query.toLowerCase(Locale.ROOT).trim();
+        if (rawQuery.isEmpty()) return true;
+
+        String name = p.name != null ? p.name.toLowerCase(Locale.ROOT) : "";
+        String cleanName = cleanPluginName(p.name).toLowerCase(Locale.ROOT);
+        String id = p.id != null ? p.id.toLowerCase(Locale.ROOT) : "";
+        String normId = normalizePluginId(p.id != null ? p.id : "").toLowerCase(Locale.ROOT);
+        String author = p.author != null ? p.author.toLowerCase(Locale.ROOT) : "";
+        String channel = p.sourceChannel != null ? p.sourceChannel.toLowerCase(Locale.ROOT) : "";
+        String desc = p.description != null ? p.description.toLowerCase(Locale.ROOT) : "";
+        StringBuilder tagsBuilder = new StringBuilder();
+        if (p.tags != null) {
+            for (String t : p.tags) {
+                tagsBuilder.append(t).append(" ");
+            }
+        }
+        String tags = tagsBuilder.toString().toLowerCase(Locale.ROOT);
+
+        String fullText = name + " " + cleanName + " " + id + " " + normId + " " + author + " " + channel + " " + desc + " " + tags;
+        String compactFull = toCompact(fullText);
+        String compactQuery = toCompact(rawQuery);
+
+        if (compactQuery.length() >= 2 && compactFull.contains(compactQuery)) {
+            return true;
+        }
+
+        if (fullText.contains(rawQuery)) {
+            return true;
+        }
+
+        String[] tokens = rawQuery.split("\\s+");
+        List<String> meaningfulTokens = new ArrayList<>();
+        for (String t : tokens) {
+            String trimmed = t.trim();
+            if (trimmed.isEmpty()) continue;
+            if (tokens.length > 1 && isStopWord(trimmed)) continue;
+            meaningfulTokens.add(trimmed);
+        }
+        if (meaningfulTokens.isEmpty()) {
+            meaningfulTokens.addAll(Arrays.asList(tokens));
+        }
+
+        String[] wordsInPlugin = fullText.split("[^a-zA-Z0-9а-яА-ЯёЁ]+");
+
+        for (String token : meaningfulTokens) {
+            if (!matchSingleToken(token, compactFull, wordsInPlugin)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean matchSingleToken(String token, String compactFull, String[] wordsInPlugin) {
+        String tokenCompact = toCompact(token);
+        if (tokenCompact.isEmpty()) return true;
+
+        if (compactFull.contains(tokenCompact)) {
+            return true;
+        }
+
+        String translitLatin = transliterateToLatin(token);
+        String compactLatin = toCompact(translitLatin);
+        if (!compactLatin.isEmpty() && compactFull.contains(compactLatin)) {
+            return true;
+        }
+
+        String translitCyr = transliterateToCyrillic(token);
+        String compactCyr = toCompact(translitCyr);
+        if (!compactCyr.isEmpty() && compactFull.contains(compactCyr)) {
+            return true;
+        }
+
+        List<String> aliases = getAliases(token);
+        for (String alias : aliases) {
+            String compactAlias = toCompact(alias);
+            if (!compactAlias.isEmpty() && compactFull.contains(compactAlias)) {
+                return true;
+            }
+        }
+
+        for (String word : wordsInPlugin) {
+            if (word.isEmpty()) continue;
+            if (word.startsWith(token) || (token.length() >= 4 && token.startsWith(word))) {
+                return true;
+            }
+            if (!compactLatin.isEmpty() && (word.startsWith(compactLatin) || (compactLatin.length() >= 4 && compactLatin.startsWith(word)))) {
+                return true;
+            }
+            if (!compactCyr.isEmpty() && (word.startsWith(compactCyr) || (compactCyr.length() >= 4 && compactCyr.startsWith(word)))) {
+                return true;
+            }
+
+            if (token.length() >= 4) {
+                int maxDist = token.length() <= 5 ? 1 : 2;
+                if (Math.abs(word.length() - token.length()) <= maxDist) {
+                    if (levenshteinDistance(word, token) <= maxDist) {
+                        return true;
+                    }
+                }
+                if (!compactLatin.isEmpty() && Math.abs(word.length() - compactLatin.length()) <= maxDist) {
+                    if (levenshteinDistance(word, compactLatin) <= maxDist) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static String toCompact(String s) {
+        if (s == null) return "";
+        return s.toLowerCase(Locale.ROOT).replace('ё', 'е').replaceAll("[^a-z0-9а-я]", "");
+    }
+
+    private static boolean isStopWord(String word) {
+        switch (word.toLowerCase(Locale.ROOT)) {
+            case "in":
+            case "the":
+            case "for":
+            case "to":
+            case "a":
+            case "an":
+            case "of":
+            case "and":
+            case "by":
+            case "with":
+            case "on":
+            case "в":
+            case "на":
+            case "с":
+            case "для":
+            case "и":
+            case "к":
+            case "по":
+            case "из":
+            case "о":
+            case "об":
+            case "от":
+            case "до":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static List<String> getAliases(String token) {
+        List<String> res = new ArrayList<>();
+        String t = token.toLowerCase(Locale.ROOT).replace('ё', 'е');
+
+        if (t.contains("плеер") || t.contains("плейер") || t.contains("музык") || t.contains("песн") || t.contains("аудио") || t.contains("звук")) {
+            res.addAll(Arrays.asList("player", "music", "audio", "sound", "track", "mp3"));
+        }
+        if (t.contains("player") || t.contains("music") || t.contains("audio") || t.contains("sound") || t.contains("track")) {
+            res.addAll(Arrays.asList("плеер", "музыка", "аудио", "звук", "песня", "трек"));
+        }
+        if (t.contains("перевод") || t.contains("транслейт")) {
+            res.addAll(Arrays.asList("translate", "translator", "deepl", "translation", "google"));
+        }
+        if (t.contains("translat") || t.contains("deepl")) {
+            res.addAll(Arrays.asList("перевод", "переводчик"));
+        }
+        if (t.contains("шрифт")) {
+            res.addAll(Arrays.asList("font", "fonts", "typography", "typeface"));
+        }
+        if (t.contains("font")) {
+            res.addAll(Arrays.asList("шрифт", "шрифты"));
+        }
+        if (t.contains("кастом") || t.contains("настройк") || t.contains("стил") || t.contains("тем") || t.contains("вид") || t.contains("интерфейс")) {
+            res.addAll(Arrays.asList("custom", "customize", "customization", "style", "theme", "appearance", "ui", "interface", "settings"));
+        }
+        if (t.contains("custom") || t.contains("theme") || t.contains("style") || t.contains("appear") || t.contains("interface") || t.contains("ui")) {
+            res.addAll(Arrays.asList("кастом", "настройки", "стиль", "тема", "вид", "интерфейс"));
+        }
+        if (t.contains("скач") || t.contains("загруз") || t.contains("сохран")) {
+            res.addAll(Arrays.asList("download", "downloader", "save", "saver"));
+        }
+        if (t.contains("download") || t.contains("save")) {
+            res.addAll(Arrays.asList("скачать", "загрузка", "сохранить"));
+        }
+        if (t.contains("чат") || t.contains("диалог") || t.contains("сообщен")) {
+            res.addAll(Arrays.asList("chat", "dialog", "message", "msg"));
+        }
+        if (t.contains("chat") || t.contains("message")) {
+            res.addAll(Arrays.asList("чат", "сообщение", "диалог"));
+        }
+        if (t.contains("скрыт") || t.contains("невидим") || t.contains("призрак")) {
+            res.addAll(Arrays.asList("hide", "hidden", "stealth", "ghost", "invisible"));
+        }
+        if (t.contains("ghost") || t.contains("hide") || t.contains("stealth")) {
+            res.addAll(Arrays.asList("скрыть", "невидимка", "призрак"));
+        }
+        if (t.contains("вангард")) {
+            res.addAll(Arrays.asList("vanguard", "vg"));
+        }
+        if (t.contains("vanguard")) {
+            res.addAll(Arrays.asList("вангард"));
+        }
+        if (t.contains("пакит") || t.contains("пак")) {
+            res.addAll(Arrays.asList("packit", "pack"));
+        }
+        if (t.contains("packit") || t.contains("pack")) {
+            res.addAll(Arrays.asList("пакит", "пак"));
+        }
+        if (t.contains("экстера")) {
+            res.addAll(Arrays.asList("extera", "exteragram"));
+        }
+        if (t.contains("неко")) {
+            res.addAll(Arrays.asList("neko", "nekogram"));
+        }
+        if (t.contains("стикер")) {
+            res.addAll(Arrays.asList("sticker", "stickers"));
+        }
+        if (t.contains("эмодзи") || t.contains("смайл")) {
+            res.addAll(Arrays.asList("emoji", "smile", "emoticon"));
+        }
+        if (t.contains("реакц")) {
+            res.addAll(Arrays.asList("reaction", "reactions"));
+        }
+        if (t.contains("кнопк")) {
+            res.addAll(Arrays.asList("button", "btn"));
+        }
+        if (t.contains("бот")) {
+            res.addAll(Arrays.asList("bot", "bots"));
+        }
+        if (t.contains("анимац")) {
+            res.addAll(Arrays.asList("animation", "anim", "lottie"));
+        }
+        if (t.contains("заметк")) {
+            res.addAll(Arrays.asList("note", "notes"));
+        }
+        if (t.contains("шпион") || t.contains("слежк")) {
+            res.addAll(Arrays.asList("spy", "stalker"));
+        }
+        if (t.contains("кэш") || t.contains("кеш")) {
+            res.addAll(Arrays.asList("cache", "cleaner"));
+        }
+        return res;
+    }
+
+    public static String transliterateToLatin(String s) {
+        if (TextUtils.isEmpty(s)) return "";
+        StringBuilder sb = new StringBuilder();
+        String lower = s.toLowerCase(Locale.ROOT);
+        for (int i = 0; i < lower.length(); i++) {
+            char c = lower.charAt(i);
+            switch (c) {
+                case 'а': sb.append("a"); break;
+                case 'б': sb.append("b"); break;
+                case 'в': sb.append("v"); break;
+                case 'г': sb.append("g"); break;
+                case 'д': sb.append("d"); break;
+                case 'е':
+                case 'ё': sb.append("e"); break;
+                case 'ж': sb.append("zh"); break;
+                case 'з': sb.append("z"); break;
+                case 'и': sb.append("i"); break;
+                case 'й': sb.append("y"); break;
+                case 'к': sb.append("k"); break;
+                case 'л': sb.append("l"); break;
+                case 'м': sb.append("m"); break;
+                case 'н': sb.append("n"); break;
+                case 'о': sb.append("o"); break;
+                case 'п': sb.append("p"); break;
+                case 'р': sb.append("r"); break;
+                case 'с': sb.append("s"); break;
+                case 'т': sb.append("t"); break;
+                case 'у': sb.append("u"); break;
+                case 'ф': sb.append("f"); break;
+                case 'х': sb.append("h"); break;
+                case 'ц': sb.append("ts"); break;
+                case 'ч': sb.append("ch"); break;
+                case 'ш': sb.append("sh"); break;
+                case 'щ': sb.append("shch"); break;
+                case 'ъ': break;
+                case 'ы': sb.append("y"); break;
+                case 'ь': break;
+                case 'э': sb.append("e"); break;
+                case 'ю': sb.append("yu"); break;
+                case 'я': sb.append("ya"); break;
+                default: sb.append(c); break;
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String transliterateToCyrillic(String s) {
+        if (TextUtils.isEmpty(s)) return "";
+        String lower = s.toLowerCase(Locale.ROOT);
+        lower = lower.replace("shch", "щ")
+                .replace("ch", "ч")
+                .replace("sh", "ш")
+                .replace("zh", "ж")
+                .replace("ts", "ц")
+                .replace("yu", "ю")
+                .replace("ya", "я")
+                .replace("ph", "ф")
+                .replace("th", "т");
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < lower.length(); i++) {
+            char c = lower.charAt(i);
+            switch (c) {
+                case 'a': sb.append('а'); break;
+                case 'b': sb.append('б'); break;
+                case 'c': sb.append('к'); break;
+                case 'd': sb.append('д'); break;
+                case 'e': sb.append('е'); break;
+                case 'f': sb.append('ф'); break;
+                case 'g': sb.append('г'); break;
+                case 'h': sb.append('х'); break;
+                case 'i': sb.append('и'); break;
+                case 'j': sb.append('ж'); break;
+                case 'k': sb.append('к'); break;
+                case 'l': sb.append('л'); break;
+                case 'm': sb.append('м'); break;
+                case 'n': sb.append('н'); break;
+                case 'o': sb.append('о'); break;
+                case 'p': sb.append('п'); break;
+                case 'q': sb.append('к'); break;
+                case 'r': sb.append('р'); break;
+                case 's': sb.append('с'); break;
+                case 't': sb.append('т'); break;
+                case 'u': sb.append('у'); break;
+                case 'v': sb.append('в'); break;
+                case 'w': sb.append('в'); break;
+                case 'x': sb.append("кс"); break;
+                case 'y': sb.append('й'); break;
+                case 'z': sb.append('з'); break;
+                default: sb.append(c); break;
+            }
+        }
+        return sb.toString();
+    }
+
+    public static int levenshteinDistance(String s1, String s2) {
+        if (s1.equals(s2)) return 0;
+        int len1 = s1.length();
+        int len2 = s2.length();
+        if (len1 == 0) return len2;
+        if (len2 == 0) return len1;
+
+        int[] prev = new int[len2 + 1];
+        int[] curr = new int[len2 + 1];
+        for (int j = 0; j <= len2; j++) prev[j] = j;
+
+        for (int i = 1; i <= len1; i++) {
+            curr[0] = i;
+            char c1 = s1.charAt(i - 1);
+            for (int j = 1; j <= len2; j++) {
+                char c2 = s2.charAt(j - 1);
+                int cost = (c1 == c2) ? 0 : 1;
+                curr[j] = Math.min(Math.min(curr[j - 1] + 1, prev[j] + 1), prev[j - 1] + cost);
+            }
+            System.arraycopy(curr, 0, prev, 0, len2 + 1);
+        }
+        return prev[len2];
     }
 
     public static String cleanPluginName(String fName) {
@@ -891,20 +1279,9 @@ public class PluginStoreActivity extends BaseFragment {
 
             // Check search query
             if (!TextUtils.isEmpty(q)) {
-                boolean match = (p.name != null && p.name.toLowerCase(Locale.ROOT).contains(q))
-                        || (p.id != null && p.id.toLowerCase(Locale.ROOT).contains(q))
-                        || (p.author != null && p.author.toLowerCase(Locale.ROOT).contains(q))
-                        || (p.sourceChannel != null && p.sourceChannel.toLowerCase(Locale.ROOT).contains(q))
-                        || (p.description != null && p.description.toLowerCase(Locale.ROOT).contains(q));
-                if (!match && p.tags != null) {
-                    for (String t : p.tags) {
-                        if (t.toLowerCase(Locale.ROOT).contains(q)) {
-                            match = true;
-                            break;
-                        }
-                    }
+                if (!matchPluginFuzzy(p, q)) {
+                    continue;
                 }
-                if (!match) continue;
             }
 
             result.add(p);

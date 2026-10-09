@@ -22,7 +22,7 @@ import rikka.shizuku.Shizuku;
 import tw.nekomimi.nekogram.settings.BaseNekoSettingsActivity;
 import tw.nekomimi.nekogram.ui.cells.HeaderCell;
 
-public class ShizukuSettingsActivity extends BaseNekoSettingsActivity {
+public class ShizukuSettingsActivity extends BaseNekoSettingsActivity implements ShizukuController.Listener {
 
     private int statusHeaderRow = -1;
     private int statusRow = -1;
@@ -62,6 +62,7 @@ public class ShizukuSettingsActivity extends BaseNekoSettingsActivity {
     public boolean onFragmentCreate() {
         try {
             Shizuku.addRequestPermissionResultListener(permissionListener);
+            shizuku.addListener(this);
         } catch (Throwable t) {
             FileLog.e(t);
         }
@@ -73,9 +74,20 @@ public class ShizukuSettingsActivity extends BaseNekoSettingsActivity {
         super.onFragmentDestroy();
         try {
             Shizuku.removeRequestPermissionResultListener(permissionListener);
+            shizuku.removeListener(this);
         } catch (Throwable t) {
             FileLog.e(t);
         }
+    }
+
+    @Override
+    public void onShizukuStateChanged() {
+        AndroidUtilities.runOnUIThread(() -> {
+            updateRows();
+            if (listAdapter != null) {
+                listAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -190,6 +202,22 @@ public class ShizukuSettingsActivity extends BaseNekoSettingsActivity {
 
         public ListAdapter(Context context) {
             super(context);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position == statusHeaderRow || position == featuresHeaderRow || position == systemHeaderRow) {
+                return TYPE_HEADER;
+            } else if (position == silentUpdatesRow || position == silentApkRow || position == unrestrictedBgRow || position == silentPluginsRow) {
+                return TYPE_CHECK;
+            } else if (position == statusRow || position == actionRow || position == trimCachesRow || position == optimizeDexRow) {
+                return TYPE_TEXT;
+            } else if (position == infoRow) {
+                return TYPE_INFO_PRIVACY;
+            } else if (position == statusDividerRow || position == featuresDividerRow || position == systemDividerRow) {
+                return TYPE_SHADOW;
+            }
+            return TYPE_TEXT;
         }
 
         @Override

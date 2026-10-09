@@ -198,6 +198,22 @@ public class PluginStoreSettingsActivity extends BaseNekoSettingsActivity {
         }
 
         @Override
+        public int getItemViewType(int position) {
+            if (position == searchHeaderRow || position == sourcesHeaderRow || position == actionsHeaderRow) {
+                return TYPE_HEADER;
+            } else if (position == hideOldVersionsRow || position == deepSearchRow || position == autoUpdateRow) {
+                return TYPE_CHECK;
+            } else if (position == addChannelRow || (position >= channelsStartRow && position < channelsEndRow) || position == clearCacheRow) {
+                return TYPE_TEXT;
+            } else if (position == infoRow) {
+                return TYPE_INFO_PRIVACY;
+            } else if (position == searchDividerRow || position == sourcesDividerRow || position == actionsDividerRow) {
+                return TYPE_SHADOW;
+            }
+            return TYPE_TEXT;
+        }
+
+        @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, boolean partial) {
             switch (holder.getItemViewType()) {
                 case TYPE_HEADER: {

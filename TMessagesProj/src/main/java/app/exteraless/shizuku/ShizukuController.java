@@ -16,14 +16,29 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 import rikka.shizuku.Shizuku;
 
 public class ShizukuController {
 
+    public interface Listener {
+        void onShizukuStateChanged();
+    }
+
     private static volatile ShizukuController instance;
 
     public static final int REQUEST_CODE_SHIZUKU = 9001;
+
+    private final ArrayList<Listener> listeners = new ArrayList<>();
+
+    private final Shizuku.OnBinderReceivedListener binderReceivedListener = () -> {
+        AndroidUtilities.runOnUIThread(this::notifyStateChanged);
+    };
+
+    private final Shizuku.OnBinderDeadListener binderDeadListener = () -> {
+        AndroidUtilities.runOnUIThread(this::notifyStateChanged);
+    };
 
     public static ShizukuController getInstance() {
         if (instance == null) {
@@ -37,6 +52,32 @@ public class ShizukuController {
     }
 
     private ShizukuController() {
+        try {
+            Shizuku.addBinderReceivedListenerSticky(binderReceivedListener);
+            Shizuku.addBinderDeadListener(binderDeadListener);
+        } catch (Throwable t) {
+            FileLog.e(t);
+        }
+    }
+
+    public void addListener(Listener l) {
+        if (l != null && !listeners.contains(l)) {
+            listeners.add(l);
+        }
+    }
+
+    public void removeListener(Listener l) {
+        if (l != null) {
+            listeners.remove(l);
+        }
+    }
+
+    public void notifyStateChanged() {
+        for (Listener l : new ArrayList<>(listeners)) {
+            try {
+                l.onShizukuStateChanged();
+            } catch (Throwable ignored) {}
+        }
     }
 
     public boolean isAvailable() {
