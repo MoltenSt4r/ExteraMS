@@ -491,6 +491,25 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
 
+        public void updateListAfterChat(long dialogId) {
+            AndroidUtilities.cancelRunOnUIThread(updateListRunnable);
+            if (!dialogsItemAnimator.isRunning()) {
+                listView.setItemAnimator(null);
+            }
+            updateListRunnable.run();
+            final int position = dialogsAdapter.findDialogPosition(dialogId);
+            if (position < 0) {
+                return;
+            }
+            for (int i = 0; i < listView.getChildCount(); i++) {
+                final View child = listView.getChildAt(i);
+                if (child instanceof DialogCell && ((DialogCell) child).getDialogId() == dialogId) {
+                    ((DialogCell) child).invalidateLastDrawnState();
+                }
+            }
+            dialogsAdapter.notifyItemChanged(position);
+        }
+
         public void updateList(boolean animated) {
             if (isPaused) {
                 return;
@@ -1725,6 +1744,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     private void updateActionBarTitleAlpha(float titleAlpha) {
         lastActionBarTitleAlpha = titleAlpha;
+        if (actionBar == null) {
+            return;
+        }
         titleAlpha *= 1f - getRightSlidingProgress();
         actionBar.getTitlesContainer().setAlpha(titleAlpha);
         actionBar.getTitlesContainer().setVisibility(titleAlpha > 0 ? View.VISIBLE : View.INVISIBLE);
@@ -2881,7 +2903,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
 
     private NotificationCenter.ObserversGroup observersGroup;
-    private NotificationCenter.ObserversGroup globalObserversGroup;
 
     @Override
     public boolean onFragmentCreate() {
@@ -2944,15 +2965,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
 
         observersGroup = getNotificationCenter().createObserversGroup(this);
-        globalObserversGroup = NotificationCenter.getGlobalInstance().createObserversGroup(this);
 
         if (searchString == null) {
             currentConnectionState = getConnectionsManager().getConnectionState();
 
-            globalObserversGroup.add(NotificationCenter.emojiLoaded);
+            observersGroup.addGlobal(NotificationCenter.emojiLoaded);
             if (!onlySelect) {
-                globalObserversGroup.add(NotificationCenter.closeSearchByActiveAction);
-                globalObserversGroup.add(NotificationCenter.proxySettingsChanged);
+                observersGroup.addGlobal(NotificationCenter.closeSearchByActiveAction);
+                observersGroup.addGlobal(NotificationCenter.proxySettingsChanged);
                 observersGroup.add(NotificationCenter.filterSettingsUpdated);
                 observersGroup.add(NotificationCenter.dialogsUnreadCounterChanged);
             }
@@ -2984,7 +3004,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 .add(NotificationCenter.currentUserPremiumStatusChanged)
                 .add(NotificationCenter.mainUserInfoChanged);
 
-            globalObserversGroup.add(NotificationCenter.didSetPasscode);
+            observersGroup.addGlobal(NotificationCenter.didSetPasscode);
         }
         observersGroup
             .add(NotificationCenter.messagesDeleted)
@@ -3185,10 +3205,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         if (observersGroup != null) {
             observersGroup.removeAllObservers();
             observersGroup = null;
-        }
-        if (globalObserversGroup != null) {
-            globalObserversGroup.removeAllObservers();
-            globalObserversGroup = null;
         }
 
         if (commentView != null) {
@@ -5760,6 +5776,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
             @Override
             void setOpenProgress(float progress) {
+                if (actionBar == null) {
+                    return;
+                }
                 boolean opened = progress > 0f;
                 if (anotherFragmentOpened != opened) {
                     anotherFragmentOpened = opened;
@@ -7277,8 +7296,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             blurredView.setBackground(null);
         }
         if (viewPages != null) {
+            final BaseFragment lastFragment = parentLayout != null ? parentLayout.getLastFragment() : null;
+            final long returnedDialogId = lastFragment instanceof ChatActivity ? ((ChatActivity) lastFragment).getDialogId() : 0;
             for (int a = 0; a < viewPages.length; a++) {
-                viewPages[a].dialogsAdapter.notifyDataSetChanged();
+                if (returnedDialogId != 0 && viewPages[a].getVisibility() == View.VISIBLE) {
+                    viewPages[a].updateListAfterChat(returnedDialogId);
+                } else {
+                    viewPages[a].dialogsAdapter.notifyDataSetChanged();
+                }
             }
         }
         if (commentView != null) {
@@ -7369,7 +7394,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     .setNegativeButton(getString(R.string.ContactsPermissionAlertNotNow), (dialog, which) -> MessagesController.getGlobalNotificationsSettings().edit().putBoolean("askedAboutMiuiLockscreen", true).commit())
                     .create());
             }
-        } else if (folderId == 0 && communityId == 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && !notificationManager.canUseFullScreenIntent()) {
+        } else if (folderId == 0 && communityId == 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && !MessagesController.getGlobalNotificationsSettings().getBoolean("askedAboutFSILockscreen", false) && !notificationManager.canUseFullScreenIntent()) {
             if (getParentActivity() == null) {
                 return;
             }
@@ -9136,8 +9161,22 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
     }
 
+    private float miniPlayerInset;
+    private int miniPlayerPadding;
+
+    public void setMiniPlayerInset(float inset, int padding) {
+        if (miniPlayerInset != inset) {
+            miniPlayerInset = inset;
+            updateFloatingButtonOffset();
+        }
+        if (miniPlayerPadding != padding) {
+            miniPlayerPadding = padding;
+            checkUi_chatListViewPaddingsBottom();
+        }
+    }
+
     private void updateFloatingButtonOffset() {
-        final float top = -navigationBarHeight - additionFloatingButtonOffset - additionalFloatingTranslation;
+        final float top = -navigationBarHeight - additionFloatingButtonOffset - Math.max(additionalFloatingTranslation, miniPlayerInset);
         final float baseTranslationY = top
             - floatingButtonPanOffset;
 
@@ -10886,7 +10925,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             if (filterTabsView != null && filterTabsView.getVisibility() == View.VISIBLE && (mask & MessagesController.UPDATE_MASK_READ_DIALOG_MESSAGE) != 0) {
                 filterTabsView.checkTabsCounter();
             }
-            if (communityId != 0 ) {
+            if (communityId != 0 && communityAvatarImage != null) {
                 if ((mask & MessagesController.UPDATE_MASK_CHAT) != 0 || (mask & MessagesController.UPDATE_MASK_AVATAR) != 0 || (mask & MessagesController.UPDATE_MASK_CHAT_AVATAR) != 0 || (mask & MessagesController.UPDATE_MASK_CHAT_NAME) != 0) {
                     community = getMessagesController().getChat(communityId);
                     actionBar.setTitle(DialogObject.getName(community));
@@ -14172,6 +14211,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
                 presentFragment(new ChatActivity(args));
             });
+            }
             if (hideBottomNavigationBar && NaConfig.INSTANCE.getShowAddToBookmark().Bool()) {
                 io.add(R.drawable.msg_fave, getString(R.string.BookmarksManager), () -> presentFragment(new BookmarkManagerActivity()));
             }
@@ -14187,7 +14227,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     BulletinFactory.of(this).createSuccessBulletin(toggleMsg).show();
                     NotificationCenter.getInstance(currentAccount).postNotificationName(NotificationCenter.mainUserInfoChanged);
                 });
-            }
             }
             io.addGapIf(hideBottomNavigationBar);
             if (ApplicationLoader.applicationLoaderInstance != null) {
@@ -14763,7 +14802,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         } else if (communityId != 0) {
             return navigationBarHeight + dp(12 + 48 + 12);
         } else {
-            return navigationBarHeight + additionNavigationBarHeight + getListViewFloatingTabsPadding();
+            return navigationBarHeight + additionNavigationBarHeight + getListViewFloatingTabsPadding() + miniPlayerPadding;
         }
     }
 
@@ -14784,7 +14823,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         // Как в Telegram для iOS: тап по вкладке «Чаты» сначала возвращает в первую папку,
         // и только потом крутит список наверх. switchToCurrentSelectedMode уже ставит
         // список нужной папки в начало, поэтому отдельный scrollToTop тут не нужен.
-        if (AppearanceConfig.iosFirstFolderOnTabTap()
+        if (app.exteraless.appearance.MainTabsUiHelper.isIosNavigationBar()
                 && filterTabsView != null && filterTabsView.getVisibility() == View.VISIBLE
                 && !tabsAnimationInProgress && !filterTabsView.isAnimatingIndicator() && !startedTracking
                 && !filterTabsView.isFirstTabSelected()

@@ -357,6 +357,16 @@ object AppearanceConfig {
         return iosFirstFolderOnTabTap.Bool()
     }
 
+    @JvmField
+    val iosChatHeader =
+        addConfig("OEAppearanceIosChatHeader", ConfigItem.configTypeBool, false)
+
+    @JvmStatic
+    fun iosChatHeader(): Boolean {
+        ensureLoaded()
+        return iosChatHeader.Bool()
+    }
+
     // ---- AI-функции Telegram ----
 
     /** Прячет кнопку AI-редактора в поле ввода, вложениях и подписи к медиа. */
@@ -543,7 +553,12 @@ object AppearanceConfig {
      */
     @JvmStatic
     fun sectionsSeparatedHeaders(): Boolean {
-        return separateHeaders() || dividerStyle() == DIVIDER_SEGMENTS
+        return separateHeaders() || dividerStyle() == DIVIDER_SEGMENTS || m3ListItems()
+    }
+
+    @JvmStatic
+    fun sectionsSeparatedHeadersForced(): Boolean {
+        return dividerStyle() == DIVIDER_SEGMENTS || m3ListItems()
     }
 
     /** Стиль разделителя внутри карточки: 0 — скрыт, 1 — линия, 2 — сегменты. */
@@ -575,7 +590,7 @@ object AppearanceConfig {
         val cached = dividerHiddenCache
         if (cached != null) return cached
         val value = try {
-            dividerStyle() != DIVIDER_LINE
+            dividerStyle() != DIVIDER_LINE || m3ListItems()
         } catch (e: Exception) {
             false
         }
@@ -680,6 +695,7 @@ object AppearanceConfig {
         migrateLegacyTitleName()
         migrateCustomTitle()
         migrateCenterTitle()
+        migrateIosChatHeader()
         migrateModernStyles()
         migrateDecorations()
     }
@@ -693,6 +709,11 @@ object AppearanceConfig {
         if (type == 2 || type == 3) {
             NaConfig.centerActionBarTitleType.setConfigInt(1)
         }
+    }
+
+    private fun migrateIosChatHeader() {
+        if (getPreferences().contains(iosChatHeader.key)) return
+        iosChatHeader.setConfigBool(NaConfig.centerActionBarTitle.Bool())
     }
 
     private fun migrateModernStyles() {

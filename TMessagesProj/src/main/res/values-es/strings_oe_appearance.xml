@@ -100,8 +100,11 @@
     <string name="OEAppearanceNewLoadingStyle">Indicadores de carga</string>
     <string name="OEAppearanceNewChatHeaderStyle">Encabezado del chat</string>
     <string name="OEAppearanceNewNavigationBarStyle">Barra de navegación</string>
+    <string name="OEAppearanceM3ListItems">Elementos de lista</string>
     <string name="OEAppearanceIosNavigationBarStyle">Barra de navegación</string>
+    <string name="OEAppearanceIosChatHeader">Cabecera de chat estilo iOS</string>
     <string name="OEAppearanceIosFirstFolderOnTabTap">Tocar la pestaña abre la primera carpeta</string>
+    <string name="OEAppearanceHiding">Ocultar elementos</string>
     <string name="OEAppearanceHideAi">Ocultar la IA</string>
     <string name="OEAppearanceHideAiEditor">Editor con IA</string>
     <string name="OEAppearanceHideAiSummary">Resumen del mensaje</string>

@@ -100,8 +100,11 @@
     <string name="OEAppearanceNewLoadingStyle">Wskaźniki ładowania</string>
     <string name="OEAppearanceNewChatHeaderStyle">Nagłówek czatu</string>
     <string name="OEAppearanceNewNavigationBarStyle">Pasek nawigacji</string>
+    <string name="OEAppearanceM3ListItems">Elementy list</string>
     <string name="OEAppearanceIosNavigationBarStyle">Pasek nawigacji</string>
+    <string name="OEAppearanceIosChatHeader">Nagłówek czatu w stylu iOS</string>
     <string name="OEAppearanceIosFirstFolderOnTabTap">Dotknięcie karty otwiera pierwszy folder</string>
+    <string name="OEAppearanceHiding">Ukrywanie elementów</string>
     <string name="OEAppearanceHideAi">Ukryj AI</string>
     <string name="OEAppearanceHideAiEditor">Edytor AI</string>
     <string name="OEAppearanceHideAiSummary">Podsumowanie wiadomości</string>

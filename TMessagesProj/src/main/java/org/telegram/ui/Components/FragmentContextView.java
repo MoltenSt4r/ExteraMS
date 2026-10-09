@@ -940,25 +940,28 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
     }
 
     private HintView speedHintView;
+    private ViewGroup speedHintViewParent;
     private long lastPlaybackClick;
 
     private void checkSpeedHint() {
         final long now = System.currentTimeMillis();
-        if (now - lastPlaybackClick > 300) {
-            int hintValue = MessagesController.getGlobalNotificationsSettings().getInt("speedhint", 0);
-            hintValue++;
-            if (hintValue > 2) {
-                hintValue = -10;
-            }
-            MessagesController.getGlobalNotificationsSettings().edit().putInt("speedhint", hintValue).apply();
-            if (hintValue >= 0) {
+        if (speedHintView == null && now - lastPlaybackClick > 300) {
+            if (HintsController.Hint.PlaybackSpeedHint.show()) {
+                HintsController.Hint.PlaybackSpeedHint.increment();
                 showSpeedHint();
             }
         }
         lastPlaybackClick = now;
     }
 
+    public void setSpeedHintViewParent(ViewGroup viewParent) {
+        speedHintViewParent = viewParent;
+    }
+
     private ViewGroup getSpeedHintContainer() {
+        if (speedHintViewParent != null) {
+            return speedHintViewParent;
+        }
         if (fragment != null && fragment.getFragmentView() instanceof ViewGroup) {
             return (ViewGroup) fragment.getFragmentView();
         }
@@ -977,7 +980,7 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                     super.setVisibility(visibility);
                     if (visibility != View.VISIBLE) {
                         try {
-                            ((ViewGroup) getParent()).removeView(this);
+                            hintContainer.removeView(this);
                         } catch (Exception e) {}
                     }
                 }

@@ -102,6 +102,7 @@
     <string name="OEAppearanceM3ListItems">عناصر القوائم</string>
     <string name="OEAppearanceIosNavigationBarStyle">شريط التنقل</string>
     <string name="OEAppearanceIosChatHeader">ترويسة محادثة بنمط iOS</string>
+    <string name="OEAppearanceHiding">إخفاء العناصر</string>
     <string name="OEAppearanceHideAi">إخفاء الذكاء الاصطناعي</string>
     <string name="OEAppearanceHideAiEditor">محرر الذكاء الاصطناعي</string>
     <string name="OEAppearanceHideAiSummary">ملخص الرسالة</string>

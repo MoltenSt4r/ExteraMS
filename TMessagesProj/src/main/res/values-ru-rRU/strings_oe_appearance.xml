@@ -109,12 +109,15 @@
     <string name="OEBottomNavigationModeHide">Скрывать</string>
     <string name="OEBackAnimationInfo">Плавнее переключает экраны и открывает боковое меню.</string>
     <string name="OEAppearanceNewLoadingStyle">Индикаторы загрузки</string>
-    <string name="OEAppearanceNewChatHeaderStyle">Заголовок чата</string>
-    <string name="OEAppearanceNewNavigationBarStyle">Нижняя панель навигации</string>
+    <string name="OEAppearanceNewChatHeaderStyle">Шапка чата</string>
+    <string name="OEAppearanceNewNavigationBarStyle">Панель навигации</string>
+    <string name="OEAppearanceM3ListItems">Элементы списков</string>
     <string name="OEAppearanceSquareFab">Плавающая кнопка</string>
     <string name="OEAppearanceIosDesign" translatable="false">iOS Design</string>
     <string name="OEAppearanceIosNavigationBarStyle">Панель навигации</string>
+    <string name="OEAppearanceIosChatHeader">Шапка чата в стиле iOS</string>
     <string name="OEAppearanceIosFirstFolderOnTabTap">Тап по вкладке — первая папка</string>
+    <string name="OEAppearanceHiding">Скрытие элементов</string>
     <string name="OEAppearanceHideActionBarStatus">Скрыть статус</string>
     <string name="OEAppearanceHideAi">Скрыть AI</string>
     <string name="OEAppearanceHideAiEditor">AI-редактор</string>
