@@ -183,7 +183,7 @@ public class TextCell extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = dp(heightDp);
+        int height = dp(app.exteraless.appearance.M3ListItems.rowHeight(heightDp));
 
         if (lastWidth != 0 && lastWidth != width && valueText != null) {
             valueTextView.setText(TextUtils.ellipsize(valueText, valueTextView.getPaint(), AndroidUtilities.displaySize.x / 2.5f, TextUtils.TruncateAt.END), false);

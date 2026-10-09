@@ -20,15 +20,25 @@ object M3ListItems {
     }
 
     @JvmStatic
-    fun tonalBackground(top: Int, bottom: Int): Int = tone(top, bottom, 0.82f)
+    fun tonalBackground(top: Int, bottom: Int): Int = tonalBackground(top, bottom, false)
 
     @JvmStatic
-    fun tonalForeground(top: Int, bottom: Int): Int = tone(top, bottom, 0.32f)
+    fun tonalForeground(top: Int, bottom: Int): Int = tonalForeground(top, bottom, false)
 
-    private fun tone(top: Int, bottom: Int, lightness: Float): Int {
+    @JvmStatic
+    fun tonalBackground(top: Int, bottom: Int, dark: Boolean): Int {
+        return tone(top, bottom, if (dark) 0.22f else 0.88f, if (dark) 0.35f else 0.65f)
+    }
+
+    @JvmStatic
+    fun tonalForeground(top: Int, bottom: Int, dark: Boolean): Int {
+        return tone(top, bottom, if (dark) 0.80f else 0.30f, if (dark) 0.80f else 0.85f)
+    }
+
+    private fun tone(top: Int, bottom: Int, lightness: Float, saturation: Float = 0.70f): Int {
         val hsl = FloatArray(3)
         ColorUtils.colorToHSL(ColorUtils.blendARGB(top, bottom, 0.5f), hsl)
-        hsl[1] = hsl[1].coerceIn(0.55f, 1f)
+        hsl[1] = saturation.coerceIn(0.2f, 1f)
         hsl[2] = lightness
         return ColorUtils.HSLToColor(hsl)
     }

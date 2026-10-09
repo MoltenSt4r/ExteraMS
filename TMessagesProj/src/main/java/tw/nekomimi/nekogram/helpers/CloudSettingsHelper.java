@@ -233,7 +233,7 @@ public class CloudSettingsHelper {
                     }
                 } else {
                     AlertDialog restart = new AlertDialog(context, 0);
-                    restart.setTitle(getString(R.string.NagramX));
+                    restart.setTitle(getString(R.string.AppName));
                     restart.setMessage(getString(R.string.RestartAppToTakeEffect));
                     restart.setPositiveButton(getString(R.string.OK), (__, ___) -> AppRestartHelper.triggerRebirth(context, new Intent(context, LaunchActivity.class)));
                     restart.show();

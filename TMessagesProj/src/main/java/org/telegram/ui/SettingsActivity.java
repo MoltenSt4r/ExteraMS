@@ -401,7 +401,11 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
 
         listView = new UniversalRecyclerView(this, this::fillItems, this::onClick, this::onLongClick);
         listView.adapter.setApplyBackground(false);
-        listView.setSections();
+        if (app.exteraless.appearance.AppearanceConfig.m3ListItems()) {
+            listView.setSections(AndroidUtilities.dp(12), AndroidUtilities.dp(16), true);
+        } else {
+            listView.setSections();
+        }
         listView.setPadding(0, AndroidUtilities.statusBarHeight + dp(12), 0, AndroidUtilities.navigationBarHeight + additionNavigationBarHeight + miniPlayerPadding);
         listView.setClipToPadding(false);
         listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -1282,12 +1286,16 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             this.mini = mini;
             setOrientation(HORIZONTAL);
 
+            boolean isM3 = app.exteraless.appearance.AppearanceConfig.m3ListItems();
+            int iconBoxSize = isM3 ? 40 : 28;
+            int iconInnerSize = 24;
+
             iconLayout = new FrameLayout(context);
             iconLayout.setBackground(iconBackground = new Background());
 
             iconView = new ImageView(context);
             iconView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            iconLayout.addView(iconView, LayoutHelper.createFrame(24, 24, Gravity.CENTER));
+            iconLayout.addView(iconView, LayoutHelper.createFrame(iconInnerSize, iconInnerSize, Gravity.CENTER));
 
             textLayout = new LinearLayout(context);
             textLayout.setOrientation(VERTICAL);
@@ -1304,13 +1312,15 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
 
             valueView = new TextView(context);
             valueView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+            int marginSide = mini ? 9 : (isM3 ? 16 : 18);
+            int marginText = mini ? 12 : (isM3 ? 16 : 18);
             if (LocaleController.isRTL) {
                 addView(valueView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL, 20, 0, 0, 0));
-                addView(textLayout, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1, Gravity.CENTER_VERTICAL | Gravity.FILL_HORIZONTAL, 20, 0, mini ? 12 : 18, 0));
-                addView(iconLayout, LayoutHelper.createLinear(28, 28, Gravity.CENTER_VERTICAL | Gravity.RIGHT, 0, 0, mini ? 9 : 18, 0));
+                addView(textLayout, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1, Gravity.CENTER_VERTICAL | Gravity.FILL_HORIZONTAL, 20, 0, marginText, 0));
+                addView(iconLayout, LayoutHelper.createLinear(iconBoxSize, iconBoxSize, Gravity.CENTER_VERTICAL | Gravity.RIGHT, 0, 0, marginSide, 0));
             } else {
-                addView(iconLayout, LayoutHelper.createLinear(28, 28, Gravity.CENTER_VERTICAL | Gravity.LEFT, mini ? 9 : 18, 0, 0, 0));
-                addView(textLayout, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1, Gravity.CENTER_VERTICAL | Gravity.FILL_HORIZONTAL,  mini ? 12 : 18, 0, 20, 0));
+                addView(iconLayout, LayoutHelper.createLinear(iconBoxSize, iconBoxSize, Gravity.CENTER_VERTICAL | Gravity.LEFT, marginSide, 0, 0, 0));
+                addView(textLayout, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1, Gravity.CENTER_VERTICAL | Gravity.FILL_HORIZONTAL, marginText, 0, 20, 0));
                 addView(valueView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL, 0, 0, 20, 0));
             }
             updateColors();
@@ -1352,14 +1362,21 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                 Theme.ResourcesProvider resourcesProvider
         ) {
             final boolean dark = resourcesProvider != null ? resourcesProvider.isDark() : Theme.isCurrentThemeDark();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Theme.getActiveTheme().isMonet()) {
+            if (app.exteraless.appearance.AppearanceConfig.m3ListItems()) {
+                int bgColor = app.exteraless.appearance.M3ListItems.tonalBackground(iconColorTop, iconColorBottom, dark);
+                int fgColor = app.exteraless.appearance.M3ListItems.tonalForeground(iconColorTop, iconColorBottom, dark);
+                iconBackground.setMonetColor(bgColor);
+                iconView.setColorFilter(new PorterDuffColorFilter(fgColor, PorterDuff.Mode.SRC_IN));
+                iconBackground.setDrawBorder(false);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Theme.getActiveTheme().isMonet()) {
                 iconBackground.setMonetColor(MonetHelper.getColor(dark ? "a1_200" : "a1_600"));
                 iconView.setColorFilter(MonetHelper.getColor(dark ? "a1_800" : "a1_100"), PorterDuff.Mode.SRC_IN);
+                iconBackground.setDrawBorder(dark);
             } else {
                 iconBackground.setColor(iconColorTop, iconColorBottom);
                 iconView.clearColorFilter();
+                iconBackground.setDrawBorder(dark);
             }
-            iconBackground.setDrawBorder(dark);
         }
 
         public void setValue(CharSequence value) {
@@ -1369,9 +1386,10 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            boolean isM3 = app.exteraless.appearance.AppearanceConfig.m3ListItems();
             super.onMeasure(
                 MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(dp(mini ? 44 : twoLines ? 60 : 50), MeasureSpec.EXACTLY)
+                MeasureSpec.makeMeasureSpec(dp(mini ? (isM3 ? 48 : 44) : twoLines ? (isM3 ? 72 : 60) : (isM3 ? 56 : 50)), MeasureSpec.EXACTLY)
             );
         }
 
@@ -1409,8 +1427,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
 
             @Override
             public void draw(@NonNull Canvas canvas) {
-                final float r = dp(10);
+                final boolean isM3 = app.exteraless.appearance.AppearanceConfig.m3ListItems();
                 AndroidUtilities.rectTmp.set(getBounds());
+                final float r = isM3 ? Math.min(AndroidUtilities.rectTmp.width(), AndroidUtilities.rectTmp.height()) / 2f : dp(10);
                 matrix.reset();
                 matrix.postTranslate(AndroidUtilities.rectTmp.left, AndroidUtilities.rectTmp.top);
                 canvas.drawRoundRect(AndroidUtilities.rectTmp, r, r, paint);

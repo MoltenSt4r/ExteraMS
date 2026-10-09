@@ -109,6 +109,7 @@ public final class SettingsBackupHelper {
         mainconfig.add("lockRecordAudioVideoHint");
         mainconfig.add("disableVoiceAudioEffects");
         mainconfig.add("chatSwipeAction");
+        mainconfig.add("ChatSwipeAction");
 
         if (!isCloud) mainconfig.add("theme");
         mainconfig.add("selectedAutoNightType");
@@ -130,8 +131,14 @@ public final class SettingsBackupHelper {
         spToJSON("mainconfig", configJson, mainconfig::contains);
         if (!isCloud) spToJSON("themeconfig", configJson, null);
         spToJSON("nkmrcfg", configJson, null, includeApiKeys);
+        spToJSON("exteraconfig", configJson, null, includeApiKeys);
+        spToJSON("tor_config", configJson, null, includeApiKeys);
+        spToJSON(app.exteraless.plugins.PluginsConstants.PREFS_NAME, configJson, null, includeApiKeys);
+        spToJSON("exteraless_plugin_grants", configJson, null, includeApiKeys);
         if (includeApiKeys) {
             spToJSON("aiConfig", configJson, key -> !"history".equals(key));
+        } else {
+            spToJSON("aiConfig", configJson, key -> !"history".equals(key) && !"services".equals(key));
         }
 
         return configJson.toString(indentSpaces);
@@ -180,7 +187,7 @@ public final class SettingsBackupHelper {
             importSettings(configJson);
 
             AlertDialog restart = new AlertDialog(context, 0);
-            restart.setTitle(getString(R.string.NagramX));
+            restart.setTitle(getString(R.string.AppName));
             restart.setMessage(getString(R.string.RestartAppToTakeEffect));
             restart.setPositiveButton(getString(R.string.OK), (__, ___) -> AppRestartHelper.triggerRebirth(context, new Intent(context, LaunchActivity.class)));
             restart.show();
@@ -279,6 +286,10 @@ public final class SettingsBackupHelper {
                 }
             }
             editor.commit();
+        }
+        try {
+            com.exteragram.messenger.ExteraConfig.reloadConfig();
+        } catch (Throwable ignore) {
         }
         PushListenerController.reconcilePushRegistration();
     }
