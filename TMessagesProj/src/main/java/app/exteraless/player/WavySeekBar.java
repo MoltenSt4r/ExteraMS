@@ -167,7 +167,8 @@ public class WavySeekBar extends View {
         long now = SystemClock.elapsedRealtime();
         float dt = lastFrame == 0 ? 0.016f : Math.min(0.05f, (now - lastFrame) / 1000f);
         lastFrame = now;
-        float targetAmp = playing ? maxAmplitude : 0f;
+        boolean wavy = app.exteraless.appearance.AppearanceConfig.playerSeekbarStyle() == 0;
+        float targetAmp = (playing && wavy) ? maxAmplitude : 0f;
         amplitude += (targetAmp - amplitude) * (1f - (float) Math.pow(0.85, dt / 0.04f));
         if (Math.abs(amplitude - targetAmp) < dpf2(0.05f)) {
             amplitude = targetAmp;
@@ -187,23 +188,27 @@ public class WavySeekBar extends View {
         float lambda = dp(34);
         float step = dp(2);
         if (waveEnd > left) {
-            path.rewind();
-            boolean first = true;
-            for (float px = left; ; px += step) {
-                boolean last = px >= waveEnd;
-                float cx = last ? waveEnd : px;
-                float y = cy + amplitude * (float) Math.sin(TAU * cx / lambda - phase);
-                if (first) {
-                    path.moveTo(cx, y);
-                    first = false;
-                } else {
-                    path.lineTo(cx, y);
+            if (amplitude > 0f) {
+                path.rewind();
+                boolean first = true;
+                for (float px = left; ; px += step) {
+                    boolean last = px >= waveEnd;
+                    float cx = last ? waveEnd : px;
+                    float y = cy + amplitude * (float) Math.sin(TAU * cx / lambda - phase);
+                    if (first) {
+                        path.moveTo(cx, y);
+                        first = false;
+                    } else {
+                        path.lineTo(cx, y);
+                    }
+                    if (last) {
+                        break;
+                    }
                 }
-                if (last) {
-                    break;
-                }
+                canvas.drawPath(path, wavePaint);
+            } else {
+                canvas.drawLine(left, cy, waveEnd, cy, wavePaint);
             }
-            canvas.drawPath(path, wavePaint);
         }
         float stopX = right - dp(1);
         float restX = Math.min(stopX, x + thumbW / 2f + gap);

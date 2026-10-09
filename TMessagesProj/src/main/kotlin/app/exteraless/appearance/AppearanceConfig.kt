@@ -326,6 +326,129 @@ object AppearanceConfig {
     val lrclibAllowed =
         addConfig("OEPlayerLrclibAllowed", ConfigItem.configTypeBool, false)
 
+    // ---- Расширенные настройки плеера (MetroList / Material 3) ----
+
+    /** Стиль фона плеера: 0 — Следовать теме / Цвет обложки, 1 — Размытая обложка, 2 — Градиент. */
+    @JvmField
+    val playerBackgroundStyle =
+        addConfig("OEAppearancePlayerBackgroundStyle", ConfigItem.configTypeInt, 0)
+
+    @JvmStatic
+    fun playerBackgroundStyle(): Int {
+        ensureLoaded()
+        return playerBackgroundStyle.Int()
+    }
+
+    /** Стиль ползунка: 0 — Волнистый (M3/Android 13+), 1 — Прямой. */
+    @JvmField
+    val playerSeekbarStyle =
+        addConfig("OEAppearancePlayerSeekbarStyle", ConfigItem.configTypeInt, 0)
+
+    @JvmStatic
+    fun playerSeekbarStyle(): Int {
+        ensureLoaded()
+        return playerSeekbarStyle.Int()
+    }
+
+    /** Стиль кнопок плеера: 0 — Цвета обложки (динамический), 1 — Акцент темы (Monet). */
+    @JvmField
+    val playerColorStyle =
+        addConfig("OEAppearancePlayerColorStyle", ConfigItem.configTypeInt, 0)
+
+    @JvmStatic
+    fun playerColorStyle(): Int {
+        ensureLoaded()
+        return playerColorStyle.Int()
+    }
+
+    /** Свайп по обложке влево/вправо для переключения треков. */
+    @JvmField
+    val playerSwipeTrack =
+        addConfig("OEAppearancePlayerSwipeTrack", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerSwipeTrack(): Boolean {
+        ensureLoaded()
+        return playerSwipeTrack.Bool()
+    }
+
+    /** Обрезать обложку под квадратное соотношение (квадрат с радиусом). */
+    @JvmField
+    val playerCropCover =
+        addConfig("OEAppearancePlayerCropCover", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerCropCover(): Boolean {
+        ensureLoaded()
+        return playerCropCover.Bool()
+    }
+
+    /** Не выключать экран при развернутом плеере (FLAG_KEEP_SCREEN_ON). */
+    @JvmField
+    val playerKeepScreenOn =
+        addConfig("OEAppearancePlayerKeepScreenOn", ConfigItem.configTypeBool, false)
+
+    @JvmStatic
+    fun playerKeepScreenOn(): Boolean {
+        ensureLoaded()
+        return playerKeepScreenOn.Bool()
+    }
+
+    /** Останавливать воспроизведение при отключении звука (громкость 0). */
+    @JvmField
+    val playerPauseOnMute =
+        addConfig("OEAppearancePlayerPauseOnMute", ConfigItem.configTypeBool, false)
+
+    @JvmStatic
+    fun playerPauseOnMute(): Boolean {
+        ensureLoaded()
+        return playerPauseOnMute.Bool()
+    }
+
+    /** Возобновлять воспроизведение при подключении Bluetooth. */
+    @JvmField
+    val playerResumeOnBluetooth =
+        addConfig("OEAppearancePlayerResumeOnBluetooth", ConfigItem.configTypeBool, false)
+
+    @JvmStatic
+    fun playerResumeOnBluetooth(): Boolean {
+        ensureLoaded()
+        return playerResumeOnBluetooth.Bool()
+    }
+
+    /** Размер шрифта текста песни: 0 — Нормальный (22sp), 1 — Крупный (26sp), 2 — Огромный (32sp). */
+    @JvmField
+    val playerLyricsTextSize =
+        addConfig("OEAppearancePlayerLyricsTextSize", ConfigItem.configTypeInt, 1)
+
+    @JvmStatic
+    fun playerLyricsTextSize(): Int {
+        ensureLoaded()
+        return playerLyricsTextSize.Int()
+    }
+
+    /** Размытие неактивных строк текста (Blur inactive lines, эффект караоке). */
+    @JvmField
+    val playerLyricsBlur =
+        addConfig("OEAppearancePlayerLyricsBlur", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsBlur(): Boolean {
+        ensureLoaded()
+        return playerLyricsBlur.Bool()
+    }
+
+    /** Автоматическая прокрутка текста песни к активной строке. */
+    @JvmField
+    val playerLyricsAutoScroll =
+        addConfig("OEAppearancePlayerLyricsAutoScroll", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsAutoScroll(): Boolean {
+        ensureLoaded()
+        return playerLyricsAutoScroll.Bool()
+    }
+
     @JvmField
     val profileMusicCard =
         addConfig("OEAppearanceProfileMusicCard", ConfigItem.configTypeBool, true)

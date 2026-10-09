@@ -8,6 +8,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Outline;
 import android.graphics.Bitmap;
@@ -16,6 +17,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
+import android.media.audiofx.AudioEffect;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -37,6 +39,7 @@ import androidx.core.graphics.ColorUtils;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.FileLoader;
+import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaController;
 import org.telegram.messenger.MessageObject;
@@ -148,6 +151,13 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
     private boolean underLightStatus;
     private boolean underLightNav;
     private final RectF backgroundRect = new RectF();
+    private android.graphics.LinearGradient bgGradient;
+    private int lastGradientSeed = -1;
+    private Bitmap cachedBlurredArt;
+    private String lastBlurredKey;
+    private final Rect bgSrcRect = new Rect();
+    private final Paint scrimPaint = new Paint();
+    private final Path bgPath = new Path();
     private PlayerColors colors;
     private ValueAnimator colorAnimator;
     private MessageObject current;
@@ -183,6 +193,9 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         dark = PlayerColors.isDark(resourcesProvider);
         fallbackSeed = PlayerColors.noCoverSeed(resourcesProvider);
         Integer seed = PlayerArt.cachedSeed(playing);
+        if (AppearanceConfig.playerColorStyle() == 1) {
+            seed = fallbackSeed;
+        }
         colors = PlayerColors.fromSeed(seed != null ? seed : fallbackSeed, dark);
 
         root = new FrameLayout(context) {
@@ -231,21 +244,36 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
                     return;
                 }
                 float r = dp(28) * Math.max(0f, Math.min(1f, getTranslationY() / dp(56)));
-                backgroundPaint.setColor(colors.surface);
                 backgroundRect.set(0, 0, getWidth(), getHeight() + r);
-                canvas.drawRoundRect(backgroundRect, r, r, backgroundPaint);
+
+                int bgStyle = AppearanceConfig.playerBackgroundStyle();
+                if (bgStyle == 1 && cover != null && cover.getBitmap() != null) {
+                    drawBlurredBackground(canvas, backgroundRect, r);
+                } else if (bgStyle == 2) {
+                    drawGradientBackground(canvas, backgroundRect, r);
+                } else {
+                    backgroundPaint.setShader(null);
+                    backgroundPaint.setColor(colors.surface);
+                    canvas.drawRoundRect(backgroundRect, r, r, backgroundPaint);
+                }
             }
 
             @Override
             protected void onAttachedToWindow() {
                 super.onAttachedToWindow();
                 Bulletin.addDelegate(this, bulletinDelegate);
+                if (AppearanceConfig.playerKeepScreenOn() && activity != null && activity.getWindow() != null) {
+                    activity.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
             }
 
             @Override
             protected void onDetachedFromWindow() {
                 super.onDetachedFromWindow();
                 Bulletin.removeDelegate(this);
+                if (activity != null && activity.getWindow() != null) {
+                    activity.getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
             }
         };
         root.setWillNotDraw(false);
@@ -899,6 +927,45 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         canvas.restore();
     }
 
+    private void drawGradientBackground(Canvas canvas, RectF rect, float r) {
+        if (bgGradient == null || lastGradientSeed != colors.surface) {
+            lastGradientSeed = colors.surface;
+            int topColor = colors.surface;
+            int bottomColor = ColorUtils.blendARGB(colors.surface, 0xff000000, dark ? 0.45f : 0.25f);
+            bgGradient = new android.graphics.LinearGradient(0, 0, 0, rect.bottom, topColor, bottomColor, android.graphics.Shader.TileMode.CLAMP);
+        }
+        backgroundPaint.setShader(bgGradient);
+        canvas.drawRoundRect(rect, r, r, backgroundPaint);
+    }
+
+    private void drawBlurredBackground(Canvas canvas, RectF rect, float r) {
+        Bitmap art = cover != null ? cover.getBitmap() : null;
+        if (art != null && !art.isRecycled()) {
+            if (cachedBlurredArt == null || !TextUtils.equals(currentKey, lastBlurredKey)) {
+                lastBlurredKey = currentKey;
+                try {
+                    Bitmap small = Bitmap.createScaledBitmap(art, 80, 80, true);
+                    org.telegram.messenger.Utilities.stackBlurBitmap(small, 24);
+                    cachedBlurredArt = small;
+                } catch (Throwable ignore) {
+                }
+            }
+        }
+        if (cachedBlurredArt != null && !cachedBlurredArt.isRecycled()) {
+            canvas.save();
+            bgPath.reset();
+            bgPath.addRoundRect(rect, r, r, Path.Direction.CW);
+            canvas.clipPath(bgPath);
+            bgSrcRect.set(0, 0, cachedBlurredArt.getWidth(), cachedBlurredArt.getHeight());
+            canvas.drawBitmap(cachedBlurredArt, bgSrcRect, rect, morphPaint);
+            scrimPaint.setColor(dark ? 0x99000000 : 0x77000000);
+            canvas.drawRect(rect, scrimPaint);
+            canvas.restore();
+        } else {
+            drawGradientBackground(canvas, rect, r);
+        }
+    }
+
     private void detach() {
         if (detached) {
             return;
@@ -930,6 +997,7 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
     @Override
     public void didReceivedNotification(int id, int account, Object... args) {
         if (id == NotificationCenter.messagePlayingDidStart) {
+            SleepTimer.getInstance().onTrackFinished();
             MessageObject mo = MediaController.getInstance().getPlayingMessageObject();
             if (mo == null || !mo.isMusic()) {
                 dismissImmediately();
@@ -937,6 +1005,7 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
             }
             bind(mo, true);
         } else if (id == NotificationCenter.messagePlayingDidReset) {
+            SleepTimer.getInstance().onTrackFinished();
             MessageObject mo = MediaController.getInstance().getPlayingMessageObject();
             if (mo == null || !mo.isMusic()) {
                 dismissImmediately();
@@ -1427,6 +1496,32 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
             PlayerActions.showInChat(activity, mo);
         });
         o.addGap();
+        o.add(R.drawable.menu_night_mode_24, getString(R.string.OEAppearancePlayerSleepTimer), () -> {
+            o.dismiss();
+            SleepTimer.showDialog(getContext(), rp);
+        });
+        o.add(R.drawable.baseline_volume_up_24, getString(R.string.OEAppearancePlayerEqualizer), () -> {
+            o.dismiss();
+            try {
+                Intent eqIntent = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
+                eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, getContext().getPackageName());
+                eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC);
+                if (activity != null && eqIntent.resolveActivity(activity.getPackageManager()) != null) {
+                    activity.startActivity(eqIntent);
+                } else {
+                    BulletinFactory.global().createSimpleBulletin(R.drawable.baseline_volume_up_24, getString(R.string.OEAppearancePlayerEqualizerNotFound)).show();
+                }
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+        });
+        o.add(R.drawable.msg_settings, getString(R.string.OEAppearancePlayerSettings), () -> {
+            o.dismiss();
+            dismissImmediately();
+            if (activity != null) {
+                activity.presentFragment(new PlayerSettingsActivity());
+            }
+        });
         o.add(R.drawable.msg_filled_data_music, getString(R.string.OEPlayerClassic), () -> {
             o.dismiss();
             openClassic();
@@ -1436,6 +1531,9 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
     }
 
     private boolean onCoverTouch(View v, MotionEvent e) {
+        if (!AppearanceConfig.playerSwipeTrack()) {
+            return false;
+        }
         if (coverAnimating) {
             return false;
         }

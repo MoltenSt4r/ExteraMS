@@ -329,7 +329,7 @@ public class LyricsView extends FrameLayout {
         if (lyrics == null || list.getHeight() == 0) {
             return;
         }
-        if (!lyrics.synced) {
+        if (!lyrics.synced || !app.exteraless.appearance.AppearanceConfig.playerLyricsAutoScroll()) {
             return;
         }
         int target = Math.max(active, 0);
@@ -471,7 +471,13 @@ public class LyricsView extends FrameLayout {
         }
 
         void setBlur(float value) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || value == blur) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                return;
+            }
+            if (!app.exteraless.appearance.AppearanceConfig.playerLyricsBlur()) {
+                value = 0f;
+            }
+            if (value == blur) {
                 return;
             }
             blur = value;
@@ -498,7 +504,9 @@ public class LyricsView extends FrameLayout {
         }
 
         private float textSize() {
-            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, plain ? 20 : 28, getResources().getDisplayMetrics());
+            int sizeMode = app.exteraless.appearance.AppearanceConfig.playerLyricsTextSize();
+            int sp = sizeMode == 0 ? 24 : sizeMode == 2 ? 32 : 28;
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, plain ? (sp - 8) : sp, getResources().getDisplayMetrics());
         }
 
         private void ensureLayout(int width) {

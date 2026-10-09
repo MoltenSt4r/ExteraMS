@@ -98,6 +98,62 @@ public class CoverImage extends BackupImageView {
         });
     }
 
+    public Bitmap getBitmap() {
+        return getImageReceiver().getBitmap();
+    }
+
+    private float touchStartX, touchStartY;
+    private boolean isSwiping;
+
+    @Override
+    public boolean onTouchEvent(android.view.MotionEvent event) {
+        if (!app.exteraless.appearance.AppearanceConfig.playerSwipeTrack()) {
+            return super.onTouchEvent(event);
+        }
+        switch (event.getActionMasked()) {
+            case android.view.MotionEvent.ACTION_DOWN:
+                touchStartX = event.getX();
+                touchStartY = event.getY();
+                isSwiping = false;
+                if (getParent() != null) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                }
+                return true;
+            case android.view.MotionEvent.ACTION_MOVE:
+                float dx = event.getX() - touchStartX;
+                float dy = event.getY() - touchStartY;
+                if (!isSwiping && Math.abs(dx) > org.telegram.messenger.AndroidUtilities.dp(16) && Math.abs(dx) > Math.abs(dy) * 1.5f) {
+                    isSwiping = true;
+                }
+                if (isSwiping) {
+                    setTranslationX(dx * 0.45f);
+                    return true;
+                }
+                break;
+            case android.view.MotionEvent.ACTION_UP:
+            case android.view.MotionEvent.ACTION_CANCEL:
+                if (isSwiping) {
+                    float finalDx = event.getX() - touchStartX;
+                    float slop = org.telegram.messenger.AndroidUtilities.dp(48);
+                    if (finalDx < -slop) {
+                        org.telegram.messenger.MediaController.getInstance().playNextMessage();
+                    } else if (finalDx > slop) {
+                        org.telegram.messenger.MediaController.getInstance().playPreviousMessage();
+                    }
+                    animate().translationX(0f).setDuration(220).setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator.EASE_OUT).start();
+                    if (getParent() != null) {
+                        getParent().requestDisallowInterceptTouchEvent(false);
+                    }
+                    return true;
+                }
+                if (getParent() != null) {
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                }
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         if (!getImageReceiver().hasBitmapImage()) {
