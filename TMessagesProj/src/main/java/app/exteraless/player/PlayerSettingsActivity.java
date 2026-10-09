@@ -163,7 +163,7 @@ public class PlayerSettingsActivity extends BaseFragment {
         items.add(UItem.asCheck(ID_LYRICS_ROMANIZE, getString(R.string.OEAppearancePlayerLyricsRomanize))
                 .setChecked(AppearanceConfig.playerLyricsRomanize()));
 
-        items.add(UItem.asCheck(ID_LYRICS_TRANSLATE, getString(R.string.OEAppearancePlayerLyricsTranslate), getString(R.string.OEAppearancePlayerLyricsTranslateDesc))
+        items.add(UItem.asCheck(ID_LYRICS_TRANSLATE, getString(R.string.OEAppearancePlayerLyricsTranslate), getString(R.string.OEAppearancePlayerLyricsTranslateDesc), true)
                 .setChecked(AppearanceConfig.playerLyricsTranslate()));
 
         int alignMode = AppearanceConfig.playerLyricsAlignment();
@@ -502,7 +502,7 @@ public class PlayerSettingsActivity extends BaseFragment {
 
                 GradientDrawable rowBg = new GradientDrawable();
                 rowBg.setCornerRadius(dp(12));
-                rowBg.setColor(Theme.getColor(Theme.key_dialogButtonCorner));
+                rowBg.setColor(Theme.getColor(Theme.key_dialogBackgroundGray));
                 row.setBackground(rowBg);
 
                 TextView numView = new TextView(getContext());

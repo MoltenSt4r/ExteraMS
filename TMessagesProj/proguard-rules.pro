@@ -232,3 +232,10 @@
 -keep class org.telegram.ui.Components.ChatActivityEditTextCaption** { *; }
 -keep class org.telegram.ui.DialogsActivity** { *; }
 
+# Extera / MoltenGram custom features (Player, Plugins, Appearance)
+-keep class app.exteraless.** { *; }
+-keep interface app.exteraless.** { *; }
+-keep enum app.exteraless.** { *; }
+-dontwarn app.exteraless.**
+-keep class * extends org.telegram.ui.Components.UItem$UItemFactory { *; }
+-keep class ** extends org.telegram.ui.Components.UItem$UItemFactory { *; }

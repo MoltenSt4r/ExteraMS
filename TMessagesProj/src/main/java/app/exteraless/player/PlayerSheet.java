@@ -1297,7 +1297,7 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
 
             GradientDrawable chipBg = new GradientDrawable();
             chipBg.setCornerRadius(dp(12));
-            chipBg.setColor(Theme.getColor(Theme.key_dialogButtonCorner));
+            chipBg.setColor(Theme.getColor(Theme.key_dialogBackgroundGray));
             chip.setBackground(chipBg);
             chip.setPadding(dp(8), dp(6), dp(8), dp(6));
 

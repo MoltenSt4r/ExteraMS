@@ -256,16 +256,16 @@ public class PluginCell extends FrameLayout implements NotificationCenter.Notifi
         LinearLayout actions = new LinearLayout(context);
         actions.setOrientation(LinearLayout.HORIZONTAL);
         shareButton = createButton(context, R.drawable.msg_share, false,
-                v -> callDelegate(Action.SHARE));
+                v -> callDelegate(ACTION_SHARE));
         actions.addView(shareButton, LayoutHelper.createLinear(40, 40, Gravity.LEFT, 0, 0, 8, 0));
         pinButton = createButton(context, R.drawable.msg_pin, false,
-                v -> callDelegate(Action.PIN));
+                v -> callDelegate(ACTION_PIN));
         actions.addView(pinButton, LayoutHelper.createLinear(40, 40, Gravity.LEFT, 0, 0, 8, 0));
         permissionsButton = createButton(context, R.drawable.msg_permissions, false,
-                v -> callDelegate(Action.PERMISSIONS));
+                v -> callDelegate(ACTION_PERMISSIONS));
         actions.addView(permissionsButton, LayoutHelper.createLinear(40, 40, Gravity.LEFT, 0, 0, 8, 0));
         settingsButton = createButton(context, R.drawable.msg_settings, false,
-                v -> callDelegate(Action.SETTINGS));
+                v -> callDelegate(ACTION_SETTINGS));
         settingsButton.setVisibility(GONE);
         actions.addView(settingsButton, LayoutHelper.createLinear(40, 40, Gravity.LEFT, 0, 0, 8, 0));
 
@@ -277,7 +277,7 @@ public class PluginCell extends FrameLayout implements NotificationCenter.Notifi
         // Соседство с остальными кнопками означало бы промах пальцем ценой
         // удалённого плагина, поэтому оно одно у противоположного края.
         deleteButton = createButton(context, R.drawable.msg_delete, true,
-                v -> callDelegate(Action.DELETE));
+                v -> callDelegate(ACTION_DELETE));
         actions.addView(deleteButton, LayoutHelper.createLinear(40, 40, Gravity.RIGHT));
         root.addView(actions, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 40));
 
@@ -285,7 +285,7 @@ public class PluginCell extends FrameLayout implements NotificationCenter.Notifi
         checkBox.setColors(Theme.key_switchTrack, Theme.key_switchTrackChecked,
                 Theme.key_windowBackgroundWhite, Theme.key_windowBackgroundWhite);
         checkBox.setFocusable(false);
-        checkBox.setOnClickListener(v -> callDelegate(Action.TOGGLE));
+        checkBox.setOnClickListener(v -> callDelegate(ACTION_TOGGLE));
         // 4dp справа: у Switch трек уже своей вьюхи, и без этого он оказывается
         // ближе к краю карточки, чем текст слева.
         headerRow.addView(checkBox, LayoutHelper.createLinear(37, 40, Gravity.TOP,
@@ -300,19 +300,24 @@ public class PluginCell extends FrameLayout implements NotificationCenter.Notifi
                 Theme.getColor(Theme.key_windowBackgroundWhite)));
     }
 
-    private enum Action { TOGGLE, SHARE, PIN, SETTINGS, PERMISSIONS, DELETE }
+    private static final int ACTION_TOGGLE = 0;
+    private static final int ACTION_SHARE = 1;
+    private static final int ACTION_PIN = 2;
+    private static final int ACTION_SETTINGS = 3;
+    private static final int ACTION_PERMISSIONS = 4;
+    private static final int ACTION_DELETE = 5;
 
-    private void callDelegate(Action action) {
+    private void callDelegate(int action) {
         if (delegate == null || pluginId == null) {
             return;
         }
         switch (action) {
-            case TOGGLE: delegate.togglePlugin(checkBox); break;
-            case SHARE: delegate.sharePlugin(); break;
-            case PIN: delegate.pinPlugin(pinButton); break;
-            case SETTINGS: delegate.openPluginSettings(); break;
-            case DELETE: delegate.deletePlugin(); break;
-            case PERMISSIONS:
+            case ACTION_TOGGLE: delegate.togglePlugin(checkBox); break;
+            case ACTION_SHARE: delegate.sharePlugin(); break;
+            case ACTION_PIN: delegate.pinPlugin(pinButton); break;
+            case ACTION_SETTINGS: delegate.openPluginSettings(); break;
+            case ACTION_DELETE: delegate.deletePlugin(); break;
+            case ACTION_PERMISSIONS:
                 if (delegate instanceof PluginPermissionsDelegate) {
                     ((PluginPermissionsDelegate) delegate).openPluginPermissions();
                 }

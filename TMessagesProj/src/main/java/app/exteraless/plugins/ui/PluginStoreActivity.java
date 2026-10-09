@@ -459,7 +459,9 @@ public class PluginStoreActivity extends BaseFragment {
         }
 
         for (StorePlugin p : list) {
-            items.add(StorePluginCell.asStorePlugin(p, pluginDelegate));
+            StorePluginCell cell = new StorePluginCell(getContext());
+            cell.bind(p, pluginDelegate);
+            items.add(UItem.asCustom(cell));
         }
 
         // Always show trusted channels at bottom for easy access
@@ -764,7 +766,7 @@ public class PluginStoreActivity extends BaseFragment {
             if (accent == 0) accent = 0xff00d2b4;
 
             if (p.downloading) {
-                btnBg.setColor(Theme.getColor(Theme.key_dialogButtonCorner));
+                btnBg.setColor(Theme.getColor(Theme.key_windowBackgroundGray));
                 actionButton.setBackground(btnBg);
                 actionButton.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
                 actionButton.setText(getString(R.string.PluginsStoreDownloading));
@@ -780,7 +782,7 @@ public class PluginStoreActivity extends BaseFragment {
                         if (delegate != null) delegate.onInstallClick(p);
                     });
                 } else {
-                    btnBg.setColor(Theme.getColor(Theme.key_dialogButtonCorner));
+                    btnBg.setColor(Theme.getColor(Theme.key_windowBackgroundGray));
                     actionButton.setBackground(btnBg);
                     actionButton.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
                     actionButton.setText("✓ " + getString(R.string.PluginsStoreInstalled));
@@ -817,53 +819,6 @@ public class PluginStoreActivity extends BaseFragment {
                 iconView.setVisibility(GONE);
                 defaultIconView.setVisibility(VISIBLE);
             }
-        }
-
-        public static final class Factory extends UItem.UItemFactory<StorePluginCell> {
-            static {
-                setup(new Factory());
-            }
-
-            @Override
-            public StorePluginCell createView(Context context, RecyclerListView listView, int currentAccount,
-                                              int classGuid, Theme.ResourcesProvider resourcesProvider) {
-                return new StorePluginCell(context);
-            }
-
-            @Override
-            public void bindView(View view, UItem item, boolean divider, UniversalAdapter adapter,
-                                 UniversalRecyclerView listView) {
-                StorePluginCell cell = (StorePluginCell) view;
-                StorePlugin p = (StorePlugin) item.object;
-                StorePluginDelegate d = (StorePluginDelegate) item.object2;
-                cell.bind(p, d);
-            }
-
-            @Override
-            public boolean equals(UItem first, UItem second) {
-                StorePlugin a = (StorePlugin) first.object;
-                StorePlugin b = (StorePlugin) second.object;
-                return a != null && b != null && TextUtils.equals(a.id, b.id);
-            }
-
-            @Override
-            public boolean contentsEquals(UItem first, UItem second) {
-                StorePlugin a = (StorePlugin) first.object;
-                StorePlugin b = (StorePlugin) second.object;
-                return a != null && b != null
-                        && TextUtils.equals(a.id, b.id)
-                        && TextUtils.equals(a.version, b.version)
-                        && a.downloading == b.downloading
-                        && a.isInstalled() == b.isInstalled();
-            }
-        }
-
-        public static UItem asStorePlugin(StorePlugin plugin, StorePluginDelegate delegate) {
-            UItem item = UItem.ofFactory(Factory.class);
-            item.object = plugin;
-            item.object2 = delegate;
-            item.transparent = true;
-            return item;
         }
     }
 }
