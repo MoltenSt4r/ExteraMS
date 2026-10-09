@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.net.Uri;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,13 +30,17 @@ import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
+import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LocaleController;
+import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
+import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.browser.Browser;
 import org.telegram.tgnet.ConnectionsManager;
+import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_chatlists;
 import org.telegram.ui.ActionBar.ActionBar;
@@ -43,6 +48,7 @@ import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.Components.LayoutHelper;
@@ -64,6 +70,7 @@ import java.util.List;
 import java.util.Locale;
 
 import app.exteraless.plugins.Plugin;
+import app.exteraless.plugins.PluginAutoConverter;
 import app.exteraless.plugins.PluginsController;
 
 /**
@@ -72,9 +79,25 @@ import app.exteraless.plugins.PluginsController;
  */
 public class PluginStoreActivity extends BaseFragment {
 
-    private static final String CATALOG_URL = "https://raw.githubusercontent.com/shareui/packit/main/configs/plugins.json";
     private static final String CACHE_FILE_NAME = "packit_plugins_cache.json";
     private static final String CHANNELS_FOLDER_SLUG = "MsGEKKJgoGlkOGM0";
+
+    private static final String[] KNOWN_FOLDER_CHANNELS = {
+            "PESSDES_Plugins",
+            "PluginProject",
+            "nonPlugins",
+            "ApplePlugins",
+            "ExerealPlugins",
+            "MLPlugins",
+            "CactusPlugins",
+            "doctashare",
+            "exteraPlugins",
+            "TheDotted",
+            "anivPlugins",
+            "bleizixPlugins",
+            "QuantaPlugins",
+            "shareui"
+    };
 
     private static final int MENU_SEARCH = 0;
     private static final int MENU_REFRESH = 1;
@@ -103,6 +126,7 @@ public class PluginStoreActivity extends BaseFragment {
         public boolean downloading = false;
         public TLRPC.Document document;
         public TLRPC.Message message;
+        public TLRPC.Chat chat;
 
         public boolean isInstalled() {
             return PluginsController.getInstance().getPlugin(id) != null;
@@ -119,6 +143,7 @@ public class PluginStoreActivity extends BaseFragment {
     private UniversalRecyclerView listView;
     private LinearLayout chipsLayout;
     private final List<StorePlugin> allPlugins = new ArrayList<>();
+    private final List<NotificationCenter.NotificationCenterDelegate> activeObservers = new ArrayList<>();
     private String searchQuery;
     private int currentFilter = FILTER_ALL;
     private boolean loading = false;
@@ -162,7 +187,10 @@ public class PluginStoreActivity extends BaseFragment {
                 if (id == -1) {
                     finishFragment();
                 } else if (id == MENU_REFRESH) {
-                    fetchCatalogOnline(true);
+                    BulletinFactory.of(PluginStoreActivity.this)
+                            .createSimpleBulletin(R.drawable.msg_retry, getString(R.string.PluginsStoreLoading))
+                            .show();
+                    checkFolderChannelsOnline();
                 }
             }
         });
@@ -272,7 +300,7 @@ public class PluginStoreActivity extends BaseFragment {
         if (cache.exists() && cache.length() > 0) {
             try (FileInputStream in = new FileInputStream(cache)) {
                 String json = readStream(in);
-                parseCatalogJson(json);
+                mergeCatalogJson(json);
             } catch (Exception e) {
                 FileLog.e(e);
             }
@@ -282,7 +310,7 @@ public class PluginStoreActivity extends BaseFragment {
         if (allPlugins.isEmpty()) {
             try (InputStream in = act.getAssets().open("packit_plugins.json")) {
                 String json = readStream(in);
-                parseCatalogJson(json);
+                mergeCatalogJson(json);
             } catch (Exception e) {
                 FileLog.e(e);
             }
@@ -292,80 +320,108 @@ public class PluginStoreActivity extends BaseFragment {
 
         // 3. Scan folder channels (https://t.me/addlist/MsGEKKJgoGlkOGM0) for latest community plugins
         checkFolderChannelsOnline();
-
-        // 4. In background, fetch fresh copy from catalog
-        fetchCatalogOnline(false);
     }
 
     private void checkFolderChannelsOnline() {
         TL_chatlists.TL_chatlists_checkChatlistInvite req = new TL_chatlists.TL_chatlists_checkChatlistInvite();
         req.slug = CHANNELS_FOLDER_SLUG;
         ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> {
+            ArrayList<TLRPC.Chat> chats = null;
             if (response instanceof TL_chatlists.chatlist_ChatlistInvite) {
                 TL_chatlists.chatlist_ChatlistInvite inv = (TL_chatlists.chatlist_ChatlistInvite) response;
-                ArrayList<TLRPC.Chat> chats = null;
                 if (inv instanceof TL_chatlists.TL_chatlists_chatlistInvite) {
                     chats = ((TL_chatlists.TL_chatlists_chatlistInvite) inv).chats;
                 } else if (inv instanceof TL_chatlists.TL_chatlists_chatlistInviteAlready) {
                     chats = ((TL_chatlists.TL_chatlists_chatlistInviteAlready) inv).chats;
                 }
-                if (chats != null) {
-                    searchPluginsInChats(chats);
-                }
             }
+
+            final ArrayList<TLRPC.Chat> folderChats = chats != null ? new ArrayList<>(chats) : new ArrayList<>();
+            AndroidUtilities.runOnUIThread(() -> {
+                if (!folderChats.isEmpty()) {
+                    searchPluginsInChats(folderChats);
+                }
+                resolveKnownChannels(folderChats);
+            });
         });
     }
 
+    private void resolveKnownChannels(ArrayList<TLRPC.Chat> existingChats) {
+        for (String username : KNOWN_FOLDER_CHANNELS) {
+            boolean already = false;
+            for (TLRPC.Chat c : existingChats) {
+                if (c != null && c.username != null && c.username.equalsIgnoreCase(username)) {
+                    already = true;
+                    break;
+                }
+            }
+            if (!already) {
+                TLRPC.TL_contacts_resolveUsername req = new TLRPC.TL_contacts_resolveUsername();
+                req.username = username;
+                ConnectionsManager.getInstance(currentAccount).sendRequest(req, (res, err) -> {
+                    if (res instanceof TLRPC.TL_contacts_resolvedPeer) {
+                        TLRPC.TL_contacts_resolvedPeer r = (TLRPC.TL_contacts_resolvedPeer) res;
+                        if (r != null && !r.chats.isEmpty()) {
+                            TLRPC.Chat c = r.chats.get(0);
+                            AndroidUtilities.runOnUIThread(() -> {
+                                ArrayList<TLRPC.Chat> single = new ArrayList<>();
+                                single.add(c);
+                                searchPluginsInChats(single);
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    }
+
     private void searchPluginsInChats(ArrayList<TLRPC.Chat> chats) {
+        if (chats == null || chats.isEmpty()) return;
         for (TLRPC.Chat chat : chats) {
-            if (chat == null || TextUtils.isEmpty(chat.username)) continue;
+            if (chat == null) continue;
+            TLRPC.InputPeer inputPeer = MessagesController.getInstance(currentAccount).getInputPeer(chat);
+            if (inputPeer == null) continue;
+
             TLRPC.TL_messages_search sReq = new TLRPC.TL_messages_search();
-            sReq.peer = MessagesController.getInstance(currentAccount).getInputPeer(chat);
+            sReq.peer = inputPeer;
             sReq.filter = new TLRPC.TL_inputMessagesFilterDocument();
             sReq.q = "";
-            sReq.limit = 25;
+            sReq.limit = 50;
             ConnectionsManager.getInstance(currentAccount).sendRequest(sReq, (res, err) -> {
                 if (res instanceof TLRPC.messages_Messages) {
                     TLRPC.messages_Messages mRes = (TLRPC.messages_Messages) res;
                     AndroidUtilities.runOnUIThread(() -> {
-                        boolean added = false;
+                        List<StorePlugin> discovered = new ArrayList<>();
                         for (TLRPC.Message msg : mRes.messages) {
                             if (msg != null && msg.media instanceof TLRPC.TL_messageMediaDocument) {
                                 TLRPC.Document doc = msg.media.document;
                                 String fName = FileLoader.getDocumentFileName(doc);
                                 if (fName != null && (fName.endsWith(".plugin") || fName.endsWith(".py") || fName.endsWith(".eaf"))) {
                                     String id = fName.replaceAll("\\.[^.]+$", "").toLowerCase(Locale.ROOT).replace(" ", "_");
-                                    boolean exists = false;
-                                    for (StorePlugin sp : allPlugins) {
-                                        if (TextUtils.equals(sp.id, id)) {
-                                            sp.document = doc;
-                                            sp.message = msg;
-                                            exists = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!exists) {
-                                        StorePlugin sp = new StorePlugin();
-                                        sp.id = id;
-                                        sp.name = fName.replaceAll("\\.[^.]+$", "");
-                                        sp.author = "@" + chat.username;
-                                        sp.sourceChannel = "@" + chat.username;
-                                        sp.channelPost = "https://t.me/" + chat.username + "/" + msg.id;
-                                        sp.format = fName.endsWith(".py") ? ".py" : (fName.endsWith(".eaf") ? ".eaf" : ".plugin");
-                                        sp.isOpenSource = !sp.format.endsWith(".eaf");
-                                        sp.description = msg.message;
-                                        sp.size = AndroidUtilities.formatFileSize(doc.size);
-                                        sp.document = doc;
-                                        sp.message = msg;
-                                        sp.tags.add(sp.isOpenSource ? "OpenSource" : "Binary");
-                                        allPlugins.add(0, sp);
-                                        added = true;
-                                    }
+                                    StorePlugin sp = new StorePlugin();
+                                    sp.id = id;
+                                    sp.name = cleanPluginName(fName);
+                                    String authorName = !TextUtils.isEmpty(chat.username) ? "@" + chat.username : (chat.title != null ? chat.title : "");
+                                    sp.author = authorName;
+                                    sp.sourceChannel = authorName;
+                                    sp.channelPost = !TextUtils.isEmpty(chat.username) ? "https://t.me/" + chat.username + "/" + msg.id : null;
+                                    sp.format = fName.endsWith(".py") ? ".py" : (fName.endsWith(".eaf") ? ".eaf" : ".plugin");
+                                    sp.isOpenSource = !sp.format.endsWith(".eaf");
+                                    sp.description = msg.message;
+                                    sp.size = AndroidUtilities.formatFileSize(doc.size);
+                                    sp.document = doc;
+                                    sp.message = msg;
+                                    sp.chat = chat;
+                                    sp.icon = parseIconFromText(msg.message);
+                                    sp.tags.add(sp.isOpenSource ? "OpenSource" : "Binary");
+                                    categorizePlugin(sp);
+                                    discovered.add(sp);
                                 }
                             }
                         }
-                        if (added) {
-                            updateRows();
+                        if (!discovered.isEmpty()) {
+                            mergePlugins(discovered);
+                            saveCache();
                         }
                     });
                 }
@@ -373,59 +429,82 @@ public class PluginStoreActivity extends BaseFragment {
         }
     }
 
-    private void fetchCatalogOnline(boolean showFeedback) {
-        if (loading) return;
-        loading = true;
-        if (showFeedback && fragmentView != null) {
-            BulletinFactory.of(this).createSimpleBulletin(R.drawable.msg_retry, getString(R.string.PluginsStoreLoading)).show();
-        }
-
-        Utilities.globalQueue.postRunnable(() -> {
-            String result = null;
-            try {
-                HttpURLConnection conn = (HttpURLConnection) new URL(CATALOG_URL).openConnection();
-                conn.setConnectTimeout(12000);
-                conn.setReadTimeout(15000);
-                conn.setRequestProperty("User-Agent", "exteraless/" + BuildVars.BUILD_VERSION_STRING);
-                conn.setRequestProperty("Accept", "application/json");
-                int code = conn.getResponseCode();
-                if (code >= 200 && code < 300) {
-                    try (InputStream in = conn.getInputStream()) {
-                        result = readStream(in);
-                    }
-                }
-                conn.disconnect();
-            } catch (Exception e) {
-                FileLog.e(e);
+    private static String cleanPluginName(String fName) {
+        if (TextUtils.isEmpty(fName)) return "";
+        String base = fName.replaceAll("\\.[^.]+$", "").trim();
+        if (base.contains("_") || base.contains("-")) {
+            base = base.replaceAll("[-_]", " ").trim();
+            String[] words = base.split("\\s+");
+            StringBuilder sb = new StringBuilder();
+            for (String w : words) {
+                if (w.isEmpty()) continue;
+                if (sb.length() > 0) sb.append(" ");
+                sb.append(Character.toUpperCase(w.charAt(0))).append(w.substring(1));
             }
-
-            final String jsonResult = result;
-            AndroidUtilities.runOnUIThread(() -> {
-                loading = false;
-                if (!TextUtils.isEmpty(jsonResult)) {
-                    Activity act = getParentActivity();
-                    if (act != null) {
-                        try (FileOutputStream out = new FileOutputStream(new File(act.getCacheDir(), CACHE_FILE_NAME))) {
-                            out.write(jsonResult.getBytes("UTF-8"));
-                        } catch (Exception ignored) {}
-                    }
-                    parseCatalogJson(jsonResult);
-                    updateRows();
-                    if (showFeedback && fragmentView != null) {
-                        BulletinFactory.of(PluginStoreActivity.this)
-                                .createSimpleBulletin(R.drawable.msg_check, LocaleController.formatString(R.string.OEPlayerSourceSynced, "Plugins"))
-                                .show();
-                    }
-                } else if (showFeedback && fragmentView != null) {
-                    BulletinFactory.of(PluginStoreActivity.this)
-                            .createSimpleBulletin(R.drawable.msg_delete, getString(R.string.PluginsStoreError))
-                            .show();
-                }
-            });
-        });
+            return sb.toString();
+        }
+        return base;
     }
 
-    private void parseCatalogJson(String jsonStr) {
+    private static String parseIconFromText(String text) {
+        if (TextUtils.isEmpty(text)) return null;
+        try {
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?:__icon__|icon)\\s*[=:]\\s*[\"']?([a-zA-Z0-9_]+/[0-9]+)[\"']?").matcher(text);
+            if (m.find()) {
+                return m.group(1);
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private static void categorizePlugin(StorePlugin sp) {
+        String text = (sp.name + " " + (sp.description != null ? sp.description : "")).toLowerCase(Locale.ROOT);
+        if (text.contains("ui") || text.contains("интерфейс") || text.contains("вид") || text.contains("style") || text.contains("theme") || text.contains("design") || text.contains("drawer") || text.contains("icon")) {
+            if (!sp.tags.contains("Interface")) sp.tags.add("Interface");
+        }
+        if (text.contains("tool") || text.contains("инструмент") || text.contains("download") || text.contains("скач") || text.contains("viewer") || text.contains("log") || text.contains("bot") || text.contains("бот") || text.contains("api")) {
+            if (!sp.tags.contains("Tools")) sp.tags.add("Tools");
+        }
+        if (text.contains("tweak") || text.contains("настройк") || text.contains("mod") || text.contains("custom") || text.contains("кастомизац") || text.contains("hide") || text.contains("скры")) {
+            if (!sp.tags.contains("Tweaks")) sp.tags.add("Tweaks");
+        }
+    }
+
+    private void mergePlugins(List<StorePlugin> newPlugins) {
+        if (newPlugins == null || newPlugins.isEmpty()) return;
+        boolean changed = false;
+        synchronized (allPlugins) {
+            for (StorePlugin np : newPlugins) {
+                if (np == null || TextUtils.isEmpty(np.id)) continue;
+                boolean found = false;
+                for (int i = 0; i < allPlugins.size(); i++) {
+                    StorePlugin existing = allPlugins.get(i);
+                    if (existing.id != null && existing.id.equalsIgnoreCase(np.id)) {
+                        if (np.document != null) existing.document = np.document;
+                        if (np.message != null) existing.message = np.message;
+                        if (np.chat != null) existing.chat = np.chat;
+                        if (!TextUtils.isEmpty(np.link)) existing.link = np.link;
+                        if (!TextUtils.isEmpty(np.icon)) existing.icon = np.icon;
+                        if (!TextUtils.isEmpty(np.channelPost)) existing.channelPost = np.channelPost;
+                        if (!TextUtils.isEmpty(np.description) && TextUtils.isEmpty(existing.description)) existing.description = np.description;
+                        if (!TextUtils.isEmpty(np.size)) existing.size = np.size;
+                        if (!TextUtils.isEmpty(np.version)) existing.version = np.version;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    allPlugins.add(np);
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            updateRows();
+        }
+    }
+
+    private void mergeCatalogJson(String jsonStr) {
         if (TextUtils.isEmpty(jsonStr)) return;
         try {
             JSONObject root = new JSONObject(jsonStr);
@@ -467,27 +546,82 @@ public class PluginStoreActivity extends BaseFragment {
                 list.add(p);
             }
 
-            allPlugins.clear();
-            allPlugins.addAll(list);
+            mergePlugins(list);
         } catch (Exception e) {
             FileLog.e(e);
         }
+    }
+
+    private void saveCache() {
+        Activity act = getParentActivity();
+        if (act == null || allPlugins.isEmpty()) return;
+        Utilities.globalQueue.postRunnable(() -> {
+            try {
+                JSONObject root = new JSONObject();
+                JSONArray arr = new JSONArray();
+                List<StorePlugin> snapshot;
+                synchronized (allPlugins) {
+                    snapshot = new ArrayList<>(allPlugins);
+                }
+                for (StorePlugin sp : snapshot) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("id", sp.id);
+                    obj.put("name", sp.name);
+                    obj.put("author", sp.author);
+                    obj.put("source_channel", sp.sourceChannel);
+                    obj.put("channel_post", sp.channelPost);
+                    obj.put("format", sp.format);
+                    obj.put("is_open_source", sp.isOpenSource);
+                    obj.put("version", sp.version != null ? sp.version : "");
+                    obj.put("size", sp.size != null ? sp.size : "");
+                    obj.put("description", sp.description != null ? sp.description : "");
+                    if (!TextUtils.isEmpty(sp.icon)) obj.put("icon", sp.icon);
+                    if (!TextUtils.isEmpty(sp.link)) obj.put("link", sp.link);
+                    JSONArray tags = new JSONArray();
+                    for (String t : sp.tags) tags.put(t);
+                    obj.put("tags", tags);
+                    arr.put(obj);
+                }
+                root.put("plugins", arr);
+                File cache = new File(act.getCacheDir(), CACHE_FILE_NAME);
+                try (FileOutputStream out = new FileOutputStream(cache)) {
+                    out.write(root.toString().getBytes("UTF-8"));
+                }
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
+        });
+    }
+
+    private boolean hasTag(StorePlugin p, String... targets) {
+        if (p.tags == null) return false;
+        for (String t : p.tags) {
+            for (String target : targets) {
+                if (t.equalsIgnoreCase(target)) return true;
+            }
+        }
+        return false;
     }
 
     private List<StorePlugin> getFilteredPlugins() {
         List<StorePlugin> result = new ArrayList<>();
         String q = (searchQuery != null) ? searchQuery.toLowerCase(Locale.ROOT).trim() : null;
 
-        for (StorePlugin p : allPlugins) {
+        List<StorePlugin> listCopy;
+        synchronized (allPlugins) {
+            listCopy = new ArrayList<>(allPlugins);
+        }
+
+        for (StorePlugin p : listCopy) {
             // Check filter
             if (currentFilter == FILTER_OPEN_SOURCE) {
                 if (!p.isOpenSource) continue;
             } else if (currentFilter == FILTER_UI) {
-                if (!p.tags.contains("UI") && !p.tags.contains("Player") && !p.tags.contains("Customization")) continue;
+                if (!hasTag(p, "UI", "Interface", "Player", "Customization", "Appearance")) continue;
             } else if (currentFilter == FILTER_TOOLS) {
-                if (!p.tags.contains("Tools") && !p.tags.contains("Utility") && !p.tags.contains("Library") && !p.tags.contains("Dev")) continue;
+                if (!hasTag(p, "Tools", "Utility", "Library", "Dev", "DevTools")) continue;
             } else if (currentFilter == FILTER_TWEAKS) {
-                if (!p.tags.contains("Tweaks") && !p.tags.contains("Customization")) continue;
+                if (!hasTag(p, "Tweaks", "Customization", "Tweak")) continue;
             }
 
             // Check search query
@@ -495,8 +629,9 @@ public class PluginStoreActivity extends BaseFragment {
                 boolean match = (p.name != null && p.name.toLowerCase(Locale.ROOT).contains(q))
                         || (p.id != null && p.id.toLowerCase(Locale.ROOT).contains(q))
                         || (p.author != null && p.author.toLowerCase(Locale.ROOT).contains(q))
+                        || (p.sourceChannel != null && p.sourceChannel.toLowerCase(Locale.ROOT).contains(q))
                         || (p.description != null && p.description.toLowerCase(Locale.ROOT).contains(q));
-                if (!match) {
+                if (!match && p.tags != null) {
                     for (String t : p.tags) {
                         if (t.toLowerCase(Locale.ROOT).contains(q)) {
                             match = true;
@@ -543,33 +678,89 @@ public class PluginStoreActivity extends BaseFragment {
         if (plugin.document != null) {
             File localFile = FileLoader.getInstance(currentAccount).getPathToAttach(plugin.document, true);
             if (localFile != null && localFile.exists() && localFile.length() > 0) {
-                PluginsController.getInstance().showInstallDialog(this, localFile.getAbsolutePath(), false);
+                installPluginFile(localFile);
                 return;
             }
+            if (plugin.message != null) {
+                File msgFile = FileLoader.getInstance(currentAccount).getPathToMessage(plugin.message);
+                if (msgFile != null && msgFile.exists() && msgFile.length() > 0) {
+                    installPluginFile(msgFile);
+                    return;
+                }
+            }
+
             plugin.downloading = true;
             updateRows();
-            FileLoader.getInstance(currentAccount).loadFile(plugin.document, plugin.message, FileLoader.PRIORITY_HIGH, 0);
-            NotificationCenter.getInstance(currentAccount).addObserver(new NotificationCenter.NotificationCenterDelegate() {
+
+            final String attachName = FileLoader.getAttachFileName(plugin.document);
+            final String docName = FileLoader.getDocumentFileName(plugin.document);
+
+            NotificationCenter.NotificationCenterDelegate observer = new NotificationCenter.NotificationCenterDelegate() {
                 @Override
                 public void didReceivedNotification(int id, int account, Object... args) {
                     if (id == NotificationCenter.fileLoaded) {
                         String name = (String) args[0];
                         File f = (File) args[1];
-                        if (f != null && TextUtils.equals(name, FileLoader.getDocumentFileName(plugin.document))) {
-                            NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.fileLoaded);
-                            plugin.downloading = false;
-                            updateRows();
-                            PluginsController.getInstance().showInstallDialog(PluginStoreActivity.this, f.getAbsolutePath(), false);
+                        if (matches(name, f)) {
+                            cleanup();
+                            File target = (f != null && f.exists() && f.length() > 0) ? f :
+                                    FileLoader.getInstance(currentAccount).getPathToAttach(plugin.document, true);
+                            if (target == null || !target.exists() || target.length() == 0) {
+                                if (plugin.message != null) {
+                                    target = FileLoader.getInstance(currentAccount).getPathToMessage(plugin.message);
+                                }
+                            }
+                            if (target != null && target.exists() && target.length() > 0) {
+                                installPluginFile(target);
+                            } else {
+                                BulletinFactory.of(PluginStoreActivity.this)
+                                        .createSimpleBulletin(R.drawable.msg_delete, getString(R.string.PluginsInstallReadError))
+                                        .show();
+                            }
+                        }
+                    } else if (id == NotificationCenter.fileLoadFailed) {
+                        String name = (String) args[0];
+                        if (matches(name, null)) {
+                            cleanup();
+                            BulletinFactory.of(PluginStoreActivity.this)
+                                    .createSimpleBulletin(R.drawable.msg_delete, getString(R.string.PluginsInstallReadError))
+                                    .show();
                         }
                     }
                 }
-            }, NotificationCenter.fileLoaded);
+
+                private boolean matches(String name, File f) {
+                    if (TextUtils.equals(name, attachName) || TextUtils.equals(name, docName)) {
+                        return true;
+                    }
+                    if (f != null && (TextUtils.equals(f.getName(), attachName) || TextUtils.equals(f.getName(), docName))) {
+                        return true;
+                    }
+                    return false;
+                }
+
+                private void cleanup() {
+                    NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.fileLoaded);
+                    NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.fileLoadFailed);
+                    activeObservers.remove(this);
+                    plugin.downloading = false;
+                    updateRows();
+                }
+            };
+
+            activeObservers.add(observer);
+            NotificationCenter.getInstance(currentAccount).addObserver(observer, NotificationCenter.fileLoaded);
+            NotificationCenter.getInstance(currentAccount).addObserver(observer, NotificationCenter.fileLoadFailed);
+
+            MessageObject msgObj = plugin.message != null ? new MessageObject(currentAccount, plugin.message, false, false) : null;
+            FileLoader.getInstance(currentAccount).loadFile(plugin.document, msgObj, FileLoader.PRIORITY_HIGH, 0);
             return;
         }
 
         // 2. If it's a telegram post link (e.g. https://t.me/PESSDES_Plugins/91)
-        if (!TextUtils.isEmpty(plugin.link) && plugin.link.startsWith("https://t.me/")) {
-            Browser.openUrl(activity, plugin.link);
+        String postUrl = !TextUtils.isEmpty(plugin.channelPost) ? plugin.channelPost : plugin.link;
+        if (!TextUtils.isEmpty(postUrl) && postUrl.startsWith("https://t.me/")) {
+            downloadTelegramPost(plugin, postUrl);
             return;
         }
 
@@ -617,7 +808,7 @@ public class PluginStoreActivity extends BaseFragment {
                 AndroidUtilities.runOnUIThread(() -> {
                     plugin.downloading = false;
                     updateRows();
-                    PluginsController.getInstance().showInstallDialog(PluginStoreActivity.this, file.getAbsolutePath(), false);
+                    installPluginFile(file);
                 });
             } catch (Exception e) {
                 FileLog.e(e);
@@ -630,6 +821,88 @@ public class PluginStoreActivity extends BaseFragment {
                 });
             }
         });
+    }
+
+    private void downloadTelegramPost(StorePlugin plugin, String postUrl) {
+        try {
+            Uri uri = Uri.parse(postUrl);
+            List<String> segments = uri.getPathSegments();
+            if (segments != null && segments.size() >= 2) {
+                String username = segments.get(0);
+                int msgId = Integer.parseInt(segments.get(1));
+
+                plugin.downloading = true;
+                updateRows();
+
+                TLRPC.TL_contacts_resolveUsername req = new TLRPC.TL_contacts_resolveUsername();
+                req.username = username;
+                ConnectionsManager.getInstance(currentAccount).sendRequest(req, (res, err) -> {
+                    if (res instanceof TLRPC.TL_contacts_resolvedPeer) {
+                        TLRPC.TL_contacts_resolvedPeer rPeer = (TLRPC.TL_contacts_resolvedPeer) res;
+                        TLRPC.Chat chat = (!rPeer.chats.isEmpty()) ? rPeer.chats.get(0) : null;
+                        if (chat != null) {
+                            TLRPC.TL_channels_getMessages gReq = new TLRPC.TL_channels_getMessages();
+                            gReq.channel = MessagesController.getInstance(currentAccount).getInputChannel(chat);
+                            gReq.id.add(msgId);
+                            final TLRPC.Chat finalChat = chat;
+                            ConnectionsManager.getInstance(currentAccount).sendRequest(gReq, (mRes, mErr) -> {
+                                AndroidUtilities.runOnUIThread(() -> {
+                                    if (mRes instanceof TLRPC.messages_Messages) {
+                                        TLRPC.messages_Messages messages = (TLRPC.messages_Messages) mRes;
+                                        if (!messages.messages.isEmpty()) {
+                                            TLRPC.Message msg = messages.messages.get(0);
+                                            if (msg != null && msg.media instanceof TLRPC.TL_messageMediaDocument) {
+                                                plugin.document = msg.media.document;
+                                                plugin.message = msg;
+                                                plugin.chat = finalChat;
+                                                plugin.downloading = false;
+                                                downloadAndInstall(plugin);
+                                                return;
+                                            }
+                                        }
+                                    }
+                                    plugin.downloading = false;
+                                    updateRows();
+                                    Browser.openUrl(getParentActivity(), postUrl);
+                                });
+                            });
+                            return;
+                        }
+                    }
+                    AndroidUtilities.runOnUIThread(() -> {
+                        plugin.downloading = false;
+                        updateRows();
+                        Browser.openUrl(getParentActivity(), postUrl);
+                    });
+                });
+                return;
+            }
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+        Browser.openUrl(getParentActivity(), postUrl);
+    }
+
+    private void installPluginFile(File file) {
+        if (file == null || !file.exists() || file.length() == 0) return;
+        File toInstall = file;
+        if (PluginsController.getInstance().isBetaImportPyEnabled() && file.getName().toLowerCase(Locale.ROOT).endsWith(".py")) {
+            toInstall = PluginAutoConverter.autoConvertIfNeeded(file);
+        }
+        final String path = toInstall.getAbsolutePath();
+        AndroidUtilities.runOnUIThread(() -> {
+            PluginsController.getInstance().showInstallDialog(PluginStoreActivity.this, path, false);
+        });
+    }
+
+    @Override
+    public void onFragmentDestroy() {
+        super.onFragmentDestroy();
+        for (NotificationCenter.NotificationCenterDelegate obs : activeObservers) {
+            NotificationCenter.getInstance(currentAccount).removeObserver(obs, NotificationCenter.fileLoaded);
+            NotificationCenter.getInstance(currentAccount).removeObserver(obs, NotificationCenter.fileLoadFailed);
+        }
+        activeObservers.clear();
     }
 
     private void showInstalledOptions(StorePlugin plugin) {
@@ -903,22 +1176,53 @@ public class PluginStoreActivity extends BaseFragment {
                 });
             }
 
+            iconView.setTag(null);
+            iconView.setImageDrawable(null);
+
+            boolean iconApplied = false;
             if (!TextUtils.isEmpty(p.icon)) {
-                iconView.setTag(null);
-                iconView.setImageDrawable(null);
-                iconView.setVisibility(GONE);
-                defaultIconView.setVisibility(VISIBLE);
-                boolean applied = PluginIcons.apply(iconView, p.icon, () -> {
+                iconApplied = PluginIcons.apply(iconView, p.icon, () -> {
                     iconView.setVisibility(VISIBLE);
                     defaultIconView.setVisibility(GONE);
                 });
-                if (!applied) {
-                    iconView.setVisibility(GONE);
-                    defaultIconView.setVisibility(VISIBLE);
+            }
+
+            if (!iconApplied) {
+                if (p.document != null && p.document.thumbs != null && !p.document.thumbs.isEmpty()) {
+                    TLRPC.PhotoSize thumbSize = FileLoader.getClosestPhotoSizeWithSize(p.document.thumbs, 120);
+                    if (thumbSize != null) {
+                        iconView.setImage(ImageLocation.getForDocument(thumbSize, p.document), "50_50", null, null, p.document);
+                        iconView.setVisibility(VISIBLE);
+                        defaultIconView.setVisibility(GONE);
+                        iconApplied = true;
+                    }
                 }
-            } else {
-                iconView.setVisibility(GONE);
-                defaultIconView.setVisibility(VISIBLE);
+            }
+
+            if (!iconApplied) {
+                TLRPC.Chat chat = p.chat;
+                if (chat == null && !TextUtils.isEmpty(p.sourceChannel)) {
+                    String u = p.sourceChannel.startsWith("@") ? p.sourceChannel.substring(1) : p.sourceChannel;
+                    TLObject obj = MessagesController.getInstance(UserConfig.selectedAccount).getUserOrChat(u);
+                    if (obj instanceof TLRPC.Chat) {
+                        chat = (TLRPC.Chat) obj;
+                        p.chat = chat;
+                    }
+                }
+
+                AvatarDrawable avatar = new AvatarDrawable();
+                avatar.setRoundRadius(dp(14));
+                avatar.setTextSize(dp(18));
+                if (chat != null) {
+                    avatar.setInfo(chat);
+                    iconView.setForUserOrChat(chat, avatar);
+                } else {
+                    int seed = p.id != null ? p.id.hashCode() : (p.name != null ? p.name.hashCode() : 0);
+                    avatar.setInfo(seed, p.name != null ? p.name : "Plugin", null);
+                    iconView.setImage(null, null, avatar, null);
+                }
+                iconView.setVisibility(VISIBLE);
+                defaultIconView.setVisibility(GONE);
             }
         }
     }
