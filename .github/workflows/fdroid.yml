@@ -1,6 +1,6 @@
 name: Update F-Droid Repository
 
-# Auto-sync trigger for release v12.10.3
+# Auto-sync trigger for release v12.10.6
 on:
   workflow_run:
     workflows: ["Release Build"]
@@ -17,9 +17,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build F-Droid repo for (e.g. v12.10.3)'
+        description: 'Release tag to build F-Droid repo for (e.g. v12.10.6)'
         required: false
-        default: 'v12.10.3'
+        default: 'v12.10.6'
 
 permissions:
   contents: write
@@ -42,13 +42,14 @@ jobs:
       - name: Clean intermediate GitHub Release assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag || github.event.release.tag_name || 'v12.10.6' }}
         run: |
           python3 << 'EOF'
           import json, os, urllib.request
 
           repo = "${{ github.repository }}"
           token = os.environ.get("GITHUB_TOKEN", "")
-          tag = "v12.10.3"
+          tag = os.environ.get("TAG", "v12.10.6")
 
           headers = {
               "Authorization": f"token {token}",
@@ -64,14 +65,14 @@ jobs:
                   data = json.loads(resp.read().decode())
           except Exception as e:
               print(f"Could not fetch release: {e}")
-              exit(1)
+              exit(0)
 
           # Update release metadata if needed
           release_id = data.get("id")
           if release_id:
               patch_data = json.dumps({
-                  "tag_name": "v12.10.3",
-                  "name": "MoltenGram v12.10.3",
+                  "tag_name": tag,
+                  "name": f"MoltenGram {tag}",
                   "make_latest": "true",
               }).encode("utf-8")
               patch_req = urllib.request.Request(
@@ -122,8 +123,16 @@ jobs:
       - name: Build F-Droid repository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag || github.event.release.tag_name || 'v12.10.6' }}
         run: |
           set -ex
+
+          # Ensure Android SDK build-tools are in PATH for aapt
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          if [ -d "$ANDROID_HOME/build-tools" ]; then
+            LATEST_BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
+            export PATH="$LATEST_BUILD_TOOLS:$PATH"
+          fi
 
           # Create fdroid workspace
           mkdir -p fdroid_ws/repo fdroid_ws/metadata
@@ -137,28 +146,28 @@ jobs:
           fi
 
           # Write config.yml manually (no fdroid init)
-          cat > fdroid_ws/config.yml << 'CFGEOF'
-          repo_url: "https://moltenst4r.github.io/MoltenGram/fdroid/repo"
-          repo_name: "MoltenGram F-Droid Repository"
-          repo_description: "Official F-Droid repository for MoltenGram"
-          archive_older: 0
-          keystore: keystore.p12
-          keystorepass: android
-          repo_keyalias: moltengram
-          keypass: android
-          keydname: "CN=MoltenGram, OU=MoltenStar, O=MoltenStar, L=Unknown, ST=Unknown, C=RU"
-          CFGEOF
+          cat > fdroid_ws/config.yml << CFGEOF
+repo_url: "https://moltenst4r.github.io/MoltenGram/fdroid/repo"
+repo_name: "MoltenGram F-Droid Repository"
+repo_description: "Official F-Droid repository for MoltenGram"
+archive_older: 0
+keystore: keystore.p12
+keystorepass: android
+repo_keyalias: moltengram
+keypass: android
+keydname: "CN=MoltenGram, OU=MoltenStar, O=MoltenStar, L=Unknown, ST=Unknown, C=RU"
+android_home: "$ANDROID_HOME"
+CFGEOF
           chmod 0600 fdroid_ws/config.yml
 
           # Download APK from GitHub Release
-          TAG="${{ github.event.inputs.tag || github.event.release.tag_name || 'v12.10.3' }}"
           echo "Downloading APK for release $TAG..."
           cd fdroid_ws
 
           python3 << 'PYEOF'
           import json, urllib.request, os
           repo = "${{ github.repository }}"
-          tag = "v12.10.3"
+          tag = os.environ.get("TAG", "v12.10.6")
           url = f"https://api.github.com/repos/{repo}/releases/tags/{tag}"
           print(f"Fetching release info: {url}")
           headers = {"User-Agent": "fdroid-builder"}
