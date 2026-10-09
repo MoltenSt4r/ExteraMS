@@ -1236,8 +1236,7 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         TextView speedBadge = new TextView(ctx);
         speedBadge.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
         speedBadge.setTypeface(AndroidUtilities.bold());
-        int accent = Theme.getColor(Theme.key_featuredStickers_addButton);
-        if (accent == 0) accent = 0xff00d2b4;
+        final int accent = Theme.getColor(Theme.key_featuredStickers_addButton) != 0 ? Theme.getColor(Theme.key_featuredStickers_addButton) : 0xff00d2b4;
         speedBadge.setTextColor(accent);
         header.addView(speedBadge, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         root.addView(header);
@@ -1254,31 +1253,9 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         DecimalFormat format = new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(currentLocale()));
         speedBadge.setText(format.format(currentSpeed) + "×");
 
-        SeekBar bar = new SeekBar(ctx);
-        bar.setMax(steps);
-        int currentStep = Math.round((currentSpeed - minSpeed) / 0.05f);
-        bar.setProgress(Math.max(0, Math.min(steps, currentStep)));
-        bar.setPadding(dp(12), dp(18), dp(12), dp(16));
-
-        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar sBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    float s = minSpeed + progress * 0.05f;
-                    s = Math.round(s * 100f) / 100f;
-                    speedBadge.setText(format.format(s) + "×");
-                    MediaController.getInstance().setPlaybackSpeed(true, s);
-                    updateSpeed();
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar sBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar sBar) {}
-        });
-        root.addView(bar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        Material3Slider bar = new Material3Slider(ctx, accent);
+        bar.setValue(currentSpeed);
+        root.addView(bar, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 48, 0, 10, 0, 10));
 
         // Quick Preset Chips: 0.5x, 0.75x, 1.0x, 1.25x, 1.5x, 2.0x
         LinearLayout presets = new LinearLayout(ctx);
@@ -1286,33 +1263,56 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         presets.setGravity(Gravity.CENTER);
         presets.setPadding(0, dp(4), 0, dp(14));
 
-        float[] presetValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
-        for (float pv : presetValues) {
+        final float[] presetValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
+        final TextView[] chipViews = new TextView[presetValues.length];
+
+        Runnable updateChips = () -> {
+            float cur = bar.getValue();
+            for (int i = 0; i < presetValues.length; i++) {
+                boolean selected = Math.abs(cur - presetValues[i]) < 0.02f;
+                GradientDrawable chipBg = new GradientDrawable();
+                chipBg.setCornerRadius(dp(14));
+                if (selected) {
+                    chipBg.setColor(accent);
+                    chipViews[i].setTextColor(0xffffffff);
+                } else {
+                    chipBg.setColor(Theme.getColor(Theme.key_dialogBackgroundGray));
+                    chipViews[i].setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
+                }
+                chipViews[i].setBackground(chipBg);
+            }
+        };
+
+        bar.setCallback((val, fromUser) -> {
+            speedBadge.setText(format.format(val) + "×");
+            MediaController.getInstance().setPlaybackSpeed(true, val);
+            updateSpeed();
+            updateChips.run();
+        });
+
+        for (int i = 0; i < presetValues.length; i++) {
+            final float pv = presetValues[i];
             TextView chip = new TextView(ctx);
             chip.setText(format.format(pv) + "×");
             chip.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
             chip.setTypeface(AndroidUtilities.bold());
-            chip.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
             chip.setGravity(Gravity.CENTER);
-
-            GradientDrawable chipBg = new GradientDrawable();
-            chipBg.setCornerRadius(dp(12));
-            chipBg.setColor(Theme.getColor(Theme.key_dialogBackgroundGray));
-            chip.setBackground(chipBg);
-            chip.setPadding(dp(8), dp(6), dp(8), dp(6));
+            chip.setPadding(dp(8), dp(7), dp(8), dp(7));
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
             lp.leftMargin = dp(2);
             lp.rightMargin = dp(2);
             chip.setOnClickListener(v -> {
-                int p = Math.round((pv - minSpeed) / 0.05f);
-                bar.setProgress(Math.max(0, Math.min(steps, p)));
+                bar.setValue(pv);
                 speedBadge.setText(format.format(pv) + "×");
                 MediaController.getInstance().setPlaybackSpeed(true, pv);
                 updateSpeed();
+                updateChips.run();
             });
+            chipViews[i] = chip;
             presets.addView(chip, lp);
         }
+        updateChips.run();
         root.addView(presets);
 
         // Bottom action buttons: Reset (1.0x) on left, Done on right
@@ -1325,11 +1325,11 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         resetBtn.setTextColor(Theme.getColor(Theme.key_dialogTextGray2));
         resetBtn.setPadding(dp(8), dp(8), dp(8), dp(8));
         resetBtn.setOnClickListener(v -> {
-            int p = Math.round((1.0f - minSpeed) / 0.05f);
-            bar.setProgress(Math.max(0, Math.min(steps, p)));
+            bar.setValue(1.0f);
             speedBadge.setText("1×");
             MediaController.getInstance().setPlaybackSpeed(true, 1.0f);
             updateSpeed();
+            updateChips.run();
         });
         buttons.addView(resetBtn, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
@@ -1351,6 +1351,143 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
             dialog.getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
         dialog.show();
+    }
+
+    public static class Material3Slider extends View {
+        private final Paint activePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint inactivePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint thumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final RectF rectF = new RectF();
+
+        private final float min = 0.25f;
+        private final float max = 3.0f;
+        private final float step = 0.05f;
+        private float value = 1.0f;
+        private boolean isDragging = false;
+        private ValueCallback callback;
+
+        public interface ValueCallback {
+            void onValueChanged(float value, boolean fromUser);
+        }
+
+        public Material3Slider(Context context, int accentColor) {
+            super(context);
+            activePaint.setColor(accentColor);
+            thumbPaint.setColor(accentColor);
+            inactivePaint.setColor(Theme.getColor(Theme.key_dialogBackgroundGray));
+        }
+
+        public void setValue(float v) {
+            v = Math.max(min, Math.min(max, v));
+            this.value = Math.round(v / step) * step;
+            this.value = Math.round(this.value * 100f) / 100f;
+            invalidate();
+        }
+
+        public float getValue() {
+            return value;
+        }
+
+        public void setCallback(ValueCallback cb) {
+            this.callback = cb;
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            int w = MeasureSpec.getSize(widthMeasureSpec);
+            int h = AndroidUtilities.dp(48);
+            setMeasuredDimension(w, h);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            int w = getWidth() - getPaddingLeft() - getPaddingRight();
+            int h = getHeight();
+            float cy = h / 2f;
+            float trackHeight = AndroidUtilities.dp(16);
+            float trackRadius = trackHeight / 2f;
+            float thumbWidth = AndroidUtilities.dp(4);
+            float thumbHeight = AndroidUtilities.dp(28);
+            float thumbRadius = thumbWidth / 2f;
+            float gap = AndroidUtilities.dp(6);
+
+            float left = getPaddingLeft() + thumbWidth / 2f;
+            float right = left + w - thumbWidth;
+            float availableW = right - left;
+            float progress = (value - min) / (max - min);
+            float thumbX = left + progress * availableW;
+
+            // Inactive track (right of thumb with gap)
+            float inactiveLeft = Math.min(right, thumbX + gap);
+            if (inactiveLeft < right) {
+                canvas.save();
+                canvas.clipRect(inactiveLeft, cy - trackRadius, right, cy + trackRadius);
+                rectF.set(left, cy - trackRadius, right, cy + trackRadius);
+                canvas.drawRoundRect(rectF, trackRadius, trackRadius, inactivePaint);
+                canvas.restore();
+            }
+
+            // Active track (left of thumb with gap)
+            float activeRight = Math.max(left, thumbX - gap);
+            if (activeRight > left) {
+                canvas.save();
+                canvas.clipRect(left, cy - trackRadius, activeRight, cy + trackRadius);
+                rectF.set(left, cy - trackRadius, right, cy + trackRadius);
+                canvas.drawRoundRect(rectF, trackRadius, trackRadius, activePaint);
+                canvas.restore();
+            }
+
+            // MD3 thumb pill
+            rectF.set(thumbX - thumbWidth / 2f, cy - thumbHeight / 2f, thumbX + thumbWidth / 2f, cy + thumbHeight / 2f);
+            canvas.drawRoundRect(rectF, thumbRadius, thumbRadius, thumbPaint);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            float left = getPaddingLeft();
+            float right = getWidth() - getPaddingRight();
+            float availableW = right - left;
+            if (availableW <= 0) return false;
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    isDragging = true;
+                    if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(true);
+                    updateFromX(event.getX());
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    if (isDragging) {
+                        updateFromX(event.getX());
+                    }
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    isDragging = false;
+                    if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(false);
+                    return true;
+            }
+            return super.onTouchEvent(event);
+        }
+
+        private void updateFromX(float x) {
+            float left = getPaddingLeft();
+            float right = getWidth() - getPaddingRight();
+            float progress = (x - left) / (right - left);
+            progress = Math.max(0f, Math.min(1f, progress));
+            float rawValue = min + progress * (max - min);
+            float steppedValue = Math.round(rawValue / step) * step;
+            steppedValue = Math.max(min, Math.min(max, Math.round(steppedValue * 100f) / 100f));
+            if (Math.abs(steppedValue - value) > 0.001f) {
+                value = steppedValue;
+                if (Math.abs(value - 1.0f) < 0.01f || Math.abs(value - 2.0f) < 0.01f) {
+                    AndroidUtilities.vibrateCursor(this);
+                }
+                invalidate();
+                if (callback != null) {
+                    callback.onValueChanged(value, true);
+                }
+            }
+        }
     }
 
     private void togglePlay() {

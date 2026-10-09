@@ -27,11 +27,17 @@ import org.json.JSONObject;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
+import org.telegram.messenger.MessagesController;
+import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.browser.Browser;
+import org.telegram.tgnet.ConnectionsManager;
+import org.telegram.tgnet.TLRPC;
+import org.telegram.tgnet.tl.TL_chatlists;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.AlertDialog;
@@ -62,38 +68,41 @@ import app.exteraless.plugins.PluginsController;
 
 /**
  * Built-in Plugin Store for exteraGram / exteraless.
- * Fetches verified community plugins from PackIt catalog and trusted Telegram channels.
+ * Fetches verified open-source community plugins from the community channels folder (https://t.me/addlist/MsGEKKJgoGlkOGM0).
  */
 public class PluginStoreActivity extends BaseFragment {
 
     private static final String CATALOG_URL = "https://raw.githubusercontent.com/shareui/packit/main/configs/plugins.json";
     private static final String CACHE_FILE_NAME = "packit_plugins_cache.json";
+    private static final String CHANNELS_FOLDER_SLUG = "MsGEKKJgoGlkOGM0";
 
     private static final int MENU_SEARCH = 0;
     private static final int MENU_REFRESH = 1;
 
     private static final int FILTER_ALL = 0;
-    private static final int FILTER_FEATURED = 1;
+    private static final int FILTER_OPEN_SOURCE = 1;
     private static final int FILTER_UI = 2;
     private static final int FILTER_TOOLS = 3;
-    private static final int FILTER_DEV = 4;
-    private static final int FILTER_CHANNELS = 5;
-
-    private static final int ID_CHANNEL_FOLDER = 100;
-    private static final int ID_CHANNEL_BASE = 200;
+    private static final int FILTER_TWEAKS = 4;
 
     public static class StorePlugin {
         public String id;
         public String name;
         public String author;
+        public String sourceChannel;
+        public String channelPost;
         public String version;
         public String icon;
         public String link;
         public String size;
         public String description;
         public String updateDate;
+        public String format = ".plugin";
+        public boolean isOpenSource = true;
         public List<String> tags = new ArrayList<>();
         public boolean downloading = false;
+        public TLRPC.Document document;
+        public TLRPC.Message message;
 
         public boolean isInstalled() {
             return PluginsController.getInstance().getPlugin(id) != null;
@@ -106,29 +115,6 @@ public class PluginStoreActivity extends BaseFragment {
             return !installed.version.equals(version);
         }
     }
-
-    public static class TrustedChannel {
-        public final String username;
-        public final String title;
-        public final String description;
-        public final String link;
-
-        public TrustedChannel(String username, String title, String description, String link) {
-            this.username = username;
-            this.title = title;
-            this.description = description;
-            this.link = link;
-        }
-    }
-
-    private static final List<TrustedChannel> TRUSTED_CHANNELS = Arrays.asList(
-            new TrustedChannel("exteraPlugins", "@exteraPlugins", "Официальный канал проверенных плагинов exteraGram", "https://t.me/exteraPlugins"),
-            new TrustedChannel("packitGround", "PackIt Ground", "PackIt: база проверенных плагинов, релизы и обсуждение", "https://t.me/packitGround"),
-            new TrustedChannel("CactusPlugins", "Cactus Plugins", "UI-твики, темы, DevSettingIcons, CactusLib", "https://t.me/CactusPlugins"),
-            new TrustedChannel("packitapp", "PackIt Channel", "Новости разработки PackIt, обновления модулей", "https://t.me/packitapp"),
-            new TrustedChannel("exteraSettings", "exteraGram Settings", "Конфигурации, твики интерфейса и плагины", "https://t.me/exteraSettings"),
-            new TrustedChannel("shareui", "ShareUI", "Команда авторов PackIt и компонентов", "https://t.me/shareui")
-    );
 
     private UniversalRecyclerView listView;
     private LinearLayout chipsLayout;
@@ -150,12 +136,16 @@ public class PluginStoreActivity extends BaseFragment {
 
         @Override
         public void onAuthorClick(StorePlugin plugin) {
-            if (!TextUtils.isEmpty(plugin.author)) {
-                String cleanAuthor = plugin.author.trim();
-                if (cleanAuthor.startsWith("@")) {
-                    Browser.openUrl(getParentActivity(), "https://t.me/" + cleanAuthor.substring(1));
+            String target = !TextUtils.isEmpty(plugin.channelPost) ? plugin.channelPost :
+                    (!TextUtils.isEmpty(plugin.sourceChannel) ? plugin.sourceChannel : plugin.author);
+            if (!TextUtils.isEmpty(target)) {
+                String clean = target.trim();
+                if (clean.startsWith("http://") || clean.startsWith("https://")) {
+                    Browser.openUrl(getParentActivity(), clean);
+                } else if (clean.startsWith("@")) {
+                    Browser.openUrl(getParentActivity(), "https://t.me/" + clean.substring(1));
                 } else {
-                    Browser.openUrl(getParentActivity(), "https://t.me/" + cleanAuthor);
+                    Browser.openUrl(getParentActivity(), "https://t.me/" + clean);
                 }
             }
         }
@@ -227,14 +217,13 @@ public class PluginStoreActivity extends BaseFragment {
 
     private void buildChips(Context context) {
         chipsLayout.removeAllViews();
-        int[] filterIds = {FILTER_ALL, FILTER_FEATURED, FILTER_UI, FILTER_TOOLS, FILTER_DEV, FILTER_CHANNELS};
+        int[] filterIds = {FILTER_ALL, FILTER_OPEN_SOURCE, FILTER_UI, FILTER_TOOLS, FILTER_TWEAKS};
         int[] titleResIds = {
                 R.string.PluginsStoreFilterAll,
-                R.string.PluginsStoreFilterFeatured,
+                R.string.PluginsStoreFilterOpenSource,
                 R.string.PluginsStoreFilterUi,
                 R.string.PluginsStoreFilterTools,
-                R.string.PluginsStoreFilterDev,
-                R.string.PluginsStoreFilterChannels
+                R.string.PluginsStoreFilterTweaks
         };
 
         for (int i = 0; i < filterIds.length; i++) {
@@ -289,7 +278,7 @@ public class PluginStoreActivity extends BaseFragment {
             }
         }
 
-        // 2. If still empty, load bundled asset
+        // 2. If still empty, load bundled community plugins from assets
         if (allPlugins.isEmpty()) {
             try (InputStream in = act.getAssets().open("packit_plugins.json")) {
                 String json = readStream(in);
@@ -301,8 +290,87 @@ public class PluginStoreActivity extends BaseFragment {
 
         updateRows();
 
-        // 3. In background, fetch fresh copy from GitHub
+        // 3. Scan folder channels (https://t.me/addlist/MsGEKKJgoGlkOGM0) for latest community plugins
+        checkFolderChannelsOnline();
+
+        // 4. In background, fetch fresh copy from catalog
         fetchCatalogOnline(false);
+    }
+
+    private void checkFolderChannelsOnline() {
+        TL_chatlists.TL_chatlists_checkChatlistInvite req = new TL_chatlists.TL_chatlists_checkChatlistInvite();
+        req.slug = CHANNELS_FOLDER_SLUG;
+        ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> {
+            if (response instanceof TL_chatlists.chatlist_ChatlistInvite) {
+                TL_chatlists.chatlist_ChatlistInvite inv = (TL_chatlists.chatlist_ChatlistInvite) response;
+                ArrayList<TLRPC.Chat> chats = null;
+                if (inv instanceof TL_chatlists.TL_chatlists_chatlistInvite) {
+                    chats = ((TL_chatlists.TL_chatlists_chatlistInvite) inv).chats;
+                } else if (inv instanceof TL_chatlists.TL_chatlists_chatlistInviteAlready) {
+                    chats = ((TL_chatlists.TL_chatlists_chatlistInviteAlready) inv).chats;
+                }
+                if (chats != null) {
+                    searchPluginsInChats(chats);
+                }
+            }
+        });
+    }
+
+    private void searchPluginsInChats(ArrayList<TLRPC.Chat> chats) {
+        for (TLRPC.Chat chat : chats) {
+            if (chat == null || TextUtils.isEmpty(chat.username)) continue;
+            TLRPC.TL_messages_search sReq = new TLRPC.TL_messages_search();
+            sReq.peer = MessagesController.getInstance(currentAccount).getInputPeer(chat);
+            sReq.filter = new TLRPC.TL_inputMessagesFilterDocument();
+            sReq.q = "";
+            sReq.limit = 25;
+            ConnectionsManager.getInstance(currentAccount).sendRequest(sReq, (res, err) -> {
+                if (res instanceof TLRPC.messages_Messages) {
+                    TLRPC.messages_Messages mRes = (TLRPC.messages_Messages) res;
+                    AndroidUtilities.runOnUIThread(() -> {
+                        boolean added = false;
+                        for (TLRPC.Message msg : mRes.messages) {
+                            if (msg != null && msg.media instanceof TLRPC.TL_messageMediaDocument) {
+                                TLRPC.Document doc = msg.media.document;
+                                String fName = FileLoader.getDocumentFileName(doc);
+                                if (fName != null && (fName.endsWith(".plugin") || fName.endsWith(".py") || fName.endsWith(".eaf"))) {
+                                    String id = fName.replaceAll("\\.[^.]+$", "").toLowerCase(Locale.ROOT).replace(" ", "_");
+                                    boolean exists = false;
+                                    for (StorePlugin sp : allPlugins) {
+                                        if (TextUtils.equals(sp.id, id)) {
+                                            sp.document = doc;
+                                            sp.message = msg;
+                                            exists = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!exists) {
+                                        StorePlugin sp = new StorePlugin();
+                                        sp.id = id;
+                                        sp.name = fName.replaceAll("\\.[^.]+$", "");
+                                        sp.author = "@" + chat.username;
+                                        sp.sourceChannel = "@" + chat.username;
+                                        sp.channelPost = "https://t.me/" + chat.username + "/" + msg.id;
+                                        sp.format = fName.endsWith(".py") ? ".py" : (fName.endsWith(".eaf") ? ".eaf" : ".plugin");
+                                        sp.isOpenSource = !sp.format.endsWith(".eaf");
+                                        sp.description = msg.message;
+                                        sp.size = AndroidUtilities.formatFileSize(doc.size);
+                                        sp.document = doc;
+                                        sp.message = msg;
+                                        sp.tags.add(sp.isOpenSource ? "OpenSource" : "Binary");
+                                        allPlugins.add(0, sp);
+                                        added = true;
+                                    }
+                                }
+                            }
+                        }
+                        if (added) {
+                            updateRows();
+                        }
+                    });
+                }
+            });
+        }
     }
 
     private void fetchCatalogOnline(boolean showFeedback) {
@@ -345,7 +413,7 @@ public class PluginStoreActivity extends BaseFragment {
                     updateRows();
                     if (showFeedback && fragmentView != null) {
                         BulletinFactory.of(PluginStoreActivity.this)
-                                .createSimpleBulletin(R.drawable.msg_check, LocaleController.formatString(R.string.OEPlayerSourceSynced, "PackIt"))
+                                .createSimpleBulletin(R.drawable.msg_check, LocaleController.formatString(R.string.OEPlayerSourceSynced, "Plugins"))
                                 .show();
                     }
                 } else if (showFeedback && fragmentView != null) {
@@ -373,6 +441,10 @@ public class PluginStoreActivity extends BaseFragment {
                 p.id = obj.optString("id");
                 p.name = obj.optString("name");
                 p.author = obj.optString("author");
+                p.sourceChannel = obj.optString("source_channel", p.author);
+                p.channelPost = obj.optString("channel_post");
+                p.format = obj.optString("format", ".plugin");
+                p.isOpenSource = obj.optBoolean("is_open_source", !p.format.endsWith(".eaf") && !p.format.endsWith(".elyx"));
                 p.version = obj.optString("version");
                 p.icon = obj.optString("icon");
                 p.link = obj.optString("link");
@@ -408,14 +480,14 @@ public class PluginStoreActivity extends BaseFragment {
 
         for (StorePlugin p : allPlugins) {
             // Check filter
-            if (currentFilter == FILTER_FEATURED) {
-                if (!p.tags.contains("Featured")) continue;
+            if (currentFilter == FILTER_OPEN_SOURCE) {
+                if (!p.isOpenSource) continue;
             } else if (currentFilter == FILTER_UI) {
-                if (!p.tags.contains("Customization") && !p.tags.contains("Tweaks") && !p.tags.contains("Elyx")) continue;
+                if (!p.tags.contains("UI") && !p.tags.contains("Player") && !p.tags.contains("Customization")) continue;
             } else if (currentFilter == FILTER_TOOLS) {
-                if (!p.tags.contains("Utility") && !p.tags.contains("System") && !p.tags.contains("Library")) continue;
-            } else if (currentFilter == FILTER_DEV) {
-                if (!p.tags.contains("DevTools")) continue;
+                if (!p.tags.contains("Tools") && !p.tags.contains("Utility") && !p.tags.contains("Library") && !p.tags.contains("Dev")) continue;
+            } else if (currentFilter == FILTER_TWEAKS) {
+                if (!p.tags.contains("Tweaks") && !p.tags.contains("Customization")) continue;
             }
 
             // Check search query
@@ -441,11 +513,6 @@ public class PluginStoreActivity extends BaseFragment {
     }
 
     private void fillItems(ArrayList<UItem> items, UniversalAdapter adapter) {
-        if (currentFilter == FILTER_CHANNELS) {
-            fillChannels(items);
-            return;
-        }
-
         List<StorePlugin> list = getFilteredPlugins();
         if (list.isEmpty()) {
             if (!TextUtils.isEmpty(searchQuery)) {
@@ -463,41 +530,54 @@ public class PluginStoreActivity extends BaseFragment {
             cell.bind(p, pluginDelegate);
             items.add(UItem.asCustom(cell));
         }
-
-        // Always show trusted channels at bottom for easy access
-        items.add(UItem.asSpace(dp(12)));
-        items.add(UItem.asHeader(getString(R.string.PluginsStoreChannelsHeader)));
-        fillChannels(items);
-    }
-
-    private void fillChannels(ArrayList<UItem> items) {
-        items.add(UItem.asButton(ID_CHANNEL_FOLDER, R.drawable.msg_folders,
-                getString(R.string.PluginsStoreChannelFolder),
-                getString(R.string.PluginsStoreChannelFolderDesc)));
-
-        for (int i = 0; i < TRUSTED_CHANNELS.size(); i++) {
-            TrustedChannel ch = TRUSTED_CHANNELS.get(i);
-            items.add(UItem.asButton(ID_CHANNEL_BASE + i, R.drawable.msg_channel,
-                    ch.title, ch.description));
-        }
     }
 
     private void onItemClick(UItem item, View view, int position, float x, float y) {
-        if (item.id == ID_CHANNEL_FOLDER) {
-            Browser.openUrl(getParentActivity(), "https://t.me/addlist/pPhOtEq00KhjYTc6");
-        } else if (item.id >= ID_CHANNEL_BASE && item.id < ID_CHANNEL_BASE + TRUSTED_CHANNELS.size()) {
-            TrustedChannel ch = TRUSTED_CHANNELS.get(item.id - ID_CHANNEL_BASE);
-            Browser.openUrl(getParentActivity(), ch.link);
-        }
     }
 
     private void downloadAndInstall(StorePlugin plugin) {
+        Activity activity = getParentActivity();
+        if (activity == null) return;
+
+        // 1. If plugin was directly fetched from a telegram channel
+        if (plugin.document != null) {
+            File localFile = FileLoader.getInstance(currentAccount).getPathToAttach(plugin.document, true);
+            if (localFile != null && localFile.exists() && localFile.length() > 0) {
+                PluginsController.getInstance().showInstallDialog(this, localFile.getAbsolutePath(), false);
+                return;
+            }
+            plugin.downloading = true;
+            updateRows();
+            FileLoader.getInstance(currentAccount).loadFile(plugin.document, plugin.message, FileLoader.PRIORITY_HIGH, 0);
+            NotificationCenter.getInstance(currentAccount).addObserver(new NotificationCenter.NotificationCenterDelegate() {
+                @Override
+                public void didReceivedNotification(int id, int account, Object... args) {
+                    if (id == NotificationCenter.fileLoaded) {
+                        String name = (String) args[0];
+                        File f = (File) args[1];
+                        if (f != null && TextUtils.equals(name, FileLoader.getDocumentFileName(plugin.document))) {
+                            NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.fileLoaded);
+                            plugin.downloading = false;
+                            updateRows();
+                            PluginsController.getInstance().showInstallDialog(PluginStoreActivity.this, f.getAbsolutePath(), false);
+                        }
+                    }
+                }
+            }, NotificationCenter.fileLoaded);
+            return;
+        }
+
+        // 2. If it's a telegram post link (e.g. https://t.me/PESSDES_Plugins/91)
+        if (!TextUtils.isEmpty(plugin.link) && plugin.link.startsWith("https://t.me/")) {
+            Browser.openUrl(activity, plugin.link);
+            return;
+        }
+
+        // 3. Otherwise download via HTTP
         if (TextUtils.isEmpty(plugin.link)) {
             BulletinFactory.of(this).createSimpleBulletin(R.drawable.msg_info, "Download link not found").show();
             return;
         }
-        Activity activity = getParentActivity();
-        if (activity == null) return;
 
         plugin.downloading = true;
         updateRows();
@@ -516,7 +596,7 @@ public class PluginStoreActivity extends BaseFragment {
                     throw new Exception("HTTP " + code);
                 }
 
-                String ext = ".elyx";
+                String ext = plugin.format != null ? plugin.format : ".plugin";
                 String linkLower = plugin.link.toLowerCase(Locale.ROOT);
                 if (linkLower.endsWith(".eaf")) ext = ".eaf";
                 else if (linkLower.endsWith(".py")) ext = ".py";
@@ -613,6 +693,7 @@ public class PluginStoreActivity extends BaseFragment {
         private final BackupImageView iconView;
         private final ImageView defaultIconView;
         private final TextView nameView;
+        private final TextView typeBadge;
         private final TextView subView;
         private final TextView descView;
         private final TextView tagsView;
@@ -670,6 +751,12 @@ public class PluginStoreActivity extends BaseFragment {
             nameView.setEllipsize(TextUtils.TruncateAt.END);
             titleCol.addView(nameView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
+            typeBadge = new TextView(context);
+            typeBadge.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11);
+            typeBadge.setTypeface(AndroidUtilities.bold());
+            typeBadge.setPadding(dp(7), dp(2), dp(7), dp(2));
+            titleCol.addView(typeBadge, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, 0, 3, 0, 0));
+
             subView = new TextView(context);
             subView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
             subView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
@@ -723,6 +810,19 @@ public class PluginStoreActivity extends BaseFragment {
             this.delegate = d;
             nameView.setText(p.name != null ? p.name : p.id);
 
+            GradientDrawable tbBg = new GradientDrawable();
+            tbBg.setCornerRadius(dp(8));
+            if (p.isOpenSource) {
+                tbBg.setColor(0x2200c853);
+                typeBadge.setTextColor(0xff00c853);
+                typeBadge.setText("✓ " + getString(R.string.PluginsStoreOpenSource) + " (" + (p.format != null ? p.format : ".plugin") + ")");
+            } else {
+                tbBg.setColor(0x22888888);
+                typeBadge.setTextColor(0xff888888);
+                typeBadge.setText(p.format != null ? p.format : ".eaf");
+            }
+            typeBadge.setBackground(tbBg);
+
             StringBuilder sub = new StringBuilder();
             if (!TextUtils.isEmpty(p.author)) sub.append(p.author);
             if (!TextUtils.isEmpty(p.version)) {
@@ -750,8 +850,9 @@ public class PluginStoreActivity extends BaseFragment {
                 tagsView.setVisibility(GONE);
             }
 
-            if (!TextUtils.isEmpty(p.author)) {
-                openButton.setText(p.author);
+            String source = !TextUtils.isEmpty(p.sourceChannel) ? p.sourceChannel : p.author;
+            if (!TextUtils.isEmpty(source)) {
+                openButton.setText(source + (!TextUtils.isEmpty(p.channelPost) ? " ↗" : ""));
                 openButton.setVisibility(VISIBLE);
                 openButton.setOnClickListener(v -> {
                     if (delegate != null) delegate.onAuthorClick(p);

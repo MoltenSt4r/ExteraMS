@@ -232,4 +232,9 @@
     <string name="PluginsStoreBannerDesc">Каталог проверенных плагинов: установка в один тап</string>
     <string name="PluginsStoreChannelFolder">Добавить все каналы (Папка)</string>
     <string name="PluginsStoreChannelFolderDesc">Папка с официальными и доверенными каналами плагинов</string>
+    <string name="PluginsStoreFilterOpenSource">Открытый код</string>
+    <string name="PluginsStoreFilterTweaks">Кастомизация</string>
+    <string name="PluginsStoreOpenSource">Открытый код</string>
+    <string name="PluginsStoreBinary">Бинарный</string>
+    <string name="PluginsStoreOpenChannel">Пост / Канал</string>
 </resources>

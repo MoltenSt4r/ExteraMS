@@ -237,4 +237,9 @@ Source:
     <string name="PluginsStoreBannerDesc">Browse, search and install verified plugins in one tap</string>
     <string name="PluginsStoreChannelFolder">Add all channels (Folder)</string>
     <string name="PluginsStoreChannelFolderDesc">One-click addlist folder with trusted plugin channels</string>
+    <string name="PluginsStoreFilterOpenSource">Open Source</string>
+    <string name="PluginsStoreFilterTweaks">Customization</string>
+    <string name="PluginsStoreOpenSource">Open Source</string>
+    <string name="PluginsStoreBinary">Binary</string>
+    <string name="PluginsStoreOpenChannel">Post / Channel</string>
 </resources>
