@@ -260,6 +260,10 @@ public class LyricsView extends FrameLayout {
         list.post(() -> scrollToActive(false));
     }
 
+    public void notifyLyricsChanged() {
+        adapter.notifyDataSetChanged();
+    }
+
     public void setPosition(long ms) {
         if (lyrics == null || !lyrics.synced) {
             return;
@@ -420,7 +424,8 @@ public class LyricsView extends FrameLayout {
             Lyrics.Line line = lyrics.lines.get(position);
             String text = line.text;
             view.index = position;
-            view.setText(TextUtils.isEmpty(text) ? (lyrics.synced ? "" : "♪") : text, !lyrics.synced, line.isBacking);
+            String translation = (lyrics != null && lyrics.showTranslation) ? line.translation : null;
+            view.setText(TextUtils.isEmpty(text) ? (lyrics.synced ? "" : "♪") : text, !lyrics.synced, line.isBacking, translation);
             view.setRole(roleFor(position), false);
             view.setBlur(blurFor(position));
         }
@@ -463,13 +468,16 @@ public class LyricsView extends FrameLayout {
             paint.setTypeface(tw.nekomimi.nekogram.helpers.TypefaceHelper.lyricsTypeface());
         }
 
-        void setText(String value, boolean isPlain, boolean backing) {
+        void setText(String value, boolean isPlain, boolean backing, String translation) {
             String displayText = value;
             if (app.exteraless.appearance.AppearanceConfig.playerLyricsRomanize() && !TextUtils.isEmpty(value) && !isPlain) {
                 String rom = RomanizeHelper.romanize(value);
                 if (!TextUtils.isEmpty(rom) && !rom.equals(value)) {
                     displayText = value + "\n" + rom;
                 }
+            }
+            if (!TextUtils.isEmpty(translation)) {
+                displayText = displayText + "\n" + translation;
             }
             if (backing && app.exteraless.appearance.AppearanceConfig.playerLyricsSplitRoles() && !TextUtils.isEmpty(displayText)) {
                 if (!displayText.startsWith("(") && !displayText.endsWith(")")) {

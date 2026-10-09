@@ -64,11 +64,13 @@ public class PluginsActivity extends BaseFragment {
 
     private static final int MENU_SEARCH = 0;
     private static final int MENU_INFO = 1;
+    private static final int MENU_STORE = 2;
     private static final int MENU_OTHER = 10;
     private static final int MENU_EXPORT_LOGS = 3;
     private static final int MENU_CLEAR_LOGS = 4;
 
     private static final int ID_ENGINE_TOGGLE = -1;
+    private static final int ID_PLUGIN_STORE_BANNER = -2;
 
     private static final int REQUEST_CODE_PICK_PLUGIN = 9781;
 
@@ -89,6 +91,8 @@ public class PluginsActivity extends BaseFragment {
                     finishFragment();
                 } else if (id == MENU_INFO) {
                     presentFragment(new PluginsInfoActivity());
+                } else if (id == MENU_STORE) {
+                    presentFragment(new PluginStoreActivity());
                 }
             }
         });
@@ -111,6 +115,7 @@ public class PluginsActivity extends BaseFragment {
                                     }
                                 });
         search.setSearchFieldHint(getString(R.string.Search));
+        actionBar.createMenu().addItem(MENU_STORE, R.drawable.menu_shop);
         actionBar.createMenu().addItem(MENU_INFO, R.drawable.msg_info);
 
         FrameLayout contentView = new FrameLayout(context);
@@ -188,6 +193,10 @@ public class PluginsActivity extends BaseFragment {
         if (!engineEnabled) {
             return;
         }
+        items.add(UItem.asSpace(dp(8)));
+        items.add(UItem.asButton(ID_PLUGIN_STORE_BANNER, R.drawable.menu_shop,
+                getString(R.string.PluginsStoreBannerTitle),
+                getString(R.string.PluginsStoreBannerDesc)));
         items.add(UItem.asSpace(dp(8)));
 
         List<Plugin> visible = visiblePlugins();
@@ -419,6 +428,10 @@ public class PluginsActivity extends BaseFragment {
                             }
                         }));
             }
+            return;
+        }
+        if (item.id == ID_PLUGIN_STORE_BANNER) {
+            presentFragment(new PluginStoreActivity());
             return;
         }
         // По карточке кликов не ждём: у неё свои кнопки и свой тумблер.

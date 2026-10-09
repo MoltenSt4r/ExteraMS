@@ -111,9 +111,10 @@
     <string name="OEAppearancePlayerLyricsProviderZemer">Enable Zemer</string>
     <string name="OEAppearancePlayerLyricsProviderZemerDesc">Jewish music lyrics</string>
     <string name="OEAppearancePlayerLyricsNote">NOTE: Lyrics from Telegram audio are displayed automatically when other sources are absent. They are usually not synced</string>
-    <string name="OEAppearancePlayerLyricsAi">AI lyrics translation</string>
-    <string name="OEAppearancePlayerLyricsAiProvider">Provider</string>
-    <string name="OEAppearancePlayerLyricsAiKey">API Key</string>
-    <string name="OEAppearancePlayerLyricsAiFormality">Formality</string>
-    <string name="OEAppearancePlayerLyricsAiTarget">Translation language</string>
+    <string name="OEAppearancePlayerLyricsTranslate">Lyrics translation</string>
+    <string name="OEAppearancePlayerLyricsTranslateDesc">Translate lyrics using the chat translator</string>
+    <string name="OEAppearancePlayerSpeedDialogTitle">Playback speed</string>
+    <string name="OEAppearancePlayerSpeedReset">Reset (1.0×)</string>
+    <string name="OEAppearancePlayerLyricsTranslating">Translating lyrics...</string>
+    <string name="OEAppearancePlayerLyricsTranslated">Lyrics translated</string>
 </resources>

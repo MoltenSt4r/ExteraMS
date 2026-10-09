@@ -208,4 +208,28 @@
     <string name="PluginOverlayOpen">Открыть настройки</string>
     <string name="PluginsSafeModeEnabledNow">Безопасный режим включён, все плагины выключены.</string>
     <string name="PluginsSafeModeDisabledNow">Безопасный режим выключен, плагины загружаются.</string>
+
+    <!-- Plugin Store -->
+    <string name="PluginsStoreTitle">Магазин плагинов</string>
+    <string name="PluginsStoreSubtitle">Проверенные плагины и доверенные каналы</string>
+    <string name="PluginsStoreSearch">Поиск плагинов…</string>
+    <string name="PluginsStoreFilterAll">Все</string>
+    <string name="PluginsStoreFilterFeatured">Рекомендуемые</string>
+    <string name="PluginsStoreFilterUi">Интерфейс</string>
+    <string name="PluginsStoreFilterTools">Инструменты</string>
+    <string name="PluginsStoreFilterDev">Разработчикам</string>
+    <string name="PluginsStoreFilterChannels">Каналы</string>
+    <string name="PluginsStoreInstalled">Установлен</string>
+    <string name="PluginsStoreInstall">Установить</string>
+    <string name="PluginsStoreUpdate">Обновить</string>
+    <string name="PluginsStoreDownloading">Загрузка…</string>
+    <string name="PluginsStoreChannelsHeader">Доверенные каналы</string>
+    <string name="PluginsStoreChannelsDesc">Официальные каналы сообщества с проверенными плагинами</string>
+    <string name="PluginsStoreLoading">Загрузка каталога…</string>
+    <string name="PluginsStoreError">Не удалось загрузить каталог</string>
+    <string name="PluginsStoreRetry">Повторить</string>
+    <string name="PluginsStoreBannerTitle">Магазин плагинов</string>
+    <string name="PluginsStoreBannerDesc">Каталог проверенных плагинов: установка в один тап</string>
+    <string name="PluginsStoreChannelFolder">Добавить все каналы (Папка)</string>
+    <string name="PluginsStoreChannelFolderDesc">Папка с официальными и доверенными каналами плагинов</string>
 </resources>

@@ -59,6 +59,7 @@ public class PluginsInfoActivity extends BaseFragment {
     private static final int ID_EXPORT_FORMAT = 11;
     private static final int ID_BACKUP_CREATE = 12;
     private static final int ID_BACKUP_RESTORE = 13;
+    private static final int ID_PLUGIN_STORE = 14;
 
     private static final int REQUEST_CODE_PICK_BACKUP = 9782;
 
@@ -166,10 +167,12 @@ public class PluginsInfoActivity extends BaseFragment {
         items.add(UItem.asShadow(getString(R.string.PluginsPythonSdkInfo)));
 
         items.add(UItem.asHeader(getString(R.string.PluginsLinks)));
+        items.add(UItem.asButton(ID_PLUGIN_STORE, getString(R.string.PluginsStoreTitle))
+                .accent()
+                .setIcon(R.drawable.menu_shop));
         items.add(UItem.asButton(ID_DOCUMENTATION, getString(R.string.PluginsDocumentation))
                 .setIcon(R.drawable.menu_intro));
         items.add(UItem.asButton(ID_TRUSTED, getString(R.string.PluginsTrusted))
-                .accent()
                 .setIcon(R.drawable.msg2_policy));
         items.add(UItem.asShadow(getString(R.string.PluginsPoweredBy)));
     }
@@ -220,6 +223,9 @@ public class PluginsInfoActivity extends BaseFragment {
             return;
         } else if (item.id == ID_TRUSTED) {
             openUrl(TRUSTED_URL);
+            return;
+        } else if (item.id == ID_PLUGIN_STORE) {
+            presentFragment(new PluginStoreActivity());
             return;
         } else {
             return;

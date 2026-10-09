@@ -43,17 +43,21 @@ public final class PluginIcons {
      *         разобраны); картинка приедет позже.
      */
     public static boolean apply(BackupImageView imageView, Plugin plugin, Runnable onLoaded) {
-        if (imageView == null || plugin == null || TextUtils.isEmpty(plugin.icon)) {
+        return apply(imageView, plugin != null ? plugin.icon : null, onLoaded);
+    }
+
+    public static boolean apply(BackupImageView imageView, String icon, Runnable onLoaded) {
+        if (imageView == null || TextUtils.isEmpty(icon)) {
             return false;
         }
-        final int slash = plugin.icon.lastIndexOf('/');
-        if (slash <= 0 || slash == plugin.icon.length() - 1) {
+        final int slash = icon.lastIndexOf('/');
+        if (slash <= 0 || slash == icon.length() - 1) {
             return false;
         }
-        final String pack = plugin.icon.substring(0, slash);
+        final String pack = icon.substring(0, slash);
         final int index;
         try {
-            index = Integer.parseInt(plugin.icon.substring(slash + 1).trim());
+            index = Integer.parseInt(icon.substring(slash + 1).trim());
         } catch (NumberFormatException e) {
             return false;
         }

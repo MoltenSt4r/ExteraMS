@@ -16,6 +16,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.audiofx.AudioEffect;
 import android.os.Build;
@@ -27,10 +31,12 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
+import android.view.Window;
 import android.view.animation.PathInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -99,6 +105,9 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
     private final TextView smallArtist;
     private final LyricsView lyricsView;
     private final TextView sourceView;
+    private ImageView translateButton;
+    private Lyrics currentLyrics;
+    private boolean isTranslatingLyrics;
     private final WavySeekBar seekBar;
     private final TextView bubble;
     private final GradientDrawable bubbleBg = new GradientDrawable();
@@ -373,6 +382,13 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         smallArtist.setEllipsize(TextUtils.TruncateAt.END);
         smallTitles.addView(smallArtist, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 2, 0, 0));
         smallRow.addView(smallTitles, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1f, Gravity.CENTER_VERTICAL, 14, 0, 0, 0));
+        translateButton = new ImageView(context);
+        translateButton.setImageResource(R.drawable.ic_translate);
+        translateButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        translateButton.setPadding(dp(8), dp(8), dp(8), dp(8));
+        translateButton.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_dialogTextGray2), PorterDuff.Mode.SRC_IN));
+        translateButton.setOnClickListener(v -> translateCurrentLyrics(true));
+        smallRow.addView(translateButton, LayoutHelper.createLinear(40, 40, Gravity.CENTER_VERTICAL, 8, 0, 0, 0));
         lyricsPanel.addView(smallRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 12, 0, 0));
         lyricsView = new LyricsView(context);
         lyricsView.setDelegate(new LyricsView.Delegate() {
@@ -468,7 +484,7 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         group.setOrientation(LinearLayout.HORIZONTAL);
         speedButton = new MorphButton(context, PlayerIcon.stroke(PlayerIcon.SPEED, 20));
         speedButton.setRadius(dp(26), dp(8), false);
-        speedButton.setOnClickListener(v -> cycleSpeed());
+        speedButton.setOnClickListener(v -> showSpeedSliderDialog());
         group.addView(speedButton, LayoutHelper.createLinear(0, 52, 1f));
         lyricsButton = new MorphButton(context, PlayerIcon.stroke(PlayerIcon.LYRICS, 20));
         lyricsButton.setText(getString(R.string.OEPlayerLyrics));
@@ -1190,6 +1206,153 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         updateSpeed();
     }
 
+    private void showSpeedSliderDialog() {
+        Context ctx = getContext();
+        if (ctx == null) return;
+        android.app.Dialog dialog = new android.app.Dialog(ctx);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        LinearLayout root = new LinearLayout(ctx);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(22), dp(20), dp(22), dp(18));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(24));
+        bg.setColor(Theme.getColor(Theme.key_dialogBackground));
+        root.setBackground(bg);
+
+        // Header Row: Title on left, current speed badge on right
+        LinearLayout header = new LinearLayout(ctx);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView title = new TextView(ctx);
+        title.setText(getString(R.string.OEAppearancePlayerSpeedDialogTitle));
+        title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        title.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
+        title.setTypeface(AndroidUtilities.bold());
+        header.addView(title, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView speedBadge = new TextView(ctx);
+        speedBadge.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        speedBadge.setTypeface(AndroidUtilities.bold());
+        int accent = Theme.getColor(Theme.key_featuredStickers_addButton);
+        if (accent == 0) accent = 0xff00d2b4;
+        speedBadge.setTextColor(accent);
+        header.addView(speedBadge, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        root.addView(header);
+
+        // Slider limits: 0.25f to 3.0f
+        final float minSpeed = 0.25f;
+        final float maxSpeed = 3.0f;
+        final int steps = 55; // (3.00 - 0.25) / 0.05 = 55 steps
+
+        float currentSpeed = MediaController.getInstance().getPlaybackSpeed(true);
+        if (currentSpeed < minSpeed) currentSpeed = minSpeed;
+        if (currentSpeed > maxSpeed) currentSpeed = maxSpeed;
+
+        DecimalFormat format = new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(currentLocale()));
+        speedBadge.setText(format.format(currentSpeed) + "×");
+
+        SeekBar bar = new SeekBar(ctx);
+        bar.setMax(steps);
+        int currentStep = Math.round((currentSpeed - minSpeed) / 0.05f);
+        bar.setProgress(Math.max(0, Math.min(steps, currentStep)));
+        bar.setPadding(dp(12), dp(18), dp(12), dp(16));
+
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar sBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    float s = minSpeed + progress * 0.05f;
+                    s = Math.round(s * 100f) / 100f;
+                    speedBadge.setText(format.format(s) + "×");
+                    MediaController.getInstance().setPlaybackSpeed(true, s);
+                    updateSpeed();
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar sBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar sBar) {}
+        });
+        root.addView(bar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        // Quick Preset Chips: 0.5x, 0.75x, 1.0x, 1.25x, 1.5x, 2.0x
+        LinearLayout presets = new LinearLayout(ctx);
+        presets.setOrientation(LinearLayout.HORIZONTAL);
+        presets.setGravity(Gravity.CENTER);
+        presets.setPadding(0, dp(4), 0, dp(14));
+
+        float[] presetValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
+        for (float pv : presetValues) {
+            TextView chip = new TextView(ctx);
+            chip.setText(format.format(pv) + "×");
+            chip.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+            chip.setTypeface(AndroidUtilities.bold());
+            chip.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
+            chip.setGravity(Gravity.CENTER);
+
+            GradientDrawable chipBg = new GradientDrawable();
+            chipBg.setCornerRadius(dp(12));
+            chipBg.setColor(Theme.getColor(Theme.key_dialogButtonCorner));
+            chip.setBackground(chipBg);
+            chip.setPadding(dp(8), dp(6), dp(8), dp(6));
+
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            lp.leftMargin = dp(2);
+            lp.rightMargin = dp(2);
+            chip.setOnClickListener(v -> {
+                int p = Math.round((pv - minSpeed) / 0.05f);
+                bar.setProgress(Math.max(0, Math.min(steps, p)));
+                speedBadge.setText(format.format(pv) + "×");
+                MediaController.getInstance().setPlaybackSpeed(true, pv);
+                updateSpeed();
+            });
+            presets.addView(chip, lp);
+        }
+        root.addView(presets);
+
+        // Bottom action buttons: Reset (1.0x) on left, Done on right
+        LinearLayout buttons = new LinearLayout(ctx);
+        buttons.setOrientation(LinearLayout.HORIZONTAL);
+
+        TextView resetBtn = new TextView(ctx);
+        resetBtn.setText(getString(R.string.OEAppearancePlayerSpeedReset));
+        resetBtn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        resetBtn.setTextColor(Theme.getColor(Theme.key_dialogTextGray2));
+        resetBtn.setPadding(dp(8), dp(8), dp(8), dp(8));
+        resetBtn.setOnClickListener(v -> {
+            int p = Math.round((1.0f - minSpeed) / 0.05f);
+            bar.setProgress(Math.max(0, Math.min(steps, p)));
+            speedBadge.setText("1×");
+            MediaController.getInstance().setPlaybackSpeed(true, 1.0f);
+            updateSpeed();
+        });
+        buttons.addView(resetBtn, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView doneBtn = new TextView(ctx);
+        doneBtn.setText(getString(R.string.Done));
+        doneBtn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        doneBtn.setTypeface(AndroidUtilities.bold());
+        doneBtn.setTextColor(accent);
+        doneBtn.setPadding(dp(12), dp(8), dp(8), dp(8));
+        doneBtn.setOnClickListener(v -> dialog.dismiss());
+        buttons.addView(doneBtn, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        root.addView(buttons);
+
+        dialog.setContentView(root);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            int dialogWidth = Math.min(AndroidUtilities.displaySize.x - dp(40), dp(360));
+            dialog.getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        dialog.show();
+    }
+
     private void togglePlay() {
         MediaController mc = MediaController.getInstance();
         if (mc.isDownloadingCurrentMessage()) {
@@ -1431,6 +1594,13 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
     }
 
     private void showLyrics(Lyrics lyrics) {
+        currentLyrics = lyrics;
+        if (translateButton != null) {
+            translateButton.setAlpha(1.0f);
+        }
+        if (lyrics == null) {
+            return;
+        }
         if (lyrics.instrumental) {
             lyricsView.showState(LyricsView.STATE_INSTRUMENTAL);
             sourceView.setText(lyrics.provider);
@@ -1442,6 +1612,90 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         } else {
             sourceView.setText(getString(lyrics.synced ? R.string.OEPlayerSourceSyncedFile : R.string.OEPlayerSourcePlainFile));
         }
+        if (AppearanceConfig.playerLyricsTranslate() && !lyrics.lines.isEmpty()) {
+            translateCurrentLyrics(false);
+        }
+    }
+
+    private void translateCurrentLyrics(boolean showFeedback) {
+        if (currentLyrics == null || currentLyrics.lines.isEmpty() || currentLyrics.instrumental) {
+            return;
+        }
+        if (isTranslatingLyrics) {
+            if (showFeedback && root != null) {
+                BulletinFactory.of(root, colors.provider(resourcesProvider))
+                        .createSimpleBulletin(R.drawable.ic_translate, getString(R.string.OEAppearancePlayerLyricsTranslating))
+                        .show();
+            }
+            return;
+        }
+        if (currentLyrics.isTranslated) {
+            if (showFeedback) {
+                currentLyrics.showTranslation = !currentLyrics.showTranslation;
+                lyricsView.notifyLyricsChanged();
+                if (translateButton != null) {
+                    translateButton.setAlpha(currentLyrics.showTranslation ? 1.0f : 0.5f);
+                }
+            }
+            return;
+        }
+
+        if (showFeedback && root != null) {
+            BulletinFactory.of(root, colors.provider(resourcesProvider))
+                    .createSimpleBulletin(R.drawable.ic_translate, getString(R.string.OEAppearancePlayerLyricsTranslating))
+                    .show();
+        }
+
+        isTranslatingLyrics = true;
+        final Lyrics targetLyrics = currentLyrics;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < targetLyrics.lines.size(); i++) {
+            if (i > 0) {
+                sb.append("\n");
+            }
+            String t = targetLyrics.lines.get(i).text;
+            if (t != null) {
+                sb.append(t.replace('\n', ' ').trim());
+            }
+        }
+
+        tw.nekomimi.nekogram.translate.Translator.translate(sb.toString(), new tw.nekomimi.nekogram.translate.Translator.Companion.TranslateCallBack() {
+            @Override
+            public void onSuccess(@org.jetbrains.annotations.NotNull String translation) {
+                isTranslatingLyrics = false;
+                if (currentLyrics != targetLyrics) {
+                    return;
+                }
+                String[] split = translation.split("\n");
+                for (int i = 0; i < targetLyrics.lines.size(); i++) {
+                    if (i < split.length) {
+                        String tr = split[i].trim();
+                        targetLyrics.lines.get(i).translation = tr.isEmpty() ? null : tr;
+                    }
+                }
+                targetLyrics.isTranslated = true;
+                targetLyrics.showTranslation = true;
+                lyricsView.notifyLyricsChanged();
+                if (translateButton != null) {
+                    translateButton.setAlpha(1.0f);
+                }
+                if (showFeedback && root != null) {
+                    BulletinFactory.of(root, colors.provider(resourcesProvider))
+                            .createSimpleBulletin(R.drawable.ic_translate, getString(R.string.OEAppearancePlayerLyricsTranslated))
+                            .show();
+                }
+            }
+
+            @Override
+            public void onFailed(boolean unsupported, @org.jetbrains.annotations.NotNull String message) {
+                isTranslatingLyrics = false;
+                if (showFeedback && root != null) {
+                    BulletinFactory.of(root, colors.provider(resourcesProvider))
+                            .createSimpleBulletin(R.drawable.ic_translate, message)
+                            .show();
+                }
+            }
+        });
     }
 
     private void openQueue() {
@@ -1661,6 +1915,10 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
         smallArtist.setTextColor(c.onSurfaceVariant);
         likeButton.setColors(0, c.onSurfaceVariant, c.primaryContainer, c.onPrimaryContainer);
         lyricsView.setColors(c);
+        if (translateButton != null) {
+            translateButton.setColorFilter(new PorterDuffColorFilter(c.onSurface, PorterDuff.Mode.SRC_IN));
+            translateButton.setBackground(Theme.createSelectorDrawable(c.ripple(), Theme.RIPPLE_MASK_CIRCLE_20DP));
+        }
         sourceView.setTextColor(c.onSurfaceVariant);
         seekBar.setColors(c.primary, c.secondaryContainer);
         timeNow.setTextColor(c.onSurfaceVariant);

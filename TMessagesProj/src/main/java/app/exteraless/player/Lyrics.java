@@ -19,6 +19,7 @@ public final class Lyrics {
         public final boolean isBacking;
         public final String role;
         public String romanized;
+        public String translation;
 
         Line(long time, String text) {
             this(time, text, false, null);
@@ -42,6 +43,8 @@ public final class Lyrics {
     public final boolean instrumental;
     public final int source;
     public final String provider;
+    public boolean isTranslated = false;
+    public boolean showTranslation = true;
 
     private Lyrics(ArrayList<Line> lines, boolean synced, boolean instrumental, int source, String provider) {
         this.lines = lines;

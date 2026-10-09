@@ -19,6 +19,15 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.view.MotionEvent;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
@@ -37,6 +46,7 @@ import org.telegram.ui.Components.UniversalRecyclerView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import app.exteraless.appearance.AppearanceConfig;
@@ -56,7 +66,7 @@ public class PlayerSettingsActivity extends BaseFragment {
     private static final int ID_LYRICS_SOURCES = 21;
     private static final int ID_LYRICS_PRIORITY = 22;
     private static final int ID_LYRICS_ROMANIZE = 23;
-    private static final int ID_LYRICS_AI = 24;
+    private static final int ID_LYRICS_TRANSLATE = 24;
     private static final int ID_LYRICS_ALIGNMENT = 25;
     private static final int ID_LYRICS_ROLES = 26;
     private static final int ID_LYRICS_TAP_SEEK = 27;
@@ -153,7 +163,8 @@ public class PlayerSettingsActivity extends BaseFragment {
         items.add(UItem.asCheck(ID_LYRICS_ROMANIZE, getString(R.string.OEAppearancePlayerLyricsRomanize))
                 .setChecked(AppearanceConfig.playerLyricsRomanize()));
 
-        items.add(UItem.asButton(ID_LYRICS_AI, getString(R.string.OEAppearancePlayerLyricsAi), AppearanceConfig.playerLyricsAiProvider()));
+        items.add(UItem.asCheck(ID_LYRICS_TRANSLATE, getString(R.string.OEAppearancePlayerLyricsTranslate), getString(R.string.OEAppearancePlayerLyricsTranslateDesc))
+                .setChecked(AppearanceConfig.playerLyricsTranslate()));
 
         int alignMode = AppearanceConfig.playerLyricsAlignment();
         String alignName = alignMode == 0 ? getString(R.string.OEAppearancePlayerLyricsAlignmentCenter) : getString(R.string.OEAppearancePlayerLyricsAlignmentLeft);
@@ -246,8 +257,9 @@ public class PlayerSettingsActivity extends BaseFragment {
         } else if (item.id == ID_LYRICS_ROMANIZE) {
             AppearanceConfig.playerLyricsRomanize.setConfigBool(!AppearanceConfig.playerLyricsRomanize());
             updateList();
-        } else if (item.id == ID_LYRICS_AI) {
-            showAiTranslationDialog();
+        } else if (item.id == ID_LYRICS_TRANSLATE) {
+            AppearanceConfig.playerLyricsTranslate.setConfigBool(!AppearanceConfig.playerLyricsTranslate());
+            updateList();
         } else if (item.id == ID_LYRICS_ALIGNMENT) {
             CharSequence[] options = {
                     getString(R.string.OEAppearancePlayerLyricsAlignmentCenter),
@@ -327,6 +339,7 @@ public class PlayerSettingsActivity extends BaseFragment {
         root.addView(title);
 
         ScrollView scroll = new ScrollView(getContext());
+        scroll.setVerticalScrollBarEnabled(false);
         LinearLayout container = new LinearLayout(getContext());
         container.setOrientation(LinearLayout.VERTICAL);
 
@@ -377,7 +390,8 @@ public class PlayerSettingsActivity extends BaseFragment {
         dialog.setContentView(root);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(dp(320), dp(500));
+            int dialogWidth = Math.min(AndroidUtilities.displaySize.x - dp(32), dp(350));
+            dialog.getWindow().setLayout(dialogWidth, dp(500));
         }
         dialog.show();
     }
@@ -386,7 +400,7 @@ public class PlayerSettingsActivity extends BaseFragment {
         LinearLayout row = new LinearLayout(getContext());
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, dp(10), 0, dp(10));
+        row.setPadding(0, dp(10), dp(4), dp(10));
 
         LinearLayout textCol = new LinearLayout(getContext());
         textCol.setOrientation(LinearLayout.VERTICAL);
@@ -407,7 +421,10 @@ public class PlayerSettingsActivity extends BaseFragment {
 
         Switch sw = new Switch(getContext());
         sw.setChecked(checked, false);
-        row.addView(sw, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams swLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        swLp.leftMargin = dp(14);
+        swLp.rightMargin = dp(4);
+        row.addView(sw, swLp);
 
         row.setOnClickListener(v -> {
             boolean next = !sw.isChecked();
@@ -419,31 +436,6 @@ public class PlayerSettingsActivity extends BaseFragment {
     }
 
     private void showLyricsPriorityDialog() {
-        if (getContext() == null) return;
-        String currentOrder = AppearanceConfig.playerLyricsProviderOrder();
-        List<String> list = new ArrayList<>(Arrays.asList(currentOrder.split(",")));
-
-        CharSequence[] items = new CharSequence[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            items[i] = (i + 1) + ". " + list.get(i).trim();
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), getResourceProvider());
-        builder.setTitle(getString(R.string.OEAppearancePlayerLyricsPriority));
-        builder.setItems(items, (dialog, which) -> {
-            // Move selected provider to top priority
-            String selected = list.remove(which);
-            list.add(0, selected);
-            String newOrder = String.join(",", list);
-            AppearanceConfig.playerLyricsProviderOrder.setConfigString(newOrder);
-            updateList();
-            BulletinFactory.of(this).createSimpleBulletin(R.drawable.msg_filled_data_music, selected + " -> #1").show();
-        });
-        builder.setNegativeButton(getString(R.string.Cancel), null);
-        showDialog(builder.create());
-    }
-
-    private void showAiTranslationDialog() {
         if (getContext() == null) return;
         android.app.Dialog dialog = new android.app.Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -458,64 +450,165 @@ public class PlayerSettingsActivity extends BaseFragment {
         root.setBackground(bg);
 
         TextView title = new TextView(getContext());
-        title.setText(getString(R.string.OEAppearancePlayerLyricsAi));
+        title.setText(getString(R.string.OEAppearancePlayerLyricsPriority));
         title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
         title.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
         title.setTypeface(AndroidUtilities.bold());
-        title.setPadding(0, 0, 0, dp(14));
         root.addView(title);
 
-        TextView keyLabel = new TextView(getContext());
-        keyLabel.setText(getString(R.string.OEAppearancePlayerLyricsAiKey));
-        keyLabel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        keyLabel.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
-        root.addView(keyLabel);
+        TextView desc = new TextView(getContext());
+        desc.setText(getString(R.string.OEAppearancePlayerLyricsPriorityDesc));
+        desc.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        desc.setTextColor(Theme.getColor(Theme.key_dialogTextGray2));
+        desc.setPadding(0, dp(4), 0, dp(12));
+        root.addView(desc);
 
-        EditText keyInput = new EditText(getContext());
-        keyInput.setText(AppearanceConfig.playerLyricsAiKey());
-        keyInput.setHint("DeepL / OpenRouter API Key");
-        keyInput.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        keyInput.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
-        keyInput.setSingleLine(true);
-        root.addView(keyInput, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        String currentOrder = AppearanceConfig.playerLyricsProviderOrder();
+        final List<String> list = new ArrayList<>();
+        for (String s : currentOrder.split(",")) {
+            String trimmed = s.trim();
+            if (!trimmed.isEmpty()) {
+                list.add(trimmed);
+            }
+        }
 
-        TextView formLabel = new TextView(getContext());
-        formLabel.setText(getString(R.string.OEAppearancePlayerLyricsAiFormality));
-        formLabel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        formLabel.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
-        formLabel.setPadding(0, dp(12), 0, 0);
-        root.addView(formLabel);
+        RecyclerView recycler = new RecyclerView(getContext());
+        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        recycler.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
-        TextView formValue = new TextView(getContext());
-        formValue.setText(AppearanceConfig.playerLyricsAiFormality());
-        formValue.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        formValue.setTextColor(Theme.getColor(Theme.key_dialogTextGray2));
-        formValue.setPadding(0, dp(4), 0, dp(12));
-        root.addView(formValue);
+        class PriorityViewHolder extends RecyclerView.ViewHolder {
+            final TextView number;
+            final TextView name;
+            final ImageView handle;
 
-        LinearLayout btnRow = new LinearLayout(getContext());
-        btnRow.setOrientation(LinearLayout.HORIZONTAL);
-        btnRow.setGravity(Gravity.RIGHT);
+            PriorityViewHolder(View itemView) {
+                super(itemView);
+                number = itemView.findViewById(1);
+                name = itemView.findViewById(2);
+                handle = itemView.findViewById(3);
+            }
+        }
 
-        TextView saveBtn = new TextView(getContext());
-        saveBtn.setText(getString(R.string.Save));
-        saveBtn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        final ItemTouchHelper[] touchHelperRef = new ItemTouchHelper[1];
+
+        RecyclerView.Adapter<PriorityViewHolder> adapter = new RecyclerView.Adapter<PriorityViewHolder>() {
+            @NonNull
+            @Override
+            public PriorityViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                LinearLayout row = new LinearLayout(getContext());
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding(dp(12), dp(10), dp(12), dp(10));
+
+                GradientDrawable rowBg = new GradientDrawable();
+                rowBg.setCornerRadius(dp(12));
+                rowBg.setColor(Theme.getColor(Theme.key_dialogButtonCorner));
+                row.setBackground(rowBg);
+
+                TextView numView = new TextView(getContext());
+                numView.setId(1);
+                numView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+                numView.setTypeface(AndroidUtilities.bold());
+                numView.setTextColor(Theme.getColor(Theme.key_dialogTextGray2));
+                numView.setGravity(Gravity.CENTER);
+                row.addView(numView, new LinearLayout.LayoutParams(dp(24), LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                TextView nameView = new TextView(getContext());
+                nameView.setId(2);
+                nameView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+                nameView.setTypeface(AndroidUtilities.bold());
+                nameView.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
+                LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                nameLp.leftMargin = dp(8);
+                nameLp.rightMargin = dp(8);
+                row.addView(nameView, nameLp);
+
+                ImageView handleView = new ImageView(getContext());
+                handleView.setId(3);
+                handleView.setImageResource(R.drawable.msg_reorder);
+                handleView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_dialogTextGray2), PorterDuff.Mode.SRC_IN));
+                handleView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                handleView.setPadding(dp(4), dp(4), dp(4), dp(4));
+                row.addView(handleView, new LinearLayout.LayoutParams(dp(32), dp(32)));
+
+                RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                lp.bottomMargin = dp(6);
+                row.setLayoutParams(lp);
+
+                return new PriorityViewHolder(row);
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull PriorityViewHolder holder, int position) {
+                holder.number.setText(String.valueOf(position + 1));
+                String providerName = list.get(position);
+                holder.name.setText(providerName);
+                holder.handle.setOnTouchListener((v, event) -> {
+                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN && touchHelperRef[0] != null) {
+                        touchHelperRef[0].startDrag(holder);
+                    }
+                    return false;
+                });
+            }
+
+            @Override
+            public int getItemCount() {
+                return list.size();
+            }
+        };
+
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                int from = viewHolder.getAdapterPosition();
+                int to = target.getAdapterPosition();
+                if (from >= 0 && to >= 0 && from < list.size() && to < list.size() && from != to) {
+                    Collections.swap(list, from, to);
+                    adapter.notifyItemMoved(from, to);
+                    adapter.notifyItemChanged(from);
+                    adapter.notifyItemChanged(to);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            }
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return true;
+            }
+        });
+        touchHelperRef[0] = touchHelper;
+        touchHelper.attachToRecyclerView(recycler);
+        recycler.setAdapter(adapter);
+
+        root.addView(recycler, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        TextView doneBtn = new TextView(getContext());
+        doneBtn.setText(getString(R.string.Done));
+        doneBtn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        doneBtn.setTypeface(AndroidUtilities.bold());
         int accent = Theme.getColor(Theme.key_featuredStickers_addButton);
-        saveBtn.setTextColor(accent != 0 ? accent : 0xff00d2b4);
-        saveBtn.setPadding(dp(16), dp(12), dp(16), dp(8));
-        saveBtn.setOnClickListener(v -> {
-            AppearanceConfig.playerLyricsAiKey.setConfigString(keyInput.getText().toString().trim());
+        doneBtn.setTextColor(accent != 0 ? accent : 0xff00d2b4);
+        doneBtn.setGravity(Gravity.RIGHT);
+        doneBtn.setPadding(dp(16), dp(12), dp(8), dp(4));
+        doneBtn.setOnClickListener(v -> {
+            String newOrder = String.join(",", list);
+            AppearanceConfig.playerLyricsProviderOrder.setConfigString(newOrder);
             dialog.dismiss();
             updateList();
+            BulletinFactory.of(PlayerSettingsActivity.this).createSimpleBulletin(R.drawable.msg_filled_data_music, getString(R.string.Done)).show();
         });
-        btnRow.addView(saveBtn);
-
-        root.addView(btnRow, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        root.addView(doneBtn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         dialog.setContentView(root);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(dp(320), LinearLayout.LayoutParams.WRAP_CONTENT);
+            int dialogWidth = Math.min(AndroidUtilities.displaySize.x - dp(32), dp(350));
+            dialog.getWindow().setLayout(dialogWidth, dp(440));
         }
         dialog.show();
     }

@@ -599,49 +599,16 @@ object AppearanceConfig {
                 playerLyricsZemer.Bool()
     }
 
-    // ---- ИИ-перевод текста ----
+    // ---- Перевод текста песни (привязан к переводчику чатов) ----
 
     @JvmField
-    val playerLyricsAiProvider =
-        addConfig("OEAppearancePlayerLyricsAiProvider", ConfigItem.configTypeString, "DeepL")
+    val playerLyricsTranslate =
+        addConfig("OEAppearancePlayerLyricsTranslate", ConfigItem.configTypeBool, false)
 
     @JvmStatic
-    fun playerLyricsAiProvider(): String {
+    fun playerLyricsTranslate(): Boolean {
         ensureLoaded()
-        val s = playerLyricsAiProvider.String()
-        return if (s.isNullOrBlank()) "DeepL" else s
-    }
-
-    @JvmField
-    val playerLyricsAiKey =
-        addConfig("OEAppearancePlayerLyricsAiKey", ConfigItem.configTypeString, "")
-
-    @JvmStatic
-    fun playerLyricsAiKey(): String {
-        ensureLoaded()
-        return playerLyricsAiKey.String() ?: ""
-    }
-
-    @JvmField
-    val playerLyricsAiFormality =
-        addConfig("OEAppearancePlayerLyricsAiFormality", ConfigItem.configTypeString, "default")
-
-    @JvmStatic
-    fun playerLyricsAiFormality(): String {
-        ensureLoaded()
-        val s = playerLyricsAiFormality.String()
-        return if (s.isNullOrBlank()) "default" else s
-    }
-
-    @JvmField
-    val playerLyricsAiTargetLang =
-        addConfig("OEAppearancePlayerLyricsAiTargetLang", ConfigItem.configTypeString, "ru")
-
-    @JvmStatic
-    fun playerLyricsAiTargetLang(): String {
-        ensureLoaded()
-        val s = playerLyricsAiTargetLang.String()
-        return if (s.isNullOrBlank()) "ru" else s
+        return playerLyricsTranslate.Bool()
     }
 
     @JvmField

@@ -111,9 +111,10 @@
     <string name="OEAppearancePlayerLyricsProviderZemer">Включить Zemer</string>
     <string name="OEAppearancePlayerLyricsProviderZemerDesc">Тексты еврейских песен</string>
     <string name="OEAppearancePlayerLyricsNote">ПРИМЕЧАНИЕ: Тексты из Telegram отображаются автоматически при отсутствии других источников. Обычно они не синхронизированы</string>
-    <string name="OEAppearancePlayerLyricsAi">ИИ-перевод текста</string>
-    <string name="OEAppearancePlayerLyricsAiProvider">Провайдер</string>
-    <string name="OEAppearancePlayerLyricsAiKey">Ключ API</string>
-    <string name="OEAppearancePlayerLyricsAiFormality">Степень формальности</string>
-    <string name="OEAppearancePlayerLyricsAiTarget">Язык перевода</string>
+    <string name="OEAppearancePlayerLyricsTranslate">Перевод текста песни</string>
+    <string name="OEAppearancePlayerLyricsTranslateDesc">Переводить текст с помощью переводчика чатов</string>
+    <string name="OEAppearancePlayerSpeedDialogTitle">Скорость воспроизведения</string>
+    <string name="OEAppearancePlayerSpeedReset">Сбросить (1.0×)</string>
+    <string name="OEAppearancePlayerLyricsTranslating">Перевод текста...</string>
+    <string name="OEAppearancePlayerLyricsTranslated">Текст переведён</string>
 </resources>

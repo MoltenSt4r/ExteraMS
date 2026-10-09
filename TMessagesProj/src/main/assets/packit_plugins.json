@@ -1,0 +1,2075 @@
+{
+  "tags_summary": {
+    "Elyx": 3,
+    "Featured": 5,
+    "DevTools": 3,
+    "Library": 1,
+    "Customization": 3,
+    "Tweaks": 11,
+    "System": 4,
+    "Utility": 14,
+    "Fun": 4
+  },
+  "plugins": [
+    {
+      "id": "devsettingicons",
+      "name": "DevSettingIcons",
+      "author": "@CactusPlugins",
+      "version": "1.4.4",
+      "state": "release",
+      "icon": "remusic/3",
+      "min_version": "11.13.0",
+      "app_version": ">=11.13.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/devsettingicons_1.4.4.elyx",
+      "size": "83.20 KB",
+      "description": "[For Devs] All icons/animations/colors for plugin settings/bulletins and more with filters!",
+      "hash": "c9a0857e48eea6905e48e37ee931a035d6d227c27a6c4a1820043720d6137f64",
+      "bithash": "12ec0af0a98233c4",
+      "tags": [
+        [
+          "Elyx",
+          "key_avatar_backgroundBlue",
+          "https://t.me/CactusPlugins"
+        ],
+        [
+          "Featured",
+          "key_avatar_backgroundInProfileBlue",
+          "https://t.me/packitGround/13/988"
+        ],
+        [
+          "DevTools",
+          "key_chat_inDownCall",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/CactusPlugins"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/pixwet"
+        ]
+      ],
+      "team": [
+        [
+          "5184725450",
+          "Maintainer"
+        ],
+        [
+          "400216230",
+          "Developer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "update_date": "15.05.26",
+      "closed_source": "checked",
+      "versions": {
+        "1.4.2": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/devsettingicons_1.4.2.elyx",
+          "app_version": ">=11.13.0",
+          "size": "81.09 KB",
+          "changelog": [
+            "None"
+          ]
+        },
+        "1.4.3": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/devsettingicons_1.4.3.eaf",
+          "app_version": ">=11.13.0",
+          "size": "61.29 KB",
+          "changelog": [
+            "None"
+          ]
+        }
+      }
+    },
+    {
+      "id": "quantahut",
+      "name": "QuantaHut",
+      "author": "@luvztroy",
+      "version": "1.5.2",
+      "state": "release",
+      "icon": "luvztroyIcons/14",
+      "min_version": "12.2.10",
+      "app_version": ">=12.2.10",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/quantahut_1.5.2.plugin",
+      "size": "232.85 KB",
+      "description": "Library for Quanta plugins",
+      "hash": "88e725a5ea1e7431e0ff9a32d5bfea42ee4d5f07b5b102e8dc2fe33e90f6d965",
+      "bithash": "10f504a2507705c2",
+      "tags": [
+        [
+          "Featured",
+          "key_avatar_backgroundInProfileBlue",
+          "https://t.me/packitGround/13/988"
+        ],
+        [
+          "Library",
+          "key_avatar_backgroundViolet",
+          "https://t.me/packitGround/13/1053"
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "readme": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/readmes/readme_quantahut.md",
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/QuantaPlugins"
+        ],
+        [
+          "msg_msgbubble3",
+          "Forum",
+          "https://t.me/QuantaPlayground"
+        ]
+      ],
+      "team": [
+        [
+          "6985852072",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26"
+    },
+    {
+      "id": "ui_tweaks",
+      "name": "UiTweaks",
+      "author": "@luvztroy",
+      "version": "1.8.4",
+      "state": "release",
+      "icon": "luvztroyIcons/13",
+      "min_version": "12.2.10",
+      "app_version": ">=12.2.10",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/ui_tweaks_1.8.4.plugin",
+      "size": "664.74 KB",
+      "description": "Well sometimes you just need to tweak things... (requires [QuantaHut](https://t.me/QuantaPlugins/228))",
+      "hash": "96d1c2c65c6609154c3838c2efd994626250a13668f67d0a11fc7367ef1509a1",
+      "bithash": "f34740eee2218554",
+      "deps": [
+        "quantahut"
+      ],
+      "tags": [
+        [
+          "Featured",
+          "key_avatar_backgroundInProfileBlue",
+          "https://t.me/packitGround/13/988"
+        ],
+        [
+          "Customization",
+          "key_avatar_background2Cyan",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "readme": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/readmes/readme_ui_tweaks.md",
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/QuantaPlugins"
+        ],
+        [
+          "msg_msgbubble3",
+          "Forum",
+          "https://t.me/QuantaPlayground"
+        ]
+      ],
+      "team": [
+        [
+          "6985852072",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26"
+    },
+    {
+      "id": "shareui_clibmini",
+      "name": "CactusLib Mini",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.1",
+      "state": "release",
+      "icon": "",
+      "min_version": "12.2.10",
+      "app_version": ">=12.2.10",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_clibmini_1.0.1.plugin",
+      "size": "6.78 KB",
+      "description": "Mini version of CactusLib :D\n\nThe fork now supports premium emojis (You can change the emojis in the plugin settings)",
+      "hash": "9adb25a7f8a62401b7c2136ed732160902d3ddcd44a15f30cffef92642a42da6",
+      "bithash": "d41ae8362958c4be",
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "archived": "18.03.26",
+      "forked": [
+        "CactusLib Mini",
+        "https://t.me/CactusPlugins/74"
+      ]
+    },
+    {
+      "id": "shareui_efch",
+      "name": "exteraFetch",
+      "author": "@shareui(@doctashare)",
+      "version": "1.2.0",
+      "state": "release",
+      "icon": "miyabiZZZ/1",
+      "app_version": ">=12.1.1",
+      "sdk_version": ">=1.4.3.2",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_efch_1.2.0.plugin",
+      "size": "74.62 KB",
+      "description": "displays sys info [.efch] or a interface in the plugin settings",
+      "hash": "465184bd88ff2c405744736f4ef2d9366e0f1c6fcbe49950a619d1882d9fcc48",
+      "bithash": "2b24906a8ffc7d86",
+      "tags": [
+        [
+          "System",
+          "key_color_lightblue",
+          ""
+        ],
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "https://t.me/doctashare/102",
+        "+1024",
+        "-33"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "update_date": "16.04.26",
+      "versions": {
+        "1.1.1": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_efch_1.1.1.plugin",
+          "app_version": ">=12.1.1",
+          "size": "35.34 KB",
+          "changelog": [
+            "None",
+            "+1024",
+            "-33"
+          ]
+        }
+      }
+    },
+    {
+      "id": "shareui_exteragit",
+      "name": "exteraGit",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "plugin232/10",
+      "min_version": "12.0.1",
+      "app_version": ">=12.0.1",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_exteragit_1.0.0.plugin",
+      "size": "30.96 KB",
+      "description": "Search GitHub and GitLab resources. Commands in the plugin settings.",
+      "hash": "d08cfe0a75352ad4f2def9b382a4d16a9e35423ba36bb66ae7c36edf3b0ed648",
+      "bithash": "031166e233d2a8af",
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "archived": "18.03.26"
+    },
+    {
+      "id": "shareui_frel",
+      "name": "Exit process[MEMORY LEAKS]",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "EllenZZZ/1",
+      "min_version": "12.1.1",
+      "app_version": ">=12.1.1",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_frel_1.0.0.plugin",
+      "size": "1.79 KB",
+      "description": "Adds quick app restart button to side menu\n\nДобавляет кнопку быстрого перезапуска приложения в боковое меню",
+      "hash": "4a9afcc790995cc8700b4104ba73f961ecc7eabf09fb0b6e8bba94f4ae4496c1",
+      "bithash": "62ea47d4e33b98a3",
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "archived": "18.03.26"
+    },
+    {
+      "id": "shareui_modrinth",
+      "name": "Modrinth Search",
+      "author": "@shareui(@doctashare)",
+      "version": "1.2.0",
+      "state": "release",
+      "icon": "plugin232/11",
+      "min_version": "11.12.1",
+      "app_version": ">=11.12.1",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_modrinth_1.2.0.plugin",
+      "size": "7.54 KB",
+      "description": "Плагин который ищет модификации Minecraft на сайте modrinth.com.\nКоманды:\n   .srcmod - поиск модов\n   .srctp - поиск ресурспаков\n   .srcplug - поиск плагинов\n   .srcdata - поиск дата-паков\n   .srcshd - поиск шейдеров",
+      "hash": "d48d2cc71321a5d4697acd377ffb99d615d64d700fa03136f232f4eacca2092f",
+      "bithash": "556af3f22f145702",
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26"
+    },
+    {
+      "id": "shareui_nmp",
+      "name": "No More MusicPlayer",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "",
+      "min_version": "12.1.0",
+      "app_version": ">=12.1.0",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_nmp_1.0.0.plugin",
+      "size": "2.49 KB",
+      "description": "Replaces the music card player.",
+      "hash": "3602852fd9ee6180887414b86d0e7e18e0aa756efd31de1ab2344628b8ada230",
+      "bithash": "017b55c5fbd8732b",
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "archived": "18.03.26"
+    },
+    {
+      "id": "shareui_spamify",
+      "name": "Spamify",
+      "author": "@shareui(@doctashare)",
+      "version": "1.4",
+      "state": "release",
+      "icon": "plugin232/7",
+      "min_version": "12.0.0",
+      "app_version": ">=12.0.0",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_spamify_1.4.plugin",
+      "size": "16.19 KB",
+      "description": "**[RU]**\nРуководство по использованию: [клик](https://t.me/fuchslog/66)\n\n**[EN]**\nUsage guide: [click](https://t.me/fuchslog/66)\n\n**IMPORTANT**: The plugin ID was changed in version 1.2 Fix. **REMOVE THE OLD VERSION BEFORE INSTALLING!!!**\n\n**ВАЖНО**: ID плагина было изменено в версии 1.2 Fix, **УДАЛИТЕ СТАРУЮ ВЕРСИЮ ПЕРЕД УСТАНОВКОЙ!!!**",
+      "hash": "0f4da349ebbb587c59b8d9b8aa6e3fb392f0563157bb42fbdaa518fcd6dfd218",
+      "bithash": "10ed758ef73ff375",
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26"
+    },
+    {
+      "id": "shareui_x0",
+      "name": "Simple Photo Link",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.1",
+      "state": "release",
+      "icon": "plugin232/12",
+      "min_version": "11.12.0",
+      "app_version": ">=11.12.0",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_x0_1.0.1.plugin",
+      "size": "12.44 KB",
+      "description": "Загружает медиафайл (фото, видео, гиф, документ) на хостинг x0.at и отправляет полученную ссылку в чат. Для использования, ответьте на сообщение с медиафайлом командой .x0",
+      "hash": "35084d1efada328fa76899f961621cffa0e5412e96453b5714210145c174aa76",
+      "bithash": "1fea2e79a369cadc",
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ],
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "archived": "18.03.26"
+    },
+    {
+      "id": "shareui_gtht",
+      "name": "GoogleThat+",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.5",
+      "state": "release",
+      "icon": "zwyPluginsIcons/2",
+      "min_version": "11.12.1",
+      "app_version": ">=11.12.1",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_gtht_1.0.5.plugin",
+      "size": "5.32 KB",
+      "description": "Creates search link [.search <query>] Fork by @shareui original plugin @zwylair.",
+      "hash": "3803ef69d6f3463fed2afcdd180d90b510b7b523d06e0dd74274426c349d5314",
+      "bithash": "0249301af98f0876",
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "forked": [
+        "GoogleThat",
+        "https://t.me/zwyPlugins/33"
+      ]
+    },
+    {
+      "id": "shareui_advcalc",
+      "name": "Advanced Calculator",
+      "author": "@shareui(@doctashare)",
+      "version": "2.0.0",
+      "state": "release",
+      "icon": "plugin232/1",
+      "min_version": "12.4.1",
+      "app_version": ">=12.4.1",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_advcalc_2.0.0.plugin",
+      "size": "16.95 KB",
+      "description": "**Advanced math, BMI, Currency, etc.**\n[Documentation](https://github.com/shareui/plugins/blob/main/assets/advcalcdocs.md)",
+      "hash": "d6c2f544174788d518b5ed7608e43b7cd3cc0ab64a41e5de8aedb29e57c3dcc6",
+      "bithash": "66d0218325fff598",
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "https://t.me/doctashare/32",
+        "+369",
+        "-65"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "versions": {
+        "1.0.0": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_advcalc_1.0.0.plugin",
+          "app_version": ">=11.12.0",
+          "size": "4.96 KB",
+          "changelog": [
+            "None",
+            "+369",
+            "-65"
+          ]
+        }
+      }
+    },
+    {
+      "id": "shareui_sh",
+      "name": "Shell Executor",
+      "author": "@shareui(@doctashare)",
+      "version": "1.1.1",
+      "state": "release",
+      "icon": "plugin232/5",
+      "min_version": "12.1.1",
+      "app_version": ">=12.1.1",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_sh_1.1.1.plugin",
+      "size": "11.55 KB",
+      "description": "Execute shell commands and subprocesses [.sh/.sproc]\n Usage: [link](https://t.me/fuchslog/527)",
+      "hash": "f7ae2209fd87059265c99c66529f0e22bfc82b34d3c7eb55a43cf31f9fbe8141",
+      "bithash": "07f431c691e230a2",
+      "tags": [
+        [
+          "DevTools",
+          "key_chat_inDownCall",
+          ""
+        ],
+        [
+          "System",
+          "key_color_lightblue",
+          ""
+        ],
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26"
+    },
+    {
+      "id": "shareui_vanillamusicplayer",
+      "name": "Vanilla Music Player",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.3",
+      "state": "release",
+      "icon": "",
+      "app_version": "==12.6.4",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_vanillamusicplayer_1.0.3.plugin",
+      "size": "5.64 KB",
+      "description": "Replaces the exteraGram music player in profiles with the original Telegram player\n (12.6.4 exteraGram)",
+      "hash": "94614ca509094d672a54382c01b9eeb9adc0ba7dd4394a4bbe16ed5dcfb63de1",
+      "bithash": "100f9378b4fde875",
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ]
+      ],
+      "changelog": [
+        "https://t.me/doctashare/140",
+        "+0",
+        "-0"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "18.03.26",
+      "update_date": "17.05.26",
+      "versions": {
+        "1.0.1": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_vanillamusicplayer_1.0.1.plugin",
+          "app_version": ">=12.4.1",
+          "size": "1.89 KB",
+          "changelog": [
+            "None"
+          ]
+        },
+        "1.0.2": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_vanillamusicplayer_1.0.2.plugin",
+          "app_version": ">=12.6.4",
+          "size": "2.36 KB",
+          "changelog": [
+            "https://t.me/doctashare/137",
+            "+0",
+            "-0"
+          ]
+        }
+      }
+    },
+    {
+      "id": "shareui_accountunread",
+      "name": "Account Unread Badge",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.1",
+      "state": "release",
+      "icon": "",
+      "min_version": "12.4.1",
+      "app_version": ">=12.4.1",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_accountunread_1.0.1.plugin",
+      "size": "3.24 KB",
+      "description": "Shows unread (non-muted) notifications count in account switcher",
+      "hash": "677d4dba2fc8ee3a261d32c0710543dfe205f541c22e7ffb9a2b54de73bc267b",
+      "bithash": "4cc9de05e24ab67e",
+      "tags": [
+        [
+          "Customization",
+          "key_avatar_background2Cyan",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "19.03.26",
+      "update_date": "19.03.26"
+    },
+    {
+      "id": "shareui_fservice",
+      "name": "Foreground service",
+      "author": "@shareui(@doctashare)",
+      "version": "1.3.1",
+      "state": "release",
+      "icon": "",
+      "app_version": ">=12.5.1",
+      "sdk_version": ">=1.4.3.2",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_fservice_1.3.1.plugin",
+      "size": "69.42 KB",
+      "description": "Ensures reliable background notifications **on Chinese ROM**. \n**Only for exteraGram!**",
+      "hash": "49f43f6212b3992dd928d05a3ebe55bb43b5666f5c0a720b427610f4d2c02c6e",
+      "bithash": "498515aa0c43b36f",
+      "tags": [
+        [
+          "System",
+          "key_color_lightblue",
+          ""
+        ]
+      ],
+      "changelog": [
+        "https://t.me/doctashare/104",
+        "+2",
+        "-2"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "28.03.26",
+      "update_date": "19.04.26",
+      "restart": "required",
+      "versions": {
+        "1.0.0": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_fservice_1.0.0.plugin",
+          "app_version": ">=12.2.10",
+          "size": "4.35 KB",
+          "changelog": [
+            "None",
+            "+1730",
+            "-42"
+          ]
+        },
+        "1.3.0": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_fservice_1.3.0.plugin",
+          "app_version": ">=12.5.1",
+          "changelog": [
+            "https://t.me/doctashare/87",
+            "+2",
+            "-2"
+          ],
+          "size": "69.43 KB"
+        }
+      }
+    },
+    {
+      "id": "shareui_shareui",
+      "name": "ShareUI",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "",
+      "app_version": ">=12.5.1",
+      "sdk_version": ">=1.4.3.3",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_shareui_1.0.0.plugin",
+      "size": "5.16 KB",
+      "description": "Replaces system share with Telegram ShareAlert when sharing plugins in PluginCell",
+      "hash": "5717b881e5d4d2aeddb10ae5570bc3067118e2ae74163901f3f438a4575a175a",
+      "bithash": "9f31c98859e57d75",
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "26.04.26"
+    },
+    {
+      "id": "shareui_dkta",
+      "name": "Don't kill the download!",
+      "author": "@shareui(@doctashare)",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "",
+      "app_version": ">=12.5.1",
+      "sdk_version": ">=1.4.3.3",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_dkta_1.0.0.plugin",
+      "size": "1.22 KB",
+      "description": "Continues downloading files in the background when exiting the chat.",
+      "hash": "8c39324d9210537c30bc95a0336ca08276eb4f87ea2aa88bfbdd9b738c3125cd",
+      "bithash": "94dcc6f811eb3f17",
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "26.04.26",
+      "update_date": "27.04.26"
+    },
+    {
+      "id": "testzalupa",
+      "name": "testzalupa",
+      "author": "@huy",
+      "version": "1.8.0",
+      "state": "release",
+      "icon": "",
+      "min_version": "12.2.0",
+      "app_version": ">=12.2.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/testzalupa_1.8.0.plugin",
+      "size": "0.15 KB",
+      "description": "testzalupa",
+      "hash": "a6ac529c430b1c61e88647f9d0e5d7e816ef64ef5ea36b9fd5880958a78725cf",
+      "bithash": "3d89188bc801c487",
+      "changelog": [
+        "None",
+        "+1",
+        "-1"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "15.05.26",
+      "closed_source": true,
+      "paid": true
+    },
+    {
+      "id": "shareui_bettersearch",
+      "name": "Better Search",
+      "author": "@shareui",
+      "version": "0.1.0",
+      "state": "release",
+      "icon": "shareui_plugins/0",
+      "app_version": ">=12.6.4",
+      "sdk_version": ">=1.4.3.3",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/shareui_bettersearch_0.1.0.eaf",
+      "size": "46.84 KB",
+      "description": "Improves search across the entire Telegram",
+      "hash": "af5f6641724554a3313c42d34d049d9a7fb4df34e9166634cc7676260d8d649e",
+      "bithash": "847fb7244d6bf8b1",
+      "tags": [
+        [
+          "Elyx",
+          "key_avatar_backgroundBlue",
+          "https://t.me/CactusPlugins"
+        ],
+        [
+          "Featured",
+          "key_avatar_backgroundInProfileBlue",
+          "https://t.me/packitGround/13/988"
+        ],
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ]
+      ],
+      "changelog": [
+        "https://t.me/doctashare/83",
+        "+3",
+        "-3"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/doctashare"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "http://github.com/shareui"
+        ]
+      ],
+      "team": [
+        [
+          "400216230",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "12.06.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ],
+        "license": "Apache 2.0",
+        "source_links": "https://github.com/shareui/better-search",
+        "langs": [
+          "Python",
+          "C"
+        ],
+        "bug_reports": "https://github.com/shareui/better-search/issues"
+      },
+      "bug_reports": "https://github.com/shareui/better-search/issues"
+    },
+    {
+      "id": "plugin_creator",
+      "name": "Plugin creator",
+      "author": "@mr_Vestr",
+      "version": "3.1",
+      "state": "release",
+      "icon": "mr_vestr/12",
+      "min_version": "12.5.0",
+      "app_version": ">=12.5.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/plugin_creator_3.1.plugin",
+      "size": "267.45 KB",
+      "description": "Плагин для быстрого создания файлов из текста.\n\nA plugin for quickly creating files from text.",
+      "hash": "d196dc116b5b441eb9402944f4da8e511fd69516718d72dc096832d49d620a52",
+      "bithash": "659b80e47b84a109",
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/I_am_Vestr"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "https://github.com/mr-Vestr/"
+        ]
+      ],
+      "team": [
+        [
+          "2037728749",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ],
+        "license": "GPL v3.0",
+        "source_links": "https://github.com/mr-Vestr/plugins/blob/main/Plugin%20creator/plugin_creator.py"
+      },
+      "readme": "https://github.com/mr-Vestr/plugins/blob/main/Plugin%20creator/PLUGIN_CREATOR_RU.md",
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "chimeranft",
+      "name": "Chimera NFT",
+      "author": "@xarmaq",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "HappyHappyPepe/31",
+      "app_version": ">=11.9.0",
+      "sdk_version": ">=1.4.4.6",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/chimeranft_1.0.0.eaf",
+      "size": "4.14 MB",
+      "description": "Visual NFT gifts in a profile",
+      "hash": "27e346b3abbd721aa9147646be7da94f69b9cd54fc0033bbd87d33c13dffb6b3",
+      "bithash": "cecc5b825405311c",
+      "tags": [
+        [
+          "Elyx",
+          "key_avatar_backgroundBlue",
+          "https://t.me/CactusPlugins"
+        ],
+        [
+          "Featured",
+          "key_avatar_backgroundInProfileBlue",
+          "https://t.me/packitGround/13/988"
+        ],
+        [
+          "Customization",
+          "key_avatar_background2Cyan",
+          ""
+        ],
+        [
+          "Fun",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "5406195402",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ],
+        "langs": [
+          "Python",
+          "Kotlin"
+        ]
+      }
+    },
+    {
+      "id": "extera_custom_name_icon",
+      "name": "Custom Name & Icon",
+      "author": "@AlexeiCrystal",
+      "version": "1.1",
+      "state": "release",
+      "icon": "exteraGram/0",
+      "app_version": ">=11.12.0",
+      "sdk_version": ">=1.4.3.3",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/extera_custom_name_icon_1.1.plugin",
+      "size": "17.00 KB",
+      "description": "**EN:** Allows you to set a custom name and icon for the client in the recent apps menu and on the launcher\n**RU:** Позволяет установить кастомное имя и иконку клиента в меню недавних приложений и на рабочем столе",
+      "hash": "1c37a0729c6ddb206965754afe90aa9d5d9876b5be07ef29406035c83853759c",
+      "bithash": "bffe4b6638403922",
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ],
+        [
+          "Fun",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ],
+      "changelog": [
+        "None",
+        "+0",
+        "-0"
+      ],
+      "team": [
+        [
+          "1169951070",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "update_date": "01.08.26",
+      "versions": {
+        "1.0": {
+          "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/extera_custom_name_icon_1.0.plugin",
+          "app_version": ">=11.12.0",
+          "size": "16.65 KB",
+          "changelog": [
+            "None"
+          ]
+        }
+      },
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      }
+    },
+    {
+      "id": "mooninfo",
+      "name": "MoonInfo",
+      "author": "@CodedOwner & @MLPlugins",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "",
+      "app_version": ">=12.5.1",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/mooninfo_1.0.0.plugin",
+      "size": "6.07 KB",
+      "description": "RU: Информация об клиенте\nИнформация в настройках exteraGram -> Информация\n\nEN: Information about client\nInformation in exteraGram Settings -> Information",
+      "hash": "3f1576a735951e97d5a11fd918e1e60783216226d06862223506e7d575681f38",
+      "bithash": "a7eba6b75cbf2f51",
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_openprofile",
+          "Author",
+          "https://CodedOwner.t.me"
+        ],
+        [
+          "msg_channel",
+          "Channel",
+          "https://MLPlugins.t.me"
+        ]
+      ],
+      "team": [
+        [
+          "6402384348",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "tags": [
+        [
+          "System",
+          "key_color_lightblue",
+          ""
+        ],
+        [
+          "DevTools",
+          "key_chat_inDownCall",
+          ""
+        ],
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "rand_choice",
+      "name": "Randomizer",
+      "author": "@Kaktusik_A & AI",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "sPluginIDE/5",
+      "min_version": "11.12.0",
+      "app_version": ">=11.12.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/rand_choice_1.0.0.plugin",
+      "size": "9.32 KB",
+      "description": "Random number range or choice picker. Commands: .rand / .ранд",
+      "hash": "8647c9fe18ae9f3a7d9931f392cd306d386cd1b904b2260b9fb75aa12c7476f4",
+      "bithash": "f302e9fc1e883f75",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "5131734501",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ],
+        [
+          "Fun",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "timers_stopwatches",
+      "name": "Timers & Stopwatches",
+      "author": "@Kaktusik_A & AI",
+      "version": "2.3.0",
+      "state": "release",
+      "icon": "sPluginIDE/10",
+      "min_version": "11.12.0",
+      "app_version": ">=11.12.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/timers_stopwatches_2.3.0.plugin",
+      "size": "35.16 KB",
+      "description": "Add and manage timers and stopwatches directly from the chat action menu.",
+      "hash": "d799e25bb6a6ceb1209215306efc479a0e1a8c089ba234f7c73d9acd356483da",
+      "bithash": "85cbd63918c5f4f1",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "5131734501",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "music_uploader",
+      "name": "Music Uploader",
+      "author": "@Kaktusik_A & AI",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "sPluginIDE/4",
+      "min_version": "11.12.0",
+      "app_version": ">=11.12.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/music_uploader_1.0.0.plugin",
+      "size": "57.63 KB",
+      "description": "Кнопка в меню чата и в настройках — выгружает музыку с устройства через кастомный выбор треков (поиск, обложки, выбор всех). 4 режима отправки в настройках: просто, с очисткой чата, только новое, полная синхронизация.",
+      "hash": "0a960b6e3c06296625ff0dba945103a3bcf9e64427e927e4a135cf1b1dce241b",
+      "bithash": "6c5b133942fd1c6e",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "5131734501",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "templates",
+      "name": "Templates",
+      "author": "@mr_Vestr",
+      "version": "4.2",
+      "state": "release",
+      "icon": "mr_vestr/7",
+      "min_version": "12.1.1",
+      "app_version": ">=12.1.1",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/templates_4.2.plugin",
+      "size": "404.04 KB",
+      "description": "A plugin for creating, editing, and quickly sending message templates.\n\nПлагин для создания, редактирования и быстрой отправки шаблонов сообщений.",
+      "hash": "cfec62bfdc6628d987bb2cbaec29a209866f75550c2a136efd1b461f3b0dd62f",
+      "bithash": "7f0e2197c9a4389a",
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/I_am_Vestr"
+        ],
+        [
+          "msg_openprofile",
+          "GitHub",
+          "https://github.com/mr-Vestr/"
+        ]
+      ],
+      "team": [
+        [
+          "2037728749",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "readme": "https://github.com/mr-Vestr/plugins/blob/main/Templates/TEMPLATES_RU.md",
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "bot_account_router",
+      "name": "Аккаунт для бота",
+      "author": "@oaxat",
+      "version": "1.0.0",
+      "state": "release",
+      "icon": "EKCTEPArAM/6",
+      "min_version": "12.5.1",
+      "app_version": ">=12.5.1",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/bot_account_router_1.0.0.plugin",
+      "size": "16.64 KB",
+      "description": "Открывает чат с ботом через другой аккаунт без переключения.",
+      "hash": "ba62fef6f77aa169c5e85fe8ec0144d0b0bce00483c4374755ec1289641f0dd9",
+      "bithash": "3c8b8ffebf5d7c75",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "8310239728",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "tags": [
+        [
+          "Tweaks",
+          "key_avatar_backgroundGreen",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "playlist_downloader",
+      "name": "Playlist Downloader",
+      "author": "@ameerchik6",
+      "version": "1.0",
+      "state": "release",
+      "icon": "litsouls/16",
+      "app_version": ">=12.5.0",
+      "sdk_version": ">=1.4.0",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/playlist_downloader_1.0.plugin",
+      "size": "31.31 KB",
+      "description": "Загружает каждый трек из плейлиста чата в один клик с помощью встроенного загрузчика файлов Telegram.\n\nDownloads every track from a chat's playlist in one tap, through Telegram's own file loader.",
+      "hash": "7fed1c8192651d4745d239e3fe9ff480f13dfd6f4aa5c31b0f5e8c12b3918328",
+      "bithash": "d5e2cb11d89ee48f",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "5527705092",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "tags": [
+        [
+          "Utility",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "resident_cards_7",
+      "name": "Resident Evil 7: Banned Footage, «21»",
+      "author": "@Nondiat x Lutiy vibecode",
+      "version": "3.1.0",
+      "state": "release",
+      "icon": "yiuim_by_fStikBot/8",
+      "min_version": "12.3.0",
+      "app_version": ">=12.3.0",
+      "sdk_version": ">=1.4.0",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/resident_cards_7_3.1.0.plugin",
+      "size": "365.61 KB",
+      "hash": "0b317e20406f87fa452b7c49c81df6a689bc8b0f1e6f591f4750d774a8d59a24",
+      "bithash": "bee3e4b63eb317bd",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "1621402419",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "31.07.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "description": "Копия карточной игры из игры Resident Evil 7: Biohazard, дополнение «Вырезанные материалы» «21»",
+      "tags": [
+        [
+          "Fun",
+          "key_avatar_background2Orange",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "liquid_glass",
+      "name": "Liquid Glass [Fork]",
+      "author": "@PluginProject · @w3b_0s1nt",
+      "version": "3.8.13",
+      "state": "release",
+      "icon": "vkVSfmG_by_achestickbot/5",
+      "min_version": "12.9.0",
+      "app_version": ">=12.9.0",
+      "sdk_version": ">=1.4.3.10",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/liquid_glass_3.8.13.plugin",
+      "size": "227.50 KB",
+      "description": "Liquid Glass: стеклянные шапки и панели. exteraGram 12.9.0+",
+      "hash": "d9f782e5c811b3059f3a73dace070652feb703cfe97fe2c56637435801d96c10",
+      "bithash": "e8a31386a7c1ba11",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "1091284045",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      },
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "https://t.me/PluginProject"
+        ]
+      ]
+    },
+    {
+      "id": "fullscreen_music_player",
+      "name": "DotFi",
+      "author": "@nonPlugins",
+      "version": "2.0",
+      "state": "release",
+      "icon": "feature_plugins/6",
+      "min_version": "11.12.0",
+      "app_version": ">=11.12.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/fullscreen_music_player_2.0.plugin",
+      "size": "225.30 KB",
+      "description": "**EN:** Allows you to set a custom name and icon for the client in the recent apps menu and on the launcher\n**RU:** Позволяет установить кастомное имя и иконку клиента в меню недавних приложений и на рабочем столе",
+      "hash": "4d803022c445528f582be9aac26a7a96cefcf9fd2cfd0bd115bff825747ae116",
+      "bithash": "5247edbc026aaf2d",
+      "changelog": [
+        "https://github.com/AlexeiCrystal/extera-custom-name-icon/releases/tag/v1.1"
+      ],
+      "team": [
+        [
+          "1579871159",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      }
+    },
+    {
+      "id": "python_interpreter",
+      "name": "Python Interpreter",
+      "author": "@Exorned, @ExerealPlugins",
+      "version": "0.1.2",
+      "state": "release",
+      "icon": "ExerealPlugins/2",
+      "app_version": ">=12.5.1",
+      "sdk_version": ">=1.4.3.3",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/python_interpreter_0.1.2.plugin",
+      "size": "30.11 KB",
+      "description": "Выполняет код Python командой прямо в чате или из файлов.\n\nКоманды:\n>py (code) - код Python\n>pyopen - запуск .py файла из ответа\n>help - помощь\n>history - история\n>repeat - повтор\n>reset - сброс контекста\n>clearhistory - очистить историю\n>running - идёт ли сейчас выполнение\n>info - инфо\n\nОБЯЗАТЕЛЬНО ПРОЧТИТЕ ВАЖНУЮ ИНФОРМАЦИЮ В НАСТРОЙКАХ ПЛАГИНА.",
+      "hash": "0c3de0608216e0b3da3636dbab26994f4a834f9acd9ed9885e3726ecfac3bfcc",
+      "bithash": "0420558830358961",
+      "changelog": [
+        "None"
+      ],
+      "social": [
+        [
+          "msg_channel",
+          "Channel",
+          "t.me/ExerealPlugins"
+        ]
+      ],
+      "team": [
+        [
+          "8079608100",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      }
+    },
+    {
+      "id": "ios_like_selection",
+      "name": "IOS-like selection",
+      "author": "@PESSDES_Plugins",
+      "version": "7.4",
+      "state": "release",
+      "icon": "VoiceToText7/6",
+      "min_version": "12.0.0",
+      "app_version": ">=12.0.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/ios_like_selection_7.4.plugin",
+      "size": "38.09 KB",
+      "description": "Recreates the effect of selecting a message by tapping like on **IOS**",
+      "hash": "41824f25817b387381154891593012e7ae50f74b25d0595cf2a6acc5e2eb49a4",
+      "bithash": "faa3aca3f6671075",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "6914257655",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      }
+    },
+    {
+      "id": "folders_below",
+      "name": "Folders Below",
+      "author": "@PESSDES_Plugins",
+      "version": "3.0",
+      "state": "release",
+      "icon": "VoiceToText7/15",
+      "min_version": "12.8.1",
+      "app_version": ">=12.8.1",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/folders_below_3.0.plugin",
+      "size": "17.42 KB",
+      "description": "Moves folders bar to the bottom of the chat list",
+      "hash": "57c16bcf3c4b64d6e732ca517a8ca6b7f1e287827b20af6edba8921c00c4c59d",
+      "bithash": "380de9f89ed147e2",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "6914257655",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ],
+        "langs": [
+          "Python",
+          "Java"
+        ]
+      }
+    },
+    {
+      "id": "forwards",
+      "name": "Forwards",
+      "author": "@PESSDES_Plugins",
+      "version": "1.2",
+      "state": "release",
+      "icon": "HalloDuck/64",
+      "min_version": "11.12.0",
+      "app_version": ">=11.12.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/forwards_1.2.plugin",
+      "size": "19.53 KB",
+      "description": "Shows how many times messages were forwarded",
+      "hash": "aba031eb0a9703aa3ffd280c3558e2771481a732ab736b61aee01e2de3b1154a",
+      "bithash": "4020877e373c1dab",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "6914257655",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ],
+        "langs": [
+          "Python",
+          "Java"
+        ]
+      }
+    },
+    {
+      "id": "lyrics",
+      "name": "Reach Text",
+      "author": "@PESSDES_Plugins",
+      "version": "2.2",
+      "state": "release",
+      "icon": "VoiceToText7/12",
+      "min_version": "11.12.1",
+      "app_version": ">=11.12.1",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/lyrics_2.2.plugin",
+      "size": "79.20 KB",
+      "description": "Displays lyrics for your music directly in Telegram.\nAdds a \"Show Lyrics\" button to the audio player, with support for synchronized (karaoke-style) lyrics.\nPowered by LRCLib.net",
+      "hash": "853075156936001a2c326a0d1d0e32590c52dfb654447a378b6e2996772fb326",
+      "bithash": "ef89a2e90133a389",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "6914257655",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ],
+        "langs": [
+          "Python",
+          "Java"
+        ]
+      }
+    },
+    {
+      "id": "rounder",
+      "name": "Rounder",
+      "author": "@PESSDES_Plugins",
+      "version": "4.0",
+      "state": "release",
+      "icon": "VoiceToText7/7",
+      "min_version": "11.12.1",
+      "app_version": ">=11.12.1",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/rounder_4.0.plugin",
+      "size": "21.19 KB",
+      "description": "Allows you to send videos as round videos",
+      "hash": "93b2f4c203c7c3a9b7ce3315d2b343b39d4d546549646692be010eae1ef6d78e",
+      "bithash": "ea98966e5cbdc7cf",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "6914257655",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      }
+    },
+    {
+      "id": "gift_id",
+      "name": "Gift ID",
+      "author": "@PESSDES_Plugins",
+      "version": "1.1",
+      "state": "release",
+      "icon": "VoiceToText7/4",
+      "min_version": "11.12.0",
+      "app_version": ">=11.12.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/gift_id_1.1.plugin",
+      "size": "3.25 KB",
+      "description": "Shows the gift ID in its info",
+      "hash": "f87d409fcf3325ce428ebc3d6eb26276772fa5c221e6a7e701f4bbb076373239",
+      "bithash": "1ad8112c5721d97c",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "6914257655",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      }
+    },
+    {
+      "id": "feel_rich",
+      "name": "Feel Rich",
+      "author": "@PESSDES_Plugins",
+      "version": "3.2",
+      "state": "release",
+      "icon": "VoiceToText7/1",
+      "min_version": "11.12.0",
+      "app_version": ">=11.12.0",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/feel_rich_3.2.plugin",
+      "size": "4.36 KB",
+      "description": "*Locally* modify stars balance in your profile",
+      "hash": "4da76a489295d45e4b70440633e6d2b421cd2410644a054b2cca0aee89c3c2a5",
+      "bithash": "878a910e3d1514d2",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "6914257655",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      }
+    },
+    {
+      "id": "emoji_downloader",
+      "name": "Emoji Downloader",
+      "author": "@PESSDES_Plugins",
+      "version": "1.1",
+      "state": "release",
+      "icon": "VoiceToText7/9",
+      "min_version": "11.12.1",
+      "app_version": ">=11.12.1",
+      "sdk_version": "Unknown",
+      "suspicious": "false",
+      "link": "https://raw.githubusercontent.com/shareui/packit/refs/heads/main/plugins/emoji_downloader_1.1.plugin",
+      "size": "5.75 KB",
+      "description": "Easily download emojis and stickers by long-pressing on them in the context menu.",
+      "hash": "4eea189e42874f26f5333c1ac3b61c657ebb3829c7ba0f0349d9fb64c1c35d75",
+      "bithash": "d53cfacd1c621366",
+      "changelog": [
+        "None"
+      ],
+      "team": [
+        [
+          "6914257655",
+          "Maintainer"
+        ]
+      ],
+      "release_date": "01.08.26",
+      "closed_source": "checked",
+      "sources": {
+        "clients": [
+          "exteraGram",
+          "AyuGram"
+        ]
+      }
+    }
+  ]
+}
