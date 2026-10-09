@@ -239,7 +239,54 @@ Source:
     <string name="PluginsStoreChannelFolderDesc">One-click addlist folder with trusted plugin channels</string>
     <string name="PluginsStoreFilterOpenSource">Open Source</string>
     <string name="PluginsStoreFilterTweaks">Customization</string>
+    <string name="PluginsStoreFilterMedia">Media &amp; Player</string>
+    <string name="PluginsStoreFilterChats">Chats &amp; Messages</string>
     <string name="PluginsStoreOpenSource">Open Source</string>
     <string name="PluginsStoreBinary">Binary</string>
     <string name="PluginsStoreOpenChannel">Post / Channel</string>
+
+    <!-- Store Settings & Sorting -->
+    <string name="PluginsStoreSort">Sort</string>
+    <string name="PluginsStoreSortDateDesc">Newest first</string>
+    <string name="PluginsStoreSortDateAsc">Oldest first</string>
+    <string name="PluginsStoreSortNameAsc">Name (A–Z)</string>
+    <string name="PluginsStoreSortNameDesc">Name (Z–A)</string>
+    <string name="PluginsStoreSortSizeDesc">File size</string>
+    <string name="PluginsStoreSettings">Store Settings</string>
+    <string name="PluginsStoreSettingsSources">Source Channels</string>
+    <string name="PluginsStoreSettingsAddChannel">Add Channel</string>
+    <string name="PluginsStoreSettingsAddChannelPrompt">Enter channel @username or invite link:</string>
+    <string name="PluginsStoreSettingsAddChannelSuccess">Channel added successfully</string>
+    <string name="PluginsStoreSettingsAddChannelError">Channel could not be resolved</string>
+    <string name="PluginsStoreSettingsDeepSearch">Deep Channel Search</string>
+    <string name="PluginsStoreSettingsDeepSearchDesc">Search live across channel message history when typing a query</string>
+    <string name="PluginsStoreSettingsHideOld">Hide Older Versions</string>
+    <string name="PluginsStoreSettingsHideOldDesc">Deduplicate and show only the latest release of each plugin</string>
+    <string name="PluginsStoreSettingsAutoUpdate">Check Plugin Updates</string>
+    <string name="PluginsStoreSettingsAutoUpdateDesc">Automatically check for newer versions of installed plugins</string>
+    <string name="PluginsStoreSettingsClearCache">Clear Store Cache</string>
+    <string name="PluginsStoreSettingsClearCacheDone">Store cache cleared</string>
+    <string name="PluginsStoreSettingsRescan">Rescan All Channels</string>
+
+    <!-- Shizuku Integration -->
+    <string name="ShizukuSettings">Shizuku Integration</string>
+    <string name="ShizukuStatusConnected">Connected</string>
+    <string name="ShizukuStatusDisconnected">Not running</string>
+    <string name="ShizukuStatusPermissionRequired">Permission Required</string>
+    <string name="ShizukuRequestPermission">Grant Permission</string>
+    <string name="ShizukuOpenApp">Open Shizuku</string>
+    <string name="ShizukuSilentUpdates">Silent App Updates</string>
+    <string name="ShizukuSilentUpdatesDesc">Silently install MoltenGram updates in background without system installer UI</string>
+    <string name="ShizukuSilentApk">Silent APK Installs</string>
+    <string name="ShizukuSilentApkDesc">Install APK files from chats in 1 tap via Shizuku without prompts</string>
+    <string name="ShizukuUnrestrictedBackground">Unrestricted Background</string>
+    <string name="ShizukuUnrestrictedBackgroundDesc">Exempt from Doze battery saving and network restrictions for reliable downloads</string>
+    <string name="ShizukuSilentPlugins">Silent Plugin Updates</string>
+    <string name="ShizukuSilentPluginsDesc">Update plugins automatically in background without interrupting usage</string>
+    <string name="ShizukuTrimCaches">Trim System Caches</string>
+    <string name="ShizukuTrimCachesDone">System caches trimmed</string>
+    <string name="ShizukuOptimizationsApplied">Shizuku optimizations applied</string>
+    <string name="Features">Features</string>
+    <string name="Actions">Actions</string>
+    <string name="Custom">Custom</string>
 </resources>

@@ -37,6 +37,7 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
     private int chatsRow;
     private int pluginsRow;
     private int updatesRow;
+    private int shizukuRow;
     private int otherRow;
     private int categoriesDividerRow;
 
@@ -63,6 +64,7 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
         chatsRow = addRow("chats");
         pluginsRow = addRow("plugins");
         updatesRow = addRow("updates");
+        shizukuRow = addRow("shizuku");
         otherRow = addRow("other");
         categoriesDividerRow = addRow();
 
@@ -189,6 +191,8 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
             presentFragment(new app.exteraless.plugins.ui.PluginsActivity());
         } else if (position == updatesRow) {
             presentFragment(new OpenExteraUpdatesActivity());
+        } else if (position == shizukuRow) {
+            presentFragment(new app.exteraless.shizuku.ShizukuSettingsActivity());
         } else if (position == otherRow) {
             presentFragment(new OpenExteraOtherActivity());
         } else if (position == channelRow) {
@@ -253,6 +257,11 @@ public class OpenExteraSettingsActivity extends BaseNekoSettingsActivity {
                         cell.setTextAndValueAndIcon(getString(R.string.OpenExteraUpdates),
                                 hasUpd ? getString(R.string.OpenExteraUpdatesAvailable) : ("v" + org.telegram.messenger.BuildConfig.BUILD_VERSION_STRING),
                                 R.drawable.sync_outline_28, true);
+                    } else if (position == shizukuRow) {
+                        String statusStr = app.exteraless.shizuku.ShizukuController.getInstance().hasPermission()
+                                ? getString(R.string.ShizukuStatusConnected)
+                                : (app.exteraless.shizuku.ShizukuController.getInstance().isAvailable() ? getString(R.string.ShizukuStatusPermissionRequired) : getString(R.string.ShizukuStatusDisconnected));
+                        cell.setTextAndValueAndIcon(getString(R.string.ShizukuSettings), statusStr, R.drawable.msg_permissions, true);
                     } else if (position == otherRow) {
                         cell.setTextAndIcon(getString(R.string.OpenExteraOther), R.drawable.msg_fave, false);
                     } else if (position == channelRow) {

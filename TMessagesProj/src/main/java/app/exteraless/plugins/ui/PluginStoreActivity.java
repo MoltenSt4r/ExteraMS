@@ -22,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,6 +46,7 @@ import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_chatlists;
 import org.telegram.ui.ActionBar.ActionBar;
+import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
@@ -66,8 +69,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import app.exteraless.plugins.Plugin;
 import app.exteraless.plugins.PluginAutoConverter;
@@ -75,38 +83,32 @@ import app.exteraless.plugins.PluginsController;
 
 /**
  * Built-in Plugin Store for exteraGram / exteraless.
- * Fetches verified open-source community plugins from the community channels folder (https://t.me/addlist/MsGEKKJgoGlkOGM0).
+ * Fetches verified open-source community plugins from community channels.
  */
 public class PluginStoreActivity extends BaseFragment {
 
     private static final String CACHE_FILE_NAME = "packit_plugins_cache.json";
     private static final String CHANNELS_FOLDER_SLUG = "MsGEKKJgoGlkOGM0";
 
-    private static final String[] KNOWN_FOLDER_CHANNELS = {
-            "PESSDES_Plugins",
-            "PluginProject",
-            "nonPlugins",
-            "ApplePlugins",
-            "ExerealPlugins",
-            "MLPlugins",
-            "CactusPlugins",
-            "doctashare",
-            "exteraPlugins",
-            "TheDotted",
-            "anivPlugins",
-            "bleizixPlugins",
-            "QuantaPlugins",
-            "shareui"
-    };
-
     private static final int MENU_SEARCH = 0;
-    private static final int MENU_REFRESH = 1;
+    private static final int MENU_SORT = 1;
+    private static final int MENU_SETTINGS = 2;
+    private static final int MENU_REFRESH = 3;
+
+    private static final int SUB_SORT_DATE_DESC = 10;
+    private static final int SUB_SORT_DATE_ASC = 11;
+    private static final int SUB_SORT_NAME_ASC = 12;
+    private static final int SUB_SORT_NAME_DESC = 13;
+    private static final int SUB_SORT_SIZE_DESC = 14;
 
     private static final int FILTER_ALL = 0;
     private static final int FILTER_OPEN_SOURCE = 1;
     private static final int FILTER_UI = 2;
-    private static final int FILTER_TOOLS = 3;
-    private static final int FILTER_TWEAKS = 4;
+    private static final int FILTER_TWEAKS = 3;
+    private static final int FILTER_TOOLS = 4;
+    private static final int FILTER_MEDIA = 5;
+    private static final int FILTER_CHATS = 6;
+    private static final int FILTER_DEV = 7;
 
     public static class StorePlugin {
         public String id;
@@ -129,14 +131,30 @@ public class PluginStoreActivity extends BaseFragment {
         public TLRPC.Chat chat;
 
         public boolean isInstalled() {
-            return PluginsController.getInstance().getPlugin(id) != null;
+            String norm = normalizePluginId(id);
+            if (PluginsController.getInstance().getPlugin(id) != null) return true;
+            for (Plugin p : PluginsController.getInstance().getPlugins().values()) {
+                if (p != null && normalizePluginId(p.getId()).equalsIgnoreCase(norm)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public boolean hasUpdate() {
+            String norm = normalizePluginId(id);
             Plugin installed = PluginsController.getInstance().getPlugin(id);
+            if (installed == null) {
+                for (Plugin p : PluginsController.getInstance().getPlugins().values()) {
+                    if (p != null && normalizePluginId(p.getId()).equalsIgnoreCase(norm)) {
+                        installed = p;
+                        break;
+                    }
+                }
+            }
             if (installed == null) return false;
             if (installed.version == null || version == null) return false;
-            return !installed.version.equals(version);
+            return compareVersions(version, installed.version) > 0;
         }
     }
 
@@ -144,9 +162,16 @@ public class PluginStoreActivity extends BaseFragment {
     private LinearLayout chipsLayout;
     private final List<StorePlugin> allPlugins = new ArrayList<>();
     private final List<NotificationCenter.NotificationCenterDelegate> activeObservers = new ArrayList<>();
+    private final PluginStoreConfig config = PluginStoreConfig.getInstance();
+    private final List<TLRPC.Chat> activeSourceChats = new ArrayList<>();
+    private final Map<Long, Integer> channelMinMsgId = new HashMap<>();
+    private final Set<Long> channelsAtEnd = new HashSet<>();
+    private final Set<String> autoUpdatedPluginIds = new HashSet<>();
     private String searchQuery;
     private int currentFilter = FILTER_ALL;
     private boolean loading = false;
+    private boolean loadingNextPage = false;
+    private Runnable deepSearchRunnable;
 
     private final StorePluginDelegate pluginDelegate = new StorePluginDelegate() {
         @Override
@@ -186,16 +211,36 @@ public class PluginStoreActivity extends BaseFragment {
             public void onItemClick(int id) {
                 if (id == -1) {
                     finishFragment();
+                } else if (id == MENU_SETTINGS) {
+                    presentFragment(new PluginStoreSettingsActivity());
                 } else if (id == MENU_REFRESH) {
                     BulletinFactory.of(PluginStoreActivity.this)
                             .createSimpleBulletin(R.drawable.msg_retry, getString(R.string.PluginsStoreLoading))
                             .show();
+                    channelMinMsgId.clear();
+                    channelsAtEnd.clear();
                     checkFolderChannelsOnline();
+                } else if (id == SUB_SORT_DATE_DESC) {
+                    config.setSortMode(PluginStoreConfig.SORT_DATE_DESC);
+                    updateRows();
+                } else if (id == SUB_SORT_DATE_ASC) {
+                    config.setSortMode(PluginStoreConfig.SORT_DATE_ASC);
+                    updateRows();
+                } else if (id == SUB_SORT_NAME_ASC) {
+                    config.setSortMode(PluginStoreConfig.SORT_NAME_ASC);
+                    updateRows();
+                } else if (id == SUB_SORT_NAME_DESC) {
+                    config.setSortMode(PluginStoreConfig.SORT_NAME_DESC);
+                    updateRows();
+                } else if (id == SUB_SORT_SIZE_DESC) {
+                    config.setSortMode(PluginStoreConfig.SORT_SIZE_DESC);
+                    updateRows();
                 }
             }
         });
 
-        ActionBarMenuItem search = actionBar.createMenu().addItem(MENU_SEARCH, R.drawable.ic_ab_search_solar)
+        ActionBarMenu menu = actionBar.createMenu();
+        ActionBarMenuItem search = menu.addItem(MENU_SEARCH, R.drawable.ic_ab_search_solar)
                 .setIsSearchField(true)
                 .setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
                     @Override
@@ -208,10 +253,20 @@ public class PluginStoreActivity extends BaseFragment {
                     public void onTextChanged(android.widget.EditText editText) {
                         searchQuery = editText.getText().toString();
                         updateRows();
+                        scheduleDeepSearch(searchQuery);
                     }
                 });
         search.setSearchFieldHint(getString(R.string.PluginsStoreSearch));
-        actionBar.createMenu().addItem(MENU_REFRESH, R.drawable.msg_retry);
+
+        ActionBarMenuItem sortItem = menu.addItem(MENU_SORT, R.drawable.contacts_sort_time);
+        sortItem.addSubItem(SUB_SORT_DATE_DESC, R.drawable.contacts_sort_time, getString(R.string.PluginsStoreSortDateDesc));
+        sortItem.addSubItem(SUB_SORT_DATE_ASC, R.drawable.contacts_sort_time, getString(R.string.PluginsStoreSortDateAsc));
+        sortItem.addSubItem(SUB_SORT_NAME_ASC, R.drawable.contacts_sort_name, getString(R.string.PluginsStoreSortNameAsc));
+        sortItem.addSubItem(SUB_SORT_NAME_DESC, R.drawable.contacts_sort_name, getString(R.string.PluginsStoreSortNameDesc));
+        sortItem.addSubItem(SUB_SORT_SIZE_DESC, R.drawable.msg_media, getString(R.string.PluginsStoreSortSizeDesc));
+
+        menu.addItem(MENU_SETTINGS, R.drawable.msg_settings_old);
+        menu.addItem(MENU_REFRESH, R.drawable.msg_retry);
 
         LinearLayout contentView = new LinearLayout(context);
         contentView.setOrientation(LinearLayout.VERTICAL);
@@ -234,6 +289,21 @@ public class PluginStoreActivity extends BaseFragment {
         listView = new UniversalRecyclerView(this, this::fillItems, this::onItemClick, null);
         listView.setSections();
         listView.adapter.setApplyBackground(false);
+        listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0 && !loading && !loadingNextPage) {
+                    RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
+                    if (lm instanceof LinearLayoutManager) {
+                        int last = ((LinearLayoutManager) lm).findLastVisibleItemPosition();
+                        int count = recyclerView.getAdapter() != null ? recyclerView.getAdapter().getItemCount() : 0;
+                        if (count > 0 && last >= count - 8) {
+                            loadNextPage();
+                        }
+                    }
+                }
+            }
+        });
         contentView.addView(listView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
         actionBar.setAdaptiveBackground(listView);
 
@@ -245,13 +315,25 @@ public class PluginStoreActivity extends BaseFragment {
 
     private void buildChips(Context context) {
         chipsLayout.removeAllViews();
-        int[] filterIds = {FILTER_ALL, FILTER_OPEN_SOURCE, FILTER_UI, FILTER_TOOLS, FILTER_TWEAKS};
+        int[] filterIds = {
+                FILTER_ALL,
+                FILTER_OPEN_SOURCE,
+                FILTER_UI,
+                FILTER_TWEAKS,
+                FILTER_TOOLS,
+                FILTER_MEDIA,
+                FILTER_CHATS,
+                FILTER_DEV
+        };
         int[] titleResIds = {
                 R.string.PluginsStoreFilterAll,
                 R.string.PluginsStoreFilterOpenSource,
                 R.string.PluginsStoreFilterUi,
+                R.string.PluginsStoreFilterTweaks,
                 R.string.PluginsStoreFilterTools,
-                R.string.PluginsStoreFilterTweaks
+                R.string.PluginsStoreFilterMedia,
+                R.string.PluginsStoreFilterChats,
+                R.string.PluginsStoreFilterDev
         };
 
         for (int i = 0; i < filterIds.length; i++) {
@@ -338,18 +420,29 @@ public class PluginStoreActivity extends BaseFragment {
 
             final ArrayList<TLRPC.Chat> folderChats = chats != null ? new ArrayList<>(chats) : new ArrayList<>();
             AndroidUtilities.runOnUIThread(() -> {
-                if (!folderChats.isEmpty()) {
-                    searchPluginsInChats(folderChats);
+                for (TLRPC.Chat c : folderChats) {
+                    if (c != null && !containsChat(activeSourceChats, c)) {
+                        activeSourceChats.add(c);
+                        searchChatBatch(c, 0, null, null);
+                    }
                 }
-                resolveKnownChannels(folderChats);
+                resolveKnownChannels();
             });
         });
     }
 
-    private void resolveKnownChannels(ArrayList<TLRPC.Chat> existingChats) {
-        for (String username : KNOWN_FOLDER_CHANNELS) {
+    private static boolean containsChat(List<TLRPC.Chat> list, TLRPC.Chat chat) {
+        for (TLRPC.Chat c : list) {
+            if (c != null && chat != null && c.id == chat.id) return true;
+        }
+        return false;
+    }
+
+    private void resolveKnownChannels() {
+        List<String> sourceChannels = config.getSourceChannels();
+        for (String username : sourceChannels) {
             boolean already = false;
-            for (TLRPC.Chat c : existingChats) {
+            for (TLRPC.Chat c : activeSourceChats) {
                 if (c != null && c.username != null && c.username.equalsIgnoreCase(username)) {
                     already = true;
                     break;
@@ -364,9 +457,10 @@ public class PluginStoreActivity extends BaseFragment {
                         if (r != null && !r.chats.isEmpty()) {
                             TLRPC.Chat c = r.chats.get(0);
                             AndroidUtilities.runOnUIThread(() -> {
-                                ArrayList<TLRPC.Chat> single = new ArrayList<>();
-                                single.add(c);
-                                searchPluginsInChats(single);
+                                if (!containsChat(activeSourceChats, c)) {
+                                    activeSourceChats.add(c);
+                                    searchChatBatch(c, 0, null, null);
+                                }
                             });
                         }
                     }
@@ -375,61 +469,128 @@ public class PluginStoreActivity extends BaseFragment {
         }
     }
 
-    private void searchPluginsInChats(ArrayList<TLRPC.Chat> chats) {
-        if (chats == null || chats.isEmpty()) return;
-        for (TLRPC.Chat chat : chats) {
-            if (chat == null) continue;
-            TLRPC.InputPeer inputPeer = MessagesController.getInstance(currentAccount).getInputPeer(chat);
-            if (inputPeer == null) continue;
+    private void searchChatBatch(TLRPC.Chat chat, int offsetId, String query, Runnable onComplete) {
+        if (chat == null) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+        TLRPC.InputPeer inputPeer = MessagesController.getInstance(currentAccount).getInputPeer(chat);
+        if (inputPeer == null) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
 
-            TLRPC.TL_messages_search sReq = new TLRPC.TL_messages_search();
-            sReq.peer = inputPeer;
-            sReq.filter = new TLRPC.TL_inputMessagesFilterDocument();
-            sReq.q = "";
-            sReq.limit = 50;
-            ConnectionsManager.getInstance(currentAccount).sendRequest(sReq, (res, err) -> {
+        TLRPC.TL_messages_search sReq = new TLRPC.TL_messages_search();
+        sReq.peer = inputPeer;
+        sReq.filter = new TLRPC.TL_inputMessagesFilterDocument();
+        sReq.q = query != null ? query : "";
+        sReq.offset_id = offsetId;
+        sReq.limit = 100;
+
+        ConnectionsManager.getInstance(currentAccount).sendRequest(sReq, (res, err) -> {
+            AndroidUtilities.runOnUIThread(() -> {
                 if (res instanceof TLRPC.messages_Messages) {
                     TLRPC.messages_Messages mRes = (TLRPC.messages_Messages) res;
-                    AndroidUtilities.runOnUIThread(() -> {
-                        List<StorePlugin> discovered = new ArrayList<>();
-                        for (TLRPC.Message msg : mRes.messages) {
-                            if (msg != null && msg.media instanceof TLRPC.TL_messageMediaDocument) {
-                                TLRPC.Document doc = msg.media.document;
-                                String fName = FileLoader.getDocumentFileName(doc);
-                                if (fName != null && (fName.endsWith(".plugin") || fName.endsWith(".py") || fName.endsWith(".eaf"))) {
-                                    String id = fName.replaceAll("\\.[^.]+$", "").toLowerCase(Locale.ROOT).replace(" ", "_");
-                                    StorePlugin sp = new StorePlugin();
-                                    sp.id = id;
-                                    sp.name = cleanPluginName(fName);
-                                    String authorName = !TextUtils.isEmpty(chat.username) ? "@" + chat.username : (chat.title != null ? chat.title : "");
-                                    sp.author = authorName;
-                                    sp.sourceChannel = authorName;
-                                    sp.channelPost = !TextUtils.isEmpty(chat.username) ? "https://t.me/" + chat.username + "/" + msg.id : null;
-                                    sp.format = fName.endsWith(".py") ? ".py" : (fName.endsWith(".eaf") ? ".eaf" : ".plugin");
-                                    sp.isOpenSource = !sp.format.endsWith(".eaf");
-                                    sp.description = msg.message;
-                                    sp.size = AndroidUtilities.formatFileSize(doc.size);
-                                    sp.document = doc;
-                                    sp.message = msg;
-                                    sp.chat = chat;
-                                    sp.icon = parseIconFromText(msg.message);
-                                    sp.tags.add(sp.isOpenSource ? "OpenSource" : "Binary");
-                                    categorizePlugin(sp);
-                                    discovered.add(sp);
-                                }
+                    int minId = Integer.MAX_VALUE;
+                    List<StorePlugin> discovered = new ArrayList<>();
+
+                    for (TLRPC.Message msg : mRes.messages) {
+                        if (msg == null) continue;
+                        if (msg.id < minId) minId = msg.id;
+
+                        if (msg.media instanceof TLRPC.TL_messageMediaDocument) {
+                            TLRPC.Document doc = msg.media.document;
+                            String fName = FileLoader.getDocumentFileName(doc);
+                            if (fName != null && (fName.endsWith(".plugin") || fName.endsWith(".py") || fName.endsWith(".eaf"))) {
+                                String id = fName.replaceAll("\\.[^.]+$", "").toLowerCase(Locale.ROOT).replace(" ", "_");
+                                StorePlugin sp = new StorePlugin();
+                                sp.id = id;
+                                sp.name = cleanPluginName(fName);
+                                String authorName = !TextUtils.isEmpty(chat.username) ? "@" + chat.username : (chat.title != null ? chat.title : "");
+                                sp.author = authorName;
+                                sp.sourceChannel = authorName;
+                                sp.channelPost = !TextUtils.isEmpty(chat.username) ? "https://t.me/" + chat.username + "/" + msg.id : null;
+                                sp.format = fName.endsWith(".py") ? ".py" : (fName.endsWith(".eaf") ? ".eaf" : ".plugin");
+                                sp.isOpenSource = !sp.format.endsWith(".eaf");
+                                sp.description = msg.message;
+                                sp.size = AndroidUtilities.formatFileSize(doc.size);
+                                sp.version = extractVersion(fName, msg.message);
+                                sp.document = doc;
+                                sp.message = msg;
+                                sp.chat = chat;
+                                sp.icon = parseIconFromText(msg.message);
+                                sp.tags.add(sp.isOpenSource ? "OpenSource" : "Binary");
+                                categorizePlugin(sp);
+                                discovered.add(sp);
                             }
                         }
-                        if (!discovered.isEmpty()) {
-                            mergePlugins(discovered);
-                            saveCache();
+                    }
+
+                    if (query == null) {
+                        if (minId != Integer.MAX_VALUE && minId > 1) {
+                            channelMinMsgId.put(chat.id, minId);
                         }
-                    });
+                        if (mRes.messages.size() < 20) {
+                            channelsAtEnd.add(chat.id);
+                        }
+                    }
+
+                    if (!discovered.isEmpty()) {
+                        mergePlugins(discovered);
+                        saveCache();
+                    }
+                }
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+            });
+        });
+    }
+
+    private void loadNextPage() {
+        if (loadingNextPage || activeSourceChats.isEmpty()) return;
+        List<TLRPC.Chat> pendingChats = new ArrayList<>();
+        for (TLRPC.Chat c : activeSourceChats) {
+            if (!channelsAtEnd.contains(c.id)) {
+                pendingChats.add(c);
+            }
+        }
+        if (pendingChats.isEmpty()) return;
+
+        loadingNextPage = true;
+        final int[] remaining = new int[]{pendingChats.size()};
+        for (TLRPC.Chat chat : pendingChats) {
+            int offset = channelMinMsgId.containsKey(chat.id) ? channelMinMsgId.get(chat.id) : 0;
+            searchChatBatch(chat, offset, null, () -> {
+                remaining[0]--;
+                if (remaining[0] <= 0) {
+                    loadingNextPage = false;
                 }
             });
         }
     }
 
-    private static String cleanPluginName(String fName) {
+    private void scheduleDeepSearch(String query) {
+        if (deepSearchRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(deepSearchRunnable);
+            deepSearchRunnable = null;
+        }
+        if (TextUtils.isEmpty(query) || query.trim().length() < 2 || !config.isDeepSearchEnabled()) {
+            return;
+        }
+        final String q = query.trim();
+        deepSearchRunnable = () -> performDeepSearch(q);
+        AndroidUtilities.runOnUIThread(deepSearchRunnable, 400);
+    }
+
+    private void performDeepSearch(String query) {
+        if (activeSourceChats.isEmpty()) return;
+        for (TLRPC.Chat chat : activeSourceChats) {
+            searchChatBatch(chat, 0, query, null);
+        }
+    }
+
+    public static String cleanPluginName(String fName) {
         if (TextUtils.isEmpty(fName)) return "";
         String base = fName.replaceAll("\\.[^.]+$", "").trim();
         if (base.contains("_") || base.contains("-")) {
@@ -446,7 +607,7 @@ public class PluginStoreActivity extends BaseFragment {
         return base;
     }
 
-    private static String parseIconFromText(String text) {
+    public static String parseIconFromText(String text) {
         if (TextUtils.isEmpty(text)) return null;
         try {
             java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?:__icon__|icon)\\s*[=:]\\s*[\"']?([a-zA-Z0-9_]+/[0-9]+)[\"']?").matcher(text);
@@ -457,39 +618,126 @@ public class PluginStoreActivity extends BaseFragment {
         return null;
     }
 
-    private static void categorizePlugin(StorePlugin sp) {
+    public static void categorizePlugin(StorePlugin sp) {
         String text = (sp.name + " " + (sp.description != null ? sp.description : "")).toLowerCase(Locale.ROOT);
-        if (text.contains("ui") || text.contains("интерфейс") || text.contains("вид") || text.contains("style") || text.contains("theme") || text.contains("design") || text.contains("drawer") || text.contains("icon")) {
+        if (text.contains("ui") || text.contains("интерфейс") || text.contains("вид") || text.contains("style") || text.contains("theme") || text.contains("дизайн") || text.contains("стил") || text.contains("drawer") || text.contains("icon")) {
             if (!sp.tags.contains("Interface")) sp.tags.add("Interface");
         }
-        if (text.contains("tool") || text.contains("инструмент") || text.contains("download") || text.contains("скач") || text.contains("viewer") || text.contains("log") || text.contains("bot") || text.contains("бот") || text.contains("api")) {
+        if (text.contains("tool") || text.contains("инструмент") || text.contains("download") || text.contains("скач") || text.contains("viewer") || text.contains("log") || text.contains("bot") || text.contains("бот") || text.contains("api") || text.contains("утилит")) {
             if (!sp.tags.contains("Tools")) sp.tags.add("Tools");
         }
         if (text.contains("tweak") || text.contains("настройк") || text.contains("mod") || text.contains("custom") || text.contains("кастомизац") || text.contains("hide") || text.contains("скры")) {
             if (!sp.tags.contains("Tweaks")) sp.tags.add("Tweaks");
         }
+        if (text.contains("media") || text.contains("плеер") || text.contains("player") || text.contains("audio") || text.contains("видео") || text.contains("video") || text.contains("музык") || text.contains("music") || text.contains("sound") || text.contains("voice") || text.contains("звук") || text.contains("mp3") || text.contains("stream")) {
+            if (!sp.tags.contains("Media")) sp.tags.add("Media");
+        }
+        if (text.contains("chat") || text.contains("сообщен") || text.contains("чат") || text.contains("диалог") || text.contains("msg") || text.contains("message") || text.contains("перевод") || text.contains("translate") || text.contains("forward") || text.contains("spam") || text.contains("reply")) {
+            if (!sp.tags.contains("Chats")) sp.tags.add("Chats");
+        }
+        if (text.contains("dev") || text.contains("отладк") || text.contains("hook") || text.contains("dex") || text.contains("script") || text.contains("debug") || text.contains("eval") || text.contains("разработ")) {
+            if (!sp.tags.contains("Dev")) sp.tags.add("Dev");
+        }
+    }
+
+    public static String normalizePluginId(String fName) {
+        if (TextUtils.isEmpty(fName)) return "";
+        String base = fName.replaceAll("\\.[^.]+$", "").trim().toLowerCase(Locale.ROOT);
+        base = base.replaceAll("(?:_|-|\\s+)(?:v|rel|ver)?\\s*[0-9]+(?:\\.[0-9]+)*(?:_rel_[0-9.]+)?.*$", "");
+        base = base.replaceAll("\\s*\\([0-9]+\\)$", "").trim();
+        base = base.replace(" ", "_");
+        if (base.isEmpty()) {
+            base = fName.replaceAll("\\.[^.]+$", "").toLowerCase(Locale.ROOT).replace(" ", "_");
+        }
+        return base;
+    }
+
+    public static String extractVersion(String fName, String msgText) {
+        if (!TextUtils.isEmpty(msgText)) {
+            try {
+                java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?:version|версия)\\s*[:=]\\s*[\"']?([0-9]+(?:\\.[0-9]+)+)[\"']?", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(msgText);
+                if (m.find()) {
+                    return m.group(1);
+                }
+            } catch (Exception ignored) {}
+        }
+        try {
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?:v|ver)?([0-9]+(?:\\.[0-9]+)+)", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(fName);
+            if (m.find()) {
+                return m.group(1);
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    public static int compareVersions(String v1, String v2) {
+        if (v1 == null) return v2 == null ? 0 : -1;
+        if (v2 == null) return 1;
+        String[] parts1 = v1.split("\\.");
+        String[] parts2 = v2.split("\\.");
+        int len = Math.max(parts1.length, parts2.length);
+        for (int i = 0; i < len; i++) {
+            int num1 = 0, num2 = 0;
+            if (i < parts1.length) {
+                try { num1 = Integer.parseInt(parts1[i].replaceAll("[^0-9]", "")); } catch (Exception ignored) {}
+            }
+            if (i < parts2.length) {
+                try { num2 = Integer.parseInt(parts2[i].replaceAll("[^0-9]", "")); } catch (Exception ignored) {}
+            }
+            if (num1 != num2) {
+                return Integer.compare(num1, num2);
+            }
+        }
+        return 0;
+    }
+
+    private static boolean isNewer(StorePlugin candidate, StorePlugin existing) {
+        if (!TextUtils.isEmpty(candidate.version) && !TextUtils.isEmpty(existing.version)) {
+            int cmp = compareVersions(candidate.version, existing.version);
+            if (cmp > 0) return true;
+            if (cmp < 0) return false;
+        }
+        int candDate = candidate.message != null ? candidate.message.date : 0;
+        int existDate = existing.message != null ? existing.message.date : 0;
+        if (candDate > 0 && existDate > 0) {
+            return candDate > existDate;
+        }
+        if (candidate.chat != null && existing.chat != null && candidate.chat.id == existing.chat.id) {
+            int candId = candidate.message != null ? candidate.message.id : 0;
+            int existId = existing.message != null ? existing.message.id : 0;
+            return candId > existId;
+        }
+        return false;
     }
 
     private void mergePlugins(List<StorePlugin> newPlugins) {
         if (newPlugins == null || newPlugins.isEmpty()) return;
         boolean changed = false;
+        boolean hideOld = config.isHideOldVersionsEnabled();
+
         synchronized (allPlugins) {
             for (StorePlugin np : newPlugins) {
                 if (np == null || TextUtils.isEmpty(np.id)) continue;
+                String normNpId = normalizePluginId(np.id);
                 boolean found = false;
+
                 for (int i = 0; i < allPlugins.size(); i++) {
                     StorePlugin existing = allPlugins.get(i);
-                    if (existing.id != null && existing.id.equalsIgnoreCase(np.id)) {
-                        if (np.document != null) existing.document = np.document;
-                        if (np.message != null) existing.message = np.message;
-                        if (np.chat != null) existing.chat = np.chat;
-                        if (!TextUtils.isEmpty(np.link)) existing.link = np.link;
-                        if (!TextUtils.isEmpty(np.icon)) existing.icon = np.icon;
-                        if (!TextUtils.isEmpty(np.channelPost)) existing.channelPost = np.channelPost;
-                        if (!TextUtils.isEmpty(np.description) && TextUtils.isEmpty(existing.description)) existing.description = np.description;
-                        if (!TextUtils.isEmpty(np.size)) existing.size = np.size;
-                        if (!TextUtils.isEmpty(np.version)) existing.version = np.version;
+                    String normExistingId = normalizePluginId(existing.id);
+
+                    if (existing.id.equalsIgnoreCase(np.id) || (hideOld && normExistingId.equalsIgnoreCase(normNpId))) {
                         found = true;
+                        if (isNewer(np, existing)) {
+                            allPlugins.set(i, np);
+                            changed = true;
+                        } else {
+                            if (existing.document == null && np.document != null) existing.document = np.document;
+                            if (existing.message == null && np.message != null) existing.message = np.message;
+                            if (existing.chat == null && np.chat != null) existing.chat = np.chat;
+                            if (TextUtils.isEmpty(existing.icon) && !TextUtils.isEmpty(np.icon)) existing.icon = np.icon;
+                            if (TextUtils.isEmpty(existing.channelPost) && !TextUtils.isEmpty(np.channelPost)) existing.channelPost = np.channelPost;
+                            if (TextUtils.isEmpty(existing.description) && !TextUtils.isEmpty(np.description)) existing.description = np.description;
+                        }
                         break;
                     }
                 }
@@ -501,6 +749,17 @@ public class PluginStoreActivity extends BaseFragment {
         }
         if (changed) {
             updateRows();
+        }
+
+        if (config.isAutoUpdateEnabled()) {
+            for (StorePlugin np : newPlugins) {
+                if (np != null && np.isInstalled() && np.hasUpdate() && np.document != null) {
+                    if (!autoUpdatedPluginIds.contains(np.id)) {
+                        autoUpdatedPluginIds.add(np.id);
+                        downloadAndInstall(np);
+                    }
+                }
+            }
         }
     }
 
@@ -618,10 +877,16 @@ public class PluginStoreActivity extends BaseFragment {
                 if (!p.isOpenSource) continue;
             } else if (currentFilter == FILTER_UI) {
                 if (!hasTag(p, "UI", "Interface", "Player", "Customization", "Appearance")) continue;
-            } else if (currentFilter == FILTER_TOOLS) {
-                if (!hasTag(p, "Tools", "Utility", "Library", "Dev", "DevTools")) continue;
             } else if (currentFilter == FILTER_TWEAKS) {
                 if (!hasTag(p, "Tweaks", "Customization", "Tweak")) continue;
+            } else if (currentFilter == FILTER_TOOLS) {
+                if (!hasTag(p, "Tools", "Utility", "Library")) continue;
+            } else if (currentFilter == FILTER_MEDIA) {
+                if (!hasTag(p, "Media", "Player", "Audio", "Music")) continue;
+            } else if (currentFilter == FILTER_CHATS) {
+                if (!hasTag(p, "Chats", "Messages", "Chat", "Translate")) continue;
+            } else if (currentFilter == FILTER_DEV) {
+                if (!hasTag(p, "Dev", "DevTools", "Debug", "Dex")) continue;
             }
 
             // Check search query
@@ -644,6 +909,35 @@ public class PluginStoreActivity extends BaseFragment {
 
             result.add(p);
         }
+
+        int sortMode = config.getSortMode();
+        Collections.sort(result, (p1, p2) -> {
+            switch (sortMode) {
+                case PluginStoreConfig.SORT_DATE_ASC: {
+                    int d1 = p1.message != null ? p1.message.date : 0;
+                    int d2 = p2.message != null ? p2.message.date : 0;
+                    return Integer.compare(d1, d2);
+                }
+                case PluginStoreConfig.SORT_NAME_ASC: {
+                    return p1.name.compareToIgnoreCase(p2.name);
+                }
+                case PluginStoreConfig.SORT_NAME_DESC: {
+                    return p2.name.compareToIgnoreCase(p1.name);
+                }
+                case PluginStoreConfig.SORT_SIZE_DESC: {
+                    long s1 = p1.document != null ? p1.document.size : 0;
+                    long s2 = p2.document != null ? p2.document.size : 0;
+                    return Long.compare(s2, s1);
+                }
+                case PluginStoreConfig.SORT_DATE_DESC:
+                default: {
+                    int d1 = p1.message != null ? p1.message.date : 0;
+                    int d2 = p2.message != null ? p2.message.date : 0;
+                    return Integer.compare(d2, d1);
+                }
+            }
+        });
+
         return result;
     }
 
@@ -898,6 +1192,10 @@ public class PluginStoreActivity extends BaseFragment {
     @Override
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
+        if (deepSearchRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(deepSearchRunnable);
+            deepSearchRunnable = null;
+        }
         for (NotificationCenter.NotificationCenterDelegate obs : activeObservers) {
             NotificationCenter.getInstance(currentAccount).removeObserver(obs, NotificationCenter.fileLoaded);
             NotificationCenter.getInstance(currentAccount).removeObserver(obs, NotificationCenter.fileLoadFailed);
@@ -920,11 +1218,30 @@ public class PluginStoreActivity extends BaseFragment {
         builder.setItems(items, (dialog, which) -> {
             if (which == 0) {
                 Plugin p = PluginsController.getInstance().getPlugin(plugin.id);
+                if (p == null) {
+                    String norm = normalizePluginId(plugin.id);
+                    for (Plugin pl : PluginsController.getInstance().getPlugins().values()) {
+                        if (pl != null && normalizePluginId(pl.getId()).equalsIgnoreCase(norm)) {
+                            p = pl;
+                            break;
+                        }
+                    }
+                }
                 if (p != null) {
                     app.exteraless.plugins.PythonPluginsEngine.getInstance().openPluginSettings(p, this);
                 }
             } else if (which == 1) {
-                presentFragment(new PluginPermissionsActivity(plugin.id));
+                String targetId = plugin.id;
+                if (PluginsController.getInstance().getPlugin(targetId) == null) {
+                    String norm = normalizePluginId(targetId);
+                    for (Plugin pl : PluginsController.getInstance().getPlugins().values()) {
+                        if (pl != null && normalizePluginId(pl.getId()).equalsIgnoreCase(norm)) {
+                            targetId = pl.getId();
+                            break;
+                        }
+                    }
+                }
+                presentFragment(new PluginPermissionsActivity(targetId));
             } else if (which == 2) {
                 downloadAndInstall(plugin);
             }
@@ -942,6 +1259,7 @@ public class PluginStoreActivity extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        resolveKnownChannels();
         updateRows();
     }
 

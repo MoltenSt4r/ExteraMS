@@ -234,7 +234,54 @@
     <string name="PluginsStoreChannelFolderDesc">Папка с официальными и доверенными каналами плагинов</string>
     <string name="PluginsStoreFilterOpenSource">Открытый код</string>
     <string name="PluginsStoreFilterTweaks">Кастомизация</string>
+    <string name="PluginsStoreFilterMedia">Медиа &amp; Плеер</string>
+    <string name="PluginsStoreFilterChats">Чаты &amp; Сообщения</string>
     <string name="PluginsStoreOpenSource">Открытый код</string>
     <string name="PluginsStoreBinary">Бинарный</string>
     <string name="PluginsStoreOpenChannel">Пост / Канал</string>
+
+    <!-- Настройки магазина и сортировка -->
+    <string name="PluginsStoreSort">Сортировка</string>
+    <string name="PluginsStoreSortDateDesc">Сначала новые</string>
+    <string name="PluginsStoreSortDateAsc">Сначала старые</string>
+    <string name="PluginsStoreSortNameAsc">По имени (А–Я)</string>
+    <string name="PluginsStoreSortNameDesc">По имени (Я–А)</string>
+    <string name="PluginsStoreSortSizeDesc">По размеру файла</string>
+    <string name="PluginsStoreSettings">Настройки магазина</string>
+    <string name="PluginsStoreSettingsSources">Каналы-источники</string>
+    <string name="PluginsStoreSettingsAddChannel">Добавить канал</string>
+    <string name="PluginsStoreSettingsAddChannelPrompt">Введите @username или ссылку на канал:</string>
+    <string name="PluginsStoreSettingsAddChannelSuccess">Канал успешно добавлен в источники</string>
+    <string name="PluginsStoreSettingsAddChannelError">Не удалось найти канал в Telegram</string>
+    <string name="PluginsStoreSettingsDeepSearch">Глубокий поиск в каналах</string>
+    <string name="PluginsStoreSettingsDeepSearchDesc">Искать по всей истории сообщений каналов при вводе запроса</string>
+    <string name="PluginsStoreSettingsHideOld">Скрывать устаревшие версии</string>
+    <string name="PluginsStoreSettingsHideOldDesc">Оставлять в списке только самую свежую версию каждого плагина</string>
+    <string name="PluginsStoreSettingsAutoUpdate">Проверять обновления плагинов</string>
+    <string name="PluginsStoreSettingsAutoUpdateDesc">Автоматически проверять наличие новых версий установленных плагинов</string>
+    <string name="PluginsStoreSettingsClearCache">Очистить кэш каталога</string>
+    <string name="PluginsStoreSettingsClearCacheDone">Кэш каталога очищен</string>
+    <string name="PluginsStoreSettingsRescan">Пересканировать все каналы</string>
+
+    <!-- Интеграция с Shizuku -->
+    <string name="ShizukuSettings">Интеграция с Shizuku</string>
+    <string name="ShizukuStatusConnected">Подключено</string>
+    <string name="ShizukuStatusDisconnected">Служба Shizuku не запущена</string>
+    <string name="ShizukuStatusPermissionRequired">Требуется разрешение</string>
+    <string name="ShizukuRequestPermission">Предоставить доступ</string>
+    <string name="ShizukuOpenApp">Открыть Shizuku</string>
+    <string name="ShizukuSilentUpdates">Тихая установка обновлений</string>
+    <string name="ShizukuSilentUpdatesDesc">Автоматически устанавливать обновления MoltenGram в фоне без открытия системного установщика</string>
+    <string name="ShizukuSilentApk">Тихая установка APK из чатов</string>
+    <string name="ShizukuSilentApkDesc">Устанавливать APK-файлы в один клик через Shizuku без подтверждений</string>
+    <string name="ShizukuUnrestrictedBackground">Фоновая работа без ограничений</string>
+    <string name="ShizukuUnrestrictedBackgroundDesc">Снять ограничения Doze mode и энергосбережения для надёжной загрузки файлов в фоне</string>
+    <string name="ShizukuSilentPlugins">Тихое обновление плагинов</string>
+    <string name="ShizukuSilentPluginsDesc">Автоматически обновлять плагины в фоне без прерывания работы</string>
+    <string name="ShizukuTrimCaches">Очистить системный кэш</string>
+    <string name="ShizukuTrimCachesDone">Системный кэш приложения очищен</string>
+    <string name="ShizukuOptimizationsApplied">Системные оптимизации применены</string>
+    <string name="Features">Возможности</string>
+    <string name="Actions">Действия</string>
+    <string name="Custom">Пользовательский</string>
 </resources>

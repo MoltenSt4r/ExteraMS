@@ -631,6 +631,17 @@ public class MoltenGramOtaManager {
             return;
         }
 
+        if (app.exteraless.shizuku.ShizukuConfig.getInstance().isSilentUpdatesEnabled()
+                && app.exteraless.shizuku.ShizukuController.getInstance().hasPermission()) {
+            org.telegram.messenger.Utilities.globalQueue.postRunnable(() -> {
+                boolean ok = app.exteraless.shizuku.ShizukuController.getInstance().silentInstallApk(apkFile);
+                if (!ok) {
+                    AndroidUtilities.runOnUIThread(() -> installApkFile(activity, apkFile));
+                }
+            });
+            return;
+        }
+
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!activity.getPackageManager().canRequestPackageInstalls()) {
