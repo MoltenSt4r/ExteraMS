@@ -156,7 +156,7 @@ jobs:
           repo_keyalias: moltengram
           keypass: android
           keydname: "CN=MoltenGram, OU=MoltenStar, O=MoltenStar, L=Unknown, ST=Unknown, C=RU"
-          android_home: "$ANDROID_HOME"
+          sdk_path: "$ANDROID_HOME"
           CFGEOF
           chmod 0600 fdroid_ws/config.yml
 
@@ -225,4 +225,4 @@ jobs:
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: deploy
-          clean: true
+          clean: false
