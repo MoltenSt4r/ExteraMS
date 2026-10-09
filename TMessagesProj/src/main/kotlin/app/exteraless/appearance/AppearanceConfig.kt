@@ -449,6 +449,201 @@ object AppearanceConfig {
         return playerLyricsAutoScroll.Bool()
     }
 
+    /** Экспериментальный текст (MetroList / Enhanced animation). */
+    @JvmField
+    val playerLyricsExperimental =
+        addConfig("OEAppearancePlayerLyricsExperimental", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsExperimental(): Boolean {
+        ensureLoaded()
+        return playerLyricsExperimental.Bool()
+    }
+
+    /** Расположение текста: 0 — По центру, 1 — Слева. */
+    @JvmField
+    val playerLyricsAlignment =
+        addConfig("OEAppearancePlayerLyricsAlignment", ConfigItem.configTypeInt, 0)
+
+    @JvmStatic
+    fun playerLyricsAlignment(): Int {
+        ensureLoaded()
+        return playerLyricsAlignment.Int()
+    }
+
+    /** Разделять по ролям (бэк-вокал). */
+    @JvmField
+    val playerLyricsSplitRoles =
+        addConfig("OEAppearancePlayerLyricsSplitRoles", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsSplitRoles(): Boolean {
+        ensureLoaded()
+        return playerLyricsSplitRoles.Bool()
+    }
+
+    /** Менять текст песни по касанию (Seek to line on tap). */
+    @JvmField
+    val playerLyricsTapToSeek =
+        addConfig("OEAppearancePlayerLyricsTapToSeek", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsTapToSeek(): Boolean {
+        ensureLoaded()
+        return playerLyricsTapToSeek.Bool()
+    }
+
+    /** Скрывать строку состояния в полноэкранном режиме текста. */
+    @JvmField
+    val playerLyricsHideStatusBar =
+        addConfig("OEAppearancePlayerLyricsHideStatusBar", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsHideStatusBar(): Boolean {
+        ensureLoaded()
+        return playerLyricsHideStatusBar.Bool()
+    }
+
+    /** Романизация текста (транслитерация кириллицы/иероглифов). */
+    @JvmField
+    val playerLyricsRomanize =
+        addConfig("OEAppearancePlayerLyricsRomanize", ConfigItem.configTypeBool, false)
+
+    @JvmStatic
+    fun playerLyricsRomanize(): Boolean {
+        ensureLoaded()
+        return playerLyricsRomanize.Bool()
+    }
+
+    // ---- Провайдеры текстов (MetroList) ----
+
+    @JvmField
+    val playerLyricsLrcLib =
+        addConfig("OEAppearancePlayerLyricsLrcLib", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsLrcLib(): Boolean {
+        ensureLoaded()
+        return playerLyricsLrcLib.Bool()
+    }
+
+    @JvmField
+    val playerLyricsKuGou =
+        addConfig("OEAppearancePlayerLyricsKuGou", ConfigItem.configTypeBool, false)
+
+    @JvmStatic
+    fun playerLyricsKuGou(): Boolean {
+        ensureLoaded()
+        return playerLyricsKuGou.Bool()
+    }
+
+    @JvmField
+    val playerLyricsBetterLyrics =
+        addConfig("OEAppearancePlayerLyricsBetterLyrics", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsBetterLyrics(): Boolean {
+        ensureLoaded()
+        return playerLyricsBetterLyrics.Bool()
+    }
+
+    @JvmField
+    val playerLyricsPaxsenix =
+        addConfig("OEAppearancePlayerLyricsPaxsenix", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsPaxsenix(): Boolean {
+        ensureLoaded()
+        return playerLyricsPaxsenix.Bool()
+    }
+
+    @JvmField
+    val playerLyricsLyricsPlus =
+        addConfig("OEAppearancePlayerLyricsLyricsPlus", ConfigItem.configTypeBool, true)
+
+    @JvmStatic
+    fun playerLyricsLyricsPlus(): Boolean {
+        ensureLoaded()
+        return playerLyricsLyricsPlus.Bool()
+    }
+
+    @JvmField
+    val playerLyricsZemer =
+        addConfig("OEAppearancePlayerLyricsZemer", ConfigItem.configTypeBool, false)
+
+    @JvmStatic
+    fun playerLyricsZemer(): Boolean {
+        ensureLoaded()
+        return playerLyricsZemer.Bool()
+    }
+
+    @JvmField
+    val playerLyricsProviderOrder =
+        addConfig("OEAppearancePlayerLyricsProviderOrder", ConfigItem.configTypeString, "BetterLyrics,LrcLib,Paxsenix,LyricsPlus,KuGou,Zemer")
+
+    @JvmStatic
+    fun playerLyricsProviderOrder(): String {
+        ensureLoaded()
+        val s = playerLyricsProviderOrder.String()
+        return if (s.isNullOrBlank()) "BetterLyrics,LrcLib,Paxsenix,LyricsPlus,KuGou,Zemer" else s
+    }
+
+    @JvmStatic
+    fun hasOnlineLyricsProvider(): Boolean {
+        ensureLoaded()
+        return playerLyricsLrcLib.Bool() ||
+                playerLyricsBetterLyrics.Bool() ||
+                playerLyricsPaxsenix.Bool() ||
+                playerLyricsLyricsPlus.Bool() ||
+                playerLyricsKuGou.Bool() ||
+                playerLyricsZemer.Bool()
+    }
+
+    // ---- ИИ-перевод текста ----
+
+    @JvmField
+    val playerLyricsAiProvider =
+        addConfig("OEAppearancePlayerLyricsAiProvider", ConfigItem.configTypeString, "DeepL")
+
+    @JvmStatic
+    fun playerLyricsAiProvider(): String {
+        ensureLoaded()
+        val s = playerLyricsAiProvider.String()
+        return if (s.isNullOrBlank()) "DeepL" else s
+    }
+
+    @JvmField
+    val playerLyricsAiKey =
+        addConfig("OEAppearancePlayerLyricsAiKey", ConfigItem.configTypeString, "")
+
+    @JvmStatic
+    fun playerLyricsAiKey(): String {
+        ensureLoaded()
+        return playerLyricsAiKey.String() ?: ""
+    }
+
+    @JvmField
+    val playerLyricsAiFormality =
+        addConfig("OEAppearancePlayerLyricsAiFormality", ConfigItem.configTypeString, "default")
+
+    @JvmStatic
+    fun playerLyricsAiFormality(): String {
+        ensureLoaded()
+        val s = playerLyricsAiFormality.String()
+        return if (s.isNullOrBlank()) "default" else s
+    }
+
+    @JvmField
+    val playerLyricsAiTargetLang =
+        addConfig("OEAppearancePlayerLyricsAiTargetLang", ConfigItem.configTypeString, "ru")
+
+    @JvmStatic
+    fun playerLyricsAiTargetLang(): String {
+        ensureLoaded()
+        val s = playerLyricsAiTargetLang.String()
+        return if (s.isNullOrBlank()) "ru" else s
+    }
+
     @JvmField
     val profileMusicCard =
         addConfig("OEAppearanceProfileMusicCard", ConfigItem.configTypeBool, true)

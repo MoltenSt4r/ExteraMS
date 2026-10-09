@@ -971,6 +971,9 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
             return;
         }
         detached = true;
+        if (getWindow() != null) {
+            getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
         if (instance == this) {
             instance = null;
         }
@@ -1282,6 +1285,13 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
             return;
         }
         lyricsMode = value;
+        if (getWindow() != null) {
+            if (value && app.exteraless.appearance.AppearanceConfig.playerLyricsHideStatusBar()) {
+                getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            } else {
+                getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+        }
         lyricsButton.setActive(value, animated);
         lyricsButton.setRadius(dp(value ? 26 : 8), animated);
         if (value) {
@@ -1383,7 +1393,7 @@ public class PlayerSheet extends BottomSheet implements NotificationCenter.Notif
             }
             if (lyrics != null) {
                 showLyrics(lyrics);
-            } else if (AppearanceConfig.lrclibAllowed.Bool()) {
+            } else if (AppearanceConfig.lrclibAllowed.Bool() || AppearanceConfig.hasOnlineLyricsProvider()) {
                 fetchLyrics();
             } else {
                 lyricsView.showState(LyricsView.STATE_OFFER);

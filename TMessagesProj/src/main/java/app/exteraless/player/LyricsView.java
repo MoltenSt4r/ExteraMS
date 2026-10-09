@@ -103,7 +103,7 @@ public class LyricsView extends FrameLayout {
         list.setOverScrollMode(OVER_SCROLL_NEVER);
         list.setSelectorDrawableColor(0);
         list.setOnItemClickListener((view, position) -> {
-            if (lyrics != null && lyrics.synced && position >= 0 && position < lyrics.lines.size() && delegate != null) {
+            if (app.exteraless.appearance.AppearanceConfig.playerLyricsTapToSeek() && lyrics != null && lyrics.synced && position >= 0 && position < lyrics.lines.size() && delegate != null) {
                 delegate.onSeek(lyrics.lines.get(position).time);
                 userScrollAt = 0;
             }
@@ -417,9 +417,10 @@ public class LyricsView extends FrameLayout {
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             LineView view = (LineView) holder.itemView;
-            String text = lyrics.lines.get(position).text;
+            Lyrics.Line line = lyrics.lines.get(position);
+            String text = line.text;
             view.index = position;
-            view.setText(TextUtils.isEmpty(text) ? (lyrics.synced ? "" : "♪") : text, !lyrics.synced);
+            view.setText(TextUtils.isEmpty(text) ? (lyrics.synced ? "" : "♪") : text, !lyrics.synced, line.isBacking);
             view.setRole(roleFor(position), false);
             view.setBlur(blurFor(position));
         }
@@ -450,6 +451,7 @@ public class LyricsView extends FrameLayout {
         private int index = -1;
         private String text;
         private boolean plain;
+        private boolean isBacking;
         private StaticLayout layout;
         private int layoutWidth;
         private int role = ROLE_FUTURE;
@@ -461,10 +463,23 @@ public class LyricsView extends FrameLayout {
             paint.setTypeface(tw.nekomimi.nekogram.helpers.TypefaceHelper.lyricsTypeface());
         }
 
-        void setText(String value, boolean isPlain) {
-            if (!TextUtils.equals(text, value) || plain != isPlain) {
-                text = value;
+        void setText(String value, boolean isPlain, boolean backing) {
+            String displayText = value;
+            if (app.exteraless.appearance.AppearanceConfig.playerLyricsRomanize() && !TextUtils.isEmpty(value) && !isPlain) {
+                String rom = RomanizeHelper.romanize(value);
+                if (!TextUtils.isEmpty(rom) && !rom.equals(value)) {
+                    displayText = value + "\n" + rom;
+                }
+            }
+            if (backing && app.exteraless.appearance.AppearanceConfig.playerLyricsSplitRoles() && !TextUtils.isEmpty(displayText)) {
+                if (!displayText.startsWith("(") && !displayText.endsWith(")")) {
+                    displayText = "(" + displayText + ")";
+                }
+            }
+            if (!TextUtils.equals(text, displayText) || plain != isPlain || isBacking != backing) {
+                text = displayText;
                 plain = isPlain;
+                isBacking = backing;
                 layout = null;
                 requestLayout();
             }
@@ -506,7 +521,11 @@ public class LyricsView extends FrameLayout {
         private float textSize() {
             int sizeMode = app.exteraless.appearance.AppearanceConfig.playerLyricsTextSize();
             int sp = sizeMode == 0 ? 24 : sizeMode == 2 ? 32 : 28;
-            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, plain ? (sp - 8) : sp, getResources().getDisplayMetrics());
+            float size = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, plain ? (sp - 8) : sp, getResources().getDisplayMetrics());
+            if (isBacking && app.exteraless.appearance.AppearanceConfig.playerLyricsSplitRoles()) {
+                size *= 0.88f;
+            }
+            return size;
         }
 
         private void ensureLayout(int width) {
@@ -516,8 +535,21 @@ public class LyricsView extends FrameLayout {
             layoutWidth = width;
             paint.setTextSize(textSize());
             int textWidth = Math.max(1, (int) (width / ACTIVE_SCALE));
+
+            int alignMode = app.exteraless.appearance.AppearanceConfig.playerLyricsAlignment();
+            Layout.Alignment alignment;
+            if (alignMode == 0) {
+                alignment = Layout.Alignment.ALIGN_CENTER;
+            } else {
+                if (isBacking && app.exteraless.appearance.AppearanceConfig.playerLyricsSplitRoles()) {
+                    alignment = Layout.Alignment.ALIGN_OPPOSITE;
+                } else {
+                    alignment = Layout.Alignment.ALIGN_NORMAL;
+                }
+            }
+
             layout = StaticLayout.Builder.obtain(text == null ? "" : text, 0, text == null ? 0 : text.length(), paint, textWidth)
-                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    .setAlignment(alignment)
                     .setLineSpacing(0, 1.18f)
                     .setIncludePad(false)
                     .build();

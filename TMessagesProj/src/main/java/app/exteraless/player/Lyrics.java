@@ -16,10 +16,19 @@ public final class Lyrics {
     public static final class Line {
         public final long time;
         public final String text;
+        public final boolean isBacking;
+        public final String role;
+        public String romanized;
 
         Line(long time, String text) {
+            this(time, text, false, null);
+        }
+
+        Line(long time, String text, boolean isBacking, String role) {
             this.time = time;
             this.text = text;
+            this.isBacking = isBacking;
+            this.role = role;
         }
     }
 
@@ -101,9 +110,29 @@ public final class Lyrics {
             if (times == null) {
                 continue;
             }
-            String content = WORD_TIME.matcher(line.substring(end)).replaceAll("").trim();
+            String rawContent = WORD_TIME.matcher(line.substring(end)).replaceAll("").trim();
+            boolean isBacking = false;
+            String role = null;
+            if (rawContent.startsWith("{bg}")) {
+                isBacking = true;
+                rawContent = rawContent.substring(4).trim();
+            } else if (rawContent.startsWith("[bg:") && rawContent.endsWith("]")) {
+                isBacking = true;
+                rawContent = rawContent.substring(4, rawContent.length() - 1).trim();
+            } else if (rawContent.matches("^\\{agent:[^}]+\\}.*")) {
+                int brace = rawContent.indexOf('}');
+                role = rawContent.substring(7, brace);
+                rawContent = rawContent.substring(brace + 1).trim();
+            } else if (rawContent.matches("^v\\d+:.*")) {
+                int col = rawContent.indexOf(':');
+                role = rawContent.substring(0, col);
+                rawContent = rawContent.substring(col + 1).trim();
+            } else if (rawContent.startsWith("(") && rawContent.endsWith(")") && rawContent.length() > 2) {
+                // Bracketed backing vocals
+                isBacking = true;
+            }
             for (long t : times) {
-                timed.add(new Line(Math.max(0, t - offset), content));
+                timed.add(new Line(Math.max(0, t - offset), rawContent, isBacking, role));
             }
         }
         if (!timed.isEmpty()) {

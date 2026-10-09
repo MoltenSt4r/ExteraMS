@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class OnlineLyrics {
@@ -150,36 +151,61 @@ public final class OnlineLyrics {
             int status = OK;
             if (result == null) {
                 boolean failed = false;
-                Found primary = null;
-                try {
-                    primary = requestLrclib(query);
-                } catch (Throwable e) {
-                    FileLog.e(e);
-                    failed = true;
-                }
-                if (primary != null && (primary.lyrics.synced || primary.lyrics.instrumental)) {
-                    result = primary.lyrics;
-                } else {
-                    Found fallback = null;
+                Found bestOnline = null;
+
+                String order = app.exteraless.appearance.AppearanceConfig.playerLyricsProviderOrder();
+                String[] providers = order.split(",");
+
+                for (String p : providers) {
+                    String name = p.trim();
                     try {
-                        fallback = requestLrcmux(query);
+                        Found found = null;
+                        if ("BetterLyrics".equalsIgnoreCase(name) && app.exteraless.appearance.AppearanceConfig.playerLyricsBetterLyrics()) {
+                            found = requestBetterLyrics(query);
+                        } else if ("LrcLib".equalsIgnoreCase(name) && app.exteraless.appearance.AppearanceConfig.playerLyricsLrcLib()) {
+                            found = requestLrclib(query);
+                        } else if ("KuGou".equalsIgnoreCase(name) && app.exteraless.appearance.AppearanceConfig.playerLyricsKuGou()) {
+                            found = requestKuGou(query);
+                        } else if ("Paxsenix".equalsIgnoreCase(name) && app.exteraless.appearance.AppearanceConfig.playerLyricsPaxsenix()) {
+                            found = requestPaxsenix(query);
+                        } else if ("LyricsPlus".equalsIgnoreCase(name) && app.exteraless.appearance.AppearanceConfig.playerLyricsLyricsPlus()) {
+                            found = requestLyricsPlus(query);
+                        } else if ("Zemer".equalsIgnoreCase(name) && app.exteraless.appearance.AppearanceConfig.playerLyricsZemer()) {
+                            found = requestZemer(query);
+                        }
+
+                        if (found != null && (found.lyrics.synced || found.lyrics.instrumental)) {
+                            bestOnline = found;
+                            break;
+                        } else if (found != null && bestOnline == null) {
+                            bestOnline = found;
+                        }
                     } catch (Throwable e) {
                         FileLog.e(e);
                         failed = true;
                     }
-                    if (fallback != null && (fallback.lyrics.synced || primary == null)) {
-                        result = fallback.lyrics;
-                        if (primary != null && fallback.lyrics.synced) {
-                            Lyrics punctuated = punctuate(fallback.lyrics, primary.lyrics);
-                            if (punctuated != null) {
-                                result = punctuated;
+                }
+
+                // If no synced lyrics yet, try LrcMux fallback
+                if (bestOnline == null || !bestOnline.lyrics.synced) {
+                    try {
+                        Found fallback = requestLrcmux(query);
+                        if (fallback != null && (fallback.lyrics.synced || bestOnline == null)) {
+                            if (bestOnline != null && fallback.lyrics.synced) {
+                                Lyrics punctuated = punctuate(fallback.lyrics, bestOnline.lyrics);
+                                bestOnline = new Found(punctuated != null ? punctuated : fallback.lyrics);
+                            } else {
+                                bestOnline = fallback;
                             }
                         }
-                    } else if (primary != null) {
-                        result = primary.lyrics;
+                    } catch (Throwable e) {
+                        FileLog.e(e);
+                        failed = true;
                     }
                 }
-                if (result != null) {
+
+                if (bestOnline != null) {
+                    result = bestOnline.lyrics;
                     if (!failed) {
                         writeDisk(key, result);
                     }
@@ -270,6 +296,223 @@ public final class OnlineLyrics {
             return new Found(plain);
         }
         return synced != null ? new Found(synced) : null;
+    }
+
+    private static Found requestKuGou(Query q) {
+        try {
+            String queryStr = (q.artist != null ? q.artist + " " : "") + q.title;
+            String searchUrl = "https://mobileservice.kugou.com/api/v3/search/song?version=9108&plat=0&pagesize=4&showtype=0&keyword=" + enc(queryStr);
+            String searchRes = get(searchUrl);
+            if (searchRes == null) return null;
+            JSONObject json = new JSONObject(searchRes);
+            JSONObject data = json.optJSONObject("data");
+            if (data == null) return null;
+            JSONArray info = data.optJSONArray("info");
+            if (info == null || info.length() == 0) return null;
+            String hash = null;
+            for (int i = 0; i < info.length(); i++) {
+                JSONObject song = info.optJSONObject(i);
+                if (song != null) {
+                    hash = song.optString("hash", null);
+                    if (hash != null && !hash.isEmpty()) break;
+                }
+            }
+            if (hash == null) return null;
+            String lrcSearchUrl = "https://lyrics.kugou.com/search?ver=1&man=yes&client=pc&hash=" + hash;
+            String lrcSearchRes = get(lrcSearchUrl);
+            if (lrcSearchRes == null) return null;
+            JSONObject lrcJson = new JSONObject(lrcSearchRes);
+            JSONArray candidates = lrcJson.optJSONArray("candidates");
+            if (candidates == null || candidates.length() == 0) return null;
+            JSONObject cand = candidates.optJSONObject(0);
+            if (cand == null) return null;
+            String candId = cand.optString("id");
+            String accessKey = cand.optString("accesskey");
+            if (TextUtils.isEmpty(candId) || TextUtils.isEmpty(accessKey)) return null;
+
+            String dlUrl = "https://lyrics.kugou.com/download?ver=1&client=pc&fmt=lrc&charset=utf8&id=" + candId + "&accesskey=" + accessKey;
+            String dlRes = get(dlUrl);
+            if (dlRes == null) return null;
+            JSONObject dlJson = new JSONObject(dlRes);
+            String b64 = dlJson.optString("content");
+            if (TextUtils.isEmpty(b64)) return null;
+            byte[] bytes = android.util.Base64.decode(b64, android.util.Base64.DEFAULT);
+            String lrc = new String(bytes, StandardCharsets.UTF_8);
+            Lyrics lyrics = Lyrics.parse(lrc, Lyrics.SOURCE_ONLINE, "KuGou");
+            return lyrics != null ? new Found(lyrics) : null;
+        } catch (Throwable e) {
+            FileLog.e(e);
+            return null;
+        }
+    }
+
+    private static Found requestBetterLyrics(Query q) {
+        try {
+            StringBuilder url = new StringBuilder("https://lyrics-api.boidu.dev/getLyrics?s=").append(enc(q.title));
+            if (!TextUtils.isEmpty(q.artist)) {
+                url.append("&a=").append(enc(q.artist));
+            }
+            if (q.duration > 0) {
+                url.append("&d=").append(q.duration);
+            }
+            if (!TextUtils.isEmpty(q.album)) {
+                url.append("&al=").append(enc(q.album));
+            }
+            String body = get(url.toString());
+            if (body == null) return null;
+            JSONObject json = new JSONObject(body);
+            String ttml = optString(json, "ttml");
+            if (ttml != null) {
+                String lrc = ttmlToLrc(ttml);
+                Lyrics lyrics = Lyrics.parse(lrc, Lyrics.SOURCE_ONLINE, "Better Lyrics");
+                return lyrics != null ? new Found(lyrics) : null;
+            }
+            String plain = optString(json, "lyrics");
+            if (plain != null) {
+                Lyrics lyrics = Lyrics.parse(plain, Lyrics.SOURCE_ONLINE, "Better Lyrics");
+                return lyrics != null ? new Found(lyrics) : null;
+            }
+            return null;
+        } catch (Throwable e) {
+            FileLog.e(e);
+            return null;
+        }
+    }
+
+    private static Found requestPaxsenix(Query q) {
+        try {
+            StringBuilder url = new StringBuilder("https://lyrics.paxsenix.org/apple-music/lyrics?name=").append(enc(q.title));
+            if (!TextUtils.isEmpty(q.artist)) {
+                url.append("&artist=").append(enc(q.artist));
+            }
+            String body = get(url.toString());
+            if (body == null) return null;
+            JSONObject json = new JSONObject(body);
+            String ttml = optString(json, "ttmlContent");
+            if (ttml != null) {
+                String lrc = ttmlToLrc(ttml);
+                Lyrics lyrics = Lyrics.parse(lrc, Lyrics.SOURCE_ONLINE, "Paxsenix");
+                return lyrics != null ? new Found(lyrics) : null;
+            }
+            String elrc = optString(json, "elrcMultiPerson");
+            if (elrc == null) elrc = optString(json, "elrc");
+            if (elrc != null) {
+                Lyrics lyrics = Lyrics.parse(elrc, Lyrics.SOURCE_ONLINE, "Paxsenix");
+                return lyrics != null ? new Found(lyrics) : null;
+            }
+            String plain = optString(json, "plain");
+            if (plain != null) {
+                Lyrics lyrics = Lyrics.parse(plain, Lyrics.SOURCE_ONLINE, "Paxsenix");
+                return lyrics != null ? new Found(lyrics) : null;
+            }
+            return null;
+        } catch (Throwable e) {
+            FileLog.e(e);
+            return null;
+        }
+    }
+
+    private static Found requestLyricsPlus(Query q) {
+        try {
+            String queryStr = (q.artist != null ? q.artist + " " : "") + q.title;
+            String url = "https://lyrics-api.binimum.org/search?q=" + enc(queryStr);
+            String body = get(url);
+            if (body == null) return null;
+            JSONObject json = new JSONObject(body);
+            JSONArray results = json.optJSONArray("results");
+            if (results != null && results.length() > 0) {
+                JSONObject first = results.optJSONObject(0);
+                if (first != null) {
+                    String lrcUrl = optString(first, "lyricsUrl");
+                    if (lrcUrl != null) {
+                        String lrcContent = get(lrcUrl);
+                        if (lrcContent != null) {
+                            Lyrics lyrics = Lyrics.parse(lrcContent, Lyrics.SOURCE_ONLINE, "LyricsPlus");
+                            return lyrics != null ? new Found(lyrics) : null;
+                        }
+                    }
+                }
+            }
+            return null;
+        } catch (Throwable e) {
+            FileLog.e(e);
+            return null;
+        }
+    }
+
+    private static Found requestZemer(Query q) {
+        try {
+            String queryStr = (q.artist != null ? q.artist + " " : "") + q.title;
+            String url = "https://search.zemer.io/track/search?q=" + enc(queryStr);
+            String body = get(url);
+            if (body == null) return null;
+            JSONObject json = new JSONObject(body);
+            JSONArray sources = json.optJSONArray("sources");
+            if (sources != null && sources.length() > 0) {
+                for (int i = 0; i < sources.length(); i++) {
+                    JSONObject s = sources.optJSONObject(i);
+                    if (s != null) {
+                        String syncedLrc = optString(s, "syncedLrc");
+                        if (syncedLrc != null) {
+                            Lyrics lyrics = Lyrics.parse(syncedLrc, Lyrics.SOURCE_ONLINE, "Zemer");
+                            return lyrics != null ? new Found(lyrics) : null;
+                        }
+                        String plain = optString(s, "plain");
+                        if (plain != null) {
+                            Lyrics lyrics = Lyrics.parse(plain, Lyrics.SOURCE_ONLINE, "Zemer");
+                            return lyrics != null ? new Found(lyrics) : null;
+                        }
+                    }
+                }
+            }
+            return null;
+        } catch (Throwable e) {
+            FileLog.e(e);
+            return null;
+        }
+    }
+
+    private static String ttmlToLrc(String ttml) {
+        StringBuilder sb = new StringBuilder();
+        Pattern pPattern = Pattern.compile("<p\\b[^>]*\\bbegin=\"([^\"]+)\"[^>]*>(.*?)</p>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Matcher m = pPattern.matcher(ttml);
+        while (m.find()) {
+            String begin = m.group(1).trim();
+            String content = m.group(2).replaceAll("<[^>]+>", "").trim();
+            if (content.isEmpty()) continue;
+            boolean isBg = m.group(0).contains("role=\"background\"") || m.group(0).contains("isBackground=\"true\"");
+            String tag = isBg ? "{bg}" : "";
+            sb.append("[").append(normalizeTtmlTime(begin)).append("]").append(tag).append(content).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private static String normalizeTtmlTime(String time) {
+        try {
+            if (time.endsWith("s")) {
+                time = time.substring(0, time.length() - 1);
+            }
+            if (time.contains(":")) {
+                String[] parts = time.split(":");
+                if (parts.length == 2) {
+                    double sec = Double.parseDouble(parts[1]);
+                    int min = Integer.parseInt(parts[0]);
+                    return String.format(Locale.US, "%02d:%05.2f", min, sec);
+                } else if (parts.length == 3) {
+                    int hr = Integer.parseInt(parts[0]);
+                    int min = Integer.parseInt(parts[1]) + hr * 60;
+                    double sec = Double.parseDouble(parts[2]);
+                    return String.format(Locale.US, "%02d:%05.2f", min, sec);
+                }
+            } else {
+                double totalSec = Double.parseDouble(time);
+                int min = (int) (totalSec / 60);
+                double sec = totalSec % 60;
+                return String.format(Locale.US, "%02d:%05.2f", min, sec);
+            }
+        } catch (Throwable ignore) {
+        }
+        return time;
     }
 
     private static Found requestLrcmux(Query q) throws Exception {
