@@ -147,17 +147,17 @@ jobs:
 
           # Write config.yml manually (no fdroid init)
           cat > fdroid_ws/config.yml << CFGEOF
-repo_url: "https://moltenst4r.github.io/MoltenGram/fdroid/repo"
-repo_name: "MoltenGram F-Droid Repository"
-repo_description: "Official F-Droid repository for MoltenGram"
-archive_older: 0
-keystore: keystore.p12
-keystorepass: android
-repo_keyalias: moltengram
-keypass: android
-keydname: "CN=MoltenGram, OU=MoltenStar, O=MoltenStar, L=Unknown, ST=Unknown, C=RU"
-android_home: "$ANDROID_HOME"
-CFGEOF
+          repo_url: "https://moltenst4r.github.io/MoltenGram/fdroid/repo"
+          repo_name: "MoltenGram F-Droid Repository"
+          repo_description: "Official F-Droid repository for MoltenGram"
+          archive_older: 0
+          keystore: keystore.p12
+          keystorepass: android
+          repo_keyalias: moltengram
+          keypass: android
+          keydname: "CN=MoltenGram, OU=MoltenStar, O=MoltenStar, L=Unknown, ST=Unknown, C=RU"
+          android_home: "$ANDROID_HOME"
+          CFGEOF
           chmod 0600 fdroid_ws/config.yml
 
           # Download APK from GitHub Release
