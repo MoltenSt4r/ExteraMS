@@ -119,20 +119,25 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
     }
 
     @Override
+    protected String getKey() {
+        return "tor_settings";
+    }
+
+    @Override
     protected void updateRows() {
         super.updateRows();
 
-        heroCardRow = addRow();
+        heroCardRow = addRow("heroCard");
         heroShadowRow = addRow();
 
-        headerRoutingRow = addRow();
-        exitCountryRow = addRow();
-        bridgeTypeRow = addRow();
-        autoGetBridgesRow = addRow();
-        customBridgesRow = addRow();
+        headerRoutingRow = addRow("routingHeader");
+        exitCountryRow = addRow("exitCountry");
+        bridgeTypeRow = addRow("bridgeType");
+        autoGetBridgesRow = addRow("autoGetBridges");
+        customBridgesRow = addRow("customBridges");
         routingShadowRow = addRow();
 
-        infoPrivacyRow = addRow();
+        infoPrivacyRow = addRow("info");
     }
 
     @Override
@@ -669,6 +674,14 @@ public class TorSettingsActivity extends BaseNekoSettingsActivity implements Tor
 
             int radius = AndroidUtilities.dp(Math.max(14, AppearanceConfig.sectionRadius()));
             setBackground(Theme.createRoundRectDrawable(radius, getThemedColor(Theme.key_windowBackgroundWhite)));
+            setElevation(AndroidUtilities.dpf2(1.5f));
+            setOutlineProvider(new android.view.ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, android.graphics.Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                }
+            });
+            setClipToOutline(true);
 
             LinearLayout mainLayout = new LinearLayout(context);
             mainLayout.setOrientation(LinearLayout.VERTICAL);

@@ -6,220 +6,150 @@ import static org.telegram.messenger.LocaleController.getString;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.audiofx.AudioEffect;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.EditText;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.view.MotionEvent;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
-import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.AlertDialog;
-import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Cells.TextCheckCell;
+import org.telegram.ui.Cells.TextSettingsCell;
 import org.telegram.ui.Components.BulletinFactory;
-import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.Switch;
-import org.telegram.ui.Components.UItem;
-import org.telegram.ui.Components.UniversalAdapter;
-import org.telegram.ui.Components.UniversalRecyclerView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import app.exteraless.appearance.AppearanceConfig;
+import tw.nekomimi.nekogram.settings.BaseNekoSettingsActivity;
+import tw.nekomimi.nekogram.ui.cells.HeaderCell;
 
-public class PlayerSettingsActivity extends BaseFragment {
+public class PlayerSettingsActivity extends BaseNekoSettingsActivity {
 
-    private static final int ID_MD3_PLAYER = 1;
-    private static final int ID_MD3_MINI_PLAYER = 2;
-    private static final int ID_BG_STYLE = 3;
-    private static final int ID_SEEKBAR_STYLE = 4;
-    private static final int ID_COLOR_STYLE = 5;
-    private static final int ID_SWIPE_TRACK = 6;
-    private static final int ID_CROP_COVER = 7;
-    private static final int ID_KEEP_SCREEN_ON = 8;
+    private int appearanceHeaderRow;
+    private int md3PlayerRow;
+    private int md3MiniPlayerRow;
+    private int bgStyleRow;
+    private int seekbarStyleRow;
+    private int colorStyleRow;
+    private int swipeTrackRow;
+    private int cropCoverRow;
+    private int keepScreenOnRow;
+    private int appearanceShadowRow;
 
-    private static final int ID_LYRICS_EXPERIMENTAL = 20;
-    private static final int ID_LYRICS_SOURCES = 21;
-    private static final int ID_LYRICS_PRIORITY = 22;
-    private static final int ID_LYRICS_ROMANIZE = 23;
-    private static final int ID_LYRICS_TRANSLATE = 24;
-    private static final int ID_LYRICS_ALIGNMENT = 25;
-    private static final int ID_LYRICS_ROLES = 26;
-    private static final int ID_LYRICS_TAP_SEEK = 27;
-    private static final int ID_LYRICS_AUTOSCROLL = 28;
-    private static final int ID_LYRICS_HIDE_STATUS_BAR = 29;
-    private static final int ID_LYRICS_TEXT_SIZE = 30;
-    private static final int ID_LYRICS_BLUR = 31;
+    private int lyricsHeaderRow;
+    private int lyricsExperimentalRow;
+    private int lyricsSourcesRow;
+    private int lyricsPriorityRow;
+    private int lyricsRomanizeRow;
+    private int lyricsTranslateRow;
+    private int lyricsAlignmentRow;
+    private int lyricsRolesRow;
+    private int lyricsTapSeekRow;
+    private int lyricsAutoscrollRow;
+    private int lyricsHideStatusBarRow;
+    private int lyricsTextSizeRow;
+    private int lyricsBlurRow;
+    private int lyricsShadowRow;
 
-    private static final int ID_SLEEP_TIMER = 40;
-    private static final int ID_PAUSE_ON_MUTE = 41;
-    private static final int ID_RESUME_ON_BLUETOOTH = 42;
-    private static final int ID_SYSTEM_EQUALIZER = 43;
-
-    private UniversalRecyclerView listView;
+    private int audioHeaderRow;
+    private int sleepTimerRow;
+    private int pauseOnMuteRow;
+    private int resumeOnBluetoothRow;
+    private int systemEqualizerRow;
+    private int audioShadowRow;
 
     @Override
-    public View createView(Context context) {
-        actionBar.setBackButtonImage(R.drawable.ic_ab_back);
-        actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(getString(R.string.OEAppearancePlayerSettings));
-        actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
-            @Override
-            public void onItemClick(int id) {
-                if (id == -1) {
-                    finishFragment();
-                }
-            }
-        });
-
-        FrameLayout contentView = new FrameLayout(context);
-        contentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
-
-        listView = new UniversalRecyclerView(this, this::fillItems, this::onItemClick, null);
-        contentView.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
-        actionBar.setAdaptiveBackground(listView);
-
-        fragmentView = contentView;
-        return fragmentView;
+    protected String getKey() {
+        return "player_settings";
     }
 
-    private void fillItems(ArrayList<UItem> items, UniversalAdapter adapter) {
-        // --- Секция: Внешний вид плеера ---
-        items.add(UItem.asHeader(getString(R.string.OEAppearancePlayerAppearanceHeader)));
-        items.add(UItem.asCheck(ID_MD3_PLAYER, getString(R.string.OEAppearanceMd3Player))
-                .setChecked(AppearanceConfig.md3Player()));
-        items.add(UItem.asCheck(ID_MD3_MINI_PLAYER, getString(R.string.OEAppearanceMd3MiniPlayer))
-                .setChecked(AppearanceConfig.md3MiniPlayer()));
-
-        String bgStyleName;
-        int bgStyle = AppearanceConfig.playerBackgroundStyle();
-        if (bgStyle == 1) {
-            bgStyleName = getString(R.string.OEAppearancePlayerBackgroundStyleBlur);
-        } else if (bgStyle == 2) {
-            bgStyleName = getString(R.string.OEAppearancePlayerBackgroundStyleGradient);
-        } else {
-            bgStyleName = getString(R.string.OEAppearancePlayerBackgroundStyleTheme);
-        }
-        items.add(UItem.asButton(ID_BG_STYLE, getString(R.string.OEAppearancePlayerBackgroundStyle), bgStyleName));
-
-        int seekbarStyle = AppearanceConfig.playerSeekbarStyle();
-        String seekbarName;
-        if (seekbarStyle == 0) {
-            seekbarName = getString(R.string.OEAppearancePlayerSeekbarDefault);
-        } else if (seekbarStyle == 1) {
-            seekbarName = getString(R.string.OEAppearancePlayerSeekbarWavy);
-        } else if (seekbarStyle == 2) {
-            seekbarName = getString(R.string.OEAppearancePlayerSeekbarSlim);
-        } else {
-            seekbarName = getString(R.string.OEAppearancePlayerSeekbarSquiggly);
-        }
-        items.add(UItem.asButton(ID_SEEKBAR_STYLE, getString(R.string.OEAppearancePlayerSeekbarStyle), seekbarName));
-
-        int colorStyle = AppearanceConfig.playerColorStyle();
-        String colorName = colorStyle == 1 ? getString(R.string.OEAppearancePlayerColorStyleTheme) : getString(R.string.OEAppearancePlayerColorStyleCover);
-        items.add(UItem.asButton(ID_COLOR_STYLE, getString(R.string.OEAppearancePlayerColorStyle), colorName));
-
-        items.add(UItem.asCheck(ID_SWIPE_TRACK, getString(R.string.OEAppearancePlayerSwipeTrack))
-                .setChecked(AppearanceConfig.playerSwipeTrack()));
-        items.add(UItem.asCheck(ID_CROP_COVER, getString(R.string.OEAppearancePlayerCropCover))
-                .setChecked(AppearanceConfig.playerCropCover()));
-        items.add(UItem.asCheck(ID_KEEP_SCREEN_ON, getString(R.string.OEAppearancePlayerKeepScreenOn))
-                .setChecked(AppearanceConfig.playerKeepScreenOn()));
-        items.add(UItem.asShadow(null));
-
-        // --- Секция: Текст песни (MetroList) ---
-        items.add(UItem.asHeader(getString(R.string.OEAppearancePlayerLyricsHeader)));
-
-        items.add(UItem.asCheck(ID_LYRICS_EXPERIMENTAL, getString(R.string.OEAppearancePlayerLyricsExperimental))
-                .setChecked(AppearanceConfig.playerLyricsExperimental()));
-
-        items.add(UItem.asButton(ID_LYRICS_SOURCES, getString(R.string.OEAppearancePlayerLyricsSources), getString(R.string.OEAppearancePlayerLyricsSourcesDesc)));
-        items.add(UItem.asButton(ID_LYRICS_PRIORITY, getString(R.string.OEAppearancePlayerLyricsPriority), getString(R.string.OEAppearancePlayerLyricsPriorityDesc)));
-
-        items.add(UItem.asCheck(ID_LYRICS_ROMANIZE, getString(R.string.OEAppearancePlayerLyricsRomanize))
-                .setChecked(AppearanceConfig.playerLyricsRomanize()));
-
-        items.add(UItem.asCheck(ID_LYRICS_TRANSLATE, getString(R.string.OEAppearancePlayerLyricsTranslate), getString(R.string.OEAppearancePlayerLyricsTranslateDesc), true)
-                .setChecked(AppearanceConfig.playerLyricsTranslate()));
-
-        int alignMode = AppearanceConfig.playerLyricsAlignment();
-        String alignName = alignMode == 0 ? getString(R.string.OEAppearancePlayerLyricsAlignmentCenter) : getString(R.string.OEAppearancePlayerLyricsAlignmentLeft);
-        items.add(UItem.asButton(ID_LYRICS_ALIGNMENT, getString(R.string.OEAppearancePlayerLyricsAlignment), alignName));
-
-        items.add(UItem.asCheck(ID_LYRICS_ROLES, getString(R.string.OEAppearancePlayerLyricsSplitRoles))
-                .setChecked(AppearanceConfig.playerLyricsSplitRoles()));
-
-        items.add(UItem.asCheck(ID_LYRICS_TAP_SEEK, getString(R.string.OEAppearancePlayerLyricsTapToSeek))
-                .setChecked(AppearanceConfig.playerLyricsTapToSeek()));
-
-        items.add(UItem.asCheck(ID_LYRICS_AUTOSCROLL, getString(R.string.OEAppearancePlayerLyricsAutoScroll))
-                .setChecked(AppearanceConfig.playerLyricsAutoScroll()));
-
-        items.add(UItem.asCheck(ID_LYRICS_HIDE_STATUS_BAR, getString(R.string.OEAppearancePlayerLyricsHideStatusBar))
-                .setChecked(AppearanceConfig.playerLyricsHideStatusBar()));
-
-        int textSizeMode = AppearanceConfig.playerLyricsTextSize();
-        String textSizeName;
-        if (textSizeMode == 0) {
-            textSizeName = getString(R.string.OEAppearancePlayerLyricsTextSizeNormal);
-        } else if (textSizeMode == 2) {
-            textSizeName = getString(R.string.OEAppearancePlayerLyricsTextSizeHuge);
-        } else {
-            textSizeName = getString(R.string.OEAppearancePlayerLyricsTextSizeLarge);
-        }
-        items.add(UItem.asButton(ID_LYRICS_TEXT_SIZE, getString(R.string.OEAppearancePlayerLyricsTextSize), textSizeName));
-
-        items.add(UItem.asCheck(ID_LYRICS_BLUR, getString(R.string.OEAppearancePlayerLyricsBlur))
-                .setChecked(AppearanceConfig.playerLyricsBlur()));
-        items.add(UItem.asShadow(null));
-
-        // --- Секция: Воспроизведение и аудио ---
-        items.add(UItem.asHeader(getString(R.string.OEAppearancePlayerAudioHeader)));
-
-        SleepTimer timer = SleepTimer.getInstance();
-        String timerStatus = timer.isRunning() ? timer.getFormattedRemaining() : getString(R.string.OEAppearancePlayerSleepTimerOff);
-        items.add(UItem.asButton(ID_SLEEP_TIMER, getString(R.string.OEAppearancePlayerSleepTimer), timerStatus));
-
-        items.add(UItem.asCheck(ID_PAUSE_ON_MUTE, getString(R.string.OEAppearancePlayerPauseOnMute))
-                .setChecked(AppearanceConfig.playerPauseOnMute()));
-        items.add(UItem.asCheck(ID_RESUME_ON_BLUETOOTH, getString(R.string.OEAppearancePlayerResumeOnBluetooth))
-                .setChecked(AppearanceConfig.playerResumeOnBluetooth()));
-        items.add(UItem.asButton(ID_SYSTEM_EQUALIZER, getString(R.string.OEAppearancePlayerEqualizer)));
-        items.add(UItem.asShadow(null));
+    @Override
+    protected String getActionBarTitle() {
+        return getString(R.string.OEAppearancePlayerSettings);
     }
 
-    private void onItemClick(UItem item, View view, int position, float x, float y) {
-        if (item.id == ID_MD3_PLAYER) {
+    @Override
+    protected void updateRows() {
+        super.updateRows();
+
+        // Appearance
+        appearanceHeaderRow = addRow("appearanceHeader");
+        md3PlayerRow = addRow("md3Player");
+        md3MiniPlayerRow = addRow("md3MiniPlayer");
+        bgStyleRow = addRow("bgStyle");
+        seekbarStyleRow = addRow("seekbarStyle");
+        colorStyleRow = addRow("colorStyle");
+        swipeTrackRow = addRow("swipeTrack");
+        cropCoverRow = addRow("cropCover");
+        keepScreenOnRow = addRow("keepScreenOn");
+        appearanceShadowRow = addRow();
+
+        // Lyrics
+        lyricsHeaderRow = addRow("lyricsHeader");
+        lyricsExperimentalRow = addRow("lyricsExperimental");
+        lyricsSourcesRow = addRow("lyricsSources");
+        lyricsPriorityRow = addRow("lyricsPriority");
+        lyricsRomanizeRow = addRow("lyricsRomanize");
+        lyricsTranslateRow = addRow("lyricsTranslate");
+        lyricsAlignmentRow = addRow("lyricsAlignment");
+        lyricsRolesRow = addRow("lyricsRoles");
+        lyricsTapSeekRow = addRow("lyricsTapSeek");
+        lyricsAutoscrollRow = addRow("lyricsAutoscroll");
+        lyricsHideStatusBarRow = addRow("lyricsHideStatusBar");
+        lyricsTextSizeRow = addRow("lyricsTextSize");
+        lyricsBlurRow = addRow("lyricsBlur");
+        lyricsShadowRow = addRow();
+
+        // Audio
+        audioHeaderRow = addRow("audioHeader");
+        sleepTimerRow = addRow("sleepTimer");
+        pauseOnMuteRow = addRow("pauseOnMute");
+        resumeOnBluetoothRow = addRow("resumeOnBluetooth");
+        systemEqualizerRow = addRow("systemEqualizer");
+        audioShadowRow = addRow();
+    }
+
+    @Override
+    protected BaseListAdapter createAdapter(Context context) {
+        return new ListAdapter(context);
+    }
+
+    @Override
+    protected void onItemClick(View view, int position, float x, float y) {
+        if (position == md3PlayerRow) {
             AppearanceConfig.md3Player.setConfigBool(!AppearanceConfig.md3Player());
-            updateList();
-        } else if (item.id == ID_MD3_MINI_PLAYER) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.md3Player());
+            }
+        } else if (position == md3MiniPlayerRow) {
             AppearanceConfig.md3MiniPlayer.setConfigBool(!AppearanceConfig.md3MiniPlayer());
-            updateList();
-        } else if (item.id == ID_BG_STYLE) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.md3MiniPlayer());
+            }
+        } else if (position == bgStyleRow) {
             CharSequence[] options = {
                     getString(R.string.OEAppearancePlayerBackgroundStyleTheme),
                     getString(R.string.OEAppearancePlayerBackgroundStyleBlur),
@@ -227,60 +157,85 @@ public class PlayerSettingsActivity extends BaseFragment {
             };
             showSelector(getString(R.string.OEAppearancePlayerBackgroundStyle), options, which -> {
                 AppearanceConfig.playerBackgroundStyle.setConfigInt(which);
+                if (listAdapter != null) listAdapter.notifyItemChanged(bgStyleRow);
             });
-        } else if (item.id == ID_SEEKBAR_STYLE) {
-            new SeekbarStyleDialog(getContext(), which -> updateList()).show();
-        } else if (item.id == ID_COLOR_STYLE) {
+        } else if (position == seekbarStyleRow) {
+            new SeekbarStyleDialog(getContext(), which -> {
+                if (listAdapter != null) listAdapter.notifyItemChanged(seekbarStyleRow);
+            }).show();
+        } else if (position == colorStyleRow) {
             CharSequence[] options = {
                     getString(R.string.OEAppearancePlayerColorStyleCover),
                     getString(R.string.OEAppearancePlayerColorStyleTheme)
             };
             showSelector(getString(R.string.OEAppearancePlayerColorStyle), options, which -> {
                 AppearanceConfig.playerColorStyle.setConfigInt(which);
+                if (listAdapter != null) listAdapter.notifyItemChanged(colorStyleRow);
             });
-        } else if (item.id == ID_SWIPE_TRACK) {
+        } else if (position == swipeTrackRow) {
             AppearanceConfig.playerSwipeTrack.setConfigBool(!AppearanceConfig.playerSwipeTrack());
-            updateList();
-        } else if (item.id == ID_CROP_COVER) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerSwipeTrack());
+            }
+        } else if (position == cropCoverRow) {
             AppearanceConfig.playerCropCover.setConfigBool(!AppearanceConfig.playerCropCover());
-            updateList();
-        } else if (item.id == ID_KEEP_SCREEN_ON) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerCropCover());
+            }
+        } else if (position == keepScreenOnRow) {
             AppearanceConfig.playerKeepScreenOn.setConfigBool(!AppearanceConfig.playerKeepScreenOn());
-            updateList();
-        } else if (item.id == ID_LYRICS_EXPERIMENTAL) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerKeepScreenOn());
+            }
+        } else if (position == lyricsExperimentalRow) {
             AppearanceConfig.playerLyricsExperimental.setConfigBool(!AppearanceConfig.playerLyricsExperimental());
-            updateList();
-        } else if (item.id == ID_LYRICS_SOURCES) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerLyricsExperimental());
+            }
+        } else if (position == lyricsSourcesRow) {
             showLyricsSourcesDialog();
-        } else if (item.id == ID_LYRICS_PRIORITY) {
+        } else if (position == lyricsPriorityRow) {
             showLyricsPriorityDialog();
-        } else if (item.id == ID_LYRICS_ROMANIZE) {
+        } else if (position == lyricsRomanizeRow) {
             AppearanceConfig.playerLyricsRomanize.setConfigBool(!AppearanceConfig.playerLyricsRomanize());
-            updateList();
-        } else if (item.id == ID_LYRICS_TRANSLATE) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerLyricsRomanize());
+            }
+        } else if (position == lyricsTranslateRow) {
             AppearanceConfig.playerLyricsTranslate.setConfigBool(!AppearanceConfig.playerLyricsTranslate());
-            updateList();
-        } else if (item.id == ID_LYRICS_ALIGNMENT) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerLyricsTranslate());
+            }
+        } else if (position == lyricsAlignmentRow) {
             CharSequence[] options = {
                     getString(R.string.OEAppearancePlayerLyricsAlignmentCenter),
                     getString(R.string.OEAppearancePlayerLyricsAlignmentLeft)
             };
             showSelector(getString(R.string.OEAppearancePlayerLyricsAlignment), options, which -> {
                 AppearanceConfig.playerLyricsAlignment.setConfigInt(which);
+                if (listAdapter != null) listAdapter.notifyItemChanged(lyricsAlignmentRow);
             });
-        } else if (item.id == ID_LYRICS_ROLES) {
+        } else if (position == lyricsRolesRow) {
             AppearanceConfig.playerLyricsSplitRoles.setConfigBool(!AppearanceConfig.playerLyricsSplitRoles());
-            updateList();
-        } else if (item.id == ID_LYRICS_TAP_SEEK) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerLyricsSplitRoles());
+            }
+        } else if (position == lyricsTapSeekRow) {
             AppearanceConfig.playerLyricsTapToSeek.setConfigBool(!AppearanceConfig.playerLyricsTapToSeek());
-            updateList();
-        } else if (item.id == ID_LYRICS_AUTOSCROLL) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerLyricsTapToSeek());
+            }
+        } else if (position == lyricsAutoscrollRow) {
             AppearanceConfig.playerLyricsAutoScroll.setConfigBool(!AppearanceConfig.playerLyricsAutoScroll());
-            updateList();
-        } else if (item.id == ID_LYRICS_HIDE_STATUS_BAR) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerLyricsAutoScroll());
+            }
+        } else if (position == lyricsHideStatusBarRow) {
             AppearanceConfig.playerLyricsHideStatusBar.setConfigBool(!AppearanceConfig.playerLyricsHideStatusBar());
-            updateList();
-        } else if (item.id == ID_LYRICS_TEXT_SIZE) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerLyricsHideStatusBar());
+            }
+        } else if (position == lyricsTextSizeRow) {
             CharSequence[] options = {
                     getString(R.string.OEAppearancePlayerLyricsTextSizeNormal),
                     getString(R.string.OEAppearancePlayerLyricsTextSizeLarge),
@@ -288,19 +243,26 @@ public class PlayerSettingsActivity extends BaseFragment {
             };
             showSelector(getString(R.string.OEAppearancePlayerLyricsTextSize), options, which -> {
                 AppearanceConfig.playerLyricsTextSize.setConfigInt(which);
+                if (listAdapter != null) listAdapter.notifyItemChanged(lyricsTextSizeRow);
             });
-        } else if (item.id == ID_LYRICS_BLUR) {
+        } else if (position == lyricsBlurRow) {
             AppearanceConfig.playerLyricsBlur.setConfigBool(!AppearanceConfig.playerLyricsBlur());
-            updateList();
-        } else if (item.id == ID_SLEEP_TIMER) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerLyricsBlur());
+            }
+        } else if (position == sleepTimerRow) {
             SleepTimer.showDialog(getContext(), getResourceProvider());
-        } else if (item.id == ID_PAUSE_ON_MUTE) {
+        } else if (position == pauseOnMuteRow) {
             AppearanceConfig.playerPauseOnMute.setConfigBool(!AppearanceConfig.playerPauseOnMute());
-            updateList();
-        } else if (item.id == ID_RESUME_ON_BLUETOOTH) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerPauseOnMute());
+            }
+        } else if (position == resumeOnBluetoothRow) {
             AppearanceConfig.playerResumeOnBluetooth.setConfigBool(!AppearanceConfig.playerResumeOnBluetooth());
-            updateList();
-        } else if (item.id == ID_SYSTEM_EQUALIZER) {
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.playerResumeOnBluetooth());
+            }
+        } else if (position == systemEqualizerRow) {
             try {
                 Intent eqIntent = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
                 eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, getContext().getPackageName());
@@ -312,6 +274,121 @@ public class PlayerSettingsActivity extends BaseFragment {
                 }
             } catch (Throwable t) {
                 FileLog.e(t);
+            }
+        }
+    }
+
+    private class ListAdapter extends BaseListAdapter {
+
+        public ListAdapter(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean isEnabled(RecyclerView.ViewHolder holder) {
+            int type = holder.getItemViewType();
+            return type == TYPE_CHECK || type == TYPE_SETTINGS;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position == appearanceHeaderRow || position == lyricsHeaderRow || position == audioHeaderRow) {
+                return TYPE_HEADER;
+            } else if (position == md3PlayerRow || position == md3MiniPlayerRow || position == swipeTrackRow
+                    || position == cropCoverRow || position == keepScreenOnRow || position == lyricsExperimentalRow
+                    || position == lyricsRomanizeRow || position == lyricsTranslateRow || position == lyricsRolesRow
+                    || position == lyricsTapSeekRow || position == lyricsAutoscrollRow || position == lyricsHideStatusBarRow
+                    || position == lyricsBlurRow || position == pauseOnMuteRow || position == resumeOnBluetoothRow) {
+                return TYPE_CHECK;
+            } else if (position == bgStyleRow || position == seekbarStyleRow || position == colorStyleRow
+                    || position == lyricsSourcesRow || position == lyricsPriorityRow || position == lyricsAlignmentRow
+                    || position == lyricsTextSizeRow || position == sleepTimerRow || position == systemEqualizerRow) {
+                return TYPE_SETTINGS;
+            } else if (position == appearanceShadowRow || position == lyricsShadowRow || position == audioShadowRow) {
+                return TYPE_SHADOW;
+            }
+            return TYPE_SETTINGS;
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, boolean partial) {
+            int type = holder.getItemViewType();
+            if (type == TYPE_HEADER) {
+                HeaderCell cell = (HeaderCell) holder.itemView;
+                if (position == appearanceHeaderRow) {
+                    cell.setText(getString(R.string.OEAppearancePlayerAppearanceHeader));
+                } else if (position == lyricsHeaderRow) {
+                    cell.setText(getString(R.string.OEAppearancePlayerLyricsHeader));
+                } else if (position == audioHeaderRow) {
+                    cell.setText(getString(R.string.OEAppearancePlayerAudioHeader));
+                }
+            } else if (type == TYPE_CHECK) {
+                TextCheckCell cell = (TextCheckCell) holder.itemView;
+                if (position == md3PlayerRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearanceMd3Player), AppearanceConfig.md3Player(), true);
+                } else if (position == md3MiniPlayerRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearanceMd3MiniPlayer), AppearanceConfig.md3MiniPlayer(), true);
+                } else if (position == swipeTrackRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerSwipeTrack), AppearanceConfig.playerSwipeTrack(), true);
+                } else if (position == cropCoverRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerCropCover), AppearanceConfig.playerCropCover(), true);
+                } else if (position == keepScreenOnRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerKeepScreenOn), AppearanceConfig.playerKeepScreenOn(), false);
+                } else if (position == lyricsExperimentalRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerLyricsExperimental), AppearanceConfig.playerLyricsExperimental(), true);
+                } else if (position == lyricsRomanizeRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerLyricsRomanize), AppearanceConfig.playerLyricsRomanize(), true);
+                } else if (position == lyricsTranslateRow) {
+                    cell.setTextAndValueAndCheck(getString(R.string.OEAppearancePlayerLyricsTranslate), getString(R.string.OEAppearancePlayerLyricsTranslateDesc), AppearanceConfig.playerLyricsTranslate(), true, true);
+                } else if (position == lyricsRolesRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerLyricsSplitRoles), AppearanceConfig.playerLyricsSplitRoles(), true);
+                } else if (position == lyricsTapSeekRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerLyricsTapToSeek), AppearanceConfig.playerLyricsTapToSeek(), true);
+                } else if (position == lyricsAutoscrollRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerLyricsAutoScroll), AppearanceConfig.playerLyricsAutoScroll(), true);
+                } else if (position == lyricsHideStatusBarRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerLyricsHideStatusBar), AppearanceConfig.playerLyricsHideStatusBar(), true);
+                } else if (position == lyricsBlurRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerLyricsBlur), AppearanceConfig.playerLyricsBlur(), false);
+                } else if (position == pauseOnMuteRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerPauseOnMute), AppearanceConfig.playerPauseOnMute(), true);
+                } else if (position == resumeOnBluetoothRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearancePlayerResumeOnBluetooth), AppearanceConfig.playerResumeOnBluetooth(), true);
+                }
+            } else if (type == TYPE_SETTINGS) {
+                TextSettingsCell cell = (TextSettingsCell) holder.itemView;
+                cell.setIcon(0);
+                if (position == bgStyleRow) {
+                    int bgStyle = AppearanceConfig.playerBackgroundStyle();
+                    String bgStyleName = bgStyle == 1 ? getString(R.string.OEAppearancePlayerBackgroundStyleBlur) : bgStyle == 2 ? getString(R.string.OEAppearancePlayerBackgroundStyleGradient) : getString(R.string.OEAppearancePlayerBackgroundStyleTheme);
+                    cell.setTextAndValue(getString(R.string.OEAppearancePlayerBackgroundStyle), bgStyleName, true);
+                } else if (position == seekbarStyleRow) {
+                    int seekbarStyle = AppearanceConfig.playerSeekbarStyle();
+                    String seekbarName = seekbarStyle == 0 ? getString(R.string.OEAppearancePlayerSeekbarDefault) : seekbarStyle == 1 ? getString(R.string.OEAppearancePlayerSeekbarWavy) : seekbarStyle == 2 ? getString(R.string.OEAppearancePlayerSeekbarSlim) : getString(R.string.OEAppearancePlayerSeekbarSquiggly);
+                    cell.setTextAndValue(getString(R.string.OEAppearancePlayerSeekbarStyle), seekbarName, true);
+                } else if (position == colorStyleRow) {
+                    int colorStyle = AppearanceConfig.playerColorStyle();
+                    String colorName = colorStyle == 1 ? getString(R.string.OEAppearancePlayerColorStyleTheme) : getString(R.string.OEAppearancePlayerColorStyleCover);
+                    cell.setTextAndValue(getString(R.string.OEAppearancePlayerColorStyle), colorName, true);
+                } else if (position == lyricsSourcesRow) {
+                    cell.setTextAndValue(getString(R.string.OEAppearancePlayerLyricsSources), getString(R.string.OEAppearancePlayerLyricsSourcesDesc), true);
+                } else if (position == lyricsPriorityRow) {
+                    cell.setTextAndValue(getString(R.string.OEAppearancePlayerLyricsPriority), getString(R.string.OEAppearancePlayerLyricsPriorityDesc), true);
+                } else if (position == lyricsAlignmentRow) {
+                    int alignMode = AppearanceConfig.playerLyricsAlignment();
+                    String alignName = alignMode == 0 ? getString(R.string.OEAppearancePlayerLyricsAlignmentCenter) : getString(R.string.OEAppearancePlayerLyricsAlignmentLeft);
+                    cell.setTextAndValue(getString(R.string.OEAppearancePlayerLyricsAlignment), alignName, true);
+                } else if (position == lyricsTextSizeRow) {
+                    int textSizeMode = AppearanceConfig.playerLyricsTextSize();
+                    String textSizeName = textSizeMode == 0 ? getString(R.string.OEAppearancePlayerLyricsTextSizeNormal) : textSizeMode == 2 ? getString(R.string.OEAppearancePlayerLyricsTextSizeHuge) : getString(R.string.OEAppearancePlayerLyricsTextSizeLarge);
+                    cell.setTextAndValue(getString(R.string.OEAppearancePlayerLyricsTextSize), textSizeName, true);
+                } else if (position == sleepTimerRow) {
+                    SleepTimer timer = SleepTimer.getInstance();
+                    String timerStatus = timer.isRunning() ? timer.getFormattedRemaining() : getString(R.string.OEAppearancePlayerSleepTimerOff);
+                    cell.setTextAndValue(getString(R.string.OEAppearancePlayerSleepTimer), timerStatus, true);
+                } else if (position == systemEqualizerRow) {
+                    cell.setText(getString(R.string.OEAppearancePlayerEqualizer), false);
+                }
             }
         }
     }
@@ -599,7 +676,7 @@ public class PlayerSettingsActivity extends BaseFragment {
             String newOrder = String.join(",", list);
             AppearanceConfig.playerLyricsProviderOrder.setConfigString(newOrder);
             dialog.dismiss();
-            updateList();
+            if (listAdapter != null) listAdapter.notifyItemChanged(lyricsPriorityRow);
             BulletinFactory.of(PlayerSettingsActivity.this).createSimpleBulletin(R.drawable.msg_filled_data_music, getString(R.string.Done)).show();
         });
         root.addView(doneBtn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -619,21 +696,8 @@ public class PlayerSettingsActivity extends BaseFragment {
         builder.setTitle(title);
         builder.setItems(options, (dialog, which) -> {
             onSelected.run(which);
-            updateList();
         });
         builder.setNegativeButton(getString(R.string.Cancel), null);
         showDialog(builder.create());
-    }
-
-    private void updateList() {
-        if (listView != null && listView.adapter != null) {
-            listView.adapter.update(true);
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateList();
     }
 }

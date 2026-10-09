@@ -22,17 +22,27 @@ import java.util.Map;
 import java.util.Set;
 
 import app.exteraless.ai.ui.AiSettingsActivity;
+import app.exteraless.appearance.ChipFoldersSettingsActivity;
+import app.exteraless.chats.TextAnimationSettingsActivity;
 import app.exteraless.pillstack.PillStackSettingsActivity;
+import app.exteraless.player.PlayerSettingsActivity;
+import app.exteraless.plugins.ui.PluginStoreSettingsActivity;
 import app.exteraless.plugins.ui.PluginsActivity;
 import app.exteraless.settings.OpenExteraAppNavigationActivity;
 import app.exteraless.settings.OpenExteraAppearanceActivity;
 import app.exteraless.settings.OpenExteraAyuMomentsActivity;
 import app.exteraless.settings.OpenExteraChatsActivity;
+import app.exteraless.settings.OpenExteraCloudActivity;
 import app.exteraless.settings.OpenExteraGeneralActivity;
+import app.exteraless.settings.OpenExteraGlyphActivity;
 import app.exteraless.settings.OpenExteraOtherActivity;
 import app.exteraless.settings.OpenExteraSettingsActivity;
+import app.exteraless.settings.OpenExteraUpdatesActivity;
+import app.exteraless.shizuku.ShizukuSettingsActivity;
+import app.exteraless.tor.TorSettingsActivity;
 import tw.nekomimi.nekogram.settings.BaseNekoSettingsActivity;
 import tw.nekomimi.nekogram.settings.BaseNekoXSettingsActivity;
+import tw.nekomimi.nekogram.settings.GhostModeActivity;
 import tw.nekomimi.nekogram.settings.NekoAboutActivity;
 import tw.nekomimi.nekogram.settings.NekoEmojiSettingsActivity;
 import tw.nekomimi.nekogram.settings.NekoPasscodeSettingsActivity;
@@ -131,7 +141,18 @@ public class SettingsHelper {
 
     private static final Set<String> EXTERALESS_SCREENS = new HashSet<>(Arrays.asList(
             "settings", "general", "appearance", "chats", "plugins", "pillstack", "other",
-            "ayumoments", "navigation"));
+            "ayumoments", "navigation", "privacy", "powersaving",
+            "ota_updates", "updates", "update",
+            "plugin_store_settings", "plugin_store", "plugins_store",
+            "shizuku_settings", "shizuku",
+            "tor_settings", "tor", "tor_proxy",
+            "player_settings", "player",
+            "chip_folders_settings", "chip_folders", "chips",
+            "text_animation_settings", "text_animation",
+            "ai_settings", "ai",
+            "exteraless_cloud", "cloud",
+            "exteraless_glyph", "glyph",
+            "ghost_mode", "ghost"));
 
     public static boolean isDeepLink(String path) {
         if (path == null) {
@@ -160,33 +181,33 @@ public class SettingsHelper {
             case "moltengram":
             case "exteraless":
             case "exterams":
-                return HOST_MOLTENGRAM + "/settings";
+                return HOST_NAGRAM + "/settings";
             case "moltengram_general":
             case "exteraless_general":
             case "exterams_general":
-                return HOST_MOLTENGRAM + "/general";
+                return HOST_NAGRAM + "/general";
             case "moltengram_appearance":
             case "exteraless_appearance":
             case "exterams_appearance":
-                return HOST_MOLTENGRAM + "/appearance";
+                return HOST_NAGRAM + "/appearance";
             case "moltengram_chats":
             case "exteraless_chats":
             case "exterams_chats":
-                return HOST_MOLTENGRAM + "/chats";
+                return HOST_NAGRAM + "/chats";
             case "moltengram_other":
             case "exteraless_other":
             case "exterams_other":
-                return HOST_MOLTENGRAM + "/other";
+                return HOST_NAGRAM + "/other";
             case "moltengram_ayumoments":
             case "exteraless_ayumoments":
             case "exterams_ayumoments":
-                return HOST_MOLTENGRAM + "/ayumoments";
+                return HOST_NAGRAM + "/ayumoments";
             case "pillstack":
-                return HOST_MOLTENGRAM + "/pillstack";
+                return HOST_NAGRAM + "/pillstack";
             case "moltengram_navigation":
             case "exteraless_navigation":
             case "exterams_navigation":
-                return HOST_MOLTENGRAM + "/navigation";
+                return HOST_NAGRAM + "/navigation";
             default:
                 return HOST_NAGRAM + "/" + key;
         }
@@ -219,7 +240,7 @@ public class SettingsHelper {
         BaseNekoSettingsActivity neko_fragment = null;
         BaseNekoXSettingsActivity nekox_fragment = null;
         OpenExteraAppNavigationActivity navigation_fragment = null;
-        final String screen = exteraless ? segments.get(1) : nagramScreen(segments.size() == 1 ? null : segments.get(1), row);
+        final String screen = nagramScreen(segments.size() == 1 ? null : segments.get(1), row);
         if (screen != null) {
             switch (screen) {
                 case "settings":
@@ -259,6 +280,39 @@ public class SettingsHelper {
                     break;
                 case "powersaving":
                     fragment = new LiteModeSettingsActivity();
+                    break;
+                case "ota_updates":
+                    fragment = neko_fragment = new OpenExteraUpdatesActivity();
+                    break;
+                case "plugin_store_settings":
+                    fragment = neko_fragment = new PluginStoreSettingsActivity();
+                    break;
+                case "shizuku_settings":
+                    fragment = neko_fragment = new ShizukuSettingsActivity();
+                    break;
+                case "tor_settings":
+                    fragment = neko_fragment = new TorSettingsActivity();
+                    break;
+                case "player_settings":
+                    fragment = neko_fragment = new PlayerSettingsActivity();
+                    break;
+                case "chip_folders_settings":
+                    fragment = neko_fragment = new ChipFoldersSettingsActivity();
+                    break;
+                case "text_animation_settings":
+                    fragment = neko_fragment = new TextAnimationSettingsActivity();
+                    break;
+                case "ai_settings":
+                    fragment = neko_fragment = new AiSettingsActivity();
+                    break;
+                case "cloud":
+                    fragment = neko_fragment = new OpenExteraCloudActivity();
+                    break;
+                case "glyph":
+                    fragment = neko_fragment = new OpenExteraGlyphActivity();
+                    break;
+                case "ghost_mode":
+                    fragment = neko_fragment = new GhostModeActivity();
                     break;
                 default:
                     unknown.run();
@@ -305,6 +359,52 @@ public class SettingsHelper {
                 case "pillstack":
                     fragment = neko_fragment = new PillStackSettingsActivity();
                     break;
+                case "ota_updates":
+                case "updates":
+                    fragment = neko_fragment = new OpenExteraUpdatesActivity();
+                    break;
+                case "plugin_store_settings":
+                case "plugin_store":
+                case "plugins_store":
+                    fragment = neko_fragment = new PluginStoreSettingsActivity();
+                    break;
+                case "shizuku_settings":
+                case "shizuku":
+                    fragment = neko_fragment = new ShizukuSettingsActivity();
+                    break;
+                case "tor_settings":
+                case "tor":
+                    fragment = neko_fragment = new TorSettingsActivity();
+                    break;
+                case "player_settings":
+                case "player":
+                    fragment = neko_fragment = new PlayerSettingsActivity();
+                    break;
+                case "chip_folders_settings":
+                case "chip_folders":
+                case "chips":
+                    fragment = neko_fragment = new ChipFoldersSettingsActivity();
+                    break;
+                case "text_animation_settings":
+                case "text_animation":
+                    fragment = neko_fragment = new TextAnimationSettingsActivity();
+                    break;
+                case "ai_settings":
+                case "ai":
+                    fragment = neko_fragment = new AiSettingsActivity();
+                    break;
+                case "exteraless_cloud":
+                case "cloud":
+                    fragment = neko_fragment = new OpenExteraCloudActivity();
+                    break;
+                case "exteraless_glyph":
+                case "glyph":
+                    fragment = neko_fragment = new OpenExteraGlyphActivity();
+                    break;
+                case "ghost_mode":
+                case "ghost":
+                    fragment = neko_fragment = new GhostModeActivity();
+                    break;
                 case "send_logs":
                     sendLogs(activity, false);
                     return;
@@ -344,18 +444,112 @@ public class SettingsHelper {
         }
         String fallback;
         switch (segment) {
+            case "settings":
+            case "s":
+                fallback = "settings";
+                break;
             case "general":
             case "g":
+            case "exteraless_general":
+            case "moltengram_general":
+            case "exterams_general":
                 fallback = "general";
                 break;
             case "chat":
             case "chats":
             case "c":
+            case "exteraless_chats":
+            case "moltengram_chats":
+            case "exterams_chats":
                 fallback = "chats";
                 break;
             case "experimental":
             case "e":
+            case "other":
+            case "exteraless_other":
+            case "moltengram_other":
+            case "exterams_other":
                 fallback = "other";
+                break;
+            case "appearance":
+            case "a":
+            case "exteraless_appearance":
+            case "moltengram_appearance":
+            case "exterams_appearance":
+                fallback = "appearance";
+                break;
+            case "ayumoments":
+            case "ayu":
+            case "exteraless_ayumoments":
+            case "moltengram_ayumoments":
+            case "exterams_ayumoments":
+                fallback = "ayumoments";
+                break;
+            case "pillstack":
+                fallback = "pillstack";
+                break;
+            case "plugins":
+                fallback = "plugins";
+                break;
+            case "navigation":
+            case "exteraless_navigation":
+            case "moltengram_navigation":
+            case "exterams_navigation":
+                fallback = "navigation";
+                break;
+            case "privacy":
+                fallback = "privacy";
+                break;
+            case "powersaving":
+                fallback = "powersaving";
+                break;
+            case "ota_updates":
+            case "updates":
+            case "update":
+                fallback = "ota_updates";
+                break;
+            case "plugin_store_settings":
+            case "plugin_store":
+            case "plugins_store":
+                fallback = "plugin_store_settings";
+                break;
+            case "shizuku_settings":
+            case "shizuku":
+                fallback = "shizuku_settings";
+                break;
+            case "tor_settings":
+            case "tor":
+            case "tor_proxy":
+                fallback = "tor_settings";
+                break;
+            case "player_settings":
+            case "player":
+                fallback = "player_settings";
+                break;
+            case "chip_folders_settings":
+            case "chip_folders":
+            case "chips":
+                fallback = "chip_folders_settings";
+                break;
+            case "text_animation_settings":
+            case "text_animation":
+                fallback = "text_animation_settings";
+                break;
+            case "ai_settings":
+            case "ai":
+                fallback = "ai_settings";
+                break;
+            case "exteraless_cloud":
+            case "cloud":
+                fallback = "cloud";
+                break;
+            case "exteraless_glyph":
+            case "glyph":
+                fallback = "glyph";
+                break;
+            case "ghost_mode":
+            case "ghost":
+                fallback = "ghost_mode";
                 break;
             default:
                 return null;
@@ -416,6 +610,13 @@ public class SettingsHelper {
         exteralessFragments.add(new OpenExteraAyuMomentsActivity());
         exteralessFragments.add(new PillStackSettingsActivity());
         exteralessFragments.add(new AiSettingsActivity());
+        exteralessFragments.add(new OpenExteraUpdatesActivity());
+        exteralessFragments.add(new PluginStoreSettingsActivity());
+        exteralessFragments.add(new ShizukuSettingsActivity());
+        exteralessFragments.add(new TorSettingsActivity());
+        exteralessFragments.add(new PlayerSettingsActivity());
+        exteralessFragments.add(new ChipFoldersSettingsActivity());
+        exteralessFragments.add(new TextAnimationSettingsActivity());
 
         String e_title = getString(R.string.OpenExtera);
         for (BaseNekoSettingsActivity fragment : exteralessFragments) {

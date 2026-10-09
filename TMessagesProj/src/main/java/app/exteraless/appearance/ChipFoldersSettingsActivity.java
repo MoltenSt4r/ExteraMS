@@ -4,83 +4,82 @@ import static org.telegram.messenger.LocaleController.getString;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
-import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.AlertDialog;
-import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Cells.TextCheckCell;
+import org.telegram.ui.Cells.TextInfoPrivacyCell;
+import org.telegram.ui.Cells.TextSettingsCell;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.Paint.ColorPickerBottomSheet;
-import org.telegram.ui.Components.UItem;
-import org.telegram.ui.Components.UniversalAdapter;
-import org.telegram.ui.Components.UniversalRecyclerView;
+import org.telegram.ui.Components.RecyclerListView;
 
-import java.util.ArrayList;
+import tw.nekomimi.nekogram.settings.BaseNekoSettingsActivity;
+import tw.nekomimi.nekogram.ui.cells.HeaderCell;
 
 /**
- * Settings screen for Material 3 Chip Folders with live real-time FoldersPreviewCell.
+ * Settings screen for Material 3 Chip Folders with live real-time FoldersPreviewCell and MD3 rounded cards.
  */
-public class ChipFoldersSettingsActivity extends BaseFragment {
+public class ChipFoldersSettingsActivity extends BaseNekoSettingsActivity {
 
-    private static final int ID_PREVIEW = 1;
-    private static final int ID_ENABLE = 2;
+    private static final int TYPE_CUSTOM_PREVIEW = 100;
+    private static final int TYPE_SLIDER = 101;
 
-    private static final int ID_STYLE = 10;
-    private static final int ID_MD3_COLORS = 11;
-    private static final int ID_COLOR_ACTIVE = 12;
-    private static final int ID_COLOR_INACTIVE = 13;
-    private static final int ID_COLOR_TEXT_ACTIVE = 14;
-    private static final int ID_COLOR_TEXT_INACTIVE = 15;
+    private int previewRow;
+    private int infoRow;
+    private int enableRow;
+    private int enableShadowRow;
 
-    private static final int ID_SHAPE = 20;
-    private static final int ID_RADIUS_ACTIVE = 21;
-    private static final int ID_RADIUS_OUTER = 22;
-    private static final int ID_RADIUS_INNER = 23;
-    private static final int ID_RADIUS_INACTIVE = 24;
-    private static final int ID_RADIUS_ALT_ACTIVE = 25;
-    private static final int ID_RADIUS_ALT_OUTER = 26;
+    private int styleHeaderRow;
+    private int styleRow;
+    private int md3ColorsRow;
+    private int colorActiveRow;
+    private int colorInactiveRow;
+    private int colorTextActiveRow;
+    private int colorTextInactiveRow;
+    private int shapeRow;
+    private int radiusActiveRow;
+    private int radiusOuterRow;
+    private int radiusInnerRow;
+    private int radiusAltActiveRow;
+    private int radiusAltOuterRow;
+    private int radiusCustomActiveRow;
+    private int radiusInactiveRow;
+    private int animRow;
+    private int animSpeedRow;
+    private int styleShadowRow;
 
-    private static final int ID_ANIM = 30;
-    private static final int ID_ANIM_SPEED = 31;
+    private int sizeHeaderRow;
+    private int sizeRow;
+    private int heightRow;
+    private int spacingRow;
+    private int spacingCustomRow;
+    private int bottomPaddingRow;
+    private int listTopPaddingRow;
+    private int sizeShadowRow;
 
-    private static final int ID_SIZE = 40;
-    private static final int ID_HEIGHT = 41;
-    private static final int ID_SPACING = 42;
-    private static final int ID_SPACING_CUSTOM = 43;
-    private static final int ID_BOTTOM_PADDING = 44;
-    private static final int ID_LIST_TOP_PADDING = 45;
+    private int moreHeaderRow;
+    private int scrollDividerRow;
+    private int scrollDividerInfoRow;
 
-    private static final int ID_SCROLL_DIVIDER = 50;
-
-    private UniversalRecyclerView listView;
     private FoldersPreviewCell foldersPreviewCell;
 
     @Override
-    public View createView(Context context) {
-        actionBar.setBackButtonImage(R.drawable.ic_ab_back);
-        actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(getString(R.string.OEAppearanceChipFolders));
-        actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
-            @Override
-            public void onItemClick(int id) {
-                if (id == -1) {
-                    finishFragment();
-                }
-            }
-        });
+    protected String getKey() {
+        return "chip_folders_settings";
+    }
 
-        FrameLayout contentView = new FrameLayout(context);
-        contentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
-
-        listView = new UniversalRecyclerView(this, this::fillItems, this::onItemClick, null);
-        contentView.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
-        actionBar.setAdaptiveBackground(listView);
-
-        fragmentView = contentView;
-        return fragmentView;
+    @Override
+    protected String getActionBarTitle() {
+        return getString(R.string.OEAppearanceChipFolders);
     }
 
     @Override
@@ -94,6 +93,140 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
         }
     }
 
+    @Override
+    protected void updateRows() {
+        super.updateRows();
+
+        previewRow = addRow("preview");
+        infoRow = addRow("info");
+        enableRow = addRow("enable");
+        enableShadowRow = addRow();
+
+        boolean enabled = ChipFoldersController.getInstance().isEnabled();
+        if (enabled) {
+            styleHeaderRow = addRow("styleHeader");
+            styleRow = addRow("style");
+            md3ColorsRow = addRow("md3Colors");
+
+            boolean md3Colors = AppearanceConfig.chipFoldersMd3Colors.Bool();
+            if (!md3Colors) {
+                colorActiveRow = addRow("colorActive");
+                if (AppearanceConfig.chipFoldersStyle.Int() != 1) {
+                    colorInactiveRow = addRow("colorInactive");
+                } else {
+                    colorInactiveRow = -1;
+                }
+                colorTextActiveRow = addRow("colorTextActive");
+                colorTextInactiveRow = addRow("colorTextInactive");
+            } else {
+                colorActiveRow = -1;
+                colorInactiveRow = -1;
+                colorTextActiveRow = -1;
+                colorTextInactiveRow = -1;
+            }
+
+            shapeRow = addRow("shape");
+            int shape = AppearanceConfig.chipFoldersShape.Int();
+            if (shape == 5) {
+                radiusActiveRow = addRow("radiusActive");
+                radiusOuterRow = addRow("radiusOuter");
+                radiusInnerRow = addRow("radiusInner");
+                radiusAltActiveRow = -1;
+                radiusAltOuterRow = -1;
+                radiusCustomActiveRow = -1;
+                radiusInactiveRow = -1;
+            } else if (shape == 6) {
+                radiusActiveRow = -1;
+                radiusOuterRow = -1;
+                radiusInnerRow = -1;
+                radiusAltActiveRow = addRow("radiusAltActive");
+                radiusAltOuterRow = addRow("radiusAltOuter");
+                radiusCustomActiveRow = -1;
+                radiusInactiveRow = -1;
+            } else if (shape == 7) {
+                radiusActiveRow = -1;
+                radiusOuterRow = -1;
+                radiusInnerRow = -1;
+                radiusAltActiveRow = -1;
+                radiusAltOuterRow = -1;
+                radiusCustomActiveRow = addRow("radiusCustomActive");
+                radiusInactiveRow = addRow("radiusInactive");
+            } else {
+                radiusActiveRow = -1;
+                radiusOuterRow = -1;
+                radiusInnerRow = -1;
+                radiusAltActiveRow = -1;
+                radiusAltOuterRow = -1;
+                radiusCustomActiveRow = -1;
+                radiusInactiveRow = -1;
+            }
+
+            animRow = addRow("anim");
+            if (AppearanceConfig.chipFoldersAnim.Int() != 0) {
+                animSpeedRow = addRow("animSpeed");
+            } else {
+                animSpeedRow = -1;
+            }
+            styleShadowRow = addRow();
+
+            sizeHeaderRow = addRow("sizeHeader");
+            sizeRow = addRow("size");
+            if (AppearanceConfig.chipFoldersSize.Int() == 3) {
+                heightRow = addRow("height");
+            } else {
+                heightRow = -1;
+            }
+            spacingRow = addRow("spacing");
+            if (AppearanceConfig.chipFoldersSpacing.Int() == 3) {
+                spacingCustomRow = addRow("spacingCustom");
+            } else {
+                spacingCustomRow = -1;
+            }
+            bottomPaddingRow = addRow("bottomPadding");
+            listTopPaddingRow = addRow("listTopPadding");
+            sizeShadowRow = addRow();
+
+            moreHeaderRow = addRow("moreHeader");
+            scrollDividerRow = addRow("scrollDivider");
+            scrollDividerInfoRow = addRow("scrollDividerInfo");
+        } else {
+            styleHeaderRow = -1;
+            styleRow = -1;
+            md3ColorsRow = -1;
+            colorActiveRow = -1;
+            colorInactiveRow = -1;
+            colorTextActiveRow = -1;
+            colorTextInactiveRow = -1;
+            shapeRow = -1;
+            radiusActiveRow = -1;
+            radiusOuterRow = -1;
+            radiusInnerRow = -1;
+            radiusAltActiveRow = -1;
+            radiusAltOuterRow = -1;
+            radiusCustomActiveRow = -1;
+            radiusInactiveRow = -1;
+            animRow = -1;
+            animSpeedRow = -1;
+            styleShadowRow = -1;
+            sizeHeaderRow = -1;
+            sizeRow = -1;
+            heightRow = -1;
+            spacingRow = -1;
+            spacingCustomRow = -1;
+            bottomPaddingRow = -1;
+            listTopPaddingRow = -1;
+            sizeShadowRow = -1;
+            moreHeaderRow = -1;
+            scrollDividerRow = -1;
+            scrollDividerInfoRow = -1;
+        }
+    }
+
+    @Override
+    protected BaseListAdapter createAdapter(Context context) {
+        return new ListAdapter(context);
+    }
+
     private View createPreview(Context context) {
         if (foldersPreviewCell == null) {
             foldersPreviewCell = new FoldersPreviewCell(context, getResourceProvider());
@@ -102,148 +235,240 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
         return foldersPreviewCell;
     }
 
-    private View createSlider(String title, int min, int max, int current, AltSeekbar.OnDrag onDrag) {
-        Context context = getContext();
-        AltSeekbar bar = new AltSeekbar(context, onDrag, min, max, title, String.valueOf(min), String.valueOf(max));
-        bar.setProgress(current);
-        bar.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-        return bar;
-    }
-
-    private void fillItems(ArrayList<UItem> items, UniversalAdapter adapter) {
-        items.add(UItem.asCustom(ID_PREVIEW, createPreview(getContext())));
-        items.add(UItem.asShadow(getString(R.string.OEAppearanceChipFoldersInfo)));
-
-        boolean enabled = ChipFoldersController.getInstance().isEnabled();
-        items.add(UItem.asCheck(ID_ENABLE, getString(R.string.OEAppearanceChipFoldersEnable)).setChecked(enabled));
-
-        if (!enabled) {
-            items.add(UItem.asShadow(null));
-            return;
-        }
-
-        // Style
-        items.add(UItem.asHeader(getString(R.string.OEAppearanceChipFoldersStyle)));
-        items.add(UItem.asButton(ID_STYLE, getString(R.string.OEAppearanceChipFoldersStyle),
-                getStyleName(AppearanceConfig.chipFoldersStyle.Int())));
-
-        boolean md3Colors = AppearanceConfig.chipFoldersMd3Colors.Bool();
-        items.add(UItem.asCheck(ID_MD3_COLORS, getString(R.string.OEAppearanceChipFoldersMd3Colors))
-                .setChecked(md3Colors));
-
-        if (!md3Colors) {
-            items.add(UItem.asButton(ID_COLOR_ACTIVE, getString(R.string.OEAppearanceChipFoldersColorActive)));
-            if (AppearanceConfig.chipFoldersStyle.Int() != 1) { // not outlined
-                items.add(UItem.asButton(ID_COLOR_INACTIVE, getString(R.string.OEAppearanceChipFoldersColorInactive)));
-            }
-            items.add(UItem.asButton(ID_COLOR_TEXT_ACTIVE, getString(R.string.OEAppearanceChipFoldersColorTextActive)));
-            items.add(UItem.asButton(ID_COLOR_TEXT_INACTIVE, getString(R.string.OEAppearanceChipFoldersColorTextInactive)));
-        }
-
-        // Shape
-        items.add(UItem.asButton(ID_SHAPE, getString(R.string.OEAppearanceChipFoldersShape),
-                getShapeName(AppearanceConfig.chipFoldersShape.Int())));
-
-        int shape = AppearanceConfig.chipFoldersShape.Int();
-        if (shape == 5) { // Expressive
-            items.add(UItem.asCustom(ID_RADIUS_ACTIVE, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersRadiusActive), 0, 24,
-                    AppearanceConfig.chipFoldersRadiusActive.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusActive.setConfigInt(Math.round(val)))
-            )));
-            items.add(UItem.asCustom(ID_RADIUS_OUTER, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersRadiusOuter), 0, 24,
-                    AppearanceConfig.chipFoldersRadiusOuter.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusOuter.setConfigInt(Math.round(val)))
-            )));
-            items.add(UItem.asCustom(ID_RADIUS_INNER, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersRadiusInner), 0, 24,
-                    AppearanceConfig.chipFoldersRadiusInner.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusInner.setConfigInt(Math.round(val)))
-            )));
-        } else if (shape == 6) { // Alternative
-            items.add(UItem.asCustom(ID_RADIUS_ALT_ACTIVE, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersRadiusActive), 0, 24,
-                    AppearanceConfig.chipFoldersRadiusAltActive.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusAltActive.setConfigInt(Math.round(val)))
-            )));
-            items.add(UItem.asCustom(ID_RADIUS_ALT_OUTER, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersRadiusOuter), 0, 24,
-                    AppearanceConfig.chipFoldersRadiusAltOuter.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusAltOuter.setConfigInt(Math.round(val)))
-            )));
-        } else if (shape == 7) { // Custom
-            items.add(UItem.asCustom(ID_RADIUS_ACTIVE, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersRadiusActive), 0, 24,
-                    AppearanceConfig.chipFoldersRadiusCustomActive.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusCustomActive.setConfigInt(Math.round(val)))
-            )));
-            items.add(UItem.asCustom(ID_RADIUS_INACTIVE, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersRadiusInactive), 0, 24,
-                    AppearanceConfig.chipFoldersRadiusInactive.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusInactive.setConfigInt(Math.round(val)))
-            )));
-        }
-
-        // Animation
-        items.add(UItem.asButton(ID_ANIM, getString(R.string.OEAppearanceChipFoldersAnim),
-                getAnimName(AppearanceConfig.chipFoldersAnim.Int())));
-        if (AppearanceConfig.chipFoldersAnim.Int() != 0) {
-            items.add(UItem.asCustom(ID_ANIM_SPEED, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersAnimSpeed), 50, 200,
-                    AppearanceConfig.chipFoldersAnimSpeed.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersAnimSpeed.setConfigInt(Math.round(val)))
-            )));
-        }
-        items.add(UItem.asShadow(null));
-
-        // Bar Size & Spacing
-        items.add(UItem.asHeader(getString(R.string.OEAppearanceChipFoldersSize)));
-        items.add(UItem.asButton(ID_SIZE, getString(R.string.OEAppearanceChipFoldersSize),
-                getSizeName(AppearanceConfig.chipFoldersSize.Int())));
-        if (AppearanceConfig.chipFoldersSize.Int() == 3) { // Custom
-            items.add(UItem.asCustom(ID_HEIGHT, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersHeight), 36, 64,
-                    AppearanceConfig.chipFoldersCustomHeight.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersCustomHeight.setConfigInt(Math.round(val)))
-            )));
-        }
-
-        items.add(UItem.asButton(ID_SPACING, getString(R.string.OEAppearanceChipFoldersSpacing),
-                getSpacingName(AppearanceConfig.chipFoldersSpacing.Int())));
-        if (AppearanceConfig.chipFoldersSpacing.Int() == 3) { // Custom
-            items.add(UItem.asCustom(ID_SPACING_CUSTOM, createSlider(
-                    getString(R.string.OEAppearanceChipFoldersCustomSpacing), 0, 24,
-                    AppearanceConfig.chipFoldersCustomSpacing.Int(),
-                    val -> onSettingChanged(() -> AppearanceConfig.chipFoldersCustomSpacing.setConfigInt(Math.round(val)))
-            )));
-        }
-
-        items.add(UItem.asCustom(ID_BOTTOM_PADDING, createSlider(
-                getString(R.string.OEAppearanceChipFoldersBottomPadding), 0, 24,
-                AppearanceConfig.chipFoldersBarBottomPadding.Int(),
-                val -> onSettingChanged(() -> AppearanceConfig.chipFoldersBarBottomPadding.setConfigInt(Math.round(val)))
-        )));
-
-        items.add(UItem.asCustom(ID_LIST_TOP_PADDING, createSlider(
-                getString(R.string.OEAppearanceChipFoldersListTopPadding), 0, 24,
-                AppearanceConfig.chipFoldersListTopPadding.Int(),
-                val -> onSettingChanged(() -> AppearanceConfig.chipFoldersListTopPadding.setConfigInt(Math.round(val)))
-        )));
-        items.add(UItem.asShadow(null));
-
-        // More
-        items.add(UItem.asHeader(getString(R.string.More)));
-        items.add(UItem.asCheck(ID_SCROLL_DIVIDER, getString(R.string.OEAppearanceChipFoldersScrollDivider))
-                .setChecked(AppearanceConfig.chipFoldersScrollDivider.Bool()));
-        items.add(UItem.asShadow(getString(R.string.OEAppearanceChipFoldersScrollDividerInfo)));
-    }
-
     private void onSettingChanged(Runnable action) {
         action.run();
         ChipFoldersController.getInstance().updateSettings();
         if (foldersPreviewCell != null) {
             ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
+        }
+    }
+
+    @Override
+    protected void onItemClick(View view, int position, float x, float y) {
+        if (position == enableRow) {
+            boolean enabled = !AppearanceConfig.chipFoldersEnabled.Bool();
+            AppearanceConfig.chipFoldersEnabled.setConfigBool(enabled);
+            if (enabled) {
+                ChipFoldersController.getInstance().start();
+                if (foldersPreviewCell != null) {
+                    ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
+                }
+            } else {
+                ChipFoldersController.getInstance().stop();
+            }
+            getNotificationCenter().postNotificationName(NotificationCenter.dialogFiltersUpdated);
+            updateRows();
+            if (listAdapter != null) {
+                listAdapter.notifyDataSetChanged();
+            }
+        } else if (position == md3ColorsRow) {
+            AppearanceConfig.chipFoldersMd3Colors.setConfigBool(!AppearanceConfig.chipFoldersMd3Colors.Bool());
+            ChipFoldersController.getInstance().updateSettings();
+            if (foldersPreviewCell != null) {
+                ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
+            }
+            updateRows();
+            if (listAdapter != null) {
+                listAdapter.notifyDataSetChanged();
+            }
+        } else if (position == scrollDividerRow) {
+            AppearanceConfig.chipFoldersScrollDivider.setConfigBool(!AppearanceConfig.chipFoldersScrollDivider.Bool());
+            ChipFoldersController.getInstance().updateSettings();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(AppearanceConfig.chipFoldersScrollDivider.Bool());
+            }
+        } else if (position == styleRow) {
+            showStyleDialog();
+        } else if (position == shapeRow) {
+            showShapeDialog();
+        } else if (position == animRow) {
+            showAnimDialog();
+        } else if (position == sizeRow) {
+            showSizeDialog();
+        } else if (position == spacingRow) {
+            showSpacingDialog();
+        } else if (position == colorActiveRow) {
+            showColorPicker(AppearanceConfig.chipFoldersColorActive);
+        } else if (position == colorInactiveRow) {
+            showColorPicker(AppearanceConfig.chipFoldersColorInactive);
+        } else if (position == colorTextActiveRow) {
+            showColorPicker(AppearanceConfig.chipFoldersColorTextActive);
+        } else if (position == colorTextInactiveRow) {
+            showColorPicker(AppearanceConfig.chipFoldersColorTextInactive);
+        }
+    }
+
+    public static class SliderCell extends FrameLayout {
+        private AltSeekbar altSeekbar;
+
+        public SliderCell(Context context) {
+            super(context);
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        }
+
+        public void set(String title, int min, int max, int current, AltSeekbar.OnDrag onDrag) {
+            if (altSeekbar != null) {
+                removeView(altSeekbar);
+            }
+            altSeekbar = new AltSeekbar(getContext(), onDrag, min, max, title, String.valueOf(min), String.valueOf(max));
+            altSeekbar.setProgress(current);
+            addView(altSeekbar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+        }
+    }
+
+    private class ListAdapter extends BaseListAdapter {
+
+        public ListAdapter(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean isEnabled(RecyclerView.ViewHolder holder) {
+            int type = holder.getItemViewType();
+            return type == TYPE_CHECK || type == TYPE_SETTINGS || type == TYPE_SLIDER;
+        }
+
+        @Override
+        protected boolean isSectionContent(int viewType) {
+            if (viewType == TYPE_CUSTOM_PREVIEW || viewType == TYPE_SLIDER) {
+                return true;
+            }
+            return super.isSectionContent(viewType);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position == previewRow) {
+                return TYPE_CUSTOM_PREVIEW;
+            } else if (position == infoRow || position == scrollDividerInfoRow) {
+                return TYPE_INFO_PRIVACY;
+            } else if (position == styleHeaderRow || position == sizeHeaderRow || position == moreHeaderRow) {
+                return TYPE_HEADER;
+            } else if (position == enableRow || position == md3ColorsRow || position == scrollDividerRow) {
+                return TYPE_CHECK;
+            } else if (position == styleRow || position == shapeRow || position == animRow || position == sizeRow
+                    || position == spacingRow || position == colorActiveRow || position == colorInactiveRow
+                    || position == colorTextActiveRow || position == colorTextInactiveRow) {
+                return TYPE_SETTINGS;
+            } else if (position == radiusActiveRow || position == radiusOuterRow || position == radiusInnerRow
+                    || position == radiusAltActiveRow || position == radiusAltOuterRow || position == radiusCustomActiveRow
+                    || position == radiusInactiveRow || position == animSpeedRow || position == heightRow
+                    || position == spacingCustomRow || position == bottomPaddingRow || position == listTopPaddingRow) {
+                return TYPE_SLIDER;
+            } else if (position == enableShadowRow || position == styleShadowRow || position == sizeShadowRow) {
+                return TYPE_SHADOW;
+            }
+            return TYPE_SETTINGS;
+        }
+
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            if (viewType == TYPE_CUSTOM_PREVIEW) {
+                FrameLayout container = new FrameLayout(mContext);
+                container.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                container.setPadding(0, AndroidUtilities.dp(8), 0, AndroidUtilities.dp(8));
+                container.addView(createPreview(mContext), LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+                container.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                return new RecyclerListView.Holder(container);
+            } else if (viewType == TYPE_SLIDER) {
+                SliderCell cell = new SliderCell(mContext);
+                cell.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                return new RecyclerListView.Holder(cell);
+            }
+            return super.onCreateViewHolder(parent, viewType);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, boolean partial) {
+            int type = holder.getItemViewType();
+            if (type == TYPE_HEADER) {
+                HeaderCell cell = (HeaderCell) holder.itemView;
+                if (position == styleHeaderRow) {
+                    cell.setText(getString(R.string.OEAppearanceChipFoldersStyle));
+                } else if (position == sizeHeaderRow) {
+                    cell.setText(getString(R.string.OEAppearanceChipFoldersSize));
+                } else if (position == moreHeaderRow) {
+                    cell.setText(getString(R.string.More));
+                }
+            } else if (type == TYPE_CHECK) {
+                TextCheckCell cell = (TextCheckCell) holder.itemView;
+                if (position == enableRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearanceChipFoldersEnable), ChipFoldersController.getInstance().isEnabled(), false);
+                } else if (position == md3ColorsRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearanceChipFoldersMd3Colors), AppearanceConfig.chipFoldersMd3Colors.Bool(), true);
+                } else if (position == scrollDividerRow) {
+                    cell.setTextAndCheck(getString(R.string.OEAppearanceChipFoldersScrollDivider), AppearanceConfig.chipFoldersScrollDivider.Bool(), false);
+                }
+            } else if (type == TYPE_SETTINGS) {
+                TextSettingsCell cell = (TextSettingsCell) holder.itemView;
+                cell.setIcon(0);
+                if (position == styleRow) {
+                    cell.setTextAndValue(getString(R.string.OEAppearanceChipFoldersStyle), getStyleName(AppearanceConfig.chipFoldersStyle.Int()), true);
+                } else if (position == colorActiveRow) {
+                    cell.setText(getString(R.string.OEAppearanceChipFoldersColorActive), true);
+                } else if (position == colorInactiveRow) {
+                    cell.setText(getString(R.string.OEAppearanceChipFoldersColorInactive), true);
+                } else if (position == colorTextActiveRow) {
+                    cell.setText(getString(R.string.OEAppearanceChipFoldersColorTextActive), true);
+                } else if (position == colorTextInactiveRow) {
+                    cell.setText(getString(R.string.OEAppearanceChipFoldersColorTextInactive), true);
+                } else if (position == shapeRow) {
+                    cell.setTextAndValue(getString(R.string.OEAppearanceChipFoldersShape), getShapeName(AppearanceConfig.chipFoldersShape.Int()), true);
+                } else if (position == animRow) {
+                    cell.setTextAndValue(getString(R.string.OEAppearanceChipFoldersAnim), getAnimName(AppearanceConfig.chipFoldersAnim.Int()), AppearanceConfig.chipFoldersAnim.Int() != 0);
+                } else if (position == sizeRow) {
+                    cell.setTextAndValue(getString(R.string.OEAppearanceChipFoldersSize), getSizeName(AppearanceConfig.chipFoldersSize.Int()), true);
+                } else if (position == spacingRow) {
+                    cell.setTextAndValue(getString(R.string.OEAppearanceChipFoldersSpacing), getSpacingName(AppearanceConfig.chipFoldersSpacing.Int()), true);
+                }
+            } else if (type == TYPE_SLIDER) {
+                SliderCell cell = (SliderCell) holder.itemView;
+                if (position == radiusActiveRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersRadiusActive), 0, 24, AppearanceConfig.chipFoldersRadiusActive.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusActive.setConfigInt(Math.round(val))));
+                } else if (position == radiusOuterRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersRadiusOuter), 0, 24, AppearanceConfig.chipFoldersRadiusOuter.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusOuter.setConfigInt(Math.round(val))));
+                } else if (position == radiusInnerRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersRadiusInner), 0, 24, AppearanceConfig.chipFoldersRadiusInner.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusInner.setConfigInt(Math.round(val))));
+                } else if (position == radiusAltActiveRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersRadiusActive), 0, 24, AppearanceConfig.chipFoldersRadiusAltActive.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusAltActive.setConfigInt(Math.round(val))));
+                } else if (position == radiusAltOuterRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersRadiusOuter), 0, 24, AppearanceConfig.chipFoldersRadiusAltOuter.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusAltOuter.setConfigInt(Math.round(val))));
+                } else if (position == radiusCustomActiveRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersRadiusActive), 0, 24, AppearanceConfig.chipFoldersRadiusCustomActive.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusCustomActive.setConfigInt(Math.round(val))));
+                } else if (position == radiusInactiveRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersRadiusInactive), 0, 24, AppearanceConfig.chipFoldersRadiusInactive.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersRadiusInactive.setConfigInt(Math.round(val))));
+                } else if (position == animSpeedRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersAnimSpeed), 50, 200, AppearanceConfig.chipFoldersAnimSpeed.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersAnimSpeed.setConfigInt(Math.round(val))));
+                } else if (position == heightRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersHeight), 36, 64, AppearanceConfig.chipFoldersCustomHeight.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersCustomHeight.setConfigInt(Math.round(val))));
+                } else if (position == spacingCustomRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersCustomSpacing), 0, 24, AppearanceConfig.chipFoldersCustomSpacing.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersCustomSpacing.setConfigInt(Math.round(val))));
+                } else if (position == bottomPaddingRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersBottomPadding), 0, 24, AppearanceConfig.chipFoldersBarBottomPadding.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersBarBottomPadding.setConfigInt(Math.round(val))));
+                } else if (position == listTopPaddingRow) {
+                    cell.set(getString(R.string.OEAppearanceChipFoldersListTopPadding), 0, 24, AppearanceConfig.chipFoldersListTopPadding.Int(),
+                            val -> onSettingChanged(() -> AppearanceConfig.chipFoldersListTopPadding.setConfigInt(Math.round(val))));
+                }
+            } else if (type == TYPE_INFO_PRIVACY) {
+                TextInfoPrivacyCell cell = (TextInfoPrivacyCell) holder.itemView;
+                if (position == infoRow) {
+                    cell.setText(getString(R.string.OEAppearanceChipFoldersInfo));
+                } else if (position == scrollDividerInfoRow) {
+                    cell.setText(getString(R.string.OEAppearanceChipFoldersScrollDividerInfo));
+                }
+            }
         }
     }
 
@@ -325,52 +550,6 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
         }
     }
 
-    private void onItemClick(UItem item, View view, int position, float x, float y) {
-        if (item.id == ID_ENABLE) {
-            boolean enabled = !AppearanceConfig.chipFoldersEnabled.Bool();
-            AppearanceConfig.chipFoldersEnabled.setConfigBool(enabled);
-            if (enabled) {
-                ChipFoldersController.getInstance().start();
-                if (foldersPreviewCell != null) {
-                    ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
-                }
-            } else {
-                ChipFoldersController.getInstance().stop();
-            }
-            getNotificationCenter().postNotificationName(NotificationCenter.dialogFiltersUpdated);
-            listView.adapter.update(true);
-        } else if (item.id == ID_MD3_COLORS) {
-            AppearanceConfig.chipFoldersMd3Colors.setConfigBool(!AppearanceConfig.chipFoldersMd3Colors.Bool());
-            ChipFoldersController.getInstance().updateSettings();
-            if (foldersPreviewCell != null) {
-                ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
-            }
-            listView.adapter.update(true);
-        } else if (item.id == ID_SCROLL_DIVIDER) {
-            AppearanceConfig.chipFoldersScrollDivider.setConfigBool(!AppearanceConfig.chipFoldersScrollDivider.Bool());
-            ChipFoldersController.getInstance().updateSettings();
-            listView.adapter.update(true);
-        } else if (item.id == ID_STYLE) {
-            showStyleDialog();
-        } else if (item.id == ID_SHAPE) {
-            showShapeDialog();
-        } else if (item.id == ID_ANIM) {
-            showAnimDialog();
-        } else if (item.id == ID_SIZE) {
-            showSizeDialog();
-        } else if (item.id == ID_SPACING) {
-            showSpacingDialog();
-        } else if (item.id == ID_COLOR_ACTIVE) {
-            showColorPicker(AppearanceConfig.chipFoldersColorActive);
-        } else if (item.id == ID_COLOR_INACTIVE) {
-            showColorPicker(AppearanceConfig.chipFoldersColorInactive);
-        } else if (item.id == ID_COLOR_TEXT_ACTIVE) {
-            showColorPicker(AppearanceConfig.chipFoldersColorTextActive);
-        } else if (item.id == ID_COLOR_TEXT_INACTIVE) {
-            showColorPicker(AppearanceConfig.chipFoldersColorTextInactive);
-        }
-    }
-
     private void showStyleDialog() {
         CharSequence[] items = new CharSequence[]{
                 getString(R.string.OEAppearanceChipFoldersStyleFilled),
@@ -386,7 +565,8 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
                 ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
             }
             dialog.dismiss();
-            listView.adapter.update(true);
+            updateRows();
+            if (listAdapter != null) listAdapter.notifyDataSetChanged();
         });
         builder.setNegativeButton(getString(R.string.Cancel), null);
         showDialog(builder.create());
@@ -412,7 +592,8 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
                 ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
             }
             dialog.dismiss();
-            listView.adapter.update(true);
+            updateRows();
+            if (listAdapter != null) listAdapter.notifyDataSetChanged();
         });
         builder.setNegativeButton(getString(R.string.Cancel), null);
         showDialog(builder.create());
@@ -435,7 +616,8 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
                 ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
             }
             dialog.dismiss();
-            listView.adapter.update(true);
+            updateRows();
+            if (listAdapter != null) listAdapter.notifyDataSetChanged();
         });
         builder.setNegativeButton(getString(R.string.Cancel), null);
         showDialog(builder.create());
@@ -457,7 +639,8 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
                 ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
             }
             dialog.dismiss();
-            listView.adapter.update(true);
+            updateRows();
+            if (listAdapter != null) listAdapter.notifyDataSetChanged();
         });
         builder.setNegativeButton(getString(R.string.Cancel), null);
         showDialog(builder.create());
@@ -479,7 +662,8 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
                 ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
             }
             dialog.dismiss();
-            listView.adapter.update(true);
+            updateRows();
+            if (listAdapter != null) listAdapter.notifyDataSetChanged();
         });
         builder.setNegativeButton(getString(R.string.Cancel), null);
         showDialog(builder.create());
@@ -498,7 +682,7 @@ public class ChipFoldersSettingsActivity extends BaseFragment {
             if (foldersPreviewCell != null) {
                 ChipFoldersController.getInstance().refreshPreview(foldersPreviewCell);
             }
-            listView.adapter.update(true);
+            if (listAdapter != null) listAdapter.notifyDataSetChanged();
         });
         sheet.show();
     }
